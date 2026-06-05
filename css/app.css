@@ -698,7 +698,7 @@ a {
   border-radius: 11px;
   display: inline-grid;
   place-items: center;
-  background: #f3f6ff;
+  background: transparent;
   overflow: hidden;
   font-size: 1rem;
 }
@@ -2983,8 +2983,8 @@ body {
   flex: 0 0 82px;
   border-radius: calc(var(--button-radius, 4px) + 16px);
   margin: -18px 2px -18px -34px;
-  background: color-mix(in srgb, var(--orange) 16%, white);
-  box-shadow: 0 10px 24px rgba(var(--primary-rgb, 255, 121, 0), .10);
+  background: transparent;
+  box-shadow: none;
   opacity: .98;
 }
 
@@ -2992,7 +2992,7 @@ body {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  padding: 5px;
+  padding: 0;
 }
 
 .subject-row-right {
@@ -3010,41 +3010,30 @@ body {
 }
 
 @media (min-width: 941px) {
+  /* v9: se revierte el layout de pestañas superiores en PC.
+     Las asignaturas vuelven al panel izquierdo y el detalle queda a la derecha. */
   .student-workspace {
-    display: block;
+    display: grid;
+    grid-template-columns: minmax(230px, 25%) minmax(0, 1fr);
+    gap: 18px;
+    align-items: start;
   }
 
   .subject-list-panel {
-    position: static;
-    margin-bottom: 18px;
-  }
-
-  .subject-list-panel h2 {
-    margin: 0 0 12px;
+    position: sticky;
+    top: 14px;
+    margin-bottom: 0;
   }
 
   .subject-list {
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 12px;
+    grid-template-columns: 1fr;
+    gap: 10px;
   }
 
   .subject-row {
-    min-height: 86px;
-    padding: 12px 12px 12px 0;
-  }
-
-  .subject-row-left {
-    gap: 7px;
-  }
-
-  .subject-row-left span:last-child {
-    font-size: .82rem;
-    line-height: 1.12;
-  }
-
-  .subject-score {
-    font-size: 1.38rem;
+    min-height: 76px;
+    padding: 12px 14px 12px 0;
   }
 
   .subject-list .subject-mobile-detail {
@@ -3052,7 +3041,7 @@ body {
   }
 
   .student-detail-panel {
-    margin-top: 18px;
+    margin-top: 0;
   }
 }
 
@@ -3171,4 +3160,15 @@ body {
     font-size: 1.1rem;
     letter-spacing: .12rem;
   }
+}
+
+/* Ajustes v9: panel izquierdo restaurado en PC y sin fondo solido detras de iconos de asignatura */
+.subject-row-left > .subject-icon,
+.subject-icon {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.subject-row-left > .subject-icon img {
+  padding: 0 !important;
 }
