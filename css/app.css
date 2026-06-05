@@ -1895,3 +1895,495 @@ td {
   object-fit: contain;
   padding: 3px;
 }
+
+/* Ajustes v3: apertura manual, color global configurable y panel docente compacto */
+body {
+  background:
+    radial-gradient(circle at 8% -6%, rgba(var(--primary-rgb, 255, 121, 0), .13), transparent 28rem),
+    radial-gradient(circle at 95% 8%, rgba(44, 167, 248, .10), transparent 26rem),
+    var(--bg);
+}
+
+.primary-btn {
+  background: linear-gradient(135deg, var(--orange), var(--orange-3));
+  box-shadow: 0 14px 28px rgba(var(--primary-rgb, 255, 121, 0), .28);
+}
+
+.secondary-btn {
+  background: rgba(var(--primary-rgb, 255, 121, 0), .11);
+  color: var(--orange-3);
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  border-color: var(--orange);
+  box-shadow: 0 0 0 4px rgba(var(--primary-rgb, 255, 121, 0), .12);
+}
+
+.boot-mark {
+  background: linear-gradient(135deg, var(--orange), var(--orange-3));
+  box-shadow: 0 18px 36px rgba(var(--primary-rgb, 255, 121, 0), .32);
+}
+
+.top-banner {
+  min-height: 104px;
+  background: linear-gradient(100deg, var(--orange), var(--orange-2));
+  box-shadow: 0 12px 34px rgba(var(--primary-rgb, 255, 121, 0), .18);
+}
+
+.top-banner::before,
+.top-banner::after {
+  background: rgba(0, 0, 0, .14);
+}
+
+.subject-list-item.active .subject-row {
+  border-color: rgba(var(--primary-rgb, 255, 121, 0), .56);
+  background: rgba(var(--primary-rgb, 255, 121, 0), .08);
+}
+
+.subject-row-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.subject-chevron {
+  width: 22px;
+  height: 22px;
+  display: inline-grid;
+  place-items: center;
+  color: var(--orange);
+  font-size: 1.05rem;
+  font-weight: 900;
+  transition: transform .28s cubic-bezier(.2, .8, .2, 1);
+}
+
+.subject-list-item.active .subject-chevron {
+  transform: rotate(180deg);
+}
+
+.subject-list-item.closing .subject-chevron {
+  transform: rotate(0deg);
+}
+
+.student-detail-panel.is-empty {
+  box-shadow: none;
+  border-style: dashed;
+  background: rgba(255, 255, 255, .72);
+}
+
+.empty-subject-detail {
+  min-height: 390px;
+  padding: 32px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 12px;
+  text-align: center;
+  color: #6f727b;
+}
+
+.empty-subject-detail h3 {
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(1.5rem, 4vw, 2.2rem);
+  font-weight: 900;
+  letter-spacing: -.04em;
+}
+
+.empty-subject-detail p {
+  margin: 0;
+  max-width: 520px;
+  font-weight: 650;
+  line-height: 1.5;
+}
+
+.empty-subject-icon {
+  width: 62px;
+  height: 62px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--button-radius, 4px);
+  background: rgba(var(--primary-rgb, 255, 121, 0), .12);
+  color: var(--orange);
+  font-size: 2rem;
+  font-weight: 900;
+}
+
+.teacher-active-label {
+  margin: 8px 0 0;
+  color: #696c75;
+  font-weight: 800;
+}
+
+.teacher-assignment-nav {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 2px 2px 14px;
+  margin-bottom: 4px;
+  scrollbar-width: thin;
+}
+
+.teacher-assignment-nav .tab-btn {
+  flex: 0 0 auto;
+  background: #fff;
+  color: #3d414b;
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: none;
+}
+
+.teacher-assignment-nav .tab-btn.active {
+  background: var(--orange);
+  color: #fff;
+  border-color: var(--orange);
+  box-shadow: 0 10px 24px rgba(var(--primary-rgb, 255, 121, 0), .22);
+}
+
+.teacher-stat-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.teacher-stat {
+  min-height: 84px;
+  display: grid;
+  align-content: center;
+  gap: 6px;
+}
+
+.teacher-stat span {
+  color: #737681;
+  font-size: .76rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.teacher-stat strong {
+  color: var(--ink);
+  font-size: 1.4rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.teacher-stat small {
+  color: #858892;
+  font-size: .68em;
+  margin-left: 2px;
+}
+
+.teacher-table {
+  min-width: 520px;
+}
+
+.teacher-table th,
+.teacher-table td {
+  padding: 12px 14px;
+}
+
+.teacher-table th:nth-child(2),
+.teacher-table td:nth-child(2),
+.teacher-table th:nth-child(3),
+.teacher-table td:nth-child(3) {
+  text-align: center;
+  white-space: nowrap;
+}
+
+.teacher-score {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 2px;
+  color: var(--ink);
+  font-size: .94rem;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.teacher-score small {
+  color: #838792;
+  font-size: .78em;
+  font-weight: 800;
+}
+
+.teacher-table .table-row-click:hover {
+  background: rgba(var(--primary-rgb, 255, 121, 0), .07);
+}
+
+.modal-backdrop.is-closing {
+  animation: fadeOut .18s ease both;
+}
+
+.modal-backdrop.is-closing .modal {
+  animation: modalOut .18s ease both;
+}
+
+@keyframes fadeOut {
+  to { opacity: 0; }
+}
+
+@keyframes modalOut {
+  to { opacity: 0; transform: translateY(8px) scale(.985); }
+}
+
+@media (max-width: 680px) {
+  .top-banner {
+    min-height: 66px;
+  }
+
+  .top-banner::before,
+  .top-banner::after {
+    width: 116px;
+    height: 76px;
+  }
+
+  .banner-inner {
+    padding: 7px 12px 5px;
+  }
+
+  .banner-copy h1 {
+    font-size: .98rem;
+    margin-bottom: 2px;
+  }
+
+  .banner-copy p {
+    font-size: .66rem;
+    line-height: 1.14;
+    -webkit-line-clamp: 2;
+  }
+
+  .banner-logo {
+    width: 64px;
+    height: 28px;
+  }
+
+  .subject-mobile-detail {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transform: translateY(-4px);
+    overflow: hidden;
+    transition: grid-template-rows .32s cubic-bezier(.2, .8, .2, 1), opacity .24s ease, transform .32s cubic-bezier(.2, .8, .2, 1);
+  }
+
+  .subject-mobile-detail-inner {
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .subject-list-item.active .subject-mobile-detail {
+    grid-template-rows: 1fr;
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .subject-list-item.closing .subject-mobile-detail {
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  .subject-list-item.active {
+    animation: subjectOpen .26s cubic-bezier(.2, .8, .2, 1) both;
+  }
+
+  .subject-list-item.closing {
+    animation: subjectClose .24s cubic-bezier(.2, .8, .2, 1) both;
+  }
+
+  .teacher-stat-strip {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .teacher-stat {
+    min-height: 72px;
+    padding: 10px 8px;
+  }
+
+  .teacher-stat span {
+    font-size: .62rem;
+  }
+
+  .teacher-stat strong {
+    font-size: 1.08rem;
+  }
+
+  .teacher-table {
+    min-width: 0;
+  }
+
+  .teacher-table th,
+  .teacher-table td {
+    padding: 10px 8px;
+    font-size: .76rem;
+  }
+
+  .teacher-score {
+    font-size: .82rem;
+  }
+}
+
+@keyframes subjectOpen {
+  from { opacity: .92; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes subjectClose {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: .92; transform: translateY(-4px); }
+}
+
+@media (max-width: 680px) {
+  .subject-list-item.active .subject-mobile-detail,
+  .subject-list-item.closing .subject-mobile-detail {
+    display: grid;
+  }
+}
+
+/* Ajustes v4: jerarquia tipografica mas liviana */
+body {
+  font-weight: 400;
+}
+
+p,
+li,
+td,
+.meta-row,
+.login-card p,
+.login-hint,
+.empty-state,
+.admin-note,
+.teacher-active-label,
+.empty-subject-detail p,
+.metric-empty {
+  font-weight: 400;
+}
+
+/* Titulos: presencia visual sin verse pesados */
+h1,
+h2,
+h3,
+h4,
+.boot h1,
+.login-card h1,
+.banner-copy h1,
+.modal-head h2,
+.empty-subject-detail h3,
+.subject-list-panel h2,
+.subject-detail-title h3,
+.metric-panel h4,
+.answer-tools.clean h4 {
+  font-weight: 700;
+  letter-spacing: -.025em;
+}
+
+/* Textos de navegacion, botones y labels con negrita media */
+.primary-btn,
+.secondary-btn,
+.ghost-btn,
+.danger-btn,
+.nav-chip,
+.tab-btn,
+.metric-tab,
+.field label,
+.select-pill,
+th,
+.badge,
+.legend-item,
+.login-eyebrow,
+.section-eyebrow,
+.score-label,
+.percentile-head,
+.progress-label,
+.progress-axis,
+.subject-row-left,
+.subject-detail-title span,
+.subject-stats-row span,
+.metric-bar-head span,
+.teacher-stat span,
+.icon-btn,
+.toast {
+  font-weight: 600;
+}
+
+/* Datos importantes, pero sin peso excesivo */
+.student-identity span,
+.student-identity strong,
+.meta-row strong,
+.subject-name,
+.subject-stats-row strong,
+.metric-bar-head strong,
+.teacher-stat strong,
+.teacher-score,
+.teacher-score small,
+.answer-pill strong,
+.answer-pill span,
+.ranking-box small,
+.hero-wordmark,
+.banner-mark-text {
+  font-weight: 700;
+}
+
+/* Mantener el protagonismo solo en notas y puntajes */
+.score-number,
+.score-number small,
+.subject-score,
+.subject-score small,
+.subject-detail-score,
+.subject-detail-score small,
+.inline-score,
+.inline-score small {
+  font-weight: 900;
+}
+
+/* El ranking queda visible, pero no compite con la nota */
+.ranking-box strong {
+  font-weight: 700;
+  letter-spacing: -.025em;
+}
+
+/* Tablas mas legibles y menos cargadas */
+td {
+  font-weight: 400;
+}
+
+.teacher-table td:first-child,
+.table-row-click td:first-child {
+  font-weight: 500;
+}
+
+/* Respuestas marcadas claras sin apariencia tan pesada */
+.answer-pill {
+  font-weight: 600;
+}
+
+/* Ajustes finos en movil para evitar sensacion de pantalla saturada */
+@media (max-width: 680px) {
+  .banner-copy h1,
+  .subject-list-panel h2,
+  .subject-detail-title h3,
+  .answer-tools.clean h4,
+  .metric-panel h4 {
+    font-weight: 700;
+  }
+
+  .subject-row-left,
+  .student-identity span,
+  .student-identity strong,
+  .teacher-stat strong {
+    font-weight: 600;
+  }
+
+  .subject-score,
+  .subject-detail-score,
+  .score-number {
+    font-weight: 900;
+  }
+}

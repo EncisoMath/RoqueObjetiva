@@ -423,8 +423,16 @@
   }
 
   function renderLogin(error = "") {
+    const primary = normalizeColor(state.config.primaryColor || "#ff7900");
+    const primaryDark = shadeColor(primary, -18);
+    const primarySoft = shadeColor(primary, 18);
+    const rgb = hexToRgb(primary);
     document.documentElement.style.setProperty("--button-radius", `${Number(state.config.buttonRadius ?? 4)}px`);
-    document.documentElement.style.setProperty("--orange", state.config.primaryColor || "#ff7900");
+    document.documentElement.style.setProperty("--orange", primary);
+    document.documentElement.style.setProperty("--orange-2", primarySoft);
+    document.documentElement.style.setProperty("--orange-3", primaryDark);
+    document.documentElement.style.setProperty("--primary-rgb", `${rgb.r}, ${rgb.g}, ${rgb.b}`);
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", primary);
     const logo = state.config.logoImage || "assets/default-logo.svg";
     app.innerHTML = `
       <section class="login-shell">
@@ -462,10 +470,18 @@
 
   function renderShell(content, nav = "") {
     const cfg = state.config;
-    document.documentElement.style.setProperty("--orange", cfg.primaryColor || "#ff7900");
+    const primary = normalizeColor(cfg.primaryColor || "#ff7900");
+    const primaryDark = shadeColor(primary, -18);
+    const primarySoft = shadeColor(primary, 18);
+    const rgb = hexToRgb(primary);
+    document.documentElement.style.setProperty("--orange", primary);
+    document.documentElement.style.setProperty("--orange-2", primarySoft);
+    document.documentElement.style.setProperty("--orange-3", primaryDark);
+    document.documentElement.style.setProperty("--primary-rgb", `${rgb.r}, ${rgb.g}, ${rgb.b}`);
     document.documentElement.style.setProperty("--button-radius", `${Number(cfg.buttonRadius ?? 4)}px`);
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", primary);
     const bannerStyle = cfg.bannerImage
-      ? `style="background-image: linear-gradient(100deg, rgba(255,122,0,.88), rgba(230,95,0,.82)), url('${escAttr(cfg.bannerImage)}')"`
+      ? `style="background-image: linear-gradient(100deg, ${alphaColor(primary, .88)}, ${alphaColor(primaryDark, .82)}), url('${escAttr(cfg.bannerImage)}')"`
       : "";
     app.innerHTML = `
       <div class="app-shell">
@@ -503,12 +519,12 @@
     }
 
     const availableSubjects = SUBJECTS.filter((s) => student.subjectStats[s.name]?.total);
-    if (!state.selectedSubject || !student.subjectStats[state.selectedSubject]?.total) {
-      state.selectedSubject = availableSubjects[0]?.name || SUBJECTS[0].name;
+    if (state.selectedSubject && !student.subjectStats[state.selectedSubject]?.total) {
+      state.selectedSubject = null;
     }
     if (!state.metricTab) state.metricTab = "components";
     const subject = state.selectedSubject;
-    const stat = student.subjectStats[subject];
+    const stat = subject ? student.subjectStats[subject] : null;
 
     const subjectItems = availableSubjects.map((item) => {
       const s = student.subjectStats[item.name];
@@ -520,9 +536,16 @@
               ${subjectIcon(item.name)}
               <span>${esc(item.short)}</span>
             </span>
-            <span class="subject-score">${s.score ?? "—"}<small>/100</small></span>
+            <span class="subject-row-right">
+              <span class="subject-score">${s.score ?? "—"}<small>/100</small></span>
+              <span class="subject-chevron" aria-hidden="true">⌄</span>
+            </span>
           </button>
-          ${active ? `<div class="subject-mobile-detail">${buildSubjectDetailHtml(student, subject, stat, false)}</div>` : ""}
+          <div class="subject-mobile-detail" aria-hidden="${active ? "false" : "true"}">
+            <div class="subject-mobile-detail-inner">
+              ${active ? buildSubjectDetailHtml(student, subject, stat, false) : ""}
+            </div>
+          </div>
         </article>
       `;
     }).join("");
@@ -562,11 +585,21 @@
           <h2>Puntaje por pruebas</h2>
           <div class="subject-list">${subjectItems}</div>
         </aside>
-        <section class="student-detail-panel card detail-card">
-          ${buildSubjectDetailHtml(student, subject, stat, false)}
+        <section class="student-detail-panel card detail-card ${subject ? "" : "is-empty"}">
+          ${subject ? buildSubjectDetailHtml(student, subject, stat, false) : buildEmptySubjectDetailHtml()}
         </section>
       </section>
     `, navFor("student"));
+  }
+
+  function buildEmptySubjectDetailHtml() {
+    return `
+      <div class="empty-subject-detail">
+        <div class="empty-subject-icon">↙</div>
+        <h3>Selecciona una asignatura</h3>
+        <p>Al tocar una prueba se abrirá aquí su detalle, con las opciones marcadas y el análisis por componentes y competencias.</p>
+      </div>
+    `;
   }
 
   function buildSubjectDetailHtml(student, subject, stat, compact = false) {
@@ -642,46 +675,44 @@
     const query = normalizeText(state.teacherSearch);
     const filtered = students
       .filter((s) => !query || normalizeText(`${s.name} ${s.roll} ${s.group}`).includes(query))
-      .sort((a, b) => (b.subjectStats[active.subject].score ?? 0) - (a.subjectStats[active.subject].score ?? 0));
+      .sort((a, b) => a.name.localeCompare(b.name, "es", { sensitivity: "base" }));
 
-    const rows = filtered.map((student, index) => {
+    const rows = filtered.map((student) => {
       const stat = student.subjectStats[active.subject];
       return `
         <tr class="table-row-click" data-action="open-detail" data-roll="${escAttr(student.roll)}" data-subject="${escAttr(active.subject)}">
-          <td><span class="badge orange">#${index + 1}</span></td>
-          <td><strong>${esc(student.name)}</strong><br><span style="color:#83858e;font-size:.78rem;">ID ${esc(student.roll)}</span></td>
-          <td>${esc(student.group)}</td>
-          <td><span class="inline-score">${stat.score ?? "—"}<small>/100</small></span></td>
-          <td>${stat.correct}/${stat.total}</td>
+          <td><strong>${esc(student.name)}</strong></td>
+          <td><span class="teacher-score">${stat.score ?? "—"}<small>/100</small></span></td>
+          <td><strong>${stat.correct}/${stat.total}</strong></td>
         </tr>
       `;
     }).join("");
 
     renderShell(`
-      <section class="toolbar">
+      <section class="toolbar teacher-toolbar">
         <div>
           <span class="section-eyebrow">Panel docente</span>
           <h2 style="margin:8px 0 0;font-size:clamp(1.4rem,4vw,2.2rem);font-weight:900;letter-spacing:-.04em;">${esc(teacher.name || "Docente")}</h2>
+          ${active ? `<p class="teacher-active-label">${esc(active.subject)} · ${esc(active.grade)}°</p>` : ""}
         </div>
         <div class="search-box"><input placeholder="Buscar estudiante..." value="${escAttr(state.teacherSearch)}" data-action="teacher-search"></div>
       </section>
 
-      <nav class="app-nav" style="padding:0 0 18px;max-width:none;">${assignmentButtons || `<span class="badge gray">Sin cargas asignadas</span>`}</nav>
+      <nav class="teacher-assignment-nav">${assignmentButtons || `<span class="badge gray">Sin cargas asignadas</span>`}</nav>
 
       ${active ? `
-        <section class="grid grid-auto" style="margin-bottom:18px;">
-          <article class="card card-pad"><span class="section-eyebrow">Asignatura</span><h3 style="margin:8px 0 0;font-size:1.5rem;">${esc(active.subject)}</h3></article>
-          <article class="card card-pad"><span class="section-eyebrow">Grado</span><h3 style="margin:8px 0 0;font-size:1.5rem;">${esc(active.grade)}°</h3></article>
-          <article class="card card-pad"><span class="section-eyebrow">Estudiantes</span><h3 style="margin:8px 0 0;font-size:1.5rem;">${filtered.length}</h3></article>
-          <article class="card card-pad"><span class="section-eyebrow">Promedio</span><h3 style="margin:8px 0 0;font-size:1.5rem;">${avg(filtered.map((s) => s.subjectStats[active.subject].score))}<small style="color:#8c8f98">/100</small></h3></article>
+        <section class="teacher-stat-strip">
+          <article class="card card-pad teacher-stat"><span>Grado</span><strong>${esc(active.grade)}°</strong></article>
+          <article class="card card-pad teacher-stat"><span>Estudiantes</span><strong>${filtered.length}</strong></article>
+          <article class="card card-pad teacher-stat"><span>Promedio</span><strong>${avg(filtered.map((s) => s.subjectStats[active.subject].score))}<small>/100</small></strong></article>
         </section>
       ` : ""}
 
-      <section class="card table-card">
+      <section class="card table-card teacher-table-card">
         <div class="table-wrap">
-          <table>
-            <thead><tr><th>Rank</th><th>Estudiante</th><th>Curso</th><th>Nota</th><th>Correctas</th></tr></thead>
-            <tbody>${rows || `<tr><td colspan="5" class="empty-state">No hay estudiantes para esta asignación con los archivos cargados.</td></tr>`}</tbody>
+          <table class="teacher-table">
+            <thead><tr><th>Nombre</th><th>Nota</th><th>Correctas</th></tr></thead>
+            <tbody>${rows || `<tr><td colspan="3" class="empty-state">No hay estudiantes para esta asignación con los archivos cargados.</td></tr>`}</tbody>
           </table>
         </div>
       </section>
@@ -1078,6 +1109,7 @@
   function handleClick(event) {
     const target = event.target.closest("[data-action]");
     if (!target) return;
+    if (target.classList.contains("modal-backdrop") && event.target !== target) return;
 
     const action = target.dataset.action;
 
@@ -1095,8 +1127,20 @@
     }
 
     if (action === "select-subject") {
-      state.selectedSubject = target.dataset.subject;
-      renderBySession();
+      const nextSubject = target.dataset.subject;
+      if (state.selectedSubject === nextSubject) {
+        const item = target.closest(".subject-list-item");
+        item?.classList.add("closing");
+        window.setTimeout(() => {
+          state.selectedSubject = null;
+          renderBySession();
+        }, 240);
+      } else {
+        state.selectedSubject = nextSubject;
+        state.metricTab = "components";
+        renderBySession();
+      }
+      return;
     }
 
     if (action === "select-metric-tab") {
@@ -1119,7 +1163,10 @@
     }
 
     if (action === "close-modal") {
+      event.preventDefault();
+      event.stopPropagation();
       closeModal();
+      return;
     }
 
     if (action === "answer-info") {
@@ -1334,13 +1381,13 @@
     const stat = student.subjectStats[realSubject];
     modalRoot.innerHTML = `
       <div class="modal-backdrop" data-action="close-modal">
-        <section class="modal" onclick="event.stopPropagation()">
+        <section class="modal">
           <div class="modal-head">
             <div>
               <h2>${esc(student.name)}</h2>
               <span style="color:#7d8089;font-weight:700;">${esc(realSubject)} · ID ${esc(student.roll)} · ${esc(student.grade)}° ${esc(student.group)}</span>
             </div>
-            <button class="icon-btn" data-action="close-modal">×</button>
+            <button type="button" class="icon-btn" data-action="close-modal" aria-label="Cerrar">×</button>
           </div>
           <div class="modal-body">
             <section class="card detail-card">${buildSubjectDetailHtml(student, realSubject, stat, true)}</section>
@@ -1359,10 +1406,10 @@
 
     modalRoot.innerHTML = `
       <div class="modal-backdrop" data-action="close-modal">
-        <section class="modal" onclick="event.stopPropagation()" style="max-width:560px;">
+        <section class="modal" style="max-width:560px;">
           <div class="modal-head">
             <h2>Ítem ${esc(detail.item)} · ${esc(subject)}</h2>
-            <button class="icon-btn" data-action="close-modal">×</button>
+            <button type="button" class="icon-btn" data-action="close-modal" aria-label="Cerrar">×</button>
           </div>
           <div class="modal-body">
             <div class="grid">
@@ -1380,7 +1427,15 @@
   }
 
   function closeModal() {
-    modalRoot.innerHTML = "";
+    const backdrop = modalRoot.querySelector(".modal-backdrop");
+    if (!backdrop) {
+      modalRoot.innerHTML = "";
+      return;
+    }
+    backdrop.classList.add("is-closing");
+    window.setTimeout(() => {
+      modalRoot.innerHTML = "";
+    }, 180);
   }
 
   function clearSession() {
@@ -1680,6 +1735,39 @@
 
   function clamp(value, min, max) {
     return Math.max(min, Math.min(max, Number(value) || 0));
+  }
+
+  function normalizeColor(value) {
+    const fallback = "#ff7900";
+    const raw = String(value || "").trim();
+    if (/^#[0-9a-f]{6}$/i.test(raw)) return raw.toLowerCase();
+    if (/^#[0-9a-f]{3}$/i.test(raw)) {
+      return `#${raw[1]}${raw[1]}${raw[2]}${raw[2]}${raw[3]}${raw[3]}`.toLowerCase();
+    }
+    return fallback;
+  }
+
+  function hexToRgb(hex) {
+    const color = normalizeColor(hex).slice(1);
+    return {
+      r: parseInt(color.slice(0, 2), 16),
+      g: parseInt(color.slice(2, 4), 16),
+      b: parseInt(color.slice(4, 6), 16)
+    };
+  }
+
+  function alphaColor(hex, alpha) {
+    const rgb = hexToRgb(hex);
+    return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha})`;
+  }
+
+  function shadeColor(hex, percent) {
+    const rgb = hexToRgb(hex);
+    const amount = Math.round(2.55 * percent);
+    const r = clamp(rgb.r + amount, 0, 255);
+    const g = clamp(rgb.g + amount, 0, 255);
+    const b = clamp(rgb.b + amount, 0, 255);
+    return `#${[r, g, b].map((v) => Number(v).toString(16).padStart(2, "0")).join("")}`;
   }
 
   function avg(values) {

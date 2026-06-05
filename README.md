@@ -162,3 +162,10 @@ La aplicación carga por defecto estos archivos desde `ICONOS`:
 - `ICONOS/religion.svg`
 
 El panel admin permite subir logos, pero en GitHub Pages esos cambios quedan guardados en el navegador. Para que todos los usuarios vean los mismos logos, reemplaza los archivos de la carpeta `ICONOS` y vuelve a subir el repositorio.
+
+
+## Cambios v4
+
+- Se ajustó la jerarquía tipográfica para que la interfaz no se vea excesivamente pesada.
+- Se conserva el peso fuerte únicamente en puntajes y notas.
+- Títulos, botones, etiquetas, tablas y textos secundarios usan pesos más moderados.
