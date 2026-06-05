@@ -33,7 +33,8 @@
     logoImage: "assets/default-logo.svg",
     bannerImage: "",
     footerText: "Consulta institucional de resultados",
-    primaryColor: "#ff7900"
+    primaryColor: "#ff7900",
+    buttonRadius: 4
   };
 
   const DEFAULT_MANIFEST = {
@@ -61,6 +62,7 @@
     registryByExamId: new Map(),
     registryByNationalId: new Map(),
     selectedSubject: null,
+    metricTab: "components",
     teacherActive: null,
     teacherSearch: "",
     adminTab: "resumen",
@@ -421,6 +423,8 @@
   }
 
   function renderLogin(error = "") {
+    document.documentElement.style.setProperty("--button-radius", `${Number(state.config.buttonRadius ?? 4)}px`);
+    document.documentElement.style.setProperty("--orange", state.config.primaryColor || "#ff7900");
     const logo = state.config.logoImage || "assets/default-logo.svg";
     app.innerHTML = `
       <section class="login-shell">
@@ -459,6 +463,7 @@
   function renderShell(content, nav = "") {
     const cfg = state.config;
     document.documentElement.style.setProperty("--orange", cfg.primaryColor || "#ff7900");
+    document.documentElement.style.setProperty("--button-radius", `${Number(cfg.buttonRadius ?? 4)}px`);
     const bannerStyle = cfg.bannerImage
       ? `style="background-image: linear-gradient(100deg, rgba(255,122,0,.88), rgba(230,95,0,.82)), url('${escAttr(cfg.bannerImage)}')"`
       : "";
@@ -501,107 +506,117 @@
     if (!state.selectedSubject || !student.subjectStats[state.selectedSubject]?.total) {
       state.selectedSubject = availableSubjects[0]?.name || SUBJECTS[0].name;
     }
+    if (!state.metricTab) state.metricTab = "components";
     const subject = state.selectedSubject;
     const stat = student.subjectStats[subject];
 
-    const subjectCards = availableSubjects.map((item) => {
+    const subjectItems = availableSubjects.map((item) => {
       const s = student.subjectStats[item.name];
+      const active = item.name === subject;
       return `
-        <article class="subject-card ${item.name === subject ? "active" : ""}" data-action="select-subject" data-subject="${escAttr(item.name)}">
-          <div class="subject-name">
-            ${subjectIcon(item.name)}
-            <span>${esc(item.short)}</span>
-          </div>
-          <div class="subject-score">${s.score ?? "—"}<small>/100</small></div>
+        <article class="subject-list-item ${active ? "active" : ""}">
+          <button class="subject-row" data-action="select-subject" data-subject="${escAttr(item.name)}" aria-expanded="${active ? "true" : "false"}">
+            <span class="subject-row-left">
+              ${subjectIcon(item.name)}
+              <span>${esc(item.short)}</span>
+            </span>
+            <span class="subject-score">${s.score ?? "—"}<small>/100</small></span>
+          </button>
+          ${active ? `<div class="subject-mobile-detail">${buildSubjectDetailHtml(student, subject, stat, false)}</div>` : ""}
         </article>
       `;
     }).join("");
 
     renderShell(`
-      <section class="grid hero-result">
-        <article class="card score-card">
+      <section class="student-summary card">
+        <div class="summary-score-block">
           <div class="score-label"><span class="score-icon">🏆</span><span>Puntaje global</span></div>
           <div class="score-number">${student.globalScore ?? "—"}<small>/100</small></div>
-          <div class="student-meta">
-            <div class="meta-row"><span>Estudiante</span><strong>${esc(student.name)}</strong></div>
-            <div class="meta-row"><span>ID examen</span><strong>${esc(student.roll)}</strong></div>
-            <div class="meta-row"><span>Grado / curso</span><strong>${esc(student.grade)}° · ${esc(student.group)}</strong></div>
-            <div class="meta-row"><span>Sede</span><strong>${esc(student.sede)}</strong></div>
-            <div class="meta-row"><span>Ranking curso</span><strong>${rankText(student.courseRank, student.courseCount)}</strong></div>
-            <div class="meta-row"><span>Ranking grado</span><strong>${rankText(student.gradeRank, student.gradeCount)}</strong></div>
+        </div>
+        <div class="summary-info-block">
+          <div class="student-identity">
+            <span>Alumno</span>
+            <strong>${esc(student.name)}</strong>
           </div>
-        </article>
-        <article class="card percentile-card">
-          <div class="percentile-head"><span class="score-icon">📍</span><span>¿En qué percentil estás?</span></div>
-          <div class="percentile-big">
-            <div>
-              <div class="progress-label">Estudiantes del mismo grado</div>
-              <div class="progress-bar"><div class="progress-fill" style="width:${clamp(student.percentile, 0, 100)}%"></div></div>
-              <div class="progress-axis"><span>0</span><span>20</span><span>40</span><span>60</span><span>80</span><span>100</span></div>
-            </div>
-            <div class="percentile-number">${student.percentile ?? 0}</div>
+          <div class="student-identity">
+            <span>Identificación</span>
+            <strong>${esc(student.registry?.nationalId || student.roll)}</strong>
           </div>
-          <p style="margin:0;color:#686b74;font-weight:650;">Tu puntaje superó al ${student.percentile ?? 0}% de los estudiantes cargados para el mismo grado.</p>
-        </article>
+          <div class="student-identity">
+            <span>Grado y curso</span>
+            <strong>${esc(student.grade)}° · ${esc(student.group)}</strong>
+          </div>
+          <div class="student-identity">
+            <span>Sede</span>
+            <strong>${esc(student.sede)}</strong>
+          </div>
+        </div>
+        <div class="ranking-mini">
+          <div class="ranking-box"><span>🥉</span><strong>${student.courseRank ?? "—"}</strong><small>Ranking por curso</small></div>
+          <div class="ranking-box"><span>🏆</span><strong>${student.gradeRank ?? "—"}</strong><small>Ranking por grado</small></div>
+        </div>
       </section>
 
-      <section style="margin-top:22px;">
-        <h2 style="font-size:1rem;margin:0 0 12px;font-weight:900;">Puntaje por pruebas</h2>
-        <div class="subject-strip">${subjectCards}</div>
-      </section>
-
-      <section class="card detail-card">
-        ${buildSubjectDetailHtml(student, subject, stat, false)}
+      <section class="student-workspace">
+        <aside class="subject-list-panel">
+          <h2>Puntaje por pruebas</h2>
+          <div class="subject-list">${subjectItems}</div>
+        </aside>
+        <section class="student-detail-panel card detail-card">
+          ${buildSubjectDetailHtml(student, subject, stat, false)}
+        </section>
       </section>
     `, navFor("student"));
   }
 
   function buildSubjectDetailHtml(student, subject, stat, compact = false) {
-    const level = performanceLevel(stat?.score ?? 20);
-    const skills = buildSkills(stat?.details || []);
-    const detailRows = (stat?.details || []).map((detail) => answerPill(detail, student.roll)).join("");
+    if (!stat) return `<div class="empty-state">No hay información para esta asignatura.</div>`;
+    const detailRows = (stat.details || []).map((detail, index) => answerPill(detail, student.roll, index + 1)).join("");
+    const activeMetric = state.metricTab === "competences" ? "competences" : "components";
     return `
-      <div class="detail-grid">
-        <aside class="detail-side">
-          <h3 class="detail-title">Prueba: <span style="color:var(--ink)">${esc(subject)}</span></h3>
-          <div class="score-label"><span class="score-icon">🏆</span><span>Puntaje</span></div>
-          <div class="score-number" style="font-size:3rem;">${stat?.score ?? "—"}<small>/100</small></div>
-          <div class="student-meta">
-            <div class="meta-row"><span>Correctas</span><strong>${stat?.correct ?? 0} de ${stat?.total ?? 0}</strong></div>
-            <div class="meta-row"><span>Incorrectas</span><strong>${(stat?.wrong ?? 0) + (stat?.doubleMark ?? 0)}</strong></div>
-            <div class="meta-row"><span>Sin marcar</span><strong>${stat?.empty ?? 0}</strong></div>
-            <div class="meta-row"><span>Percentil área</span><strong>${stat?.percentile ?? 0}</strong></div>
-          </div>
-          <div style="margin-top:18px;">
-            <div class="progress-label">Estudiantes a nivel grado</div>
-            <div class="progress-bar"><div class="progress-fill" style="width:${clamp(stat?.percentile ?? 0, 0, 100)}%"></div></div>
-            <div class="progress-axis"><span>0</span><span>20</span><span>40</span><span>60</span><span>80</span><span>100</span></div>
-          </div>
-        </aside>
-        <div class="detail-main">
-          <div style="display:flex;gap:16px;align-items:start;justify-content:space-between;flex-wrap:wrap;">
+      <div class="subject-detail">
+        <header class="subject-detail-head">
+          <div class="subject-detail-title">
+            ${subjectIcon(subject)}
             <div>
-              <div class="score-label"><span class="score-icon">🎖️</span><span>Nivel de desempeño</span></div>
-              <div class="levels" aria-label="Nivel ${level}">
-                ${[1,2,3,4].map((n) => `<div class="level ${n <= level ? "active" : ""}">${n}</div>`).join("")}
-              </div>
-            </div>
-            ${compact ? "" : `<button class="ghost-btn" data-action="print">Imprimir PDF</button>`}
-          </div>
-
-          <h4 style="margin:0 0 8px;font-weight:900;color:#565963;">¿Qué habilidades reflejan estos resultados?</h4>
-          <ul class="skills">${skills}</ul>
-
-          <div class="answer-tools">
-            <h4 style="margin:0;font-weight:900;">Opciones marcadas</h4>
-            <div class="legend">
-              <span class="legend-item"><i class="dot correct"></i>Correcta</span>
-              <span class="legend-item"><i class="dot wrong"></i>Incorrecta</span>
-              <span class="legend-item"><i class="dot double"></i>Doble marca</span>
-              <span class="legend-item"><i class="dot empty"></i>Sin marcar</span>
+              <span>Prueba</span>
+              <h3>${esc(subject)}</h3>
             </div>
           </div>
-          <div class="answers-grid">${detailRows || `<div class="empty-state">No hay ítems para esta asignatura.</div>`}</div>
+          <div class="subject-detail-score">${stat.score ?? "—"}<small>/100</small></div>
+        </header>
+
+        <div class="subject-stats-row">
+          <div><span>Correctas</span><strong>${stat.correct ?? 0} de ${stat.total ?? 0}</strong></div>
+          <div><span>Incorrectas</span><strong>${(stat.wrong ?? 0) + (stat.doubleMark ?? 0)}</strong></div>
+          <div><span>Sin marcar</span><strong>${stat.empty ?? 0}</strong></div>
+        </div>
+
+        <div class="answer-tools clean">
+          <h4>Estas fueron las opciones que marcaste</h4>
+          <div class="legend">
+            <span class="legend-item"><i class="dot correct"></i>Correcta</span>
+            <span class="legend-item"><i class="dot wrong"></i>Incorrecta</span>
+            <span class="legend-item"><i class="dot double"></i>Doble marca</span>
+            <span class="legend-item"><i class="dot empty"></i>Sin marcar</span>
+          </div>
+        </div>
+        <div class="answers-grid">${detailRows || `<div class="empty-state">No hay ítems para esta asignatura.</div>`}</div>
+
+        <div class="metric-tabs" role="tablist" aria-label="Análisis por componente y competencia">
+          <button class="metric-tab ${activeMetric === "components" ? "active" : ""}" data-action="select-metric-tab" data-tab="components">Componentes</button>
+          <button class="metric-tab ${activeMetric === "competences" ? "active" : ""}" data-action="select-metric-tab" data-tab="competences">Competencias</button>
+        </div>
+
+        <div class="metric-grid" data-active="${escAttr(activeMetric)}">
+          <section class="metric-panel components">
+            <h4>Componentes evaluados</h4>
+            ${buildMetricBars(stat.details || [], "component")}
+          </section>
+          <section class="metric-panel competences">
+            <h4>Competencias evaluadas</h4>
+            ${buildMetricBars(stat.details || [], "competence")}
+          </section>
         </div>
       </div>
     `;
@@ -638,7 +653,6 @@
           <td>${esc(student.group)}</td>
           <td><span class="inline-score">${stat.score ?? "—"}<small>/100</small></span></td>
           <td>${stat.correct}/${stat.total}</td>
-          <td><span class="badge ${performanceClass(stat.score)}">Nivel ${performanceLevel(stat.score ?? 20)}</span></td>
         </tr>
       `;
     }).join("");
@@ -666,8 +680,8 @@
       <section class="card table-card">
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Rank</th><th>Estudiante</th><th>Curso</th><th>Nota</th><th>Correctas</th><th>Nivel</th></tr></thead>
-            <tbody>${rows || `<tr><td colspan="6" class="empty-state">No hay estudiantes para esta asignación con los archivos cargados.</td></tr>`}</tbody>
+            <thead><tr><th>Rank</th><th>Estudiante</th><th>Curso</th><th>Nota</th><th>Correctas</th></tr></thead>
+            <tbody>${rows || `<tr><td colspan="5" class="empty-state">No hay estudiantes para esta asignación con los archivos cargados.</td></tr>`}</tbody>
           </table>
         </div>
       </section>
@@ -727,7 +741,6 @@
         </div>
         <div class="inline-actions">
           <button class="secondary-btn" data-action="export-config">Exportar configuración</button>
-          <button class="ghost-btn" data-action="print">Imprimir</button>
         </div>
       </section>
       <div class="admin-note">
@@ -847,6 +860,10 @@
             <input value="${escAttr(cfg.footerText || "")}" data-config-field="footerText">
           </div>
           <div class="field">
+            <label>Borde de botones (px)</label>
+            <input type="number" min="0" max="24" value="${escAttr(cfg.buttonRadius ?? 4)}" data-config-field="buttonRadius">
+          </div>
+          <div class="field">
             <label>Logo principal</label>
             <input type="file" accept="image/*" data-action="upload-logo-main">
           </div>
@@ -873,6 +890,7 @@
         </div>
         <button class="secondary-btn" data-action="reset-logos">Restaurar íconos</button>
       </section>
+      <div class="admin-note">Los logos base del repositorio están en la carpeta <strong>ICONOS</strong>. Las imágenes que subas desde este panel quedan guardadas en este navegador; para publicarlas para todos, exporta o sube los archivos finales a esa carpeta.</div>
       <section class="logo-grid">
         ${SUBJECTS.map((subject) => `
           <article class="logo-item">
@@ -984,7 +1002,6 @@
       return `
         <nav class="app-nav">
           <button class="nav-chip active">Reporte general</button>
-          <button class="nav-chip" data-action="print">Imprimir PDF</button>
           <button class="nav-chip logout" data-action="logout">Salir</button>
         </nav>
       `;
@@ -1033,6 +1050,7 @@
         state.activeSession = { role: "student", roll };
         writeJSON(STORAGE.session, state.activeSession);
         state.selectedSubject = null;
+        state.metricTab = "components";
         renderStudent(roll);
         return;
       }
@@ -1041,6 +1059,7 @@
         state.activeSession = { role: "student", roll: user };
         writeJSON(STORAGE.session, state.activeSession);
         state.selectedSubject = null;
+        state.metricTab = "components";
         renderStudent(user);
         return;
       }
@@ -1077,6 +1096,11 @@
 
     if (action === "select-subject") {
       state.selectedSubject = target.dataset.subject;
+      renderBySession();
+    }
+
+    if (action === "select-metric-tab") {
+      state.metricTab = target.dataset.tab === "competences" ? "competences" : "components";
       renderBySession();
     }
 
@@ -1262,6 +1286,7 @@
 
   function saveConfig() {
     state.config = { ...DEFAULT_CONFIG, ...state.config };
+    state.config.buttonRadius = clamp(Number(state.config.buttonRadius ?? 4), 0, 24);
     writeJSON(STORAGE.config, state.config);
   }
 
@@ -1343,7 +1368,6 @@
             <div class="grid">
               <div class="card card-pad">
                 <div class="meta-row"><span>Marcó</span><strong>${esc(displayMarked(detail.marked))}</strong></div>
-                <div class="meta-row"><span>Correcta</span><strong>${esc(detail.correct)}</strong></div>
                 <div class="meta-row"><span>Estado</span><strong>${esc(statusLabel(detail.status))}</strong></div>
                 <div class="meta-row"><span>Componente</span><strong>${esc(detail.component || "Sin registro")}</strong></div>
                 <div class="meta-row"><span>Competencia</span><strong>${esc(detail.competence || "Sin registro")}</strong></div>
@@ -1364,33 +1388,67 @@
     localStorage.removeItem(STORAGE.session);
   }
 
-  function answerPill(detail, roll) {
+  function answerPill(detail, roll, displayIndex = detail.item) {
     return `
-      <button class="answer-pill ${detail.status}" data-action="answer-info" data-roll="${escAttr(roll)}" data-subject="${escAttr(detail.subject)}" data-item="${escAttr(detail.item)}" title="Ver detalle del ítem ${escAttr(detail.item)}">
-        <strong>#${esc(detail.item)}</strong>
-        <span>${esc(displayMarked(detail.marked))} → ${esc(detail.correct)}</span>
+      <button class="answer-pill ${detail.status}" data-action="answer-info" data-roll="${escAttr(roll)}" data-subject="${escAttr(detail.subject)}" data-item="${escAttr(detail.item)}" title="Ver detalle del ítem ${escAttr(displayIndex)}">
+        <strong>${esc(displayIndex)}.</strong>
+        <span>${esc(displayMarked(detail.marked))}</span>
       </button>
     `;
   }
 
-  function buildSkills(details) {
-    if (!details.length) return `<li>No hay descriptores cargados para esta prueba.</li>`;
-    const byCompetence = countBy(details, (d) => d.competence || "Competencia sin registrar");
-    const byComponent = countBy(details, (d) => d.component || "Componente sin registrar");
-    const topCompetencies = [...byCompetence.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3);
-    const topComponents = [...byComponent.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3);
-    const lines = [];
-    topCompetencies.forEach(([name]) => lines.push(`Evalúa principalmente: ${esc(name)}.`));
-    topComponents.forEach(([name]) => lines.push(`Incluye desempeños asociados a: ${esc(name)}.`));
-    lines.push("Revisa los ítems en rojo, amarillo y azul para ubicar oportunidades concretas de mejora.");
-    return lines.map((line) => `<li>${line}</li>`).join("");
+  function buildMetricBars(details, field) {
+    if (!details.length) return `<p class="metric-empty">No hay datos para graficar.</p>`;
+    const grouped = new Map();
+    details.forEach((detail) => {
+      const name = cleanText(detail[field]) || (field === "component" ? "Componente sin registrar" : "Competencia sin registrar");
+      if (!grouped.has(name)) grouped.set(name, { name, total: 0, correct: 0 });
+      const item = grouped.get(name);
+      item.total += 1;
+      if (detail.status === "correct") item.correct += 1;
+    });
+    return [...grouped.values()]
+      .sort((a, b) => b.total - a.total || a.name.localeCompare(b.name, "es"))
+      .map((item) => {
+        const percent = item.total ? Math.round((item.correct / item.total) * 100) : 0;
+        return `
+          <div class="metric-bar-item">
+            <div class="metric-bar-head">
+              <span>${esc(item.name)}</span>
+              <strong>${esc(item.correct)}/${esc(item.total)} · ${esc(percent)}%</strong>
+            </div>
+            <div class="metric-progress" aria-label="${escAttr(item.name)} ${percent}%">
+              <div class="metric-progress-fill" style="width:${clamp(percent, 0, 100)}%"></div>
+            </div>
+          </div>
+        `;
+      }).join("");
   }
 
   function subjectIcon(subjectName) {
     const logo = state.logos[subjectName];
     if (logo) return `<span class="subject-icon"><img src="${escAttr(logo)}" alt=""></span>`;
+    const path = defaultIconPath(subjectName);
     const subject = SUBJECTS.find((s) => s.name === subjectName) || { icon: "•" };
+    if (path) return `<span class="subject-icon"><img src="${escAttr(path)}" alt="" onerror="this.parentElement.textContent='${escAttr(subject.icon)}'"></span>`;
     return `<span class="subject-icon">${esc(subject.icon)}</span>`;
+  }
+
+  function defaultIconPath(subjectName) {
+    const slug = normalizeText(subjectName).replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    const map = {
+      "matematicas": "matematicas.svg",
+      "lenguaje": "lenguaje.svg",
+      "ciencias-naturales": "ciencias-naturales.svg",
+      "ingles": "ingles.svg",
+      "ciencias-sociales-y-ciudadania": "ciencias-sociales.svg",
+      "etica-y-valores": "etica.svg",
+      "artistica": "artistica.svg",
+      "educacion-fisica": "educacion-fisica.svg",
+      "informatica": "informatica.svg",
+      "religion": "religion.svg"
+    };
+    return map[slug] ? `ICONOS/${map[slug]}` : "";
   }
 
   function classifyAnswer(markedRaw, correctRaw) {

@@ -134,3 +134,31 @@ Para que los cambios queden publicados para todos:
 GitHub Pages público no es un sistema seguro para publicar información sensible de estudiantes. Esta versión sirve como prototipo estático o para repositorios privados/controlados.
 
 Para uso institucional real con datos personales, conviene montar autenticación y base de datos con una solución como Firebase, Supabase, un backend propio o GitHub Pages con datos anonimizados.
+
+## Cambios de diseño v2
+
+- En celular el banner superior queda más compacto.
+- Se retiraron los percentiles, la barra de desempeño, el texto de habilidades y el botón de imprimir.
+- En celular las asignaturas aparecen en cascada. Al tocar una asignatura, el detalle se abre dentro de la misma página.
+- En escritorio las asignaturas quedan a la izquierda y el detalle de la prueba a la derecha.
+- Las opciones marcadas muestran solo el ítem y la opción marcada. No se muestra la respuesta correcta en el reporte.
+- Debajo de las opciones se calculan barras por componente y por competencia usando las columnas de `ANSWER_10.csv`.
+- Los botones usan borde rectangular configurable desde el panel admin, por defecto `4px`.
+- La carpeta `ICONOS` contiene los logos base de las asignaturas. Puedes reemplazarlos por tus propios archivos.
+
+### Logos de asignaturas
+
+La aplicación carga por defecto estos archivos desde `ICONOS`:
+
+- `ICONOS/matematicas.svg`
+- `ICONOS/lenguaje.svg`
+- `ICONOS/ciencias-naturales.svg`
+- `ICONOS/ingles.svg`
+- `ICONOS/ciencias-sociales.svg`
+- `ICONOS/etica.svg`
+- `ICONOS/artistica.svg`
+- `ICONOS/educacion-fisica.svg`
+- `ICONOS/informatica.svg`
+- `ICONOS/religion.svg`
+
+El panel admin permite subir logos, pero en GitHub Pages esos cambios quedan guardados en el navegador. Para que todos los usuarios vean los mismos logos, reemplaza los archivos de la carpeta `ICONOS` y vuelve a subir el repositorio.
