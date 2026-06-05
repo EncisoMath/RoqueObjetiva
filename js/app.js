@@ -1,0 +1,1683 @@
+
+(() => {
+  "use strict";
+
+  const app = document.getElementById("app");
+  const toastEl = document.getElementById("toast");
+  const modalRoot = document.getElementById("modal-root");
+
+  const STORAGE = {
+    config: "po_config_v1",
+    logos: "po_subject_logos_v1",
+    answers: "po_answer_overrides_v1",
+    carga: "po_carga_override_v1",
+    session: "po_session_v1"
+  };
+
+  const SUBJECTS = [
+    { name: "Matemáticas", short: "Matemáticas", icon: "∑" },
+    { name: "Lenguaje", short: "Lenguaje", icon: "📖" },
+    { name: "Ciencias Naturales", short: "Naturales", icon: "🌿" },
+    { name: "Inglés", short: "Inglés", icon: "Hi" },
+    { name: "Ciencias Sociales y Ciudadanía", short: "Sociales", icon: "🌎" },
+    { name: "Ética y Valores", short: "Ética", icon: "🤝" },
+    { name: "Artística", short: "Artística", icon: "🎨" },
+    { name: "Educación Física", short: "Ed. Física", icon: "🏃" },
+    { name: "Informática", short: "Informática", icon: "💻" },
+    { name: "Religión", short: "Religión", icon: "🕊️" }
+  ];
+
+  const DEFAULT_CONFIG = {
+    title: "Resultados de Pruebas Objetivas",
+    subtitle: "Este reporte no se pasa ni se pierde. Es una herramienta para identificar fortalezas, habilidades y oportunidades de mejora.",
+    logoImage: "assets/default-logo.svg",
+    bannerImage: "",
+    footerText: "Consulta institucional de resultados",
+    primaryColor: "#ff7900"
+  };
+
+  const DEFAULT_MANIFEST = {
+    keys: [{ grade: 10, path: "KEYS/ANSWER_10.csv" }],
+    resultados: [
+      { grade: 10, session: 1, startItem: 1, path: "RESULTADOS/10S1.csv" },
+      { grade: 10, session: 2, startItem: 71, path: "RESULTADOS/10S2.csv" }
+    ],
+    estudiantes: "ESTUDIANTES/ESTUDIANTES.csv",
+    carga: "INTERNO/CARGA.csv"
+  };
+
+  const state = {
+    manifest: DEFAULT_MANIFEST,
+    config: { ...DEFAULT_CONFIG },
+    logos: {},
+    keys: [],
+    studentsRegistry: [],
+    cargaRows: [],
+    teachers: new Map(),
+    responsesByRoll: new Map(),
+    computedStudents: [],
+    computedByRoll: new Map(),
+    studentLogin: new Map(),
+    registryByExamId: new Map(),
+    registryByNationalId: new Map(),
+    selectedSubject: null,
+    teacherActive: null,
+    teacherSearch: "",
+    adminTab: "resumen",
+    adminStudentSearch: "",
+    adminGradeFilter: "all",
+    adminSubjectFilter: "all",
+    activeSession: null
+  };
+
+  document.addEventListener("DOMContentLoaded", init);
+  document.addEventListener("submit", handleSubmit);
+  document.addEventListener("click", handleClick);
+  document.addEventListener("input", handleInput);
+  document.addEventListener("change", handleChange);
+  window.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeModal();
+  });
+
+  async function init() {
+    try {
+      loadLocalState();
+      await loadAllData();
+      buildRepository();
+      const saved = readJSON(STORAGE.session, null);
+      if (saved && saved.role) {
+        state.activeSession = saved;
+        renderBySession();
+      } else {
+        renderLogin();
+      }
+    } catch (error) {
+      console.error(error);
+      app.innerHTML = `
+        <div class="boot">
+          <div class="boot-mark"></div>
+          <h1>No fue posible cargar la información</h1>
+          <p>${esc(error.message || "Revisa que las carpetas y los CSV existan en el repositorio.")}</p>
+          <button class="primary-btn" data-action="retry">Reintentar</button>
+        </div>
+      `;
+    }
+  }
+
+  function loadLocalState() {
+    state.config = { ...DEFAULT_CONFIG, ...readJSON(STORAGE.config, {}) };
+    state.logos = readJSON(STORAGE.logos, {});
+    const storedCarga = readJSON(STORAGE.carga, null);
+    if (storedCarga && Array.isArray(storedCarga.rows)) {
+      state.cargaRows = storedCarga.rows;
+    }
+  }
+
+  async function loadAllData() {
+    const manifestText = await fetchText("config/data-manifest.json", false);
+    if (manifestText) {
+      state.manifest = { ...DEFAULT_MANIFEST, ...JSON.parse(manifestText) };
+    }
+
+    state.keys = [];
+    state.responsesByRoll = new Map();
+
+    const studentText = await fetchText(state.manifest.estudiantes, true);
+    state.studentsRegistry = parseStudents(studentText);
+
+    const storedCarga = readJSON(STORAGE.carga, null);
+    if (storedCarga && Array.isArray(storedCarga.rows)) {
+      state.cargaRows = storedCarga.rows;
+    } else {
+      const cargaText = await fetchText(state.manifest.carga, true);
+      state.cargaRows = parseCarga(cargaText);
+    }
+
+    for (const keyFile of state.manifest.keys || []) {
+      const text = await fetchText(keyFile.path, true);
+      state.keys.push(...parseAnswerKey(text, keyFile));
+    }
+
+    applyAnswerOverrides();
+
+    for (const resultFile of state.manifest.resultados || []) {
+      const text = await fetchText(resultFile.path, true);
+      parseResultFile(text, resultFile);
+    }
+  }
+
+  async function fetchText(path, required = true) {
+    if (!path) {
+      if (required) throw new Error("Falta una ruta en el manifiesto.");
+      return "";
+    }
+    try {
+      const url = `${path}${path.includes("?") ? "&" : "?"}v=${Date.now()}`;
+      const response = await fetch(url, { cache: "no-store" });
+      if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+      return await response.text();
+    } catch (error) {
+      if (!required) return "";
+      throw new Error(`No se pudo leer "${path}". En GitHub Pages verifica la carpeta, el nombre y las mayúsculas/minúsculas.`);
+    }
+  }
+
+  function parseStudents(text) {
+    const rows = parseCSV(text);
+    const headerIndex = findHeaderIndex(rows, ["ID", "Nombres"]);
+    return rowsToObjects(rows, headerIndex).map((row) => ({
+      examId: cleanId(row.ID || row.Id || row.id),
+      nationalId: cleanId(row["Carné"] || row.Carne || row.Carnet || row.Documento || row.documento),
+      name: cleanText(row.Nombres || row.Nombre || row.Name),
+      sede: cleanText(row.Sede),
+      grade: toInt(row.Grado),
+      group: cleanText(row.Grupo || row.Curso)
+    })).filter((s) => s.examId || s.nationalId || s.name);
+  }
+
+  function parseCarga(text) {
+    const rows = parseCSV(text);
+    const headerIndex = findHeaderIndex(rows, ["ID", "Asignatura"]);
+    return rowsToObjects(rows, headerIndex).map((row) => ({
+      id: cleanId(row.ID || row.Id || row.id),
+      name: cleanText(row.Nombre || row.Name),
+      subjectRaw: cleanText(row.Asignatura || row.Area || row.Área),
+      subject: canonicalSubject(row.Asignatura || row.Area || row.Área),
+      grade: toInt(row.Grado)
+    })).filter((r) => r.id && r.subjectRaw && r.grade);
+  }
+
+  function parseAnswerKey(text, fileInfo) {
+    const rows = parseCSV(text);
+    const headerIndex = findHeaderIndex(rows, ["Respuesta sugerida"]);
+    const grade = toInt(fileInfo.grade) || inferGradeFromPath(fileInfo.path);
+    return rowsToObjects(rows, headerIndex)
+      .map((row, idx) => ({
+        sourcePath: fileInfo.path,
+        grade,
+        areaRaw: cleanText(row["Área"] || row.Area || row.Asignatura),
+        area: canonicalSubject(row["Área"] || row.Area || row.Asignatura),
+        item: toInt(row["Número de ítem"] || row.Numero || row.Item || row["N°"]),
+        correct: cleanOption(row["Respuesta sugerida"] || row.Respuesta || row.Key),
+        component: cleanText(row["Componente / pensamiento / entorno / factor / enfoque"] || row.Componente || row.Pensamiento || row.Enfoque),
+        competence: cleanText(row.Competencia || row.Competencias),
+        idx
+      }))
+      .filter((r) => r.grade && r.area && r.item && r.correct);
+  }
+
+  function parseResultFile(text, fileInfo) {
+    const rows = parseCSV(text);
+    const headerIndex = findHeaderIndex(rows, ["Roll No", "Name"]);
+    const objects = rowsToObjects(rows, headerIndex);
+    const grade = toInt(fileInfo.grade) || inferGradeFromPath(fileInfo.path) || inferGradeFromExam(objects);
+    const session = toInt(fileInfo.session) || inferSessionFromPath(fileInfo.path);
+    const startItem = toInt(fileInfo.startItem) || (session === 2 ? 71 : 1);
+
+    for (const row of objects) {
+      const roll = cleanId(row["Roll No"] || row.RollNo || row.Roll || row.ID);
+      if (!roll) continue;
+
+      const current = state.responsesByRoll.get(roll) || {
+        roll,
+        name: cleanText(row.Name || row.Nombre),
+        grade,
+        sessions: [],
+        answers: {}
+      };
+
+      if (!current.name) current.name = cleanText(row.Name || row.Nombre);
+      if (!current.grade) current.grade = grade;
+      current.sessions.push({ session, path: fileInfo.path });
+
+      Object.entries(row).forEach(([key, value]) => {
+        const match = String(key).match(/^Q\s*(\d+)\s*Options$/i);
+        if (!match) return;
+        const localItem = Number(match[1]);
+        const globalItem = startItem + localItem - 1;
+        current.answers[globalItem] = cleanMarked(value);
+      });
+
+      state.responsesByRoll.set(roll, current);
+    }
+  }
+
+  function applyAnswerOverrides() {
+    const overrides = readJSON(STORAGE.answers, {});
+    state.keys = state.keys.map((row) => {
+      const id = keyId(row);
+      return overrides[id] ? { ...row, correct: cleanOption(overrides[id]) } : row;
+    });
+  }
+
+  function buildRepository() {
+    state.registryByExamId = new Map();
+    state.registryByNationalId = new Map();
+    state.studentsRegistry.forEach((student) => {
+      if (student.examId) state.registryByExamId.set(student.examId, student);
+      if (student.nationalId) state.registryByNationalId.set(student.nationalId, student);
+    });
+
+    state.teachers = new Map();
+    for (const row of state.cargaRows) {
+      if (!state.teachers.has(row.id)) {
+        state.teachers.set(row.id, { id: row.id, name: row.name, assignments: [] });
+      }
+      const teacher = state.teachers.get(row.id);
+      if (!teacher.name && row.name) teacher.name = row.name;
+      const assignmentKey = `${row.grade}|${canonicalSubject(row.subjectRaw)}`;
+      if (!teacher.assignments.some((a) => a.key === assignmentKey)) {
+        teacher.assignments.push({
+          key: assignmentKey,
+          grade: row.grade,
+          subject: canonicalSubject(row.subjectRaw),
+          subjectRaw: row.subjectRaw
+        });
+      }
+    }
+
+    const keysByGrade = groupBy(state.keys, (row) => String(row.grade));
+    state.computedStudents = Array.from(state.responsesByRoll.values()).map((record) => {
+      const registry = state.registryByExamId.get(record.roll);
+      const grade = toInt(registry?.grade) || toInt(record.grade);
+      const keys = keysByGrade.get(String(grade)) || [];
+      const subjectStats = {};
+      const allDetails = [];
+
+      for (const subject of SUBJECTS) {
+        const subjectKeys = keys.filter((key) => sameSubject(key.area, subject.name));
+        const details = subjectKeys.map((key) => {
+          const marked = record.answers[key.item] || "";
+          const status = classifyAnswer(marked, key.correct);
+          return {
+            item: key.item,
+            subject: subject.name,
+            marked,
+            correct: key.correct,
+            status,
+            component: key.component,
+            competence: key.competence
+          };
+        });
+
+        const total = details.length;
+        const correct = details.filter((d) => d.status === "correct").length;
+        const wrong = details.filter((d) => d.status === "wrong").length;
+        const doubleMark = details.filter((d) => d.status === "double").length;
+        const empty = details.filter((d) => d.status === "empty").length;
+
+        subjectStats[subject.name] = {
+          subject: subject.name,
+          total,
+          correct,
+          wrong,
+          doubleMark,
+          empty,
+          score: total ? calculateScore(correct, total) : null,
+          percentile: 0,
+          details
+        };
+
+        allDetails.push(...details);
+      }
+
+      const total = allDetails.length;
+      const correct = allDetails.filter((d) => d.status === "correct").length;
+      const wrong = allDetails.filter((d) => d.status === "wrong").length;
+      const doubleMark = allDetails.filter((d) => d.status === "double").length;
+      const empty = allDetails.filter((d) => d.status === "empty").length;
+
+      return {
+        roll: record.roll,
+        loginIds: [record.roll, registry?.nationalId].filter(Boolean),
+        name: cleanText(registry?.name) || cleanText(record.name) || `Estudiante ${record.roll}`,
+        scannedName: cleanText(record.name),
+        grade,
+        group: cleanText(registry?.group) || `Grado ${grade}`,
+        sede: cleanText(registry?.sede) || "Sin sede registrada",
+        registry,
+        total,
+        correct,
+        wrong,
+        doubleMark,
+        empty,
+        globalScore: total ? calculateScore(correct, total) : null,
+        percentile: 0,
+        gradeRank: null,
+        gradeCount: null,
+        courseRank: null,
+        courseCount: null,
+        subjectStats
+      };
+    });
+
+    assignRanks();
+
+    state.computedByRoll = new Map();
+    state.studentLogin = new Map();
+    for (const student of state.computedStudents) {
+      state.computedByRoll.set(student.roll, student);
+      student.loginIds.forEach((id) => state.studentLogin.set(id, student.roll));
+    }
+
+    for (const registry of state.studentsRegistry) {
+      if (registry.examId && !state.studentLogin.has(registry.examId)) {
+        state.studentLogin.set(registry.examId, registry.examId);
+      }
+      if (registry.nationalId && !state.studentLogin.has(registry.nationalId)) {
+        state.studentLogin.set(registry.nationalId, registry.examId || registry.nationalId);
+      }
+    }
+  }
+
+  function assignRanks() {
+    const byGrade = groupBy(state.computedStudents.filter((s) => s.globalScore !== null), (s) => String(s.grade || ""));
+    byGrade.forEach((students) => {
+      students.forEach((student) => {
+        student.gradeCount = students.length;
+        student.gradeRank = 1 + students.filter((other) => (other.globalScore || 0) > (student.globalScore || 0)).length;
+        student.percentile = students.length ? Math.round((students.filter((other) => (other.globalScore || 0) < (student.globalScore || 0)).length / students.length) * 100) : 0;
+      });
+
+      const byCourse = groupBy(students, (s) => `${s.grade}|${s.group || ""}`);
+      byCourse.forEach((courseStudents) => {
+        courseStudents.forEach((student) => {
+          student.courseCount = courseStudents.length;
+          student.courseRank = 1 + courseStudents.filter((other) => (other.globalScore || 0) > (student.globalScore || 0)).length;
+        });
+      });
+
+      for (const subject of SUBJECTS) {
+        const scored = students.filter((student) => student.subjectStats[subject.name]?.score !== null);
+        scored.forEach((student) => {
+          const stat = student.subjectStats[subject.name];
+          stat.percentile = scored.length ? Math.round((scored.filter((other) => (other.subjectStats[subject.name]?.score || 0) < stat.score).length / scored.length) * 100) : 0;
+        });
+      }
+    });
+  }
+
+  function renderBySession() {
+    if (!state.activeSession) return renderLogin();
+
+    if (state.activeSession.role === "admin") {
+      return renderAdmin();
+    }
+
+    if (state.activeSession.role === "teacher") {
+      const teacher = state.teachers.get(state.activeSession.id);
+      if (!teacher) {
+        clearSession();
+        return renderLogin("No se encontró el docente. Revisa la carga.");
+      }
+      return renderTeacher(teacher);
+    }
+
+    if (state.activeSession.role === "student") {
+      return renderStudent(state.activeSession.roll);
+    }
+
+    renderLogin();
+  }
+
+  function renderLogin(error = "") {
+    const logo = state.config.logoImage || "assets/default-logo.svg";
+    app.innerHTML = `
+      <section class="login-shell">
+        <div class="login-panel">
+          <div class="login-card">
+            <span class="login-eyebrow">Consulta de resultados</span>
+            <h1>Bienvenido</h1>
+            <p>Ingresa con el ID del examen, el documento del estudiante o el ID docente. Para administración usa <strong>admin</strong> / <strong>admin</strong>.</p>
+            ${error ? `<div class="admin-note">${esc(error)}</div>` : ""}
+            <form class="login-form" id="loginForm">
+              <div class="field">
+                <label for="loginUser">Usuario o ID</label>
+                <input id="loginUser" autocomplete="username" placeholder="Ej. 2585, 1085111839, ID docente o admin" required />
+              </div>
+              <div class="field">
+                <label for="loginPass">Contraseña</label>
+                <input id="loginPass" type="password" autocomplete="current-password" placeholder="Solo requerida para admin" />
+              </div>
+              <div class="login-actions">
+                <button class="primary-btn" type="submit">Ingresar</button>
+                <span class="login-hint">Los estudiantes y docentes ingresan solo con su ID.</span>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="login-hero">
+          <div class="hero-logo">
+            ${logo ? `<img src="${escAttr(logo)}" alt="Logo institucional">` : `<div class="hero-wordmark">icfes+</div>`}
+          </div>
+        </div>
+      </section>
+    `;
+    setTimeout(() => document.getElementById("loginUser")?.focus(), 50);
+  }
+
+  function renderShell(content, nav = "") {
+    const cfg = state.config;
+    document.documentElement.style.setProperty("--orange", cfg.primaryColor || "#ff7900");
+    const bannerStyle = cfg.bannerImage
+      ? `style="background-image: linear-gradient(100deg, rgba(255,122,0,.88), rgba(230,95,0,.82)), url('${escAttr(cfg.bannerImage)}')"`
+      : "";
+    app.innerHTML = `
+      <div class="app-shell">
+        <header class="top-banner" ${bannerStyle}>
+          <div class="banner-inner">
+            <div class="banner-copy">
+              <h1>${esc(cfg.title)}</h1>
+              <p>${esc(cfg.subtitle)}</p>
+            </div>
+            <div class="banner-brand">
+              ${cfg.logoImage ? `<img class="banner-logo" src="${escAttr(cfg.logoImage)}" alt="Logo">` : `<div class="banner-mark-text">Resultados</div>`}
+            </div>
+          </div>
+          ${nav}
+        </header>
+        <main class="page">
+          ${content}
+        </main>
+      </div>
+    `;
+  }
+
+  function renderStudent(roll) {
+    const student = state.computedByRoll.get(roll);
+    if (!student) {
+      const registry = state.registryByExamId.get(roll) || Array.from(state.registryByNationalId.values()).find((s) => s.examId === roll);
+      renderShell(`
+        <div class="card card-pad empty-state">
+          <h2>No hay resultados cargados para este estudiante</h2>
+          <p>${registry ? `El estudiante ${esc(registry.name)} está registrado, pero no aparece en los archivos de RESULTADOS.` : "El ID ingresado no tiene un examen asociado."}</p>
+          <button class="ghost-btn" data-action="logout">Salir</button>
+        </div>
+      `, navFor("student"));
+      return;
+    }
+
+    const availableSubjects = SUBJECTS.filter((s) => student.subjectStats[s.name]?.total);
+    if (!state.selectedSubject || !student.subjectStats[state.selectedSubject]?.total) {
+      state.selectedSubject = availableSubjects[0]?.name || SUBJECTS[0].name;
+    }
+    const subject = state.selectedSubject;
+    const stat = student.subjectStats[subject];
+
+    const subjectCards = availableSubjects.map((item) => {
+      const s = student.subjectStats[item.name];
+      return `
+        <article class="subject-card ${item.name === subject ? "active" : ""}" data-action="select-subject" data-subject="${escAttr(item.name)}">
+          <div class="subject-name">
+            ${subjectIcon(item.name)}
+            <span>${esc(item.short)}</span>
+          </div>
+          <div class="subject-score">${s.score ?? "—"}<small>/100</small></div>
+        </article>
+      `;
+    }).join("");
+
+    renderShell(`
+      <section class="grid hero-result">
+        <article class="card score-card">
+          <div class="score-label"><span class="score-icon">🏆</span><span>Puntaje global</span></div>
+          <div class="score-number">${student.globalScore ?? "—"}<small>/100</small></div>
+          <div class="student-meta">
+            <div class="meta-row"><span>Estudiante</span><strong>${esc(student.name)}</strong></div>
+            <div class="meta-row"><span>ID examen</span><strong>${esc(student.roll)}</strong></div>
+            <div class="meta-row"><span>Grado / curso</span><strong>${esc(student.grade)}° · ${esc(student.group)}</strong></div>
+            <div class="meta-row"><span>Sede</span><strong>${esc(student.sede)}</strong></div>
+            <div class="meta-row"><span>Ranking curso</span><strong>${rankText(student.courseRank, student.courseCount)}</strong></div>
+            <div class="meta-row"><span>Ranking grado</span><strong>${rankText(student.gradeRank, student.gradeCount)}</strong></div>
+          </div>
+        </article>
+        <article class="card percentile-card">
+          <div class="percentile-head"><span class="score-icon">📍</span><span>¿En qué percentil estás?</span></div>
+          <div class="percentile-big">
+            <div>
+              <div class="progress-label">Estudiantes del mismo grado</div>
+              <div class="progress-bar"><div class="progress-fill" style="width:${clamp(student.percentile, 0, 100)}%"></div></div>
+              <div class="progress-axis"><span>0</span><span>20</span><span>40</span><span>60</span><span>80</span><span>100</span></div>
+            </div>
+            <div class="percentile-number">${student.percentile ?? 0}</div>
+          </div>
+          <p style="margin:0;color:#686b74;font-weight:650;">Tu puntaje superó al ${student.percentile ?? 0}% de los estudiantes cargados para el mismo grado.</p>
+        </article>
+      </section>
+
+      <section style="margin-top:22px;">
+        <h2 style="font-size:1rem;margin:0 0 12px;font-weight:900;">Puntaje por pruebas</h2>
+        <div class="subject-strip">${subjectCards}</div>
+      </section>
+
+      <section class="card detail-card">
+        ${buildSubjectDetailHtml(student, subject, stat, false)}
+      </section>
+    `, navFor("student"));
+  }
+
+  function buildSubjectDetailHtml(student, subject, stat, compact = false) {
+    const level = performanceLevel(stat?.score ?? 20);
+    const skills = buildSkills(stat?.details || []);
+    const detailRows = (stat?.details || []).map((detail) => answerPill(detail, student.roll)).join("");
+    return `
+      <div class="detail-grid">
+        <aside class="detail-side">
+          <h3 class="detail-title">Prueba: <span style="color:var(--ink)">${esc(subject)}</span></h3>
+          <div class="score-label"><span class="score-icon">🏆</span><span>Puntaje</span></div>
+          <div class="score-number" style="font-size:3rem;">${stat?.score ?? "—"}<small>/100</small></div>
+          <div class="student-meta">
+            <div class="meta-row"><span>Correctas</span><strong>${stat?.correct ?? 0} de ${stat?.total ?? 0}</strong></div>
+            <div class="meta-row"><span>Incorrectas</span><strong>${(stat?.wrong ?? 0) + (stat?.doubleMark ?? 0)}</strong></div>
+            <div class="meta-row"><span>Sin marcar</span><strong>${stat?.empty ?? 0}</strong></div>
+            <div class="meta-row"><span>Percentil área</span><strong>${stat?.percentile ?? 0}</strong></div>
+          </div>
+          <div style="margin-top:18px;">
+            <div class="progress-label">Estudiantes a nivel grado</div>
+            <div class="progress-bar"><div class="progress-fill" style="width:${clamp(stat?.percentile ?? 0, 0, 100)}%"></div></div>
+            <div class="progress-axis"><span>0</span><span>20</span><span>40</span><span>60</span><span>80</span><span>100</span></div>
+          </div>
+        </aside>
+        <div class="detail-main">
+          <div style="display:flex;gap:16px;align-items:start;justify-content:space-between;flex-wrap:wrap;">
+            <div>
+              <div class="score-label"><span class="score-icon">🎖️</span><span>Nivel de desempeño</span></div>
+              <div class="levels" aria-label="Nivel ${level}">
+                ${[1,2,3,4].map((n) => `<div class="level ${n <= level ? "active" : ""}">${n}</div>`).join("")}
+              </div>
+            </div>
+            ${compact ? "" : `<button class="ghost-btn" data-action="print">Imprimir PDF</button>`}
+          </div>
+
+          <h4 style="margin:0 0 8px;font-weight:900;color:#565963;">¿Qué habilidades reflejan estos resultados?</h4>
+          <ul class="skills">${skills}</ul>
+
+          <div class="answer-tools">
+            <h4 style="margin:0;font-weight:900;">Opciones marcadas</h4>
+            <div class="legend">
+              <span class="legend-item"><i class="dot correct"></i>Correcta</span>
+              <span class="legend-item"><i class="dot wrong"></i>Incorrecta</span>
+              <span class="legend-item"><i class="dot double"></i>Doble marca</span>
+              <span class="legend-item"><i class="dot empty"></i>Sin marcar</span>
+            </div>
+          </div>
+          <div class="answers-grid">${detailRows || `<div class="empty-state">No hay ítems para esta asignatura.</div>`}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderTeacher(teacher) {
+    const assignments = teacher.assignments || [];
+    if (!state.teacherActive || !assignments.some((a) => a.key === state.teacherActive.key)) {
+      state.teacherActive = assignments[0] || null;
+    }
+
+    const active = state.teacherActive;
+    const assignmentButtons = assignments.map((a) => `
+      <button class="tab-btn ${active?.key === a.key ? "active" : ""}" data-action="teacher-assignment" data-grade="${escAttr(a.grade)}" data-subject="${escAttr(a.subject)}">
+        ${esc(a.subject)} · ${esc(a.grade)}°
+      </button>
+    `).join("");
+
+    const students = active
+      ? state.computedStudents.filter((s) => String(s.grade) === String(active.grade) && s.subjectStats[active.subject]?.total)
+      : [];
+
+    const query = normalizeText(state.teacherSearch);
+    const filtered = students
+      .filter((s) => !query || normalizeText(`${s.name} ${s.roll} ${s.group}`).includes(query))
+      .sort((a, b) => (b.subjectStats[active.subject].score ?? 0) - (a.subjectStats[active.subject].score ?? 0));
+
+    const rows = filtered.map((student, index) => {
+      const stat = student.subjectStats[active.subject];
+      return `
+        <tr class="table-row-click" data-action="open-detail" data-roll="${escAttr(student.roll)}" data-subject="${escAttr(active.subject)}">
+          <td><span class="badge orange">#${index + 1}</span></td>
+          <td><strong>${esc(student.name)}</strong><br><span style="color:#83858e;font-size:.78rem;">ID ${esc(student.roll)}</span></td>
+          <td>${esc(student.group)}</td>
+          <td><span class="inline-score">${stat.score ?? "—"}<small>/100</small></span></td>
+          <td>${stat.correct}/${stat.total}</td>
+          <td><span class="badge ${performanceClass(stat.score)}">Nivel ${performanceLevel(stat.score ?? 20)}</span></td>
+        </tr>
+      `;
+    }).join("");
+
+    renderShell(`
+      <section class="toolbar">
+        <div>
+          <span class="section-eyebrow">Panel docente</span>
+          <h2 style="margin:8px 0 0;font-size:clamp(1.4rem,4vw,2.2rem);font-weight:900;letter-spacing:-.04em;">${esc(teacher.name || "Docente")}</h2>
+        </div>
+        <div class="search-box"><input placeholder="Buscar estudiante..." value="${escAttr(state.teacherSearch)}" data-action="teacher-search"></div>
+      </section>
+
+      <nav class="app-nav" style="padding:0 0 18px;max-width:none;">${assignmentButtons || `<span class="badge gray">Sin cargas asignadas</span>`}</nav>
+
+      ${active ? `
+        <section class="grid grid-auto" style="margin-bottom:18px;">
+          <article class="card card-pad"><span class="section-eyebrow">Asignatura</span><h3 style="margin:8px 0 0;font-size:1.5rem;">${esc(active.subject)}</h3></article>
+          <article class="card card-pad"><span class="section-eyebrow">Grado</span><h3 style="margin:8px 0 0;font-size:1.5rem;">${esc(active.grade)}°</h3></article>
+          <article class="card card-pad"><span class="section-eyebrow">Estudiantes</span><h3 style="margin:8px 0 0;font-size:1.5rem;">${filtered.length}</h3></article>
+          <article class="card card-pad"><span class="section-eyebrow">Promedio</span><h3 style="margin:8px 0 0;font-size:1.5rem;">${avg(filtered.map((s) => s.subjectStats[active.subject].score))}<small style="color:#8c8f98">/100</small></h3></article>
+        </section>
+      ` : ""}
+
+      <section class="card table-card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Rank</th><th>Estudiante</th><th>Curso</th><th>Nota</th><th>Correctas</th><th>Nivel</th></tr></thead>
+            <tbody>${rows || `<tr><td colspan="6" class="empty-state">No hay estudiantes para esta asignación con los archivos cargados.</td></tr>`}</tbody>
+          </table>
+        </div>
+      </section>
+    `, navFor("teacher"));
+  }
+
+  function renderAdmin() {
+    const tabs = [
+      ["resumen", "Resumen"],
+      ["estudiantes", "Estudiantes"],
+      ["apariencia", "Apariencia"],
+      ["logos", "Logos"],
+      ["cargas", "Cargas"],
+      ["claves", "Claves"]
+    ];
+
+    const nav = `
+      <nav class="app-nav">
+        ${tabs.map(([id, label]) => `<button class="nav-chip ${state.adminTab === id ? "active" : ""}" data-action="admin-tab" data-tab="${id}">${label}</button>`).join("")}
+        <button class="nav-chip logout" data-action="logout">Salir</button>
+      </nav>
+    `;
+
+    const menu = `
+      <aside class="card admin-menu">
+        ${tabs.map(([id, label]) => `<button class="ghost-btn ${state.adminTab === id ? "active" : ""}" data-action="admin-tab" data-tab="${id}">${label}</button>`).join("")}
+      </aside>
+    `;
+
+    renderShell(`
+      <section class="admin-layout">
+        ${menu}
+        <div class="admin-panel">${renderAdminTab()}</div>
+      </section>
+    `, nav);
+  }
+
+  function renderAdminTab() {
+    switch (state.adminTab) {
+      case "estudiantes": return adminStudentsHtml();
+      case "apariencia": return adminAppearanceHtml();
+      case "logos": return adminLogosHtml();
+      case "cargas": return adminCargaHtml();
+      case "claves": return adminKeysHtml();
+      default: return adminSummaryHtml();
+    }
+  }
+
+  function adminSummaryHtml() {
+    const grades = [...new Set(state.computedStudents.map((s) => s.grade).filter(Boolean))].sort((a, b) => a - b);
+    const avgGlobal = avg(state.computedStudents.map((s) => s.globalScore));
+    return `
+      <section class="toolbar">
+        <div>
+          <span class="section-eyebrow">Administración</span>
+          <h2 style="margin:8px 0 0;font-size:clamp(1.5rem,4vw,2.4rem);font-weight:900;letter-spacing:-.04em;">Panel general</h2>
+        </div>
+        <div class="inline-actions">
+          <button class="secondary-btn" data-action="export-config">Exportar configuración</button>
+          <button class="ghost-btn" data-action="print">Imprimir</button>
+        </div>
+      </section>
+      <div class="admin-note">
+        Esta versión funciona en GitHub Pages como aplicación estática. Los cambios hechos desde el panel admin se guardan en este navegador. Para que todos los usuarios los vean, exporta los CSV/configuración y súbelos al repositorio.
+      </div>
+      <section class="grid grid-auto">
+        <article class="card card-pad"><span class="section-eyebrow">Exámenes</span><h3 style="margin:8px 0 0;font-size:2rem;">${state.computedStudents.length}</h3></article>
+        <article class="card card-pad"><span class="section-eyebrow">Docentes</span><h3 style="margin:8px 0 0;font-size:2rem;">${state.teachers.size}</h3></article>
+        <article class="card card-pad"><span class="section-eyebrow">Grados</span><h3 style="margin:8px 0 0;font-size:2rem;">${grades.join(", ") || "—"}</h3></article>
+        <article class="card card-pad"><span class="section-eyebrow">Promedio global</span><h3 style="margin:8px 0 0;font-size:2rem;">${avgGlobal}<small style="color:#8c8f98">/100</small></h3></article>
+      </section>
+      <section class="grid grid-2" style="margin-top:18px;">
+        <article class="card card-pad">
+          <h3 style="margin:0 0 12px;font-weight:900;">Promedios por asignatura</h3>
+          ${SUBJECTS.map((subject) => {
+            const values = state.computedStudents.map((s) => s.subjectStats[subject.name]?.score).filter((v) => Number.isFinite(v));
+            const value = Number(avg(values));
+            return `
+              <div class="meta-row">
+                <span>${subjectIcon(subject.name)} ${esc(subject.name)}</span>
+                <strong>${Number.isFinite(value) ? value : "—"}/100</strong>
+              </div>
+            `;
+          }).join("")}
+        </article>
+        <article class="card card-pad">
+          <h3 style="margin:0 0 12px;font-weight:900;">Carpetas esperadas en GitHub</h3>
+          <div class="meta-row"><span>Claves</span><strong>KEYS/ANSWER_10.csv</strong></div>
+          <div class="meta-row"><span>Resultados</span><strong>RESULTADOS/10S1.csv · 10S2.csv</strong></div>
+          <div class="meta-row"><span>Estudiantes</span><strong>ESTUDIANTES/ESTUDIANTES.csv</strong></div>
+          <div class="meta-row"><span>Carga docente</span><strong>INTERNO/CARGA.csv</strong></div>
+          <p style="color:#686b74;font-weight:650;line-height:1.5;">Para nuevos grados agrega los archivos y actualiza <strong>config/data-manifest.json</strong>.</p>
+        </article>
+      </section>
+    `;
+  }
+
+  function adminStudentsHtml() {
+    const grades = [...new Set(state.computedStudents.map((s) => s.grade).filter(Boolean))].sort((a, b) => a - b);
+    const query = normalizeText(state.adminStudentSearch);
+    const subject = state.adminSubjectFilter;
+    let students = state.computedStudents.filter((s) => {
+      const matchesText = !query || normalizeText(`${s.name} ${s.roll} ${s.group} ${s.sede}`).includes(query);
+      const matchesGrade = state.adminGradeFilter === "all" || String(s.grade) === String(state.adminGradeFilter);
+      const matchesSubject = subject === "all" || s.subjectStats[subject]?.total;
+      return matchesText && matchesGrade && matchesSubject;
+    });
+
+    students = students.sort((a, b) => (b.globalScore ?? 0) - (a.globalScore ?? 0));
+
+    return `
+      <section class="toolbar">
+        <div>
+          <span class="section-eyebrow">Todos los exámenes</span>
+          <h2 style="margin:8px 0 0;font-weight:900;">Resultados por estudiante</h2>
+        </div>
+        <div class="toolbar-right">
+          <div class="search-box"><input placeholder="Buscar..." value="${escAttr(state.adminStudentSearch)}" data-action="admin-student-search"></div>
+          <select class="select-pill" data-action="admin-grade-filter">
+            <option value="all">Todos los grados</option>
+            ${grades.map((g) => `<option value="${g}" ${String(state.adminGradeFilter) === String(g) ? "selected" : ""}>${g}°</option>`).join("")}
+          </select>
+          <select class="select-pill" data-action="admin-subject-filter">
+            <option value="all">Todas las áreas</option>
+            ${SUBJECTS.map((s) => `<option value="${escAttr(s.name)}" ${subject === s.name ? "selected" : ""}>${esc(s.name)}</option>`).join("")}
+          </select>
+        </div>
+      </section>
+      <section class="card table-card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Estudiante</th><th>Grado/curso</th><th>Global</th><th>Rank grado</th><th>Acción</th></tr></thead>
+            <tbody>
+              ${students.map((student, index) => `
+                <tr>
+                  <td><span class="badge gray">${index + 1}</span></td>
+                  <td><strong>${esc(student.name)}</strong><br><span style="color:#83858e;font-size:.78rem;">ID ${esc(student.roll)} · ${esc(student.sede)}</span></td>
+                  <td>${esc(student.grade)}° · ${esc(student.group)}</td>
+                  <td><span class="inline-score">${student.globalScore ?? "—"}<small>/100</small></span></td>
+                  <td>${rankText(student.gradeRank, student.gradeCount)}</td>
+                  <td><button class="secondary-btn" data-action="open-detail" data-roll="${escAttr(student.roll)}" data-subject="${escAttr(subject === "all" ? SUBJECTS[0].name : subject)}">Ver</button></td>
+                </tr>
+              `).join("") || `<tr><td colspan="6" class="empty-state">No hay resultados con los filtros actuales.</td></tr>`}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    `;
+  }
+
+  function adminAppearanceHtml() {
+    const cfg = state.config;
+    return `
+      <section class="toolbar">
+        <div>
+          <span class="section-eyebrow">Apariencia</span>
+          <h2 style="margin:8px 0 0;font-weight:900;">Banner, logo y textos</h2>
+        </div>
+      </section>
+      <div class="admin-note">Puedes subir imágenes desde el panel. Quedan guardadas en este navegador. Para publicar la misma apariencia para todos, exporta la configuración y reemplaza el archivo correspondiente en el repositorio o vuelve a subir las imágenes como recursos.</div>
+      <form id="appearanceForm" class="card card-pad">
+        <div class="form-grid">
+          <div class="field span-2">
+            <label>Título superior</label>
+            <input value="${escAttr(cfg.title)}" data-config-field="title">
+          </div>
+          <div class="field span-2">
+            <label>Texto inferior / subtítulo</label>
+            <textarea data-config-field="subtitle">${esc(cfg.subtitle)}</textarea>
+          </div>
+          <div class="field">
+            <label>Color principal</label>
+            <input type="color" value="${escAttr(cfg.primaryColor || "#ff7900")}" data-config-field="primaryColor">
+          </div>
+          <div class="field">
+            <label>Texto institucional auxiliar</label>
+            <input value="${escAttr(cfg.footerText || "")}" data-config-field="footerText">
+          </div>
+          <div class="field">
+            <label>Logo principal</label>
+            <input type="file" accept="image/*" data-action="upload-logo-main">
+          </div>
+          <div class="field">
+            <label>Imagen de banner</label>
+            <input type="file" accept="image/*" data-action="upload-banner">
+          </div>
+          <div class="span-2 inline-actions">
+            <button class="primary-btn" type="submit">Guardar apariencia</button>
+            <button class="ghost-btn" type="button" data-action="clear-banner">Quitar imagen de banner</button>
+            <button class="secondary-btn" type="button" data-action="export-config">Exportar configuración</button>
+          </div>
+        </div>
+      </form>
+    `;
+  }
+
+  function adminLogosHtml() {
+    return `
+      <section class="toolbar">
+        <div>
+          <span class="section-eyebrow">Logos por asignatura</span>
+          <h2 style="margin:8px 0 0;font-weight:900;">Íconos de las pruebas</h2>
+        </div>
+        <button class="secondary-btn" data-action="reset-logos">Restaurar íconos</button>
+      </section>
+      <section class="logo-grid">
+        ${SUBJECTS.map((subject) => `
+          <article class="logo-item">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <div class="preview-logo">${subjectIcon(subject.name)}</div>
+              <strong>${esc(subject.name)}</strong>
+            </div>
+            <input class="small-input" type="file" accept="image/*" data-action="upload-subject-logo" data-subject="${escAttr(subject.name)}">
+            <button class="ghost-btn" data-action="clear-subject-logo" data-subject="${escAttr(subject.name)}">Quitar logo</button>
+          </article>
+        `).join("")}
+      </section>
+    `;
+  }
+
+  function adminCargaHtml() {
+    const rows = state.cargaRows;
+    return `
+      <section class="toolbar">
+        <div>
+          <span class="section-eyebrow">Carga docente</span>
+          <h2 style="margin:8px 0 0;font-weight:900;">Docente · asignatura · grado</h2>
+        </div>
+        <div class="inline-actions">
+          <button class="primary-btn" data-action="add-carga">Agregar fila</button>
+          <button class="secondary-btn" data-action="save-carga">Guardar cargas</button>
+          <button class="ghost-btn" data-action="export-carga">Exportar CSV</button>
+        </div>
+      </section>
+      <div class="admin-note">Al guardar, la carga se reemplaza localmente. Exporta el CSV y súbelo como <strong>INTERNO/CARGA.csv</strong> para publicarlo.</div>
+      <section class="card table-card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>ID docente</th><th>Nombre</th><th>Asignatura</th><th>Grado</th><th></th></tr></thead>
+            <tbody>
+              ${rows.map((row, index) => `
+                <tr>
+                  <td><input class="small-input" value="${escAttr(row.id)}" data-carga-row="${index}" data-field="id"></td>
+                  <td><input class="small-input" value="${escAttr(row.name)}" data-carga-row="${index}" data-field="name"></td>
+                  <td><input class="small-input" value="${escAttr(row.subjectRaw || row.subject)}" data-carga-row="${index}" data-field="subjectRaw"></td>
+                  <td><input class="small-input" value="${escAttr(row.grade)}" data-carga-row="${index}" data-field="grade"></td>
+                  <td><button class="danger-btn" data-action="delete-carga" data-index="${index}">Eliminar</button></td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    `;
+  }
+
+  function adminKeysHtml() {
+    const grades = [...new Set(state.keys.map((k) => k.grade).filter(Boolean))].sort((a, b) => a - b);
+    const grade = state.adminGradeFilter === "all" ? (grades[0] || "all") : state.adminGradeFilter;
+    const subject = state.adminSubjectFilter;
+    let rows = state.keys.filter((key) => String(key.grade) === String(grade));
+    if (subject !== "all") rows = rows.filter((key) => sameSubject(key.area, subject));
+
+    return `
+      <section class="toolbar">
+        <div>
+          <span class="section-eyebrow">Claves de respuesta</span>
+          <h2 style="margin:8px 0 0;font-weight:900;">Editar respuestas correctas</h2>
+        </div>
+        <div class="toolbar-right">
+          <select class="select-pill" data-action="admin-grade-filter">
+            ${grades.map((g) => `<option value="${g}" ${String(grade) === String(g) ? "selected" : ""}>Grado ${g}°</option>`).join("")}
+          </select>
+          <select class="select-pill" data-action="admin-subject-filter">
+            <option value="all">Todas las áreas</option>
+            ${SUBJECTS.map((s) => `<option value="${escAttr(s.name)}" ${subject === s.name ? "selected" : ""}>${esc(s.name)}</option>`).join("")}
+          </select>
+        </div>
+      </section>
+      <div class="admin-note">Después de guardar, los cálculos se actualizan en este navegador. Exporta el CSV editado y súbelo a <strong>KEYS/ANSWER_10.csv</strong> o al archivo de claves correspondiente.</div>
+      <div class="inline-actions" style="margin-bottom:14px;">
+        <button class="secondary-btn" data-action="save-keys">Guardar claves</button>
+        <button class="ghost-btn" data-action="export-keys">Exportar CSV</button>
+        <button class="danger-btn" data-action="reset-keys">Restaurar claves originales</button>
+      </div>
+      <section class="card table-card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Grado</th><th>Área</th><th>Ítem</th><th>Respuesta</th><th>Componente</th><th>Competencia</th></tr></thead>
+            <tbody>
+              ${rows.map((key) => `
+                <tr>
+                  <td>${esc(key.grade)}°</td>
+                  <td>${esc(key.areaRaw || key.area)}</td>
+                  <td><strong>${esc(key.item)}</strong></td>
+                  <td>
+                    <select class="small-input" data-key-id="${escAttr(keyId(key))}">
+                      ${["A","B","C","D","E","F","G","H"].map((op) => `<option value="${op}" ${key.correct === op ? "selected" : ""}>${op}</option>`).join("")}
+                    </select>
+                  </td>
+                  <td>${esc(key.component)}</td>
+                  <td>${esc(key.competence)}</td>
+                </tr>
+              `).join("") || `<tr><td colspan="6" class="empty-state">No hay claves con este filtro.</td></tr>`}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    `;
+  }
+
+  function navFor(role) {
+    if (role === "student") {
+      return `
+        <nav class="app-nav">
+          <button class="nav-chip active">Reporte general</button>
+          <button class="nav-chip" data-action="print">Imprimir PDF</button>
+          <button class="nav-chip logout" data-action="logout">Salir</button>
+        </nav>
+      `;
+    }
+    if (role === "teacher") {
+      return `
+        <nav class="app-nav">
+          <button class="nav-chip active">Panel docente</button>
+          <button class="nav-chip logout" data-action="logout">Salir</button>
+        </nav>
+      `;
+    }
+    return "";
+  }
+
+  function handleSubmit(event) {
+    if (event.target.id === "loginForm") {
+      event.preventDefault();
+      const user = cleanId(document.getElementById("loginUser").value);
+      const pass = String(document.getElementById("loginPass").value || "").trim();
+
+      if (!user) return renderLogin("Ingresa un usuario o ID.");
+
+      if (normalizeText(user) === "admin") {
+        if (pass === "admin") {
+          state.activeSession = { role: "admin", id: "admin" };
+          writeJSON(STORAGE.session, state.activeSession);
+          state.adminTab = "resumen";
+          renderAdmin();
+        } else {
+          renderLogin("Contraseña de administrador incorrecta.");
+        }
+        return;
+      }
+
+      if (state.teachers.has(user)) {
+        state.activeSession = { role: "teacher", id: user };
+        writeJSON(STORAGE.session, state.activeSession);
+        state.teacherActive = null;
+        renderTeacher(state.teachers.get(user));
+        return;
+      }
+
+      if (state.studentLogin.has(user)) {
+        const roll = state.studentLogin.get(user);
+        state.activeSession = { role: "student", roll };
+        writeJSON(STORAGE.session, state.activeSession);
+        state.selectedSubject = null;
+        renderStudent(roll);
+        return;
+      }
+
+      if (state.responsesByRoll.has(user)) {
+        state.activeSession = { role: "student", roll: user };
+        writeJSON(STORAGE.session, state.activeSession);
+        state.selectedSubject = null;
+        renderStudent(user);
+        return;
+      }
+
+      renderLogin("No encontré ese ID en estudiantes, docentes o resultados.");
+    }
+
+    if (event.target.id === "appearanceForm") {
+      event.preventDefault();
+      saveConfig();
+      toast("Apariencia guardada.");
+      renderAdmin();
+    }
+  }
+
+  function handleClick(event) {
+    const target = event.target.closest("[data-action]");
+    if (!target) return;
+
+    const action = target.dataset.action;
+
+    if (action === "retry") {
+      init();
+    }
+
+    if (action === "logout") {
+      clearSession();
+      renderLogin();
+    }
+
+    if (action === "print") {
+      window.print();
+    }
+
+    if (action === "select-subject") {
+      state.selectedSubject = target.dataset.subject;
+      renderBySession();
+    }
+
+    if (action === "teacher-assignment") {
+      state.teacherActive = {
+        key: `${target.dataset.grade}|${canonicalSubject(target.dataset.subject)}`,
+        grade: toInt(target.dataset.grade),
+        subject: canonicalSubject(target.dataset.subject),
+        subjectRaw: target.dataset.subject
+      };
+      renderBySession();
+    }
+
+    if (action === "open-detail") {
+      openDetailModal(target.dataset.roll, target.dataset.subject);
+    }
+
+    if (action === "close-modal") {
+      closeModal();
+    }
+
+    if (action === "answer-info") {
+      openAnswerInfo(target.dataset.roll, target.dataset.subject, toInt(target.dataset.item));
+    }
+
+    if (action === "admin-tab") {
+      state.adminTab = target.dataset.tab;
+      if (state.adminTab !== "claves") {
+        state.adminSubjectFilter = "all";
+      }
+      renderAdmin();
+    }
+
+    if (action === "clear-banner") {
+      state.config.bannerImage = "";
+      writeJSON(STORAGE.config, state.config);
+      toast("Imagen de banner eliminada.");
+      renderAdmin();
+    }
+
+    if (action === "export-config") {
+      downloadFile("configuracion-resultados.json", JSON.stringify({ config: state.config, logos: state.logos }, null, 2), "application/json");
+    }
+
+    if (action === "reset-logos") {
+      state.logos = {};
+      writeJSON(STORAGE.logos, state.logos);
+      toast("Íconos restaurados.");
+      renderAdmin();
+    }
+
+    if (action === "clear-subject-logo") {
+      delete state.logos[target.dataset.subject];
+      writeJSON(STORAGE.logos, state.logos);
+      toast("Logo eliminado.");
+      renderAdmin();
+    }
+
+    if (action === "add-carga") {
+      state.cargaRows.unshift({ id: "", name: "", subjectRaw: "Matemáticas", subject: "Matemáticas", grade: 10 });
+      renderAdmin();
+    }
+
+    if (action === "delete-carga") {
+      const index = Number(target.dataset.index);
+      state.cargaRows.splice(index, 1);
+      renderAdmin();
+    }
+
+    if (action === "save-carga") {
+      normalizeCargaRows();
+      writeJSON(STORAGE.carga, { rows: state.cargaRows });
+      buildRepository();
+      toast("Carga guardada localmente.");
+      renderAdmin();
+    }
+
+    if (action === "export-carga") {
+      exportCarga();
+    }
+
+    if (action === "save-keys") {
+      saveKeys();
+      toast("Claves guardadas localmente.");
+      renderAdmin();
+    }
+
+    if (action === "export-keys") {
+      exportKeys();
+    }
+
+    if (action === "reset-keys") {
+      localStorage.removeItem(STORAGE.answers);
+      toast("Claves locales eliminadas. Recargando datos...");
+      setTimeout(() => location.reload(), 500);
+    }
+  }
+
+  function handleInput(event) {
+    const target = event.target;
+
+    if (target.dataset.action === "teacher-search") {
+      state.teacherSearch = target.value;
+      renderBySession();
+    }
+
+    if (target.dataset.action === "admin-student-search") {
+      state.adminStudentSearch = target.value;
+      renderAdmin();
+    }
+
+    if (target.dataset.configField) {
+      state.config[target.dataset.configField] = target.value;
+    }
+
+    if (target.dataset.cargaRow) {
+      const index = Number(target.dataset.cargaRow);
+      const field = target.dataset.field;
+      if (!state.cargaRows[index]) return;
+      if (field === "grade") {
+        state.cargaRows[index].grade = toInt(target.value);
+      } else if (field === "subjectRaw") {
+        state.cargaRows[index].subjectRaw = target.value;
+        state.cargaRows[index].subject = canonicalSubject(target.value);
+      } else if (field === "id") {
+        state.cargaRows[index].id = cleanId(target.value);
+      } else if (field === "name") {
+        state.cargaRows[index].name = target.value;
+      }
+    }
+  }
+
+  function handleChange(event) {
+    const target = event.target;
+
+    if (target.dataset.action === "admin-grade-filter") {
+      state.adminGradeFilter = target.value;
+      renderAdmin();
+    }
+
+    if (target.dataset.action === "admin-subject-filter") {
+      state.adminSubjectFilter = target.value;
+      renderAdmin();
+    }
+
+    if (target.dataset.action === "upload-logo-main") {
+      readImageFile(target.files?.[0], (dataUrl) => {
+        state.config.logoImage = dataUrl;
+        writeJSON(STORAGE.config, state.config);
+        toast("Logo principal actualizado.");
+        renderAdmin();
+      });
+    }
+
+    if (target.dataset.action === "upload-banner") {
+      readImageFile(target.files?.[0], (dataUrl) => {
+        state.config.bannerImage = dataUrl;
+        writeJSON(STORAGE.config, state.config);
+        toast("Banner actualizado.");
+        renderAdmin();
+      });
+    }
+
+    if (target.dataset.action === "upload-subject-logo") {
+      const subject = target.dataset.subject;
+      readImageFile(target.files?.[0], (dataUrl) => {
+        state.logos[subject] = dataUrl;
+        writeJSON(STORAGE.logos, state.logos);
+        toast(`Logo de ${subject} actualizado.`);
+        renderAdmin();
+      });
+    }
+
+    if (target.dataset.keyId) {
+      const id = target.dataset.keyId;
+      const key = state.keys.find((row) => keyId(row) === id);
+      if (key) {
+        key.correct = cleanOption(target.value);
+        buildRepository();
+      }
+    }
+  }
+
+  function saveConfig() {
+    state.config = { ...DEFAULT_CONFIG, ...state.config };
+    writeJSON(STORAGE.config, state.config);
+  }
+
+  function normalizeCargaRows() {
+    state.cargaRows = state.cargaRows
+      .map((row) => ({
+        id: cleanId(row.id),
+        name: cleanText(row.name),
+        subjectRaw: cleanText(row.subjectRaw || row.subject),
+        subject: canonicalSubject(row.subjectRaw || row.subject),
+        grade: toInt(row.grade)
+      }))
+      .filter((row) => row.id && row.subjectRaw && row.grade);
+  }
+
+  function saveKeys() {
+    const overrides = {};
+    state.keys.forEach((row) => {
+      overrides[keyId(row)] = cleanOption(row.correct);
+    });
+    writeJSON(STORAGE.answers, overrides);
+    buildRepository();
+  }
+
+  function exportCarga() {
+    normalizeCargaRows();
+    const rows = [["ID", "Nombre", "Asignatura", "Grado"]];
+    state.cargaRows.forEach((row) => rows.push([row.id, row.name, row.subjectRaw || row.subject, row.grade]));
+    downloadFile("CARGA.csv", toCSV(rows), "text/csv;charset=utf-8");
+  }
+
+  function exportKeys() {
+    const rows = [["Área", "Número de ítem", "Respuesta sugerida", "Componente / pensamiento / entorno / factor / enfoque", "Competencia"]];
+    state.keys
+      .slice()
+      .sort((a, b) => (a.grade - b.grade) || (a.item - b.item))
+      .forEach((row) => rows.push([row.areaRaw || row.area, row.item, row.correct, row.component, row.competence]));
+    downloadFile("ANSWER_EDITADO.csv", toCSV(rows), "text/csv;charset=utf-8");
+  }
+
+  function openDetailModal(roll, subject) {
+    const student = state.computedByRoll.get(roll);
+    if (!student) return;
+    const realSubject = student.subjectStats[subject]?.total ? subject : SUBJECTS.find((s) => student.subjectStats[s.name]?.total)?.name;
+    const stat = student.subjectStats[realSubject];
+    modalRoot.innerHTML = `
+      <div class="modal-backdrop" data-action="close-modal">
+        <section class="modal" onclick="event.stopPropagation()">
+          <div class="modal-head">
+            <div>
+              <h2>${esc(student.name)}</h2>
+              <span style="color:#7d8089;font-weight:700;">${esc(realSubject)} · ID ${esc(student.roll)} · ${esc(student.grade)}° ${esc(student.group)}</span>
+            </div>
+            <button class="icon-btn" data-action="close-modal">×</button>
+          </div>
+          <div class="modal-body">
+            <section class="card detail-card">${buildSubjectDetailHtml(student, realSubject, stat, true)}</section>
+          </div>
+        </section>
+      </div>
+    `;
+  }
+
+  function openAnswerInfo(roll, subject, item) {
+    const student = state.computedByRoll.get(roll) || (state.activeSession?.role === "student" ? state.computedByRoll.get(state.activeSession.roll) : null);
+    if (!student) return;
+    const stat = student.subjectStats[subject];
+    const detail = stat?.details.find((d) => d.item === item);
+    if (!detail) return;
+
+    modalRoot.innerHTML = `
+      <div class="modal-backdrop" data-action="close-modal">
+        <section class="modal" onclick="event.stopPropagation()" style="max-width:560px;">
+          <div class="modal-head">
+            <h2>Ítem ${esc(detail.item)} · ${esc(subject)}</h2>
+            <button class="icon-btn" data-action="close-modal">×</button>
+          </div>
+          <div class="modal-body">
+            <div class="grid">
+              <div class="card card-pad">
+                <div class="meta-row"><span>Marcó</span><strong>${esc(displayMarked(detail.marked))}</strong></div>
+                <div class="meta-row"><span>Correcta</span><strong>${esc(detail.correct)}</strong></div>
+                <div class="meta-row"><span>Estado</span><strong>${esc(statusLabel(detail.status))}</strong></div>
+                <div class="meta-row"><span>Componente</span><strong>${esc(detail.component || "Sin registro")}</strong></div>
+                <div class="meta-row"><span>Competencia</span><strong>${esc(detail.competence || "Sin registro")}</strong></div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    `;
+  }
+
+  function closeModal() {
+    modalRoot.innerHTML = "";
+  }
+
+  function clearSession() {
+    state.activeSession = null;
+    localStorage.removeItem(STORAGE.session);
+  }
+
+  function answerPill(detail, roll) {
+    return `
+      <button class="answer-pill ${detail.status}" data-action="answer-info" data-roll="${escAttr(roll)}" data-subject="${escAttr(detail.subject)}" data-item="${escAttr(detail.item)}" title="Ver detalle del ítem ${escAttr(detail.item)}">
+        <strong>#${esc(detail.item)}</strong>
+        <span>${esc(displayMarked(detail.marked))} → ${esc(detail.correct)}</span>
+      </button>
+    `;
+  }
+
+  function buildSkills(details) {
+    if (!details.length) return `<li>No hay descriptores cargados para esta prueba.</li>`;
+    const byCompetence = countBy(details, (d) => d.competence || "Competencia sin registrar");
+    const byComponent = countBy(details, (d) => d.component || "Componente sin registrar");
+    const topCompetencies = [...byCompetence.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3);
+    const topComponents = [...byComponent.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3);
+    const lines = [];
+    topCompetencies.forEach(([name]) => lines.push(`Evalúa principalmente: ${esc(name)}.`));
+    topComponents.forEach(([name]) => lines.push(`Incluye desempeños asociados a: ${esc(name)}.`));
+    lines.push("Revisa los ítems en rojo, amarillo y azul para ubicar oportunidades concretas de mejora.");
+    return lines.map((line) => `<li>${line}</li>`).join("");
+  }
+
+  function subjectIcon(subjectName) {
+    const logo = state.logos[subjectName];
+    if (logo) return `<span class="subject-icon"><img src="${escAttr(logo)}" alt=""></span>`;
+    const subject = SUBJECTS.find((s) => s.name === subjectName) || { icon: "•" };
+    return `<span class="subject-icon">${esc(subject.icon)}</span>`;
+  }
+
+  function classifyAnswer(markedRaw, correctRaw) {
+    const marked = cleanMarked(markedRaw);
+    const correct = cleanOption(correctRaw);
+    const letters = (marked.match(/[A-H]/g) || []);
+    const unique = [...new Set(letters)];
+    if (!marked || unique.length === 0) return "empty";
+    if (unique.length > 1 || (marked.length > 1 && /^[A-H]+$/.test(marked))) return "double";
+    return unique[0] === correct ? "correct" : "wrong";
+  }
+
+  function statusLabel(status) {
+    return {
+      correct: "Correcta",
+      wrong: "Incorrecta",
+      double: "Doble marca",
+      empty: "Sin marcar"
+    }[status] || status;
+  }
+
+  function calculateScore(correct, total) {
+    if (!total) return null;
+    return Math.round(20 + (correct / total) * 80);
+  }
+
+  function performanceLevel(score) {
+    const value = Number(score ?? 20);
+    if (value >= 85) return 4;
+    if (value >= 70) return 3;
+    if (value >= 50) return 2;
+    return 1;
+  }
+
+  function performanceClass(score) {
+    const level = performanceLevel(score);
+    if (level >= 4) return "green";
+    if (level >= 3) return "orange";
+    return "gray";
+  }
+
+  function rankText(rank, total) {
+    if (!rank || !total) return "—";
+    return `${rank} de ${total}`;
+  }
+
+  function displayMarked(value) {
+    const clean = cleanMarked(value);
+    return clean || "—";
+  }
+
+  function parseCSV(text) {
+    const rows = [];
+    let row = [];
+    let cell = "";
+    let inQuotes = false;
+
+    const clean = String(text || "").replace(/^\uFEFF/, "");
+    for (let i = 0; i < clean.length; i++) {
+      const char = clean[i];
+      const next = clean[i + 1];
+
+      if (char === '"' && inQuotes && next === '"') {
+        cell += '"';
+        i++;
+        continue;
+      }
+
+      if (char === '"') {
+        inQuotes = !inQuotes;
+        continue;
+      }
+
+      if (char === "," && !inQuotes) {
+        row.push(cell);
+        cell = "";
+        continue;
+      }
+
+      if ((char === "\n" || char === "\r") && !inQuotes) {
+        if (char === "\r" && next === "\n") i++;
+        row.push(cell);
+        rows.push(row);
+        row = [];
+        cell = "";
+        continue;
+      }
+
+      cell += char;
+    }
+
+    if (cell.length || row.length) {
+      row.push(cell);
+      rows.push(row);
+    }
+
+    return rows.filter((r) => r.some((cellValue) => String(cellValue).trim() !== ""));
+  }
+
+  function findHeaderIndex(rows, requiredLabels) {
+    const labels = requiredLabels.map(normalizeText);
+    const index = rows.findIndex((row) => {
+      const normalized = row.map(normalizeText);
+      return labels.every((label) => normalized.some((cell) => cell.includes(label)));
+    });
+    return index >= 0 ? index : 0;
+  }
+
+  function rowsToObjects(rows, headerIndex) {
+    const headers = rows[headerIndex].map((h, idx) => cleanText(h) || `col_${idx}`);
+    return rows.slice(headerIndex + 1).map((row) => {
+      const obj = {};
+      headers.forEach((header, idx) => {
+        obj[header] = cleanText(row[idx]);
+      });
+      return obj;
+    });
+  }
+
+  function groupBy(items, getKey) {
+    const map = new Map();
+    for (const item of items) {
+      const key = getKey(item);
+      if (!map.has(key)) map.set(key, []);
+      map.get(key).push(item);
+    }
+    return map;
+  }
+
+  function countBy(items, getKey) {
+    const map = new Map();
+    for (const item of items) {
+      const key = getKey(item);
+      map.set(key, (map.get(key) || 0) + 1);
+    }
+    return map;
+  }
+
+  function canonicalSubject(value) {
+    const text = normalizeText(value);
+    if (!text) return "";
+
+    if (/(matemat|estadistic|geometr|algebra|calculo|aritmet)/.test(text)) return "Matemáticas";
+    if (/(lenguaje|lengua|castellano|espanol|lectura|literatura)/.test(text)) return "Lenguaje";
+    if (/(educacion fisica|ed fisica|fisica deporte|deporte|recreacion)/.test(text)) return "Educación Física";
+    if (/(natural|biolog|quimic|fisic|ambiental|ciencia)/.test(text) && !/social/.test(text)) return "Ciencias Naturales";
+    if (/(ingles|english)/.test(text)) return "Inglés";
+    if (/(social|ciudadan|historia|geografia|constitucion|democracia|politic)/.test(text)) return "Ciencias Sociales y Ciudadanía";
+    if (/(etica|valores|convivencia)/.test(text)) return "Ética y Valores";
+    if (/(artist|arte|musica|dibujo|danza)/.test(text)) return "Artística";
+    if (/(informat|tecnolog|sistema|programac|comput)/.test(text)) return "Informática";
+    if (/(relig|ere|biblic|cristolog|eclesiolog)/.test(text)) return "Religión";
+
+    const exact = SUBJECTS.find((subject) => normalizeText(subject.name) === text);
+    return exact ? exact.name : cleanText(value);
+  }
+
+  function sameSubject(a, b) {
+    return normalizeText(canonicalSubject(a)) === normalizeText(canonicalSubject(b));
+  }
+
+  function cleanText(value) {
+    return String(value ?? "").replace(/\uFEFF/g, "").trim();
+  }
+
+  function cleanId(value) {
+    return cleanText(value).replace(/\.0$/, "");
+  }
+
+  function cleanOption(value) {
+    return cleanText(value).toUpperCase().replace(/[^A-H]/g, "").slice(0, 1);
+  }
+
+  function cleanMarked(value) {
+    const text = cleanText(value).toUpperCase();
+    if (!text || ["NAN", "NULL", "NA", "N/A", "-", "—", "SIN MARCAR"].includes(text)) return "";
+    return text.replace(/[^A-H]/g, "");
+  }
+
+  function normalizeText(value) {
+    return cleanText(value)
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, " ")
+      .trim();
+  }
+
+  function toInt(value) {
+    const match = cleanText(value).match(/\d+/);
+    return match ? Number(match[0]) : 0;
+  }
+
+  function inferGradeFromPath(path) {
+    const answer = String(path || "").match(/ANSWER[_-]?(\d+)/i);
+    if (answer) return Number(answer[1]);
+    const result = String(path || "").match(/(?:^|\/)(\d{1,2})S\d/i);
+    if (result) return Number(result[1]);
+    return 0;
+  }
+
+  function inferSessionFromPath(path) {
+    const match = String(path || "").match(/S(\d+)/i);
+    return match ? Number(match[1]) : 1;
+  }
+
+  function inferGradeFromExam(objects) {
+    const exam = objects.find((obj) => obj.Exam)?.Exam || "";
+    const match = String(exam).match(/\d+/);
+    return match ? Number(match[0]) : 0;
+  }
+
+  function keyId(row) {
+    return `${row.grade}-${row.item}`;
+  }
+
+  function esc(value) {
+    return String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  function escAttr(value) {
+    return esc(value)
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  function clamp(value, min, max) {
+    return Math.max(min, Math.min(max, Number(value) || 0));
+  }
+
+  function avg(values) {
+    const nums = values.filter((value) => Number.isFinite(Number(value))).map(Number);
+    if (!nums.length) return "—";
+    return Math.round(nums.reduce((a, b) => a + b, 0) / nums.length);
+  }
+
+  function readJSON(key, fallback) {
+    try {
+      const value = localStorage.getItem(key);
+      return value ? JSON.parse(value) : fallback;
+    } catch {
+      return fallback;
+    }
+  }
+
+  function writeJSON(key, value) {
+    localStorage.setItem(key, JSON.stringify(value));
+  }
+
+  function readImageFile(file, callback) {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast("Selecciona una imagen válida.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => callback(reader.result);
+    reader.onerror = () => toast("No se pudo leer la imagen.");
+    reader.readAsDataURL(file);
+  }
+
+  function downloadFile(filename, text, type) {
+    const blob = new Blob([text], { type });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    URL.revokeObjectURL(link.href);
+    link.remove();
+  }
+
+  function toCSV(rows) {
+    return rows.map((row) => row.map((cell) => {
+      const value = String(cell ?? "");
+      if (/[",\n\r]/.test(value)) return `"${value.replace(/"/g, '""')}"`;
+      return value;
+    }).join(",")).join("\r\n");
+  }
+
+  function toast(message) {
+    toastEl.textContent = message;
+    toastEl.classList.add("show");
+    clearTimeout(toast._timer);
+    toast._timer = setTimeout(() => toastEl.classList.remove("show"), 2500);
+  }
+})();

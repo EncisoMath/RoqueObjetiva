@@ -1,0 +1,25 @@
+{
+  "version": "1.0.0",
+  "keys": [
+    {
+      "grade": 10,
+      "path": "KEYS/ANSWER_10.csv"
+    }
+  ],
+  "resultados": [
+    {
+      "grade": 10,
+      "session": 1,
+      "startItem": 1,
+      "path": "RESULTADOS/10S1.csv"
+    },
+    {
+      "grade": 10,
+      "session": 2,
+      "startItem": 71,
+      "path": "RESULTADOS/10S2.csv"
+    }
+  ],
+  "estudiantes": "ESTUDIANTES/ESTUDIANTES.csv",
+  "carga": "INTERNO/CARGA.csv"
+}
