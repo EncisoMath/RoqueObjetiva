@@ -1,0 +1,126 @@
+Área,Número de ítem,Respuesta sugerida,Componente / pensamiento / entorno / factor / enfoque,Competencia
+Matemáticas,1,C,Pensamiento aleatorio y sistemas de datos,"Comunicación, representación y modelación"
+Matemáticas,2,B,Pensamiento espacial y sistemas geométricos,"Comunicación, representación y modelación"
+Matemáticas,3,D,Pensamiento métrico y sistemas de medidas,Planteamiento y resolución de problemas
+Matemáticas,4,D,Pensamiento numérico y sistemas numéricos,Razonamiento y argumentación
+Matemáticas,5,B,Pensamiento aleatorio y sistemas de datos,Razonamiento y argumentación
+Matemáticas,6,B,Pensamiento variacional y sistemas algebraicos y analíticos,"Comunicación, representación y modelación"
+Matemáticas,7,C,Pensamiento numérico y sistemas numéricos,Razonamiento y argumentación
+Matemáticas,8,C,Pensamiento numérico y sistemas numéricos,Razonamiento y argumentación
+Matemáticas,9,C,Pensamiento métrico y sistemas de medidas,Razonamiento y argumentación
+Matemáticas,10,C,Pensamiento espacial y sistemas geométricos,Razonamiento y argumentación
+Matemáticas,11,D,Pensamiento numérico y sistemas numéricos,Razonamiento y argumentación
+Matemáticas,12,D,Pensamiento numérico y sistemas numéricos,Razonamiento y argumentación
+Matemáticas,13,C,Pensamiento espacial y sistemas geométricos,Razonamiento y argumentación
+Matemáticas,14,B,Pensamiento aleatorio y sistemas de datos,Planteamiento y resolución de problemas
+Matemáticas,15,A,Pensamiento aleatorio y sistemas de datos,Planteamiento y resolución de problemas
+Matemáticas,16,C,Pensamiento aleatorio y sistemas de datos,Planteamiento y resolución de problemas
+Matemáticas,17,D,Pensamiento variacional y sistemas algebraicos y analíticos,"Comunicación, representación y modelación"
+Matemáticas,18,C,Pensamiento aleatorio y sistemas de datos,Planteamiento y resolución de problemas
+Matemáticas,19,C,Pensamiento métrico y sistemas de medidas,Planteamiento y resolución de problemas
+Matemáticas,20,A,Pensamiento variacional y sistemas algebraicos y analíticos,Planteamiento y resolución de problemas
+Lenguaje,21,D,Pragmático,Comunicativa lectora - Crítico-intertextual
+Lenguaje,22,A,Semántico,Comunicativa lectora - Inferencial
+Lenguaje,23,C,Semántico,Comunicativa lectora - Inferencial
+Lenguaje,24,D,Pragmático,Comunicativa lectora - Crítico-intertextual
+Lenguaje,25,D,Pragmático,Comunicativa lectora - Inferencial
+Lenguaje,26,C,Pragmático,Comunicativa lectora - Inferencial
+Lenguaje,27,C,Pragmático,Comunicativa lectora - Crítico-intertextual
+Lenguaje,28,C,Semántico,Comunicativa lectora - Inferencial
+Lenguaje,29,C,Pragmático,Comunicativa lectora - Crítico-intertextual
+Lenguaje,30,D,Semántico,Comunicativa lectora - Literal
+Lenguaje,31,D,Pragmático,Comunicativa lectora - Inferencial
+Lenguaje,32,C,Sintáctico,Comunicativa lectora - Inferencial
+Lenguaje,33,A,Pragmático,Comunicativa lectora - Inferencial
+Lenguaje,34,B,Semántico,Comunicativa lectora - Inferencial
+Lenguaje,35,A,Semántico,Comunicativa lectora - Literal
+Lenguaje,36,B,Semántico,Comunicativa lectora - Inferencial
+Lenguaje,37,A,Pragmático,Comunicativa lectora - Crítico-intertextual
+Lenguaje,38,B,Sintáctico,Comunicativa lectora - Inferencial
+Lenguaje,39,A,Semántico,Comunicativa lectora - Literal
+Lenguaje,40,B,Semántico,Comunicativa lectora - Literal
+Ciencias Naturales,41,D,Proceso químico,Uso comprensivo del conocimiento científico
+Ciencias Naturales,42,D,Proceso químico,Uso comprensivo del conocimiento científico
+Ciencias Naturales,43,B,Proceso físico,Indagación
+Ciencias Naturales,44,A,Proceso biológico,Explicación de fenómenos
+Ciencias Naturales,45,D,Proceso biológico,Indagación
+Ciencias Naturales,46,D,Proceso químico,Indagación
+Ciencias Naturales,47,D,Proceso biológico,Uso comprensivo del conocimiento científico
+Ciencias Naturales,48,B,Proceso biológico,Explicación de fenómenos
+Ciencias Naturales,49,D,"Ciencia, tecnología y sociedad",Explicación de fenómenos
+Ciencias Naturales,50,C,Proceso físico,Uso comprensivo del conocimiento científico
+Ciencias Naturales,51,D,Proceso físico,Explicación de fenómenos
+Ciencias Naturales,52,A,Proceso biológico,Explicación de fenómenos
+Ciencias Naturales,53,B,Proceso físico,Explicación de fenómenos
+Ciencias Naturales,54,B,"Ciencia, tecnología y sociedad",Uso comprensivo del conocimiento científico
+Ciencias Naturales,55,C,Proceso químico,Uso comprensivo del conocimiento científico
+Ciencias Naturales,56,C,Proceso biológico,Indagación
+Ciencias Naturales,57,B,Proceso físico,Indagación
+Ciencias Naturales,58,C,Proceso físico,Indagación
+Ciencias Naturales,59,C,Proceso físico,Uso comprensivo del conocimiento científico
+Ciencias Naturales,60,A,Proceso físico,Explicación de fenómenos
+Ética y Valores,61,A,Sentido crítico,Crítica
+Ética y Valores,62,A,Identidad y sentido de pertenencia,Pensamiento reflexivo y sistémico
+Ética y Valores,63,C,Sentido crítico,Crítica
+Ética y Valores,64,B,Formación ciudadana,Conocimiento
+Ética y Valores,65,A,Identidad y sentido de pertenencia,Pensamiento reflexivo y sistémico
+Artística,66,B,Comprensión crítico-cultural,Sensibilidad perceptiva
+Artística,67,B,Sensibilidad perceptiva,Comprensión crítico-cultural
+Artística,68,B,Comprensión crítico-cultural,Comunicativas
+Artística,69,C,Sensibilidad perceptiva,Comprensión crítico-cultural
+Artística,70,C,Comprensión crítico-cultural,Socioemocionales
+Inglés,71,B,Conocimiento lexical / Lectura,Lingüística
+Inglés,72,A,Conocimiento lexical / Lectura,Lingüística
+Inglés,73,F,Conocimiento lexical / Lectura,Lingüística
+Inglés,74,G,Conocimiento lexical / Lectura,Lingüística
+Inglés,75,D,Conocimiento lexical / Lectura,Lingüística
+Inglés,76,C,Conocimiento pragmático-comunicativo / Conversación,Pragmática
+Inglés,77,B,Conocimiento pragmático-comunicativo / Conversación,Pragmática
+Inglés,78,B,Conocimiento pragmático-comunicativo / Conversación,Pragmática
+Inglés,79,C,Conocimiento pragmático-comunicativo / Conversación,Pragmática
+Inglés,80,C,Conocimiento pragmático-comunicativo / Conversación,Pragmática
+Inglés,81,A,Conocimiento gramatical y lexical / Lectura,Lingüística
+Inglés,82,B,Conocimiento gramatical y lexical / Lectura,Lingüística
+Inglés,83,A,Conocimiento gramatical y lexical / Lectura,Lingüística
+Inglés,84,B,Conocimiento gramatical y lexical / Lectura,Lingüística
+Inglés,85,A,Conocimiento gramatical y lexical / Lectura,Lingüística
+Inglés,86,C,Conocimiento gramatical y lexical / Lectura,Lingüística
+Inglés,87,A,Comprensión de lectura literal e inferencial,Lingüística
+Inglés,88,B,Comprensión de lectura literal e inferencial,Lingüística
+Inglés,89,C,Comprensión de lectura literal e inferencial,Lingüística
+Inglés,90,B,Comprensión de lectura literal e inferencial,Lingüística
+Ciencias Sociales y Ciudadanía,91,C,Ético-político,Interpretación y análisis de perspectivas
+Ciencias Sociales y Ciudadanía,92,D,Ético-político,Pensamiento reflexivo y sistémico
+Ciencias Sociales y Ciudadanía,93,C,Ético-político,Pensamiento social
+Ciencias Sociales y Ciudadanía,94,C,Ético-político,Pensamiento social
+Ciencias Sociales y Ciudadanía,95,C,Ético-político,Pensamiento reflexivo y sistémico
+Ciencias Sociales y Ciudadanía,96,C,Ético-político,Interpretación y análisis de perspectivas
+Ciencias Sociales y Ciudadanía,97,C,Ético-político,Pensamiento social
+Ciencias Sociales y Ciudadanía,98,D,Historia y cultura,Pensamiento social
+Ciencias Sociales y Ciudadanía,99,C,Espacial-ambiental,Pensamiento reflexivo y sistémico
+Ciencias Sociales y Ciudadanía,100,D,Ético-político,Pensamiento social
+Ciencias Sociales y Ciudadanía,101,A,Espacial-ambiental,Pensamiento reflexivo y sistémico
+Ciencias Sociales y Ciudadanía,102,C,Espacial-ambiental,Pensamiento reflexivo y sistémico
+Ciencias Sociales y Ciudadanía,103,B,Ético-político,Interpretación y análisis de perspectivas
+Ciencias Sociales y Ciudadanía,104,A,Ético-político,Pensamiento social
+Ciencias Sociales y Ciudadanía,105,B,Historia y cultura,Pensamiento social
+Ciencias Sociales y Ciudadanía,106,C,Historia y cultura,Pensamiento social
+Ciencias Sociales y Ciudadanía,107,B,Ético-político,Interpretación y análisis de perspectivas
+Ciencias Sociales y Ciudadanía,108,B,Historia y cultura,Pensamiento reflexivo y sistémico
+Ciencias Sociales y Ciudadanía,109,D,Ético-político,Pensamiento social
+Ciencias Sociales y Ciudadanía,110,C,Historia y cultura,Pensamiento social
+Educación Física,111,C,Actividad física y salud,Motriz
+Educación Física,112,B,Actividad física y salud,Motriz
+Educación Física,113,B,Actividad física y salud,Motriz
+Educación Física,114,B,Actividad física y salud,Motriz
+Educación Física,115,C,Prácticas deportivas y recreativas,Axiológica corporal
+Informática,116,B,Solución de problemas con tecnología e informática,Gestión del proceso tecnológico
+Informática,117,B,Uso y apropiación de la tecnología e informática,Evaluación y mejora de soluciones tecnológicas
+Informática,118,A,Solución de problemas con tecnología e informática,Planeación y organización tecnológica
+Informática,119,B,Naturaleza y evolución de la tecnología e informática,Actualización e innovación tecnológica
+Informática,120,C,Solución de problemas con tecnología e informática,Evaluación de prototipos
+Religión,121,C,Antropológico,Aprender a conocer (cognitivas)
+Religión,122,D,Antropológico,Aprender a aplicar a la vida (procedimentales)
+Religión,123,A,Antropológico,Aprender a integrar fe y vida (actitudinales)
+Religión,124,B,Antropológico,Aprender a integrar fe y vida (actitudinales)
+Religión,125,C,Antropológico,Aprender a aplicar a la vida (procedimentales)
