@@ -36,6 +36,7 @@
     footerText: "Consulta institucional de resultados",
     primaryColor: "#ff7900",
     buttonRadius: 4,
+    logoZoom: 1,
     subjectLogos: {},
     github: { owner: "", repo: "", branch: "main" }
   };
@@ -449,6 +450,7 @@
     const primarySoft = mixWithWhite(primary, 34);
     const rgb = hexToRgb(primary);
     document.documentElement.style.setProperty("--button-radius", `${Number(state.config.buttonRadius ?? 4)}px`);
+    document.documentElement.style.setProperty("--logo-zoom", `${Number(state.config.logoZoom ?? 1)}`);
     document.documentElement.style.setProperty("--orange", primary);
     document.documentElement.style.setProperty("--orange-2", primarySoft);
     document.documentElement.style.setProperty("--orange-3", primaryDark);
@@ -500,6 +502,7 @@
     document.documentElement.style.setProperty("--orange-3", primaryDark);
     document.documentElement.style.setProperty("--primary-rgb", `${rgb.r}, ${rgb.g}, ${rgb.b}`);
     document.documentElement.style.setProperty("--button-radius", `${Number(cfg.buttonRadius ?? 4)}px`);
+    document.documentElement.style.setProperty("--logo-zoom", `${Number(cfg.logoZoom ?? 1)}`);
     document.querySelector('meta[name="theme-color"]')?.setAttribute("content", primary);
     const bannerStyle = cfg.bannerImage
       ? `style="background-image: linear-gradient(100deg, ${alphaColor(primary, .88)}, ${alphaColor(primaryDark, .82)}), url('${escAttr(cfg.bannerImage)}')"`
@@ -513,7 +516,7 @@
               <p>${esc(cfg.subtitle)}</p>
             </div>
             <div class="banner-brand">
-              ${cfg.logoImage ? `<img class="banner-logo" src="${escAttr(cfg.logoImage)}" alt="Logo">` : `<div class="banner-mark-text">Resultados</div>`}
+              ${cfg.logoImage ? `<span class="banner-logo-frame"><img class="banner-logo" src="${escAttr(cfg.logoImage)}" alt="Logo"></span>` : `<div class="banner-mark-text">Resultados</div>`}
             </div>
           </div>
           ${nav}
@@ -597,8 +600,8 @@
           </div>
         </div>
         <div class="ranking-mini">
-          <div class="ranking-box"><span>🥉</span><strong>${student.courseRank ?? "—"}</strong><small>Ranking por curso</small></div>
-          <div class="ranking-box"><span>🏆</span><strong>${student.gradeRank ?? "—"}</strong><small>Ranking por grado</small></div>
+          ${rankingBoxHtml(student.courseRank, "Ranking por curso")}
+          ${rankingBoxHtml(student.gradeRank, "Ranking por grado")}
         </div>
       </section>
 
@@ -978,6 +981,11 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
           <div class="field">
             <label>Borde de botones (px)</label>
             <input type="number" min="0" max="24" value="${escAttr(cfg.buttonRadius ?? 4)}" data-config-field="buttonRadius">
+          </div>
+          <div class="field">
+            <label>Zoom del logo principal</label>
+            <input type="range" min="0.65" max="2.4" step="0.05" value="${escAttr(cfg.logoZoom ?? 1)}" data-config-field="logoZoom">
+            <small style="color:#7d8089;">Ajusta qué tanto peso gana el logo en el banner.</small>
           </div>
           <div class="field">
             <label>Logo principal</label>
@@ -1486,6 +1494,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
   function saveConfig() {
     state.config = { ...DEFAULT_CONFIG, ...state.config };
     state.config.buttonRadius = clamp(Number(state.config.buttonRadius ?? 4), 0, 24);
+    state.config.logoZoom = clamp(Number(state.config.logoZoom ?? 1), 0.65, 2.4);
     writeJSON(STORAGE.config, state.config);
   }
 
@@ -2063,6 +2072,18 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     if (level >= 4) return "green";
     if (level >= 3) return "orange";
     return "gray";
+  }
+
+  function rankingBoxHtml(rank, label) {
+    const cleanRank = Number(rank);
+    const medal = cleanRank === 1 ? "gold" : cleanRank === 2 ? "silver" : cleanRank === 3 ? "bronze" : "plain";
+    const title = cleanRank === 1 ? "Primer puesto" : cleanRank === 2 ? "Segundo puesto" : cleanRank === 3 ? "Tercer puesto" : "Ranking";
+    return `
+      <div class="ranking-box rank-${medal} ${medal !== "plain" ? "rank-medal" : ""}" title="${escAttr(title)}">
+        <strong>${Number.isFinite(cleanRank) && cleanRank > 0 ? cleanRank : "—"}</strong>
+        <small>${esc(label)}</small>
+      </div>
+    `;
   }
 
   function rankText(rank, total) {
