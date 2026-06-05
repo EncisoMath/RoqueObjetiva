@@ -11,7 +11,8 @@
     logos: "po_subject_logos_v1",
     answers: "po_answer_overrides_v1",
     carga: "po_carga_override_v1",
-    session: "po_session_v1"
+    session: "po_session_v1",
+    github: "po_github_publish_v1"
   };
 
   const SUBJECTS = [
@@ -34,7 +35,9 @@
     bannerImage: "",
     footerText: "Consulta institucional de resultados",
     primaryColor: "#ff7900",
-    buttonRadius: 4
+    buttonRadius: 4,
+    subjectLogos: {},
+    github: { owner: "", repo: "", branch: "main" }
   };
 
   const DEFAULT_MANIFEST = {
@@ -123,12 +126,16 @@
     }
 
     const savedConfig = readJSON(STORAGE.config, null);
+    const localLogos = readJSON(STORAGE.logos, {});
     const configText = await fetchText(state.manifest.config || "config/site-config.json", false);
+    let fileConfig = {};
     if (configText) {
       const parsedConfig = JSON.parse(configText);
-      const fileConfig = parsedConfig.config || parsedConfig;
-      state.config = { ...DEFAULT_CONFIG, ...fileConfig, ...(savedConfig || {}) };
+      fileConfig = parsedConfig.config || parsedConfig;
     }
+    state.config = { ...DEFAULT_CONFIG, ...fileConfig, ...(savedConfig || {}) };
+    state.config.subjectLogos = { ...(fileConfig.subjectLogos || {}), ...(savedConfig?.subjectLogos || {}) };
+    state.logos = { ...state.config.subjectLogos, ...localLogos };
 
     state.keys = [];
     state.responsesByRoll = new Map();
@@ -634,6 +641,19 @@
     }, 220);
   }
 
+  function updateMetricTabDom() {
+    const activeMetric = state.metricTab === "competences" ? "competences" : "components";
+    document.querySelectorAll(".metric-tab").forEach((button) => {
+      button.classList.toggle("active", button.dataset.tab === activeMetric);
+    });
+    document.querySelectorAll(".metric-grid").forEach((grid) => {
+      grid.dataset.active = activeMetric;
+      grid.classList.remove("metric-switching");
+      void grid.offsetWidth;
+      grid.classList.add("metric-switching");
+    });
+  }
+
   function buildEmptySubjectDetailHtml() {
     return `
       <div class="empty-subject-detail">
@@ -789,7 +809,8 @@
       ["apariencia", "Apariencia"],
       ["logos", "Logos"],
       ["cargas", "Cargas"],
-      ["claves", "Claves"]
+      ["claves", "Claves"],
+      ["github", "GitHub"]
     ];
 
     const nav = `
@@ -820,6 +841,7 @@
       case "logos": return adminLogosHtml();
       case "cargas": return adminCargaHtml();
       case "claves": return adminKeysHtml();
+      case "github": return adminGithubHtml();
       default: return adminSummaryHtml();
     }
   }
@@ -838,7 +860,7 @@
         </div>
       </section>
       <div class="admin-note">
-        Esta versión funciona en GitHub Pages como aplicación estática. Los cambios hechos desde el panel admin se guardan en este navegador. Para que todos los usuarios los vean, exporta los JSON/configuración y súbelos al repositorio.
+Esta versión funciona en GitHub Pages como aplicación estática. Los cambios se guardan localmente mientras editas. Para que los vea todo el mundo, entra a la pestaña <strong>GitHub</strong> y publícalos directamente en el repositorio.
       </div>
       <section class="grid grid-auto">
         <article class="card card-pad"><span class="section-eyebrow">Exámenes</span><h3 style="margin:8px 0 0;font-size:2rem;">${state.computedStudents.length}</h3></article>
@@ -934,7 +956,7 @@
           <h2 style="margin:8px 0 0;font-weight:900;">Banner, logo y textos</h2>
         </div>
       </section>
-      <div class="admin-note">Puedes subir imágenes desde el panel. Quedan guardadas en este navegador. Para publicar la misma apariencia para todos, exporta la configuración y reemplaza el archivo correspondiente en el repositorio o vuelve a subir las imágenes como recursos.</div>
+      <div class="admin-note">Puedes subir imágenes desde el panel. Para que el color, banner y logo queden disponibles para todos los usuarios, usa la pestaña <strong>GitHub</strong> y pulsa <strong>Publicar cambios en el repositorio</strong>.</div>
       <form id="appearanceForm" class="card card-pad">
         <div class="form-grid">
           <div class="field span-2">
@@ -969,6 +991,7 @@
             <button class="primary-btn" type="submit">Guardar apariencia</button>
             <button class="ghost-btn" type="button" data-action="clear-banner">Quitar imagen de banner</button>
             <button class="secondary-btn" type="button" data-action="export-config">Exportar configuración</button>
+            <button class="ghost-btn" type="button" data-action="publish-github">Publicar en GitHub</button>
           </div>
         </div>
       </form>
@@ -982,9 +1005,9 @@
           <span class="section-eyebrow">Logos por asignatura</span>
           <h2 style="margin:8px 0 0;font-weight:900;">Íconos de las pruebas</h2>
         </div>
-        <button class="secondary-btn" data-action="reset-logos">Restaurar íconos</button>
+        <div class="inline-actions"><button class="secondary-btn" data-action="reset-logos">Restaurar íconos</button><button class="ghost-btn" data-action="publish-github">Publicar en GitHub</button></div>
       </section>
-      <div class="admin-note">Los logos base del repositorio están en la carpeta <strong>ICONOS</strong>. Las imágenes que subas desde este panel quedan guardadas en este navegador; para publicarlas para todos, exporta o sube los archivos finales a esa carpeta.</div>
+      <div class="admin-note">Los logos base del repositorio están en la carpeta <strong>ICONOS</strong>. Las imágenes que subas aquí se pueden publicar directamente en esa carpeta desde la pestaña <strong>GitHub</strong>.</div>
       <section class="logo-grid">
         ${SUBJECTS.map((subject) => `
           <article class="logo-item">
@@ -996,6 +1019,59 @@
             <button class="ghost-btn" data-action="clear-subject-logo" data-subject="${escAttr(subject.name)}">Quitar logo</button>
           </article>
         `).join("")}
+      </section>
+    `;
+  }
+
+  function adminGithubHtml() {
+    const gh = getGithubSettings();
+    const inferred = inferGithubFromLocation();
+    return `
+      <section class="toolbar">
+        <div>
+          <span class="section-eyebrow">Publicación en repositorio</span>
+          <h2 style="margin:8px 0 0;font-weight:900;">Guardar cambios directamente en GitHub</h2>
+        </div>
+      </section>
+      <div class="admin-note github-note">
+        GitHub Pages no puede modificar archivos del repositorio sin autorización. Pega un token de GitHub con permiso de escritura para este repositorio y pulsa <strong>Publicar cambios</strong>. El token se usa desde este navegador para crear commits; no lo dejes escrito dentro del código del sitio.
+      </div>
+      <section class="card card-pad github-panel">
+        <div class="form-grid">
+          <div class="field">
+            <label>Usuario / dueño del repo</label>
+            <input value="${escAttr(gh.owner || inferred.owner || "")}" placeholder="Ej. rubendarioenciso" data-github-field="owner">
+          </div>
+          <div class="field">
+            <label>Repositorio</label>
+            <input value="${escAttr(gh.repo || inferred.repo || "")}" placeholder="Ej. resultados-pruebas" data-github-field="repo">
+          </div>
+          <div class="field">
+            <label>Rama</label>
+            <input value="${escAttr(gh.branch || "main")}" placeholder="main" data-github-field="branch">
+          </div>
+          <div class="field span-2">
+            <label>Token de GitHub</label>
+            <input type="password" value="${escAttr(gh.token || "")}" placeholder="github_pat_..." data-github-field="token">
+          </div>
+          <div class="span-2 github-publish-box">
+            <div>
+              <strong>Archivos que se publicarán</strong>
+              <p>config/site-config.json, INTERNO/CARGA.json, KEYS/KEYS_10.json y las imágenes nuevas en ICONOS o assets.</p>
+            </div>
+            <button class="primary-btn" type="button" data-action="publish-github">Publicar cambios en GitHub</button>
+          </div>
+        </div>
+      </section>
+      <section class="grid grid-2" style="margin-top:16px;">
+        <article class="card card-pad">
+          <h3 style="margin:0 0 10px;font-weight:800;">Qué queda global</h3>
+          <p style="margin:0;color:#666a73;line-height:1.55;">Después de publicar, el color, el banner, los logos, las cargas y las claves quedan en el repositorio. Los demás navegadores los leerán desde los JSON y carpetas del sitio.</p>
+        </article>
+        <article class="card card-pad">
+          <h3 style="margin:0 0 10px;font-weight:800;">Qué no debes hacer</h3>
+          <p style="margin:0;color:#666a73;line-height:1.55;">No pegues el token dentro de <strong>app.js</strong> ni en ningún archivo público. Úsalo solo desde esta pantalla de administración.</p>
+        </article>
       </section>
     `;
   }
@@ -1012,9 +1088,10 @@
           <button class="primary-btn" data-action="add-carga">Agregar fila</button>
           <button class="secondary-btn" data-action="save-carga">Guardar cargas</button>
           <button class="ghost-btn" data-action="export-carga">Exportar JSON</button>
+          <button class="secondary-btn" data-action="publish-github">Publicar en GitHub</button>
         </div>
       </section>
-      <div class="admin-note">Al guardar, la carga se reemplaza localmente. Exporta el JSON y súbelo como <strong>INTERNO/CARGA.json</strong> para publicarlo.</div>
+      <div class="admin-note">Al guardar, la carga se reemplaza localmente. Para publicarla para todos, usa la pestaña <strong>GitHub</strong> o exporta el JSON manualmente.</div>
       <section class="card table-card">
         <div class="table-wrap">
           <table>
@@ -1061,11 +1138,12 @@
           </select>
         </div>
       </section>
-      <div class="admin-note">Después de guardar, los cálculos se actualizan en este navegador. Exporta el JSON editado y súbelo a <strong>KEYS/KEYS_10.json</strong> o al archivo de claves correspondiente.</div>
+      <div class="admin-note">Después de guardar, los cálculos se actualizan en este navegador. Para publicar las claves para todos, usa la pestaña <strong>GitHub</strong> o exporta el JSON manualmente.</div>
       <div class="inline-actions" style="margin-bottom:14px;">
         <button class="secondary-btn" data-action="save-keys">Guardar claves</button>
         <button class="ghost-btn" data-action="export-keys">Exportar JSON</button>
         <button class="danger-btn" data-action="reset-keys">Restaurar claves originales</button>
+        <button class="secondary-btn" data-action="publish-github">Publicar en GitHub</button>
       </div>
       <section class="card table-card">
         <div class="table-wrap">
@@ -1123,10 +1201,8 @@
 
       if (normalizeText(user) === "admin") {
         if (pass === "admin") {
-          state.activeSession = { role: "admin", id: "admin" };
-          writeJSON(STORAGE.session, state.activeSession);
           state.adminTab = "resumen";
-          renderAdmin();
+          enterSessionWithLoader({ role: "admin", id: "admin" }, () => renderAdmin(), "Abriendo panel de administración...");
         } else {
           renderLogin("Contraseña de administrador incorrecta.");
         }
@@ -1134,29 +1210,23 @@
       }
 
       if (state.teachers.has(user)) {
-        state.activeSession = { role: "teacher", id: user };
-        writeJSON(STORAGE.session, state.activeSession);
         state.teacherActive = null;
-        renderTeacher(state.teachers.get(user));
+        enterSessionWithLoader({ role: "teacher", id: user }, () => renderTeacher(state.teachers.get(user)), "Preparando vista docente...");
         return;
       }
 
       if (state.studentLogin.has(user)) {
         const roll = state.studentLogin.get(user);
-        state.activeSession = { role: "student", roll };
-        writeJSON(STORAGE.session, state.activeSession);
         state.selectedSubject = null;
         state.metricTab = "components";
-        renderStudent(roll);
+        enterSessionWithLoader({ role: "student", roll }, () => renderStudent(roll), "Preparando tus resultados...");
         return;
       }
 
       if (state.responsesByRoll.has(user)) {
-        state.activeSession = { role: "student", roll: user };
-        writeJSON(STORAGE.session, state.activeSession);
         state.selectedSubject = null;
         state.metricTab = "components";
-        renderStudent(user);
+        enterSessionWithLoader({ role: "student", roll: user }, () => renderStudent(user), "Preparando tus resultados...");
         return;
       }
 
@@ -1171,7 +1241,7 @@
     }
   }
 
-  function handleClick(event) {
+  async function handleClick(event) {
     const target = event.target.closest("[data-action]");
     if (!target) return;
     if (target.classList.contains("modal-backdrop") && event.target !== target) return;
@@ -1199,7 +1269,8 @@
 
     if (action === "select-metric-tab") {
       state.metricTab = target.dataset.tab === "competences" ? "competences" : "components";
-      renderBySession();
+      updateMetricTabDom();
+      return;
     }
 
     if (action === "teacher-assignment") {
@@ -1255,7 +1326,12 @@
     }
 
     if (action === "export-config") {
-      downloadFile("configuracion-resultados.json", JSON.stringify({ config: state.config, logos: state.logos }, null, 2), "application/json");
+      downloadFile("configuracion-resultados.json", JSON.stringify({ config: buildRepoConfigPreview(), logos: state.logos }, null, 2), "application/json");
+    }
+
+    if (action === "publish-github") {
+      await publishAllToGithub();
+      return;
     }
 
     if (action === "reset-logos") {
@@ -1327,6 +1403,12 @@
 
     if (target.dataset.configField) {
       state.config[target.dataset.configField] = target.value;
+    }
+
+    if (target.dataset.githubField) {
+      const settings = getGithubSettings();
+      settings[target.dataset.githubField] = target.value.trim();
+      saveGithubSettings(settings);
     }
 
     if (target.dataset.cargaRow) {
@@ -1432,7 +1514,127 @@
 
   function exportCarga() {
     normalizeCargaRows();
-    const rows = state.cargaRows.map((row) => ({
+    downloadFile("CARGA.json", JSON.stringify(exportCargaRows(), null, 2), "application/json;charset=utf-8");
+  }
+
+  function exportKeys() {
+    downloadFile("KEYS_EDITADO.json", JSON.stringify(exportKeyRows(), null, 2), "application/json;charset=utf-8");
+  }
+
+  function buildRepoConfigPreview() {
+    return {
+      ...state.config,
+      subjectLogos: { ...state.config.subjectLogos, ...state.logos }
+    };
+  }
+
+  function getGithubSettings() {
+    const saved = readJSON(STORAGE.github, {});
+    const inferred = inferGithubFromLocation();
+    return {
+      owner: saved.owner || state.config.github?.owner || inferred.owner || "",
+      repo: saved.repo || state.config.github?.repo || inferred.repo || "",
+      branch: saved.branch || state.config.github?.branch || inferred.branch || "main",
+      token: sessionStorage.getItem(`${STORAGE.github}_token`) || ""
+    };
+  }
+
+  function saveGithubSettings(settings) {
+    const clean = {
+      owner: cleanText(settings.owner),
+      repo: cleanText(settings.repo),
+      branch: cleanText(settings.branch || "main")
+    };
+    writeJSON(STORAGE.github, clean);
+    if (settings.token !== undefined) {
+      if (settings.token) sessionStorage.setItem(`${STORAGE.github}_token`, settings.token);
+      else sessionStorage.removeItem(`${STORAGE.github}_token`);
+    }
+  }
+
+  function inferGithubFromLocation() {
+    const host = location.hostname || "";
+    const path = location.pathname.split("/").filter(Boolean);
+    if (host.endsWith("github.io")) {
+      return { owner: host.split(".")[0] || "", repo: path[0] || "", branch: "main" };
+    }
+    return { owner: "", repo: "", branch: "main" };
+  }
+
+  async function publishAllToGithub() {
+    normalizeCargaRows();
+    const gh = getGithubSettings();
+    if (!gh.owner || !gh.repo || !gh.branch || !gh.token) {
+      toast("Completa usuario, repositorio, rama y token de GitHub.");
+      state.adminTab = "github";
+      renderAdmin();
+      return;
+    }
+
+    showRouteLoader("Publicando cambios en GitHub...");
+    try {
+      const files = [];
+      const repoConfig = { ...state.config, subjectLogos: {} };
+      delete repoConfig.github;
+
+      if (isDataUrl(repoConfig.logoImage)) {
+        const ext = extensionFromDataUrl(repoConfig.logoImage);
+        const path = `assets/logo-principal.${ext}`;
+        files.push({ path, contentBase64: base64FromDataUrl(repoConfig.logoImage) });
+        repoConfig.logoImage = path;
+      }
+
+      if (isDataUrl(repoConfig.bannerImage)) {
+        const ext = extensionFromDataUrl(repoConfig.bannerImage);
+        const path = `assets/banner-principal.${ext}`;
+        files.push({ path, contentBase64: base64FromDataUrl(repoConfig.bannerImage) });
+        repoConfig.bannerImage = path;
+      }
+
+      for (const subject of SUBJECTS) {
+        const logo = state.logos[subject.name];
+        if (!logo) continue;
+        if (isDataUrl(logo)) {
+          const ext = extensionFromDataUrl(logo);
+          const path = `ICONOS/${slugify(subject.name)}.${ext}`;
+          files.push({ path, contentBase64: base64FromDataUrl(logo) });
+          repoConfig.subjectLogos[subject.name] = path;
+        } else {
+          repoConfig.subjectLogos[subject.name] = logo;
+        }
+      }
+
+      files.push({ path: state.manifest.config || "config/site-config.json", content: JSON.stringify(repoConfig, null, 2) });
+      files.push({ path: state.manifest.carga || "INTERNO/CARGA.json", content: JSON.stringify(exportCargaRows(), null, 2) });
+
+      const keysByPath = groupBy(state.keys, (row) => row.sourcePath || `KEYS/KEYS_${row.grade}.json`);
+      for (const [path, rows] of keysByPath.entries()) {
+        files.push({ path, content: JSON.stringify(exportKeyRows(rows), null, 2) });
+      }
+
+      for (const file of files) {
+        await githubPutFile(gh, file.path, file.contentBase64 || textToBase64(file.content), file.contentBase64 ? "Actualizar imagen del reporte" : "Actualizar datos del reporte");
+      }
+
+      state.config = { ...state.config, ...repoConfig };
+      state.logos = { ...repoConfig.subjectLogos };
+      state.config.subjectLogos = { ...repoConfig.subjectLogos };
+      writeJSON(STORAGE.config, state.config);
+      writeJSON(STORAGE.logos, state.logos);
+      writeJSON(STORAGE.carga, { rows: state.cargaRows });
+      toast("Cambios publicados en GitHub. GitHub Pages puede tardar un momento en reflejarlos.");
+      hideRouteLoader();
+      state.adminTab = "github";
+      renderAdmin();
+    } catch (error) {
+      console.error(error);
+      hideRouteLoader();
+      toast(error.message || "No fue posible publicar en GitHub.");
+    }
+  }
+
+  function exportCargaRows() {
+    return state.cargaRows.map((row) => ({
       ID: row.id,
       NOMBRE: row.name,
       ASIGNATURA: row.subjectRaw || row.subject,
@@ -1440,11 +1642,10 @@
       GRADO: String(row.grade || ""),
       CURSO: row.group || ""
     }));
-    downloadFile("CARGA.json", JSON.stringify(rows, null, 2), "application/json;charset=utf-8");
   }
 
-  function exportKeys() {
-    const rows = state.keys
+  function exportKeyRows(rows = state.keys) {
+    return rows
       .slice()
       .sort((a, b) => (a.grade - b.grade) || (a.item - b.item))
       .map((row) => ({
@@ -1454,7 +1655,68 @@
         "Componente / pensamiento / entorno / factor / enfoque": row.component,
         "Competencia": row.competence
       }));
-    downloadFile("KEYS_EDITADO.json", JSON.stringify(rows, null, 2), "application/json;charset=utf-8");
+  }
+
+  async function githubPutFile(settings, path, contentBase64, message) {
+    const apiPath = path.split("/").map(encodeURIComponent).join("/");
+    const url = `https://api.github.com/repos/${encodeURIComponent(settings.owner)}/${encodeURIComponent(settings.repo)}/contents/${apiPath}`;
+    const headers = {
+      "Accept": "application/vnd.github+json",
+      "Authorization": `Bearer ${settings.token}`,
+      "X-GitHub-Api-Version": "2022-11-28"
+    };
+
+    let sha = null;
+    const getResponse = await fetch(`${url}?ref=${encodeURIComponent(settings.branch)}`, { headers });
+    if (getResponse.ok) {
+      const current = await getResponse.json();
+      sha = current.sha;
+    } else if (getResponse.status !== 404) {
+      throw new Error(`No se pudo revisar ${path}: ${getResponse.status}`);
+    }
+
+    const body = {
+      message: `${message}: ${path}`,
+      content: contentBase64,
+      branch: settings.branch,
+      ...(sha ? { sha } : {})
+    };
+
+    const putResponse = await fetch(url, {
+      method: "PUT",
+      headers,
+      body: JSON.stringify(body)
+    });
+    if (!putResponse.ok) {
+      const detail = await putResponse.text().catch(() => "");
+      throw new Error(`GitHub rechazó ${path}: ${putResponse.status} ${detail.slice(0, 160)}`);
+    }
+    return putResponse.json();
+  }
+
+  function isDataUrl(value) {
+    return /^data:[^;]+;base64,/i.test(String(value || ""));
+  }
+
+  function extensionFromDataUrl(dataUrl) {
+    const mime = String(dataUrl).match(/^data:([^;]+);base64,/i)?.[1] || "image/png";
+    if (mime.includes("svg")) return "svg";
+    if (mime.includes("jpeg") || mime.includes("jpg")) return "jpg";
+    if (mime.includes("webp")) return "webp";
+    if (mime.includes("gif")) return "gif";
+    return "png";
+  }
+
+  function base64FromDataUrl(dataUrl) {
+    return String(dataUrl).split(",")[1] || "";
+  }
+
+  function textToBase64(text) {
+    return btoa(unescape(encodeURIComponent(String(text || ""))));
+  }
+
+  function slugify(value) {
+    return normalizeText(value).replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "archivo";
   }
 
   function openGlobalScoreInfo(roll) {
@@ -1464,18 +1726,28 @@
     const rows = calc.areas.map((area) => `
       <tr>
         <td>${esc(area.label)}</td>
-        <td>${area.weight}</td>
+        <td><span class="weight-pill">×${area.weight}</span></td>
         <td>${area.score ?? "—"}</td>
         <td>${Number.isFinite(area.weighted) ? area.weighted : "—"}</td>
       </tr>
     `).join("");
+    const cards = calc.areas.map((area) => `
+      <article class="saber-area-card">
+        <span>${esc(area.label)}</span>
+        <strong>${area.score ?? "—"}</strong>
+        <small>Peso ×${area.weight} · aporte ${Number.isFinite(area.weighted) ? area.weighted : "—"}</small>
+      </article>
+    `).join("");
     const formulaValues = calc.canCalculate
       ? `((${calc.math} × 3) + (${calc.language} × 3) + (${calc.natural} × 3) + (${calc.social} × 3) + (${calc.english} × 1)) × 5 ÷ 13 = ${calc.score}`
       : "Falta al menos una de las cinco áreas que componen el cálculo.";
+    const weightedList = calc.canCalculate
+      ? `${calc.math * 3} + ${calc.language * 3} + ${calc.natural * 3} + ${calc.social * 3} + ${calc.english * 1} = ${calc.weightedSum}`
+      : "No disponible";
 
     modalRoot.innerHTML = `
       <div class="modal-backdrop" data-action="close-modal">
-        <section class="modal" style="max-width:720px;">
+        <section class="modal global-modal" style="max-width:760px;">
           <div class="modal-head">
             <div>
               <h2>Puntaje global tipo Saber</h2>
@@ -1484,15 +1756,39 @@
             <button type="button" class="icon-btn" data-action="close-modal" aria-label="Cerrar">×</button>
           </div>
           <div class="modal-body">
-            <div class="formula-box">
-              <p>Para estimarlo se ponderan Matemáticas, Lenguaje, Ciencias Naturales y Ciencias Sociales por 3, e Inglés por 1. Luego se multiplica por 5 y se divide entre 13.</p>
-              <div class="formula-line">${esc(formulaValues)}</div>
-              <p>Ética, Artística, Educación Física, Informática y Religión no cuentan dentro de este cálculo tipo Saber.</p>
+            <section class="global-score-hero">
+              <div>
+                <span>Resultado estimado</span>
+                <strong>${calc.score ?? "—"}<small>/500</small></strong>
+              </div>
+              <p>Este valor simula el puntaje global de una Prueba Saber usando solo las áreas que hacen parte de ese cálculo.</p>
+            </section>
+
+            <div class="formula-box formula-box-strong">
+              <div class="formula-step">
+                <span>1</span>
+                <p>Primero se ponderan las áreas: Matemáticas, Lenguaje, Ciencias Naturales y Ciencias Sociales valen <strong>×3</strong>. Inglés vale <strong>×1</strong>.</p>
+              </div>
+              <div class="formula-step">
+                <span>2</span>
+                <p>Luego se suman esos aportes: <strong>${esc(weightedList)}</strong>.</p>
+              </div>
+              <div class="formula-step">
+                <span>3</span>
+                <p>Finalmente esa suma se multiplica por <strong>5</strong> y se divide entre <strong>13</strong>.</p>
+              </div>
+              <div class="formula-line colorful">${esc(formulaValues)}</div>
+              <p class="excluded-note">Ética, Artística, Educación Física, Informática y Religión no cuentan dentro de este cálculo tipo Saber.</p>
             </div>
-            <div class="table-wrap">
-              <table class="compact-table">
+
+            <div class="saber-area-cards">${cards}</div>
+            <div class="table-wrap saber-table-wrap">
+              <table class="compact-table saber-global-table">
                 <thead><tr><th>Área</th><th>Peso</th><th>Nota</th><th>Aporte</th></tr></thead>
-                <tbody>${rows}</tbody>
+                <tbody>
+                  ${rows}
+                  <tr class="weighted-sum-row"><td colspan="3">Suma ponderada</td><td>${calc.canCalculate ? calc.weightedSum : "—"}</td></tr>
+                </tbody>
               </table>
             </div>
           </div>
@@ -1606,6 +1902,38 @@
     localStorage.removeItem(STORAGE.session);
   }
 
+  function enterSessionWithLoader(session, renderFn, message = "Preparando resultados...") {
+    state.activeSession = session;
+    writeJSON(STORAGE.session, state.activeSession);
+    showRouteLoader(message);
+    window.setTimeout(() => {
+      renderFn();
+      window.setTimeout(hideRouteLoader, 150);
+    }, 620);
+  }
+
+  function showRouteLoader(message) {
+    document.querySelector(".route-loader")?.remove();
+    const loader = document.createElement("div");
+    loader.className = "route-loader";
+    loader.innerHTML = `
+      <div class="route-loader-card">
+        <div class="route-loader-mark"></div>
+        <strong>${esc(message)}</strong>
+        <span>Calculando puntajes, rankings y reportes.</span>
+      </div>
+    `;
+    document.body.appendChild(loader);
+    requestAnimationFrame(() => loader.classList.add("active"));
+  }
+
+  function hideRouteLoader() {
+    const loader = document.querySelector(".route-loader");
+    if (!loader) return;
+    loader.classList.add("leaving");
+    window.setTimeout(() => loader.remove(), 360);
+  }
+
   function answerPill(detail, roll, displayIndex = detail.item) {
     return `
       <button class="answer-pill ${detail.status}" data-action="answer-info" data-roll="${escAttr(roll)}" data-subject="${escAttr(detail.subject)}" data-item="${escAttr(detail.item)}" title="Ver detalle del ítem ${escAttr(displayIndex)}">
@@ -1633,7 +1961,7 @@
           <div class="metric-bar-item">
             <div class="metric-bar-head">
               <span>${esc(item.name)}</span>
-              <strong>${esc(item.correct)}/${esc(item.total)} · ${esc(percent)}%</strong>
+              <strong>${esc(percent)}%</strong>
             </div>
             <div class="metric-progress" aria-label="${escAttr(item.name)} ${percent}%">
               <div class="metric-progress-fill" style="width:${clamp(percent, 0, 100)}%"></div>

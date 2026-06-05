@@ -5,10 +5,10 @@ Aplicación web estática para consultar resultados de pruebas objetivas desde G
 ## Credenciales
 
 - Administrador: `admin` / `admin`
-- Estudiantes: ingresan con el ID del examen o con el documento registrado en `ESTUDIANTES/ESTUDIANTES.json`.
+- Estudiantes: ingresan con el ID de prueba o con el documento registrado en `ESTUDIANTES/ESTUDIANTES.json`.
 - Docentes: ingresan con el ID registrado en `INTERNO/CARGA.json`.
 
-## Carpetas de datos
+## Estructura de datos JSON
 
 ```text
 config/
@@ -41,23 +41,7 @@ ICONOS/
   religion.svg
 ```
 
-## Formato de resultados
-
-Los archivos de resultados solo necesitan el ID de prueba y las opciones marcadas:
-
-```json
-[
-  {
-    "Roll No": "2585",
-    "Q 1 Options": "A",
-    "Q 2 Options": "B"
-  }
-]
-```
-
-La aplicación cruza `Roll No` con `ID_PRUEBA` en `ESTUDIANTES.json`.
-
-## Cómo se calcula la nota por asignatura
+## Cómo se calcula cada nota de asignatura
 
 La aplicación compara cada respuesta marcada contra la clave de `KEYS/KEYS_10.json`.
 
@@ -65,7 +49,7 @@ La aplicación compara cada respuesta marcada contra la clave de `KEYS/KEYS_10.j
 nota = 20 + (correctas / total_de_preguntas) * 80
 ```
 
-Estados de respuesta:
+Los estados visuales son:
 
 - Verde: correcta
 - Rojo: incorrecta
@@ -74,22 +58,50 @@ Estados de respuesta:
 
 ## Puntaje global tipo Saber
 
-El puntaje global mostrado al estudiante usa esta fórmula:
+El puntaje global se calcula únicamente con Matemáticas, Lenguaje, Ciencias Naturales, Ciencias Sociales e Inglés:
 
 ```text
-(((Matemáticas × 3) + (Lenguaje × 3) + (Ciencias Naturales × 3) + (Ciencias Sociales × 3) + (Inglés × 1)) × 5) / 13
+(((Matemáticas x 3) + (Lenguaje x 3) + (Naturales x 3) + (Sociales x 3) + (Inglés x 1)) x 5) / 13
 ```
 
-Ética, Artística, Educación Física, Informática y Religión no cuentan dentro de este cálculo tipo Saber.
+Ética, Artística, Educación Física, Informática y Religión no cuentan en este cálculo tipo Saber.
 
-## Sesiones
+## Publicar cambios desde el panel admin
 
-En el ejemplo incluido:
+El panel admin permite cambiar:
 
-- `10S1.json`: ítems 1 a 70.
-- `10S2.json`: ítems 71 a 125, aunque EvalBee los exporte internamente como Q1, Q2, Q3...
+- color principal;
+- textos del encabezado;
+- logo principal;
+- banner;
+- logos por asignatura;
+- cargas docentes;
+- claves de respuesta.
 
-Esa equivalencia está definida en `config/data-manifest.json`.
+Para que esos cambios queden visibles para todos los usuarios, entra a:
+
+```text
+Admin → GitHub → Publicar cambios en GitHub
+```
+
+Debes proporcionar:
+
+- usuario o dueño del repositorio;
+- nombre del repositorio;
+- rama, normalmente `main`;
+- token de GitHub con permiso de escritura sobre ese repositorio.
+
+La aplicación publicará mediante commit los cambios en:
+
+```text
+config/site-config.json
+INTERNO/CARGA.json
+KEYS/KEYS_10.json
+ICONOS/
+assets/
+```
+
+No escribas el token dentro del código del sitio. Úsalo solo desde la pantalla admin.
 
 ## Publicar en GitHub Pages
 
@@ -102,9 +114,28 @@ Esa equivalencia está definida en `config/data-manifest.json`.
    - Folder: `/root`
 5. Guarda los cambios.
 
+GitHub generará una URL parecida a:
+
+```text
+https://tuusuario.github.io/nombre-del-repositorio/
+```
+
 ## Agregar otro grado
 
-Agrega los archivos JSON correspondientes y actualiza `config/data-manifest.json`:
+1. Agrega la clave en `KEYS`, por ejemplo:
+
+```text
+KEYS/KEYS_9.json
+```
+
+2. Agrega los resultados en `RESULTADOS`, por ejemplo:
+
+```text
+RESULTADOS/9S1.json
+RESULTADOS/9S2.json
+```
+
+3. Edita `config/data-manifest.json` y agrega las rutas:
 
 ```json
 {
@@ -121,37 +152,6 @@ Agrega los archivos JSON correspondientes y actualiza `config/data-manifest.json
 }
 ```
 
-## Sobre el panel administrador
-
-El panel permite:
-
-- Cambiar banner, logo, textos, color principal y borde de botones.
-- Subir logos por asignatura.
-- Editar cargas docentes.
-- Editar claves de respuesta.
-- Ver todos los exámenes.
-
-Como GitHub Pages no tiene base de datos ni servidor, los cambios hechos en el panel se guardan en el navegador mediante `localStorage`.
-
-Para que los cambios queden publicados para todos:
-
-1. Exporta el JSON desde el panel.
-2. Reemplaza el archivo correspondiente en el repositorio.
-3. Haz commit en GitHub.
-
-## Cambios v6
-
-- Transición más suave al abrir, cerrar o cambiar el detalle de una asignatura en la vista estudiante.
-- Las barras de componentes y competencias usan el color principal configurado en admin y una variante más clara.
-- El puntaje global ahora se calcula como estimación tipo Saber con la ponderación solicitada.
-- El estudiante puede tocar el puntaje global para ver la fórmula aplicada con sus valores.
-- En la vista docente las cargas quedan como pestañas visibles, sin scroll horizontal.
-- La tabla docente incluye índice, nombre, ID de prueba, nota y correctas.
-- La vista docente muestra promedio agregado por componentes y competencias.
-- El docente puede abrir la clave de respuestas correctas de la asignatura activa.
-
 ## Advertencia de privacidad
 
-GitHub Pages público no es un sistema seguro para publicar información sensible de estudiantes. Esta versión sirve como prototipo estático o para repositorios privados/controlados.
-
-Para uso institucional real con datos personales, conviene montar autenticación y base de datos con Firebase, Supabase, un backend propio o datos anonimizados.
+GitHub Pages público no es un sistema seguro para publicar información sensible de estudiantes. Esta versión sirve como prototipo estático, repositorio privado/controlado o datos anonimizados. Para uso institucional real con datos personales, conviene usar autenticación y base de datos con un backend, Firebase o Supabase.

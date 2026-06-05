@@ -5,5 +5,11 @@
   "bannerImage": "",
   "footerText": "Consulta institucional de resultados",
   "primaryColor": "#ff7900",
-  "buttonRadius": 4
+  "buttonRadius": 4,
+  "subjectLogos": {},
+  "github": {
+    "owner": "",
+    "repo": "",
+    "branch": "main"
+  }
 }
