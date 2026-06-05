@@ -1,171 +1,118 @@
-# Resultados de Pruebas Objetivas
+# Resultados de Pruebas Objetivas - versión JSON
 
-Aplicación web estática para consultar resultados de pruebas objetivas desde GitHub Pages.
+Aplicación estática para GitHub Pages orientada a consulta de resultados por estudiante, docente y administrador.
 
-## Credenciales
-
-- Administrador: `admin` / `admin`
-- Estudiantes: ingresan con el ID del examen o con el documento registrado en `ESTUDIANTES.csv`
-- Docentes: ingresan con el ID registrado en `INTERNO/CARGA.csv`
-
-## Carpetas de datos
+## Estructura de datos
 
 ```text
-KEYS/
-  ANSWER_10.csv
-
-RESULTADOS/
-  10S1.csv
-  10S2.csv
-
-ESTUDIANTES/
-  ESTUDIANTES.csv
-
-INTERNO/
-  CARGA.csv
-
 config/
   data-manifest.json
+  site-config.json
+KEYS/
+  KEYS_10.json
+RESULTADOS/
+  10S1.json
+  10S2.json
+ESTUDIANTES/
+  ESTUDIANTES.json
+INTERNO/
+  CARGA.json
+ICONOS/
+  matematicas.svg
+  lenguaje.svg
+  ciencias-naturales.svg
+  ingles.svg
+  ciencias-sociales.svg
+  etica.svg
+  artistica.svg
+  educacion-fisica.svg
+  informatica.svg
+  religion.svg
 ```
 
-## Cómo se calcula la nota
+## Accesos
 
-La aplicación compara cada respuesta marcada contra la clave de `ANSWER_10.csv`.
+- Administrador: usuario `admin`, contraseña `admin`.
+- Estudiante: ID de prueba o ID de alumno, según `ESTUDIANTES/ESTUDIANTES.json`.
+- Docente: ID del docente, según `INTERNO/CARGA.json`.
 
-La nota se calcula en escala de 20 a 100:
+## Archivos JSON principales
 
-```text
-nota = 20 + (correctas / total_de_preguntas) * 80
-```
+### `KEYS/KEYS_10.json`
+Contiene la clave de respuestas por ítem, área, componente y competencia.
 
-También clasifica las respuestas así:
-
-- Verde: correcta
-- Rojo: incorrecta
-- Amarillo: doble marca
-- Azul: sin marcar
-
-## Sesiones
-
-En el ejemplo incluido:
-
-- `10S1.csv`: ítems 1 a 70
-- `10S2.csv`: ítems 71 a 125, aunque EvaluBee los exporte internamente como Q1, Q2, Q3...
-
-Esa equivalencia está definida en `config/data-manifest.json`:
+Campos esperados:
 
 ```json
 {
-  "resultados": [
-    { "grade": 10, "session": 1, "startItem": 1, "path": "RESULTADOS/10S1.csv" },
-    { "grade": 10, "session": 2, "startItem": 71, "path": "RESULTADOS/10S2.csv" }
-  ]
+  "Área": "Matemáticas",
+  "Número de ítem": "1",
+  "Respuesta sugerida": "C",
+  "Componente / pensamiento / entorno / factor / enfoque": "Pensamiento aleatorio y sistemas de datos",
+  "Competencia": "Comunicación, representación y modelación"
 }
 ```
 
-## Publicar en GitHub Pages
-
-1. Crea un repositorio en GitHub.
-2. Sube todo el contenido de esta carpeta al repositorio.
-3. Entra a `Settings > Pages`.
-4. En `Build and deployment`, selecciona:
-   - Source: `Deploy from a branch`
-   - Branch: `main`
-   - Folder: `/root`
-5. Guarda los cambios.
-6. GitHub generará una URL parecida a:
-
-```text
-https://tuusuario.github.io/nombre-del-repositorio/
-```
-
-## Agregar otro grado
-
-1. Agrega la clave en `KEYS`, por ejemplo:
-
-```text
-KEYS/ANSWER_9.csv
-```
-
-2. Agrega los resultados en `RESULTADOS`, por ejemplo:
-
-```text
-RESULTADOS/9S1.csv
-RESULTADOS/9S2.csv
-```
-
-3. Edita `config/data-manifest.json` y agrega las rutas:
+### `RESULTADOS/10S1.json` y `RESULTADOS/10S2.json`
+Contienen solo el ID del examen y las opciones marcadas.
 
 ```json
 {
-  "keys": [
-    { "grade": 10, "path": "KEYS/ANSWER_10.csv" },
-    { "grade": 9, "path": "KEYS/ANSWER_9.csv" }
-  ],
-  "resultados": [
-    { "grade": 10, "session": 1, "startItem": 1, "path": "RESULTADOS/10S1.csv" },
-    { "grade": 10, "session": 2, "startItem": 71, "path": "RESULTADOS/10S2.csv" },
-    { "grade": 9, "session": 1, "startItem": 1, "path": "RESULTADOS/9S1.csv" },
-    { "grade": 9, "session": 2, "startItem": 71, "path": "RESULTADOS/9S2.csv" }
-  ]
+  "Roll No": "2585",
+  "Q 1 Options": "A",
+  "Q 2 Options": "B"
 }
 ```
 
-## Sobre el panel administrador
+`10S1.json` inicia en el ítem global 1.  
+`10S2.json` inicia en el ítem global 71.
 
-El panel permite:
+### `ESTUDIANTES/ESTUDIANTES.json`
 
-- Cambiar banner, logo, textos y color principal.
-- Subir logos por asignatura.
-- Editar cargas docentes.
-- Editar claves de respuesta.
-- Ver todos los exámenes.
+```json
+{
+  "ID_PRUEBA": "2585",
+  "ID_ALUMNO": "1085109557",
+  "APELLIDOS": "Berrio Díaz",
+  "NOMBRES": "Jaime Luis",
+  "SEDE": "Municipal",
+  "GRADO": "10",
+  "GRUPO": "2PPAL"
+}
+```
 
-Como GitHub Pages no tiene base de datos ni servidor, los cambios hechos en el panel se guardan en el navegador mediante `localStorage`.
+### `INTERNO/CARGA.json`
 
-Para que los cambios queden publicados para todos:
+```json
+{
+  "ID": "36720104",
+  "NOMBRE": "MONICA PATRICIA ALVAREZ DE LA ROSA",
+  "ASIGNATURA": "Ingles",
+  "SEDE": "Principal",
+  "GRADO": "10",
+  "CURSO": "2PPAL"
+}
+```
 
-1. Exporta el CSV o JSON desde el panel.
-2. Reemplaza el archivo correspondiente en el repositorio.
-3. Haz commit en GitHub.
+## Configuración visual
 
-## Advertencia importante de privacidad
+La configuración base está en:
 
-GitHub Pages público no es un sistema seguro para publicar información sensible de estudiantes. Esta versión sirve como prototipo estático o para repositorios privados/controlados.
+```text
+config/site-config.json
+```
 
-Para uso institucional real con datos personales, conviene montar autenticación y base de datos con una solución como Firebase, Supabase, un backend propio o GitHub Pages con datos anonimizados.
+Desde el panel admin puedes cambiar color principal, textos, logo, banner, borde de botones y logos por asignatura. Los cambios hechos desde el navegador quedan guardados localmente. Para publicarlos para todos, exporta el JSON correspondiente y súbelo al repositorio.
 
-## Cambios de diseño v2
+## Publicación en GitHub Pages
 
-- En celular el banner superior queda más compacto.
-- Se retiraron los percentiles, la barra de desempeño, el texto de habilidades y el botón de imprimir.
-- En celular las asignaturas aparecen en cascada. Al tocar una asignatura, el detalle se abre dentro de la misma página.
-- En escritorio las asignaturas quedan a la izquierda y el detalle de la prueba a la derecha.
-- Las opciones marcadas muestran solo el ítem y la opción marcada. No se muestra la respuesta correcta en el reporte.
-- Debajo de las opciones se calculan barras por componente y por competencia usando las columnas de `ANSWER_10.csv`.
-- Los botones usan borde rectangular configurable desde el panel admin, por defecto `4px`.
-- La carpeta `ICONOS` contiene los logos base de las asignaturas. Puedes reemplazarlos por tus propios archivos.
+1. Sube todos los archivos del proyecto al repositorio.
+2. En GitHub, entra a `Settings -> Pages`.
+3. Selecciona `Deploy from a branch`.
+4. Rama: `main`.
+5. Carpeta: `/root`.
+6. Guarda y espera la URL generada.
 
-### Logos de asignaturas
+## Nota de seguridad
 
-La aplicación carga por defecto estos archivos desde `ICONOS`:
-
-- `ICONOS/matematicas.svg`
-- `ICONOS/lenguaje.svg`
-- `ICONOS/ciencias-naturales.svg`
-- `ICONOS/ingles.svg`
-- `ICONOS/ciencias-sociales.svg`
-- `ICONOS/etica.svg`
-- `ICONOS/artistica.svg`
-- `ICONOS/educacion-fisica.svg`
-- `ICONOS/informatica.svg`
-- `ICONOS/religion.svg`
-
-El panel admin permite subir logos, pero en GitHub Pages esos cambios quedan guardados en el navegador. Para que todos los usuarios vean los mismos logos, reemplaza los archivos de la carpeta `ICONOS` y vuelve a subir el repositorio.
-
-
-## Cambios v4
-
-- Se ajustó la jerarquía tipográfica para que la interfaz no se vea excesivamente pesada.
-- Se conserva el peso fuerte únicamente en puntajes y notas.
-- Títulos, botones, etiquetas, tablas y textos secundarios usan pesos más moderados.
+GitHub Pages publica archivos estáticos. Si el repositorio es público, los JSON también serán accesibles. Para datos reales sensibles, conviene usar autenticación y base de datos externa.

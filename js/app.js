@@ -38,13 +38,14 @@
   };
 
   const DEFAULT_MANIFEST = {
-    keys: [{ grade: 10, path: "KEYS/ANSWER_10.csv" }],
+    config: "config/site-config.json",
+    keys: [{ grade: 10, path: "KEYS/KEYS_10.json" }],
     resultados: [
-      { grade: 10, session: 1, startItem: 1, path: "RESULTADOS/10S1.csv" },
-      { grade: 10, session: 2, startItem: 71, path: "RESULTADOS/10S2.csv" }
+      { grade: 10, session: 1, startItem: 1, path: "RESULTADOS/10S1.json" },
+      { grade: 10, session: 2, startItem: 71, path: "RESULTADOS/10S2.json" }
     ],
-    estudiantes: "ESTUDIANTES/ESTUDIANTES.csv",
-    carga: "INTERNO/CARGA.csv"
+    estudiantes: "ESTUDIANTES/ESTUDIANTES.json",
+    carga: "INTERNO/CARGA.json"
   };
 
   const state = {
@@ -99,7 +100,7 @@
         <div class="boot">
           <div class="boot-mark"></div>
           <h1>No fue posible cargar la información</h1>
-          <p>${esc(error.message || "Revisa que las carpetas y los CSV existan en el repositorio.")}</p>
+          <p>${esc(error.message || "Revisa que las carpetas y los JSON existan en el repositorio.")}</p>
           <button class="primary-btn" data-action="retry">Reintentar</button>
         </div>
       `;
@@ -119,6 +120,14 @@
     const manifestText = await fetchText("config/data-manifest.json", false);
     if (manifestText) {
       state.manifest = { ...DEFAULT_MANIFEST, ...JSON.parse(manifestText) };
+    }
+
+    const savedConfig = readJSON(STORAGE.config, null);
+    const configText = await fetchText(state.manifest.config || "config/site-config.json", false);
+    if (configText) {
+      const parsedConfig = JSON.parse(configText);
+      const fileConfig = parsedConfig.config || parsedConfig;
+      state.config = { ...DEFAULT_CONFIG, ...fileConfig, ...(savedConfig || {}) };
     }
 
     state.keys = [];
@@ -165,75 +174,77 @@
   }
 
   function parseStudents(text) {
-    const rows = parseCSV(text);
-    const headerIndex = findHeaderIndex(rows, ["ID", "Nombres"]);
-    return rowsToObjects(rows, headerIndex).map((row) => ({
-      examId: cleanId(row.ID || row.Id || row.id),
-      nationalId: cleanId(row["Carné"] || row.Carne || row.Carnet || row.Documento || row.documento),
-      name: cleanText(row.Nombres || row.Nombre || row.Name),
-      sede: cleanText(row.Sede),
-      grade: toInt(row.Grado),
-      group: cleanText(row.Grupo || row.Curso)
-    })).filter((s) => s.examId || s.nationalId || s.name);
+    const objects = parseDataObjects(text, ["ID_PRUEBA", "NOMBRES"]);
+    return objects.map((row) => {
+      const apellidos = cleanText(row.APELLIDOS || row.Apellidos || row.apellidos);
+      const nombres = cleanText(row.NOMBRES || row.Nombres || row.Name || row.Nombre || row.nombre);
+      const fullName = cleanText(nombres && apellidos ? `${nombres} ${apellidos}` : (nombres || apellidos));
+      return {
+        examId: cleanId(row.ID_PRUEBA || row.IdPrueba || row.ID || row.Id || row.id),
+        nationalId: cleanId(row.ID_ALUMNO || row.IdAlumno || row["Carné"] || row.Carne || row.Carnet || row.Documento || row.documento),
+        name: fullName,
+        sede: cleanText(row.SEDE || row.Sede),
+        grade: toInt(row.GRADO || row.Grado),
+        group: cleanText(row.GRUPO || row.Grupo || row.CURSO || row.Curso)
+      };
+    }).filter((s) => s.examId || s.nationalId || s.name);
   }
 
   function parseCarga(text) {
-    const rows = parseCSV(text);
-    const headerIndex = findHeaderIndex(rows, ["ID", "Asignatura"]);
-    return rowsToObjects(rows, headerIndex).map((row) => ({
+    const objects = parseDataObjects(text, ["ID", "ASIGNATURA"]);
+    return objects.map((row) => ({
       id: cleanId(row.ID || row.Id || row.id),
-      name: cleanText(row.Nombre || row.Name),
-      subjectRaw: cleanText(row.Asignatura || row.Area || row.Área),
-      subject: canonicalSubject(row.Asignatura || row.Area || row.Área),
-      grade: toInt(row.Grado)
+      name: cleanText(row.NOMBRE || row.Nombre || row.Name),
+      subjectRaw: cleanText(row.ASIGNATURA || row.Asignatura || row.Area || row["Área"]),
+      subject: canonicalSubject(row.ASIGNATURA || row.Asignatura || row.Area || row["Área"]),
+      sede: cleanText(row.SEDE || row.Sede),
+      grade: toInt(row.GRADO || row.Grado),
+      group: cleanText(row.CURSO || row.Curso || row.GRUPO || row.Grupo)
     })).filter((r) => r.id && r.subjectRaw && r.grade);
   }
 
   function parseAnswerKey(text, fileInfo) {
-    const rows = parseCSV(text);
-    const headerIndex = findHeaderIndex(rows, ["Respuesta sugerida"]);
+    const objects = parseDataObjects(text, ["Respuesta sugerida"]);
     const grade = toInt(fileInfo.grade) || inferGradeFromPath(fileInfo.path);
-    return rowsToObjects(rows, headerIndex)
+    return objects
       .map((row, idx) => ({
         sourcePath: fileInfo.path,
         grade,
-        areaRaw: cleanText(row["Área"] || row.Area || row.Asignatura),
-        area: canonicalSubject(row["Área"] || row.Area || row.Asignatura),
-        item: toInt(row["Número de ítem"] || row.Numero || row.Item || row["N°"]),
-        correct: cleanOption(row["Respuesta sugerida"] || row.Respuesta || row.Key),
-        component: cleanText(row["Componente / pensamiento / entorno / factor / enfoque"] || row.Componente || row.Pensamiento || row.Enfoque),
-        competence: cleanText(row.Competencia || row.Competencias),
+        areaRaw: cleanText(row["Área"] || row.Area || row.AREA || row.Asignatura || row.ASIGNATURA),
+        area: canonicalSubject(row["Área"] || row.Area || row.AREA || row.Asignatura || row.ASIGNATURA),
+        item: toInt(row["Número de ítem"] || row["Numero de item"] || row.Numero || row.Número || row.Item || row.ITEM || row["N°"]),
+        correct: cleanOption(row["Respuesta sugerida"] || row.Respuesta || row.RESPUESTA || row.Key),
+        component: cleanText(row["Componente / pensamiento / entorno / factor / enfoque"] || row.Componente || row.COMPONENTE || row.Pensamiento || row.Enfoque),
+        competence: cleanText(row.Competencia || row.COMPETENCIA || row.Competencias),
         idx
       }))
       .filter((r) => r.grade && r.area && r.item && r.correct);
   }
 
   function parseResultFile(text, fileInfo) {
-    const rows = parseCSV(text);
-    const headerIndex = findHeaderIndex(rows, ["Roll No", "Name"]);
-    const objects = rowsToObjects(rows, headerIndex);
+    const objects = parseDataObjects(text, ["Roll No"]);
     const grade = toInt(fileInfo.grade) || inferGradeFromPath(fileInfo.path) || inferGradeFromExam(objects);
     const session = toInt(fileInfo.session) || inferSessionFromPath(fileInfo.path);
     const startItem = toInt(fileInfo.startItem) || (session === 2 ? 71 : 1);
 
     for (const row of objects) {
-      const roll = cleanId(row["Roll No"] || row.RollNo || row.Roll || row.ID);
+      const roll = cleanId(row["Roll No"] || row.RollNo || row.Roll || row.ID || row.ID_PRUEBA);
       if (!roll) continue;
 
       const current = state.responsesByRoll.get(roll) || {
         roll,
-        name: cleanText(row.Name || row.Nombre),
+        name: cleanText(row.Name || row.Nombre || row.NOMBRE),
         grade,
         sessions: [],
         answers: {}
       };
 
-      if (!current.name) current.name = cleanText(row.Name || row.Nombre);
+      if (!current.name) current.name = cleanText(row.Name || row.Nombre || row.NOMBRE);
       if (!current.grade) current.grade = grade;
       current.sessions.push({ session, path: fileInfo.path });
 
       Object.entries(row).forEach(([key, value]) => {
-        const match = String(key).match(/^Q\s*(\d+)\s*Options$/i);
+        const match = String(key).match(/^Q\s*(\d+)\s*Options$/i) || String(key).match(/^q\s*(\d+)$/i);
         if (!match) return;
         const localItem = Number(match[1]);
         const globalItem = startItem + localItem - 1;
@@ -267,13 +278,15 @@
       }
       const teacher = state.teachers.get(row.id);
       if (!teacher.name && row.name) teacher.name = row.name;
-      const assignmentKey = `${row.grade}|${canonicalSubject(row.subjectRaw)}`;
+      const assignmentKey = assignmentKeyFor(row);
       if (!teacher.assignments.some((a) => a.key === assignmentKey)) {
         teacher.assignments.push({
           key: assignmentKey,
           grade: row.grade,
           subject: canonicalSubject(row.subjectRaw),
-          subjectRaw: row.subjectRaw
+          subjectRaw: row.subjectRaw,
+          sede: row.sede || "",
+          group: row.group || ""
         });
       }
     }
@@ -658,18 +671,18 @@
   function renderTeacher(teacher) {
     const assignments = teacher.assignments || [];
     if (!state.teacherActive || !assignments.some((a) => a.key === state.teacherActive.key)) {
-      state.teacherActive = assignments[0] || null;
+      state.teacherActive = assignments.find((assignment) => state.computedStudents.some((student) => teacherAssignmentMatches(student, assignment))) || assignments[0] || null;
     }
 
     const active = state.teacherActive;
     const assignmentButtons = assignments.map((a) => `
-      <button class="tab-btn ${active?.key === a.key ? "active" : ""}" data-action="teacher-assignment" data-grade="${escAttr(a.grade)}" data-subject="${escAttr(a.subject)}">
-        ${esc(a.subject)} · ${esc(a.grade)}°
+      <button class="tab-btn ${active?.key === a.key ? "active" : ""}" data-action="teacher-assignment" data-key="${escAttr(a.key)}" data-grade="${escAttr(a.grade)}" data-subject="${escAttr(a.subject)}" data-group="${escAttr(a.group || "")}" data-sede="${escAttr(a.sede || "")}">
+        ${esc(a.subject)} · ${esc(a.grade)}°${a.group ? ` · ${esc(a.group)}` : ""}
       </button>
     `).join("");
 
     const students = active
-      ? state.computedStudents.filter((s) => String(s.grade) === String(active.grade) && s.subjectStats[active.subject]?.total)
+      ? state.computedStudents.filter((student) => teacherAssignmentMatches(student, active))
       : [];
 
     const query = normalizeText(state.teacherSearch);
@@ -693,7 +706,7 @@
         <div>
           <span class="section-eyebrow">Panel docente</span>
           <h2 style="margin:8px 0 0;font-size:clamp(1.4rem,4vw,2.2rem);font-weight:900;letter-spacing:-.04em;">${esc(teacher.name || "Docente")}</h2>
-          ${active ? `<p class="teacher-active-label">${esc(active.subject)} · ${esc(active.grade)}°</p>` : ""}
+          ${active ? `<p class="teacher-active-label">${esc(active.subject)} · ${esc(active.grade)}°${active.group ? ` · ${esc(active.group)}` : ""}</p>` : ""}
         </div>
         <div class="search-box"><input placeholder="Buscar estudiante..." value="${escAttr(state.teacherSearch)}" data-action="teacher-search"></div>
       </section>
@@ -702,7 +715,7 @@
 
       ${active ? `
         <section class="teacher-stat-strip">
-          <article class="card card-pad teacher-stat"><span>Grado</span><strong>${esc(active.grade)}°</strong></article>
+          <article class="card card-pad teacher-stat"><span>Grado</span><strong>${esc(active.grade)}°${active.group ? ` · ${esc(active.group)}` : ""}</strong></article>
           <article class="card card-pad teacher-stat"><span>Estudiantes</span><strong>${filtered.length}</strong></article>
           <article class="card card-pad teacher-stat"><span>Promedio</span><strong>${avg(filtered.map((s) => s.subjectStats[active.subject].score))}<small>/100</small></strong></article>
         </section>
@@ -775,7 +788,7 @@
         </div>
       </section>
       <div class="admin-note">
-        Esta versión funciona en GitHub Pages como aplicación estática. Los cambios hechos desde el panel admin se guardan en este navegador. Para que todos los usuarios los vean, exporta los CSV/configuración y súbelos al repositorio.
+        Esta versión funciona en GitHub Pages como aplicación estática. Los cambios hechos desde el panel admin se guardan en este navegador. Para que todos los usuarios los vean, exporta los JSON/configuración y súbelos al repositorio.
       </div>
       <section class="grid grid-auto">
         <article class="card card-pad"><span class="section-eyebrow">Exámenes</span><h3 style="margin:8px 0 0;font-size:2rem;">${state.computedStudents.length}</h3></article>
@@ -799,10 +812,10 @@
         </article>
         <article class="card card-pad">
           <h3 style="margin:0 0 12px;font-weight:900;">Carpetas esperadas en GitHub</h3>
-          <div class="meta-row"><span>Claves</span><strong>KEYS/ANSWER_10.csv</strong></div>
-          <div class="meta-row"><span>Resultados</span><strong>RESULTADOS/10S1.csv · 10S2.csv</strong></div>
-          <div class="meta-row"><span>Estudiantes</span><strong>ESTUDIANTES/ESTUDIANTES.csv</strong></div>
-          <div class="meta-row"><span>Carga docente</span><strong>INTERNO/CARGA.csv</strong></div>
+          <div class="meta-row"><span>Claves</span><strong>KEYS/KEYS_10.json</strong></div>
+          <div class="meta-row"><span>Resultados</span><strong>RESULTADOS/10S1.json · 10S2.json</strong></div>
+          <div class="meta-row"><span>Estudiantes</span><strong>ESTUDIANTES/ESTUDIANTES.json</strong></div>
+          <div class="meta-row"><span>Carga docente</span><strong>INTERNO/CARGA.json</strong></div>
           <p style="color:#686b74;font-weight:650;line-height:1.5;">Para nuevos grados agrega los archivos y actualiza <strong>config/data-manifest.json</strong>.</p>
         </article>
       </section>
@@ -943,26 +956,28 @@
       <section class="toolbar">
         <div>
           <span class="section-eyebrow">Carga docente</span>
-          <h2 style="margin:8px 0 0;font-weight:900;">Docente · asignatura · grado</h2>
+          <h2 style="margin:8px 0 0;font-weight:900;">Docente · asignatura · sede · grado · curso</h2>
         </div>
         <div class="inline-actions">
           <button class="primary-btn" data-action="add-carga">Agregar fila</button>
           <button class="secondary-btn" data-action="save-carga">Guardar cargas</button>
-          <button class="ghost-btn" data-action="export-carga">Exportar CSV</button>
+          <button class="ghost-btn" data-action="export-carga">Exportar JSON</button>
         </div>
       </section>
-      <div class="admin-note">Al guardar, la carga se reemplaza localmente. Exporta el CSV y súbelo como <strong>INTERNO/CARGA.csv</strong> para publicarlo.</div>
+      <div class="admin-note">Al guardar, la carga se reemplaza localmente. Exporta el JSON y súbelo como <strong>INTERNO/CARGA.json</strong> para publicarlo.</div>
       <section class="card table-card">
         <div class="table-wrap">
           <table>
-            <thead><tr><th>ID docente</th><th>Nombre</th><th>Asignatura</th><th>Grado</th><th></th></tr></thead>
+            <thead><tr><th>ID docente</th><th>Nombre</th><th>Asignatura</th><th>Sede</th><th>Grado</th><th>Curso</th><th></th></tr></thead>
             <tbody>
               ${rows.map((row, index) => `
                 <tr>
                   <td><input class="small-input" value="${escAttr(row.id)}" data-carga-row="${index}" data-field="id"></td>
                   <td><input class="small-input" value="${escAttr(row.name)}" data-carga-row="${index}" data-field="name"></td>
                   <td><input class="small-input" value="${escAttr(row.subjectRaw || row.subject)}" data-carga-row="${index}" data-field="subjectRaw"></td>
+                  <td><input class="small-input" value="${escAttr(row.sede || "")}" data-carga-row="${index}" data-field="sede"></td>
                   <td><input class="small-input" value="${escAttr(row.grade)}" data-carga-row="${index}" data-field="grade"></td>
+                  <td><input class="small-input" value="${escAttr(row.group || "")}" data-carga-row="${index}" data-field="group"></td>
                   <td><button class="danger-btn" data-action="delete-carga" data-index="${index}">Eliminar</button></td>
                 </tr>
               `).join("")}
@@ -996,10 +1011,10 @@
           </select>
         </div>
       </section>
-      <div class="admin-note">Después de guardar, los cálculos se actualizan en este navegador. Exporta el CSV editado y súbelo a <strong>KEYS/ANSWER_10.csv</strong> o al archivo de claves correspondiente.</div>
+      <div class="admin-note">Después de guardar, los cálculos se actualizan en este navegador. Exporta el JSON editado y súbelo a <strong>KEYS/KEYS_10.json</strong> o al archivo de claves correspondiente.</div>
       <div class="inline-actions" style="margin-bottom:14px;">
         <button class="secondary-btn" data-action="save-keys">Guardar claves</button>
-        <button class="ghost-btn" data-action="export-keys">Exportar CSV</button>
+        <button class="ghost-btn" data-action="export-keys">Exportar JSON</button>
         <button class="danger-btn" data-action="reset-keys">Restaurar claves originales</button>
       </div>
       <section class="card table-card">
@@ -1150,10 +1165,12 @@
 
     if (action === "teacher-assignment") {
       state.teacherActive = {
-        key: `${target.dataset.grade}|${canonicalSubject(target.dataset.subject)}`,
+        key: target.dataset.key || assignmentKeyFor({ grade: target.dataset.grade, subjectRaw: target.dataset.subject, group: target.dataset.group, sede: target.dataset.sede }),
         grade: toInt(target.dataset.grade),
         subject: canonicalSubject(target.dataset.subject),
-        subjectRaw: target.dataset.subject
+        subjectRaw: target.dataset.subject,
+        group: cleanText(target.dataset.group),
+        sede: cleanText(target.dataset.sede)
       };
       renderBySession();
     }
@@ -1207,7 +1224,7 @@
     }
 
     if (action === "add-carga") {
-      state.cargaRows.unshift({ id: "", name: "", subjectRaw: "Matemáticas", subject: "Matemáticas", grade: 10 });
+      state.cargaRows.unshift({ id: "", name: "", subjectRaw: "Matemáticas", subject: "Matemáticas", sede: "", grade: 10, group: "" });
       renderAdmin();
     }
 
@@ -1276,6 +1293,10 @@
         state.cargaRows[index].id = cleanId(target.value);
       } else if (field === "name") {
         state.cargaRows[index].name = target.value;
+      } else if (field === "sede") {
+        state.cargaRows[index].sede = target.value;
+      } else if (field === "group") {
+        state.cargaRows[index].group = target.value;
       }
     }
   }
@@ -1344,7 +1365,9 @@
         name: cleanText(row.name),
         subjectRaw: cleanText(row.subjectRaw || row.subject),
         subject: canonicalSubject(row.subjectRaw || row.subject),
-        grade: toInt(row.grade)
+        sede: cleanText(row.sede),
+        grade: toInt(row.grade),
+        group: cleanText(row.group)
       }))
       .filter((row) => row.id && row.subjectRaw && row.grade);
   }
@@ -1360,18 +1383,29 @@
 
   function exportCarga() {
     normalizeCargaRows();
-    const rows = [["ID", "Nombre", "Asignatura", "Grado"]];
-    state.cargaRows.forEach((row) => rows.push([row.id, row.name, row.subjectRaw || row.subject, row.grade]));
-    downloadFile("CARGA.csv", toCSV(rows), "text/csv;charset=utf-8");
+    const rows = state.cargaRows.map((row) => ({
+      ID: row.id,
+      NOMBRE: row.name,
+      ASIGNATURA: row.subjectRaw || row.subject,
+      SEDE: row.sede || "",
+      GRADO: String(row.grade || ""),
+      CURSO: row.group || ""
+    }));
+    downloadFile("CARGA.json", JSON.stringify(rows, null, 2), "application/json;charset=utf-8");
   }
 
   function exportKeys() {
-    const rows = [["Área", "Número de ítem", "Respuesta sugerida", "Componente / pensamiento / entorno / factor / enfoque", "Competencia"]];
-    state.keys
+    const rows = state.keys
       .slice()
       .sort((a, b) => (a.grade - b.grade) || (a.item - b.item))
-      .forEach((row) => rows.push([row.areaRaw || row.area, row.item, row.correct, row.component, row.competence]));
-    downloadFile("ANSWER_EDITADO.csv", toCSV(rows), "text/csv;charset=utf-8");
+      .map((row) => ({
+        "Área": row.areaRaw || row.area,
+        "Número de ítem": String(row.item),
+        "Respuesta sugerida": row.correct,
+        "Componente / pensamiento / entorno / factor / enfoque": row.component,
+        "Competencia": row.competence
+      }));
+    downloadFile("KEYS_EDITADO.json", JSON.stringify(rows, null, 2), "application/json;charset=utf-8");
   }
 
   function openDetailModal(roll, subject) {
@@ -1555,6 +1589,31 @@
     return clean || "—";
   }
 
+  function parseDataObjects(text, requiredLabels = []) {
+    const raw = String(text || "").replace(/^\uFEFF/, "").trim();
+    if (!raw) return [];
+
+    if (raw.startsWith("[") || raw.startsWith("{")) {
+      const parsed = JSON.parse(raw);
+      const list = Array.isArray(parsed)
+        ? parsed
+        : (Array.isArray(parsed.rows) ? parsed.rows : (Array.isArray(parsed.data) ? parsed.data : []));
+      return list
+        .filter((row) => row && typeof row === "object" && !Array.isArray(row))
+        .map((row) => {
+          const obj = {};
+          Object.entries(row).forEach(([key, value]) => {
+            obj[cleanText(key)] = cleanText(value);
+          });
+          return obj;
+        });
+    }
+
+    const rows = parseCSV(raw);
+    const headerIndex = findHeaderIndex(rows, requiredLabels);
+    return rowsToObjects(rows, headerIndex);
+  }
+
   function parseCSV(text) {
     const rows = [];
     let row = [];
@@ -1652,7 +1711,7 @@
     if (/(natural|biolog|quimic|fisic|ambiental|ciencia)/.test(text) && !/social/.test(text)) return "Ciencias Naturales";
     if (/(ingles|english)/.test(text)) return "Inglés";
     if (/(social|ciudadan|historia|geografia|constitucion|democracia|politic)/.test(text)) return "Ciencias Sociales y Ciudadanía";
-    if (/(etica|valores|convivencia)/.test(text)) return "Ética y Valores";
+    if (/(etica|valores|convivencia|formacion humana|filosofia)/.test(text)) return "Ética y Valores";
     if (/(artist|arte|musica|dibujo|danza)/.test(text)) return "Artística";
     if (/(informat|tecnolog|sistema|programac|comput)/.test(text)) return "Informática";
     if (/(relig|ere|biblic|cristolog|eclesiolog)/.test(text)) return "Religión";
@@ -1714,6 +1773,20 @@
     const exam = objects.find((obj) => obj.Exam)?.Exam || "";
     const match = String(exam).match(/\d+/);
     return match ? Number(match[0]) : 0;
+  }
+
+  function assignmentKeyFor(row) {
+    const grade = toInt(row.grade);
+    const subject = normalizeText(canonicalSubject(row.subjectRaw || row.subject));
+    const group = normalizeText(row.group || "");
+    return `${grade}|${group}|${subject}`;
+  }
+
+  function teacherAssignmentMatches(student, assignment) {
+    if (!student || !assignment) return false;
+    const sameGrade = String(student.grade) === String(assignment.grade);
+    const sameGroup = !assignment.group || normalizeText(student.group) === normalizeText(assignment.group);
+    return sameGrade && sameGroup && student.subjectStats[assignment.subject]?.total;
   }
 
   function keyId(row) {

@@ -1,9 +1,9 @@
 {
-  "version": "1.0.0",
+  "config": "config/site-config.json",
   "keys": [
     {
       "grade": 10,
-      "path": "KEYS/ANSWER_10.csv"
+      "path": "KEYS/KEYS_10.json"
     }
   ],
   "resultados": [
@@ -11,15 +11,15 @@
       "grade": 10,
       "session": 1,
       "startItem": 1,
-      "path": "RESULTADOS/10S1.csv"
+      "path": "RESULTADOS/10S1.json"
     },
     {
       "grade": 10,
       "session": 2,
       "startItem": 71,
-      "path": "RESULTADOS/10S2.csv"
+      "path": "RESULTADOS/10S2.json"
     }
   ],
-  "estudiantes": "ESTUDIANTES/ESTUDIANTES.csv",
-  "carga": "INTERNO/CARGA.csv"
+  "estudiantes": "ESTUDIANTES/ESTUDIANTES.json",
+  "carga": "INTERNO/CARGA.json"
 }

@@ -1,0 +1,146 @@
+[
+  {
+    "ID_PRUEBA": "2559",
+    "ID_ALUMNO": "1085109075",
+    "APELLIDOS": "Acosta Lopez",
+    "NOMBRES": "Carlos Junior",
+    "SEDE": "Municipal",
+    "GRADO": "10",
+    "GRUPO": "2PPAL"
+  },
+  {
+    "ID_PRUEBA": "2530",
+    "ID_ALUMNO": "1081809573",
+    "APELLIDOS": "Altahona Gutierrez",
+    "NOMBRES": "Juan David",
+    "SEDE": "Municipal",
+    "GRADO": "10",
+    "GRUPO": "2PPAL"
+  },
+  {
+    "ID_PRUEBA": "2531",
+    "ID_ALUMNO": "1084742410",
+    "APELLIDOS": "Altahona Martínez",
+    "NOMBRES": "Geovanny De Jesús",
+    "SEDE": "Municipal",
+    "GRADO": "10",
+    "GRUPO": "2PPAL"
+  },
+  {
+    "ID_PRUEBA": "2445",
+    "ID_ALUMNO": "1046706360",
+    "APELLIDOS": "Arias Pacheco",
+    "NOMBRES": "Juan Sebastian",
+    "SEDE": "Municipal",
+    "GRADO": "10",
+    "GRUPO": "2PPAL"
+  },
+  {
+    "ID_PRUEBA": "2534",
+    "ID_ALUMNO": "1085109931",
+    "APELLIDOS": "Beltran Zarco",
+    "NOMBRES": "José Manuel",
+    "SEDE": "Municipal",
+    "GRADO": "10",
+    "GRUPO": "2PPAL"
+  },
+  {
+    "ID_PRUEBA": "2585",
+    "ID_ALUMNO": "1085109557",
+    "APELLIDOS": "Berrio Díaz",
+    "NOMBRES": "Jaime Luis",
+    "SEDE": "Municipal",
+    "GRADO": "10",
+    "GRUPO": "2PPAL"
+  },
+  {
+    "ID_PRUEBA": "2753",
+    "ID_ALUMNO": "1085105766",
+    "APELLIDOS": "Bolaño Crespo",
+    "NOMBRES": "Yercenis Judith",
+    "SEDE": "Municipal",
+    "GRADO": "10",
+    "GRUPO": "2PPAL"
+  },
+  {
+    "ID_PRUEBA": "2505",
+    "ID_ALUMNO": "1085110929",
+    "APELLIDOS": "Cabarcas Altahona",
+    "NOMBRES": "Julio Judceth",
+    "SEDE": "Municipal",
+    "GRADO": "10",
+    "GRUPO": "2PPAL"
+  },
+  {
+    "ID_PRUEBA": "2421",
+    "ID_ALUMNO": "1085110364",
+    "APELLIDOS": "Cañate Mendoza",
+    "NOMBRES": "Sandy Loraine",
+    "SEDE": "Municipal",
+    "GRADO": "10",
+    "GRUPO": "2PPAL"
+  },
+  {
+    "ID_PRUEBA": "4197",
+    "ID_ALUMNO": "1081762596",
+    "APELLIDOS": "Cera Polo",
+    "NOMBRES": "Karelys Sofia",
+    "SEDE": "Municipal",
+    "GRADO": "10",
+    "GRUPO": "2PPAL"
+  },
+  {
+    "ID_PRUEBA": "2451",
+    "ID_ALUMNO": "1085109196",
+    "APELLIDOS": "Esmeral Orozco",
+    "NOMBRES": "Dunnis Milagro",
+    "SEDE": "Municipal",
+    "GRADO": "10",
+    "GRUPO": "2PPAL"
+  },
+  {
+    "ID_PRUEBA": "2511",
+    "ID_ALUMNO": "1085110617",
+    "APELLIDOS": "Gómez Aviles",
+    "NOMBRES": "Martín Elias",
+    "SEDE": "Municipal",
+    "GRADO": "10",
+    "GRUPO": "2PPAL"
+  },
+  {
+    "ID_PRUEBA": "2513",
+    "ID_ALUMNO": "1081819366",
+    "APELLIDOS": "Gómez Polo",
+    "NOMBRES": "Mauricio Andres",
+    "SEDE": "Municipal",
+    "GRADO": "10",
+    "GRUPO": "2PPAL"
+  },
+  {
+    "ID_PRUEBA": "2456",
+    "ID_ALUMNO": "1085110527",
+    "APELLIDOS": "Guerra Perez",
+    "NOMBRES": "Maria Jose",
+    "SEDE": "Municipal",
+    "GRADO": "10",
+    "GRUPO": "2PPAL"
+  },
+  {
+    "ID_PRUEBA": "5205",
+    "ID_ALUMNO": "1084735441",
+    "APELLIDOS": "Lara Marin",
+    "NOMBRES": "Sofia",
+    "SEDE": "Municipal",
+    "GRADO": "10",
+    "GRUPO": "2PPAL"
+  },
+  {
+    "ID_PRUEBA": "2459",
+    "ID_ALUMNO": "3871636",
+    "APELLIDOS": "Marin Molina",
+    "NOMBRES": "Fabian Enrique",
+    "SEDE": "Municipal",
+    "GRADO": "10",
+    "GRUPO": "2PPAL"
+  }
+]
