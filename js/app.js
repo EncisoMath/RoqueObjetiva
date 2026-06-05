@@ -356,7 +356,8 @@
         wrong,
         doubleMark,
         empty,
-        globalScore: total ? calculateScore(correct, total) : null,
+        globalScore: calculateSaberGlobal(subjectStats),
+        rawGlobalScore: total ? calculateScore(correct, total) : null,
         percentile: 0,
         gradeRank: null,
         gradeCount: null,
@@ -438,7 +439,7 @@
   function renderLogin(error = "") {
     const primary = normalizeColor(state.config.primaryColor || "#ff7900");
     const primaryDark = shadeColor(primary, -18);
-    const primarySoft = shadeColor(primary, 18);
+    const primarySoft = mixWithWhite(primary, 34);
     const rgb = hexToRgb(primary);
     document.documentElement.style.setProperty("--button-radius", `${Number(state.config.buttonRadius ?? 4)}px`);
     document.documentElement.style.setProperty("--orange", primary);
@@ -485,7 +486,7 @@
     const cfg = state.config;
     const primary = normalizeColor(cfg.primaryColor || "#ff7900");
     const primaryDark = shadeColor(primary, -18);
-    const primarySoft = shadeColor(primary, 18);
+    const primarySoft = mixWithWhite(primary, 34);
     const rgb = hexToRgb(primary);
     document.documentElement.style.setProperty("--orange", primary);
     document.documentElement.style.setProperty("--orange-2", primarySoft);
@@ -565,9 +566,10 @@
 
     renderShell(`
       <section class="student-summary card">
-        <div class="summary-score-block">
-          <div class="score-label"><span class="score-icon">🏆</span><span>Puntaje global</span></div>
-          <div class="score-number">${student.globalScore ?? "—"}<small>/100</small></div>
+        <div class="summary-score-block saber-score-block" data-action="global-info" data-roll="${escAttr(student.roll)}" role="button" tabindex="0">
+          <div class="score-label"><span class="score-icon">🏆</span><span>Si esto fuese una prueba Saber, tu puntaje global sería...</span></div>
+          <div class="score-number">${student.globalScore ?? "—"}<small>puntos</small></div>
+          <button type="button" class="score-help" data-action="global-info" data-roll="${escAttr(student.roll)}">Toca para entender cómo se calcula este puntaje</button>
         </div>
         <div class="summary-info-block">
           <div class="student-identity">
@@ -603,6 +605,33 @@
         </section>
       </section>
     `, navFor("student"));
+  }
+
+  function transitionStudentSubject(nextSubject, trigger) {
+    const current = state.selectedSubject;
+    const same = current === nextSubject;
+    const detailPanel = document.querySelector(".student-detail-panel");
+    const currentItem = same ? trigger?.closest(".subject-list-item") : document.querySelector(".subject-list-item.active");
+
+    if (!current && !same) {
+      state.selectedSubject = nextSubject;
+      state.metricTab = "components";
+      renderBySession();
+      return;
+    }
+
+    detailPanel?.classList.add("detail-fading-out");
+    currentItem?.classList.add("closing");
+
+    window.setTimeout(() => {
+      if (same) {
+        state.selectedSubject = null;
+      } else {
+        state.selectedSubject = nextSubject;
+        state.metricTab = "components";
+      }
+      renderBySession();
+    }, 220);
   }
 
   function buildEmptySubjectDetailHtml() {
@@ -690,11 +719,12 @@
       .filter((s) => !query || normalizeText(`${s.name} ${s.roll} ${s.group}`).includes(query))
       .sort((a, b) => a.name.localeCompare(b.name, "es", { sensitivity: "base" }));
 
-    const rows = filtered.map((student) => {
+    const rows = filtered.map((student, index) => {
       const stat = student.subjectStats[active.subject];
       return `
         <tr class="table-row-click" data-action="open-detail" data-roll="${escAttr(student.roll)}" data-subject="${escAttr(active.subject)}">
-          <td><strong>${esc(student.name)}</strong></td>
+          <td class="teacher-index">${index + 1}</td>
+          <td><strong>${esc(student.name)}</strong><br><span class="student-subid">ID Prueba ${esc(student.roll)}</span></td>
           <td><span class="teacher-score">${stat.score ?? "—"}<small>/100</small></span></td>
           <td><strong>${stat.correct}/${stat.total}</strong></td>
         </tr>
@@ -719,17 +749,37 @@
           <article class="card card-pad teacher-stat"><span>Estudiantes</span><strong>${filtered.length}</strong></article>
           <article class="card card-pad teacher-stat"><span>Promedio</span><strong>${avg(filtered.map((s) => s.subjectStats[active.subject].score))}<small>/100</small></strong></article>
         </section>
+        <section class="teacher-metrics-row">
+          ${teacherAggregateMetricsHtml(filtered, active.subject)}
+        </section>
+        <section class="teacher-key-actions">
+          <button class="secondary-btn" data-action="open-answer-key" data-grade="${escAttr(active.grade)}" data-subject="${escAttr(active.subject)}">Ver respuestas correctas</button>
+        </section>
       ` : ""}
 
       <section class="card table-card teacher-table-card">
         <div class="table-wrap">
           <table class="teacher-table">
-            <thead><tr><th>Nombre</th><th>Nota</th><th>Correctas</th></tr></thead>
-            <tbody>${rows || `<tr><td colspan="3" class="empty-state">No hay estudiantes para esta asignación con los archivos cargados.</td></tr>`}</tbody>
+            <thead><tr><th>#</th><th>Estudiante</th><th>Nota</th><th>Correctas</th></tr></thead>
+            <tbody>${rows || `<tr><td colspan="4" class="empty-state">No hay estudiantes para esta asignación con los archivos cargados.</td></tr>`}</tbody>
           </table>
         </div>
       </section>
     `, navFor("teacher"));
+  }
+
+  function teacherAggregateMetricsHtml(students, subject) {
+    const details = students.flatMap((student) => student.subjectStats[subject]?.details || []);
+    return `
+      <article class="teacher-metric-card">
+        <h3>Promedio por componentes</h3>
+        ${buildMetricBars(details, "component")}
+      </article>
+      <article class="teacher-metric-card">
+        <h3>Promedio por competencias</h3>
+        ${buildMetricBars(details, "competence")}
+      </article>
+    `;
   }
 
   function renderAdmin() {
@@ -863,7 +913,7 @@
                   <td><span class="badge gray">${index + 1}</span></td>
                   <td><strong>${esc(student.name)}</strong><br><span style="color:#83858e;font-size:.78rem;">ID ${esc(student.roll)} · ${esc(student.sede)}</span></td>
                   <td>${esc(student.grade)}° · ${esc(student.group)}</td>
-                  <td><span class="inline-score">${student.globalScore ?? "—"}<small>/100</small></span></td>
+                  <td><span class="inline-score">${student.globalScore ?? "—"}<small>/500</small></span></td>
                   <td>${rankText(student.gradeRank, student.gradeCount)}</td>
                   <td><button class="secondary-btn" data-action="open-detail" data-roll="${escAttr(student.roll)}" data-subject="${escAttr(subject === "all" ? SUBJECTS[0].name : subject)}">Ver</button></td>
                 </tr>
@@ -1143,18 +1193,7 @@
 
     if (action === "select-subject") {
       const nextSubject = target.dataset.subject;
-      if (state.selectedSubject === nextSubject) {
-        const item = target.closest(".subject-list-item");
-        item?.classList.add("closing");
-        window.setTimeout(() => {
-          state.selectedSubject = null;
-          renderBySession();
-        }, 240);
-      } else {
-        state.selectedSubject = nextSubject;
-        state.metricTab = "components";
-        renderBySession();
-      }
+      transitionStudentSubject(nextSubject, target);
       return;
     }
 
@@ -1177,6 +1216,16 @@
 
     if (action === "open-detail") {
       openDetailModal(target.dataset.roll, target.dataset.subject);
+    }
+
+    if (action === "global-info") {
+      openGlobalScoreInfo(target.dataset.roll);
+      return;
+    }
+
+    if (action === "open-answer-key") {
+      openAnswerKeyModal(toInt(target.dataset.grade), target.dataset.subject);
+      return;
     }
 
     if (action === "close-modal") {
@@ -1408,6 +1457,86 @@
     downloadFile("KEYS_EDITADO.json", JSON.stringify(rows, null, 2), "application/json;charset=utf-8");
   }
 
+  function openGlobalScoreInfo(roll) {
+    const student = state.computedByRoll.get(roll) || state.computedByRoll.get(state.activeSession?.roll);
+    if (!student) return;
+    const calc = saberGlobalBreakdown(student.subjectStats);
+    const rows = calc.areas.map((area) => `
+      <tr>
+        <td>${esc(area.label)}</td>
+        <td>${area.weight}</td>
+        <td>${area.score ?? "—"}</td>
+        <td>${Number.isFinite(area.weighted) ? area.weighted : "—"}</td>
+      </tr>
+    `).join("");
+    const formulaValues = calc.canCalculate
+      ? `((${calc.math} × 3) + (${calc.language} × 3) + (${calc.natural} × 3) + (${calc.social} × 3) + (${calc.english} × 1)) × 5 ÷ 13 = ${calc.score}`
+      : "Falta al menos una de las cinco áreas que componen el cálculo.";
+
+    modalRoot.innerHTML = `
+      <div class="modal-backdrop" data-action="close-modal">
+        <section class="modal" style="max-width:720px;">
+          <div class="modal-head">
+            <div>
+              <h2>Puntaje global tipo Saber</h2>
+              <span style="color:#7d8089;font-weight:600;">${esc(student.name)} · ID ${esc(student.roll)}</span>
+            </div>
+            <button type="button" class="icon-btn" data-action="close-modal" aria-label="Cerrar">×</button>
+          </div>
+          <div class="modal-body">
+            <div class="formula-box">
+              <p>Para estimarlo se ponderan Matemáticas, Lenguaje, Ciencias Naturales y Ciencias Sociales por 3, e Inglés por 1. Luego se multiplica por 5 y se divide entre 13.</p>
+              <div class="formula-line">${esc(formulaValues)}</div>
+              <p>Ética, Artística, Educación Física, Informática y Religión no cuentan dentro de este cálculo tipo Saber.</p>
+            </div>
+            <div class="table-wrap">
+              <table class="compact-table">
+                <thead><tr><th>Área</th><th>Peso</th><th>Nota</th><th>Aporte</th></tr></thead>
+                <tbody>${rows}</tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </div>
+    `;
+  }
+
+  function openAnswerKeyModal(grade, subject) {
+    const rows = state.keys
+      .filter((key) => (!grade || key.grade === grade) && sameSubject(key.area, subject))
+      .sort((a, b) => a.item - b.item);
+    modalRoot.innerHTML = `
+      <div class="modal-backdrop" data-action="close-modal">
+        <section class="modal answer-key-modal">
+          <div class="modal-head">
+            <div>
+              <h2>Respuestas correctas</h2>
+              <span style="color:#7d8089;font-weight:600;">${esc(subject)} · ${grade ? `${esc(grade)}°` : "Todos los grados"}</span>
+            </div>
+            <button type="button" class="icon-btn" data-action="close-modal" aria-label="Cerrar">×</button>
+          </div>
+          <div class="modal-body">
+            <div class="table-wrap">
+              <table class="compact-table answer-key-table">
+                <thead><tr><th>Ítem</th><th>Respuesta</th><th>Componente</th><th>Competencia</th></tr></thead>
+                <tbody>
+                  ${rows.map((row) => `
+                    <tr>
+                      <td>${esc(row.item)}</td>
+                      <td><strong>${esc(row.correct)}</strong></td>
+                      <td>${esc(row.component || "—")}</td>
+                      <td>${esc(row.competence || "—")}</td>
+                    </tr>
+                  `).join("") || `<tr><td colspan="4" class="empty-state">No hay clave registrada para esta asignatura.</td></tr>`}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </div>
+    `;
+  }
+
   function openDetailModal(roll, subject) {
     const student = state.computedByRoll.get(roll);
     if (!student) return;
@@ -1557,6 +1686,35 @@
       double: "Doble marca",
       empty: "Sin marcar"
     }[status] || status;
+  }
+
+  function scoreOf(subjectStats, subjectName) {
+    const value = subjectStats?.[subjectName]?.score;
+    if (value === null || value === undefined || value === "") return null;
+    return Number.isFinite(Number(value)) ? Number(value) : null;
+  }
+
+  function saberGlobalBreakdown(subjectStats) {
+    const math = scoreOf(subjectStats, "Matemáticas");
+    const language = scoreOf(subjectStats, "Lenguaje");
+    const natural = scoreOf(subjectStats, "Ciencias Naturales");
+    const social = scoreOf(subjectStats, "Ciencias Sociales y Ciudadanía");
+    const english = scoreOf(subjectStats, "Inglés");
+    const areas = [
+      { key: "math", label: "Matemáticas", score: math, weight: 3 },
+      { key: "language", label: "Lenguaje", score: language, weight: 3 },
+      { key: "natural", label: "Ciencias Naturales", score: natural, weight: 3 },
+      { key: "social", label: "Ciencias Sociales y Ciudadanía", score: social, weight: 3 },
+      { key: "english", label: "Inglés", score: english, weight: 1 }
+    ].map((area) => ({ ...area, weighted: Number.isFinite(area.score) ? area.score * area.weight : null }));
+    const canCalculate = areas.every((area) => Number.isFinite(area.score));
+    const weightedSum = areas.reduce((sum, area) => sum + (Number.isFinite(area.weighted) ? area.weighted : 0), 0);
+    const score = canCalculate ? Math.round((weightedSum * 5) / 13) : null;
+    return { math, language, natural, social, english, areas, weightedSum, score, canCalculate };
+  }
+
+  function calculateSaberGlobal(subjectStats) {
+    return saberGlobalBreakdown(subjectStats).score;
   }
 
   function calculateScore(correct, total) {
@@ -1832,6 +1990,15 @@
   function alphaColor(hex, alpha) {
     const rgb = hexToRgb(hex);
     return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha})`;
+  }
+
+  function mixWithWhite(hex, percent) {
+    const rgb = hexToRgb(hex);
+    const ratio = clamp(percent, 0, 100) / 100;
+    const r = Math.round(rgb.r + (255 - rgb.r) * ratio);
+    const g = Math.round(rgb.g + (255 - rgb.g) * ratio);
+    const b = Math.round(rgb.b + (255 - rgb.b) * ratio);
+    return `#${[r, g, b].map((v) => Number(v).toString(16).padStart(2, "0")).join("")}`;
   }
 
   function shadeColor(hex, percent) {

@@ -2387,3 +2387,228 @@ td {
     font-weight: 900;
   }
 }
+
+/* Ajustes v6: transiciones, puntaje Saber y vista docente */
+body {
+  background:
+    radial-gradient(circle at 8% -6%, rgba(var(--primary-rgb, 255, 121, 0), .13), transparent 28rem),
+    radial-gradient(circle at 95% 8%, rgba(44, 167, 248, .10), transparent 26rem),
+    var(--bg);
+}
+
+.top-banner,
+.primary-btn {
+  box-shadow: 0 12px 34px rgba(var(--primary-rgb, 255, 121, 0), .18);
+}
+
+.saber-score-block {
+  cursor: pointer;
+  border-radius: 18px;
+  padding: 8px;
+  margin: -8px;
+  transition: background .2s ease, transform .2s ease;
+}
+
+.saber-score-block:hover {
+  background: rgba(var(--primary-rgb, 255, 121, 0), .07);
+  transform: translateY(-1px);
+}
+
+.score-help {
+  margin-top: 10px;
+  padding: 0;
+  background: transparent;
+  color: var(--orange);
+  font-size: .78rem;
+  line-height: 1.35;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.student-detail-panel,
+.subject-mobile-detail-inner .subject-detail,
+.modal .subject-detail {
+  animation: detailFadeIn .28s ease both;
+}
+
+.student-detail-panel.detail-fading-out,
+.subject-list-item.closing .subject-mobile-detail-inner {
+  animation: detailFadeOut .22s ease both;
+}
+
+@keyframes detailFadeIn {
+  from { opacity: 0; transform: translateY(8px); filter: blur(2px); }
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+@keyframes detailFadeOut {
+  from { opacity: 1; transform: translateY(0); filter: blur(0); }
+  to { opacity: 0; transform: translateY(8px); filter: blur(2px); }
+}
+
+.metric-progress-fill {
+  background: linear-gradient(90deg, var(--orange), var(--orange-2));
+}
+
+.teacher-assignment-nav {
+  flex-wrap: wrap;
+  overflow-x: visible;
+  padding: 2px 2px 12px;
+}
+
+.teacher-assignment-nav .tab-btn {
+  flex: 0 1 auto;
+  white-space: normal;
+  text-align: left;
+  line-height: 1.15;
+}
+
+.teacher-key-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin: -4px 0 14px;
+}
+
+.teacher-metrics-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0 0 16px;
+}
+
+.teacher-metric-card {
+  background: transparent;
+  box-shadow: none;
+  border: 0;
+  padding: 4px 2px;
+}
+
+.teacher-metric-card h3 {
+  margin: 0 0 12px;
+  font-size: .96rem;
+  font-weight: 700;
+  letter-spacing: -.02em;
+}
+
+.teacher-table {
+  min-width: 620px;
+}
+
+.teacher-table th:first-child,
+.teacher-table td.teacher-index {
+  text-align: center;
+  width: 52px;
+  white-space: nowrap;
+  color: #70737d;
+  font-weight: 600;
+}
+
+.student-subid {
+  color: #838792;
+  font-size: .76rem;
+  font-weight: 400;
+}
+
+.formula-box {
+  background: rgba(var(--primary-rgb, 255, 121, 0), .07);
+  border-radius: 18px;
+  padding: 16px;
+  margin-bottom: 16px;
+  color: #454852;
+}
+
+.formula-box p {
+  margin: 0 0 10px;
+  line-height: 1.55;
+}
+
+.formula-box p:last-child {
+  margin-bottom: 0;
+}
+
+.formula-line {
+  background: #fff;
+  border: 1px solid rgba(var(--primary-rgb, 255, 121, 0), .18);
+  border-radius: 12px;
+  padding: 12px;
+  margin: 10px 0;
+  color: var(--ink);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.compact-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.compact-table th,
+.compact-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+  font-size: .86rem;
+}
+
+.compact-table th {
+  text-align: left;
+  color: #545761;
+  background: #f7f8fb;
+  font-weight: 700;
+}
+
+.answer-key-modal {
+  max-width: 940px;
+}
+
+.answer-key-table th:nth-child(1),
+.answer-key-table td:nth-child(1),
+.answer-key-table th:nth-child(2),
+.answer-key-table td:nth-child(2) {
+  text-align: center;
+  white-space: nowrap;
+}
+
+@media (max-width: 680px) {
+  .saber-score-block {
+    margin: 0;
+    padding: 0;
+  }
+
+  .score-help {
+    font-size: .72rem;
+  }
+
+  .teacher-metrics-row {
+    grid-template-columns: 1fr;
+  }
+
+  .teacher-key-actions {
+    justify-content: stretch;
+  }
+
+  .teacher-key-actions .secondary-btn {
+    width: 100%;
+  }
+
+  .teacher-assignment-nav .tab-btn {
+    font-size: .72rem;
+    padding: 9px 10px;
+  }
+
+  .teacher-table {
+    min-width: 0;
+  }
+
+  .teacher-table th:first-child,
+  .teacher-table td.teacher-index {
+    width: 32px;
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+
+  .student-subid {
+    font-size: .68rem;
+  }
+}
