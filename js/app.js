@@ -739,13 +739,15 @@
       return `
         <article class="subject-list-item ${active ? "active" : ""}">
           <button class="subject-row subject-row-grid-card" data-action="select-subject" data-subject="${escAttr(item.name)}" aria-expanded="${active ? "true" : "false"}">
-            <span class="subject-row-left">
+            <span class="subject-card-main">
               ${subjectIcon(item.name)}
-              <span>${esc(item.short)}</span>
-            </span>
-            <span class="subject-row-right">
-              <span class="subject-score">${s.score ?? "—"}<small>/100</small></span>
-              <span class="subject-chevron" aria-hidden="true">⌄</span>
+              <span class="subject-card-text">
+                <span class="subject-card-title">${esc(item.short || item.name)}</span>
+                <span class="subject-card-scoreline">
+                  <span class="subject-score">${s.score ?? "—"}<small>/100</small></span>
+                  <span class="subject-chevron" aria-hidden="true">⌄</span>
+                </span>
+              </span>
             </span>
             <span class="subject-card-progress" aria-hidden="true"><i style="width:${percent}%"></i></span>
           </button>
@@ -1047,8 +1049,13 @@
       const percent = Number.isFinite(Number(display)) ? clamp(Number(display), 0, 100) : 0;
       return `
         <button class="director-subject-card" data-action="director-subject-detail" data-key="${escAttr(active?.key || "")}" data-subject="${escAttr(subject.name)}">
-          <span class="director-subject-head">${subjectIcon(subject.name)}<strong>${esc(subject.name)}</strong></span>
-          <span class="director-subject-score">${display}<small>/100</small></span>
+          <span class="director-card-main">
+            ${subjectIcon(subject.name)}
+            <span class="director-card-text">
+              <strong class="director-card-title">${esc(subject.short || subject.name)}</strong>
+              <span class="director-subject-score">${display}<small>/100</small></span>
+            </span>
+          </span>
           <span class="director-mini-bar"><i style="width:${percent}%"></i></span>
         </button>
       `;
