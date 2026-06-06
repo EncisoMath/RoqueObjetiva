@@ -735,9 +735,10 @@
     const subjectItems = availableSubjects.map((item) => {
       const s = student.subjectStats[item.name];
       const active = item.name === subject;
+      const percent = Number.isFinite(Number(s.score)) ? clamp(Number(s.score), 0, 100) : 0;
       return `
         <article class="subject-list-item ${active ? "active" : ""}">
-          <button class="subject-row" data-action="select-subject" data-subject="${escAttr(item.name)}" aria-expanded="${active ? "true" : "false"}">
+          <button class="subject-row subject-row-grid-card" data-action="select-subject" data-subject="${escAttr(item.name)}" aria-expanded="${active ? "true" : "false"}">
             <span class="subject-row-left">
               ${subjectIcon(item.name)}
               <span>${esc(item.short)}</span>
@@ -746,12 +747,8 @@
               <span class="subject-score">${s.score ?? "—"}<small>/100</small></span>
               <span class="subject-chevron" aria-hidden="true">⌄</span>
             </span>
+            <span class="subject-card-progress" aria-hidden="true"><i style="width:${percent}%"></i></span>
           </button>
-          <div class="subject-mobile-detail" aria-hidden="${active ? "false" : "true"}">
-            <div class="subject-mobile-detail-inner">
-              ${active ? buildSubjectDetailHtml(student, subject, stat, false) : ""}
-            </div>
-          </div>
         </article>
       `;
     }).join("");
