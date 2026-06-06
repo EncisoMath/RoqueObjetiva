@@ -5,7 +5,8 @@
     "ASIGNATURA": "Educación Artística",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "26759482",
@@ -13,7 +14,8 @@
     "ASIGNATURA": "Educación Artística",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "26759482",
@@ -21,7 +23,8 @@
     "ASIGNATURA": "Educación Artística",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "26759482",
@@ -29,7 +32,8 @@
     "ASIGNATURA": "Educación Artística",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "26759482",
@@ -37,7 +41,8 @@
     "ASIGNATURA": "Educación Artística",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "26759482",
@@ -45,7 +50,8 @@
     "ASIGNATURA": "Educación Artística",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "26759482",
@@ -53,7 +59,8 @@
     "ASIGNATURA": "Educación Artística",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "26759482",
@@ -61,7 +68,8 @@
     "ASIGNATURA": "Educación Artística",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "26759482",
@@ -69,7 +77,8 @@
     "ASIGNATURA": "Educación Artística",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "26759482",
@@ -77,7 +86,8 @@
     "ASIGNATURA": "Educación Artística",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "26759482",
@@ -85,7 +95,8 @@
     "ASIGNATURA": "Educación Artística",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19561554",
@@ -93,7 +104,8 @@
     "ASIGNATURA": "Formación Humana",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19561554",
@@ -101,7 +113,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19561554",
@@ -109,7 +122,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19561554",
@@ -117,7 +131,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19561554",
@@ -125,7 +140,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19561554",
@@ -133,7 +149,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19561554",
@@ -141,7 +158,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19561554",
@@ -149,7 +167,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280833",
@@ -157,7 +176,8 @@
     "ASIGNATURA": "Formación Humana",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "6PPAL"
+    "CURSO": "6PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280833",
@@ -165,7 +185,8 @@
     "ASIGNATURA": "Geografía",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280833",
@@ -173,7 +194,8 @@
     "ASIGNATURA": "Geografía",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280833",
@@ -181,7 +203,8 @@
     "ASIGNATURA": "Geografía",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280833",
@@ -189,7 +212,8 @@
     "ASIGNATURA": "Geografía",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280833",
@@ -197,7 +221,8 @@
     "ASIGNATURA": "Geografía",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280833",
@@ -205,7 +230,8 @@
     "ASIGNATURA": "Geografía",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "6PPAL"
+    "CURSO": "6PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280833",
@@ -213,7 +239,8 @@
     "ASIGNATURA": "Geografía",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280833",
@@ -221,7 +248,8 @@
     "ASIGNATURA": "Geografía",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280833",
@@ -229,7 +257,8 @@
     "ASIGNATURA": "Geografía",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280833",
@@ -237,7 +266,8 @@
     "ASIGNATURA": "Geografía",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280833",
@@ -245,7 +275,8 @@
     "ASIGNATURA": "Geografía",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280442",
@@ -253,7 +284,8 @@
     "ASIGNATURA": "Formación Humana",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280442",
@@ -261,7 +293,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280442",
@@ -269,7 +302,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280442",
@@ -277,7 +311,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280442",
@@ -285,7 +320,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280442",
@@ -293,7 +329,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280442",
@@ -301,7 +338,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "36720104",
@@ -309,7 +347,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "36720104",
@@ -317,7 +356,8 @@
     "ASIGNATURA": "Formación Humana",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "36720104",
@@ -325,7 +365,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "36720104",
@@ -333,7 +374,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "36720104",
@@ -341,7 +383,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "36720104",
@@ -349,7 +392,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "36720104",
@@ -357,7 +401,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "36720104",
@@ -365,7 +410,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57421870",
@@ -373,7 +419,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57421870",
@@ -381,7 +428,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57421870",
@@ -389,7 +437,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57421870",
@@ -397,7 +446,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57421870",
@@ -405,7 +455,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57421870",
@@ -413,7 +464,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "6PPAL"
+    "CURSO": "6PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57421870",
@@ -421,7 +473,8 @@
     "ASIGNATURA": "Formación Humana",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "91253555",
@@ -429,7 +482,8 @@
     "ASIGNATURA": "Educación Religiosa",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "91253555",
@@ -437,7 +491,8 @@
     "ASIGNATURA": "Educación Religiosa",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "2SS"
+    "CURSO": "2SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "91253555",
@@ -445,7 +500,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "91253555",
@@ -453,7 +509,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "2SS"
+    "CURSO": "2SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "91253555",
@@ -461,7 +518,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "91253555",
@@ -469,7 +527,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "2SS"
+    "CURSO": "2SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "91253555",
@@ -477,7 +536,8 @@
     "ASIGNATURA": "Educación Religiosa",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "91253555",
@@ -485,7 +545,8 @@
     "ASIGNATURA": "Geografía",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "91253555",
@@ -493,7 +554,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "91253555",
@@ -501,7 +563,8 @@
     "ASIGNATURA": "Educación Religiosa",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "91253555",
@@ -509,7 +572,8 @@
     "ASIGNATURA": "Geografía",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "91253555",
@@ -517,7 +581,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "91253555",
@@ -525,7 +590,8 @@
     "ASIGNATURA": "Educación Religiosa",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "91253555",
@@ -533,7 +599,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "91253555",
@@ -541,7 +608,8 @@
     "ASIGNATURA": "Educación Religiosa",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "91253555",
@@ -549,7 +617,8 @@
     "ASIGNATURA": "Filosofía",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "91253555",
@@ -557,7 +626,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "91253555",
@@ -565,7 +635,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "91253555",
@@ -573,7 +644,8 @@
     "ASIGNATURA": "Educación Religiosa",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "91253555",
@@ -581,7 +653,8 @@
     "ASIGNATURA": "Filosofía",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "91253555",
@@ -589,71 +662,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "1SS"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "",
-    "ASIGNATURA": "Aritmética",
-    "SEDE": "Principal",
-    "GRADO": "9",
-    "CURSO": "1PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "",
-    "ASIGNATURA": "Aritmética",
-    "SEDE": "Principal",
-    "GRADO": "9",
-    "CURSO": "2PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "",
-    "ASIGNATURA": "Aritmética",
-    "SEDE": "Principal",
-    "GRADO": "9",
-    "CURSO": "3PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "",
-    "ASIGNATURA": "Aritmética",
-    "SEDE": "Principal",
-    "GRADO": "9",
-    "CURSO": "4PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "",
-    "ASIGNATURA": "Formación Humana",
-    "SEDE": "Principal",
-    "GRADO": "9",
-    "CURSO": "3PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "",
-    "ASIGNATURA": "Estadística",
-    "SEDE": "Principal",
-    "GRADO": "10",
-    "CURSO": "1PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "",
-    "ASIGNATURA": "Estadística",
-    "SEDE": "Principal",
-    "GRADO": "10",
-    "CURSO": "2PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "",
-    "ASIGNATURA": "Estadística",
-    "SEDE": "Principal",
-    "GRADO": "10",
-    "CURSO": "3PPAL"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19562066",
@@ -661,7 +671,8 @@
     "ASIGNATURA": "Procesos Físicos",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19562066",
@@ -669,7 +680,8 @@
     "ASIGNATURA": "Procesos Físicos",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19562066",
@@ -677,7 +689,8 @@
     "ASIGNATURA": "Procesos Biológicos",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19562066",
@@ -685,7 +698,8 @@
     "ASIGNATURA": "Procesos Biológicos",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19562066",
@@ -693,7 +707,8 @@
     "ASIGNATURA": "Procesos Biológicos",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19562066",
@@ -701,7 +716,8 @@
     "ASIGNATURA": "Formación Humana",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19562066",
@@ -709,7 +725,8 @@
     "ASIGNATURA": "Procesos Biológicos",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19562066",
@@ -717,7 +734,8 @@
     "ASIGNATURA": "Procesos Biológicos",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19562066",
@@ -725,7 +743,8 @@
     "ASIGNATURA": "Procesos Biológicos",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19562066",
@@ -733,7 +752,8 @@
     "ASIGNATURA": "Procesos Físicos",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19562066",
@@ -741,7 +761,8 @@
     "ASIGNATURA": "Procesos Físicos",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19562066",
@@ -749,7 +770,8 @@
     "ASIGNATURA": "Procesos Físicos",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19562066",
@@ -757,7 +779,8 @@
     "ASIGNATURA": "Procesos Físicos",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1044431393",
@@ -765,7 +788,8 @@
     "ASIGNATURA": "Formación Humana",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1044431393",
@@ -773,7 +797,8 @@
     "ASIGNATURA": "Procesos Físicos",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1044431393",
@@ -781,7 +806,8 @@
     "ASIGNATURA": "Procesos Químicos",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1044431393",
@@ -789,7 +815,8 @@
     "ASIGNATURA": "Procesos Químicos",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1044431393",
@@ -797,7 +824,8 @@
     "ASIGNATURA": "Procesos Químicos",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1044431393",
@@ -805,7 +833,8 @@
     "ASIGNATURA": "Procesos Químicos",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1044431393",
@@ -813,7 +842,8 @@
     "ASIGNATURA": "Procesos Químicos",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1044431393",
@@ -821,7 +851,8 @@
     "ASIGNATURA": "Procesos Químicos",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "6PPAL"
+    "CURSO": "6PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1044431393",
@@ -829,7 +860,8 @@
     "ASIGNATURA": "Procesos Químicos",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1044431393",
@@ -837,7 +869,8 @@
     "ASIGNATURA": "Procesos Químicos",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1044431393",
@@ -845,7 +878,8 @@
     "ASIGNATURA": "Procesos Químicos",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1044431393",
@@ -853,7 +887,8 @@
     "ASIGNATURA": "Procesos Químicos",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1085108727",
@@ -861,7 +896,8 @@
     "ASIGNATURA": "Historia",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1085108727",
@@ -869,7 +905,8 @@
     "ASIGNATURA": "Historia",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "2SS"
+    "CURSO": "2SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1085108727",
@@ -877,7 +914,8 @@
     "ASIGNATURA": "Procesos Físicos",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1085108727",
@@ -885,7 +923,8 @@
     "ASIGNATURA": "Procesos Físicos",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "2SS"
+    "CURSO": "2SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1085108727",
@@ -893,7 +932,8 @@
     "ASIGNATURA": "Procesos Físicos",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1085108727",
@@ -901,7 +941,8 @@
     "ASIGNATURA": "Formación Humana",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1085108727",
@@ -909,7 +950,8 @@
     "ASIGNATURA": "Procesos Físicos",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1085108727",
@@ -917,7 +959,8 @@
     "ASIGNATURA": "Procesos Físicos",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1085108727",
@@ -925,7 +968,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1085108727",
@@ -933,7 +977,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1085108727",
@@ -941,7 +986,8 @@
     "ASIGNATURA": "Física",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1085108727",
@@ -949,7 +995,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1085108727",
@@ -957,7 +1004,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1085108727",
@@ -965,7 +1013,8 @@
     "ASIGNATURA": "Física",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "72302591",
@@ -973,7 +1022,8 @@
     "ASIGNATURA": "Física",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "SI"
   },
   {
     "ID": "72302591",
@@ -981,7 +1031,8 @@
     "ASIGNATURA": "Física",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "SI"
   },
   {
     "ID": "72302591",
@@ -989,7 +1040,8 @@
     "ASIGNATURA": "Física",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "SI"
   },
   {
     "ID": "72302591",
@@ -997,7 +1049,8 @@
     "ASIGNATURA": "Física",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "SI"
   },
   {
     "ID": "72302591",
@@ -1005,7 +1058,8 @@
     "ASIGNATURA": "Física",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "SI"
   },
   {
     "ID": "72302591",
@@ -1013,7 +1067,8 @@
     "ASIGNATURA": "Física",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "SI"
   },
   {
     "ID": "1082923621",
@@ -1021,7 +1076,8 @@
     "ASIGNATURA": "Educación Artística",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082923621",
@@ -1029,7 +1085,8 @@
     "ASIGNATURA": "Educación Artística",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "2SS"
+    "CURSO": "2SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082923621",
@@ -1037,7 +1094,8 @@
     "ASIGNATURA": "Educación Física",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082923621",
@@ -1045,7 +1103,8 @@
     "ASIGNATURA": "Educación Física",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "2SS"
+    "CURSO": "2SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082923621",
@@ -1053,7 +1112,8 @@
     "ASIGNATURA": "Educación Artística",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082923621",
@@ -1061,7 +1121,8 @@
     "ASIGNATURA": "Educación Física",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082923621",
@@ -1069,7 +1130,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082923621",
@@ -1077,7 +1139,8 @@
     "ASIGNATURA": "Educación Artística",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082923621",
@@ -1085,7 +1148,8 @@
     "ASIGNATURA": "Educación ética Y valores",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082923621",
@@ -1093,7 +1157,8 @@
     "ASIGNATURA": "Educación Física",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082923621",
@@ -1101,7 +1166,8 @@
     "ASIGNATURA": "Educación Artística",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082923621",
@@ -1109,7 +1175,8 @@
     "ASIGNATURA": "Educación Física",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082923621",
@@ -1117,7 +1184,8 @@
     "ASIGNATURA": "Formación Humana",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082923621",
@@ -1125,7 +1193,8 @@
     "ASIGNATURA": "Geografía",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082923621",
@@ -1133,7 +1202,8 @@
     "ASIGNATURA": "Historia",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082923621",
@@ -1141,7 +1211,8 @@
     "ASIGNATURA": "Educación Artística",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082923621",
@@ -1149,7 +1220,8 @@
     "ASIGNATURA": "Educación Física",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082923621",
@@ -1157,7 +1229,8 @@
     "ASIGNATURA": "Educación Artística",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082923621",
@@ -1165,7 +1238,8 @@
     "ASIGNATURA": "Educación Física",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280368",
@@ -1173,7 +1247,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280368",
@@ -1181,7 +1256,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280368",
@@ -1189,7 +1265,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280368",
@@ -1197,7 +1274,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280368",
@@ -1205,7 +1283,8 @@
     "ASIGNATURA": "Formación Humana",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280368",
@@ -1213,7 +1292,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280368",
@@ -1221,7 +1301,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280368",
@@ -1229,7 +1310,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "26761878",
@@ -1237,7 +1319,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "26761878",
@@ -1245,7 +1328,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "26761878",
@@ -1253,7 +1337,8 @@
     "ASIGNATURA": "Formación Humana",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "26761878",
@@ -1261,7 +1346,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "26761878",
@@ -1269,7 +1355,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "26761878",
@@ -1277,7 +1364,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "26761878",
@@ -1285,7 +1373,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "11026594822",
@@ -1293,7 +1382,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "11026594822",
@@ -1301,7 +1391,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "11026594822",
@@ -1309,7 +1400,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "11026594822",
@@ -1317,7 +1409,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "11026594822",
@@ -1325,7 +1418,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "11026594822",
@@ -1333,7 +1427,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "11026594822",
@@ -1341,7 +1436,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "11026594822",
@@ -1349,7 +1445,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "11026594822",
@@ -1357,7 +1454,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "11026594822",
@@ -1365,7 +1463,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "11026594822",
@@ -1373,7 +1472,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "11026594822",
@@ -1381,7 +1481,8 @@
     "ASIGNATURA": "Formación Humana",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "20795846",
@@ -1389,7 +1490,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "20795846",
@@ -1397,7 +1499,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "20795846",
@@ -1405,7 +1508,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "20795846",
@@ -1413,7 +1517,8 @@
     "ASIGNATURA": "Educación Religiosa",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "20795846",
@@ -1421,7 +1526,8 @@
     "ASIGNATURA": "Educación Religiosa",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "20795846",
@@ -1429,7 +1535,8 @@
     "ASIGNATURA": "Educación Religiosa",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "20795846",
@@ -1437,7 +1544,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "20795846",
@@ -1445,7 +1553,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "20795846",
@@ -1453,55 +1562,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "3PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "HERMINIA FLOREZ CERVANTES",
-    "ASIGNATURA": "Ingles",
-    "SEDE": "Principal",
-    "GRADO": "6",
-    "CURSO": "1PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "HERMINIA FLOREZ CERVANTES",
-    "ASIGNATURA": "Ingles",
-    "SEDE": "Principal",
-    "GRADO": "6",
-    "CURSO": "2PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "HERMINIA FLOREZ CERVANTES",
-    "ASIGNATURA": "Ingles",
-    "SEDE": "Principal",
-    "GRADO": "6",
-    "CURSO": "3PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "HERMINIA FLOREZ CERVANTES",
-    "ASIGNATURA": "Ingles",
-    "SEDE": "Principal",
-    "GRADO": "6",
-    "CURSO": "4PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "HERMINIA FLOREZ CERVANTES",
-    "ASIGNATURA": "Ingles",
-    "SEDE": "Principal",
-    "GRADO": "6",
-    "CURSO": "5PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "HERMINIA FLOREZ CERVANTES",
-    "ASIGNATURA": "Ingles",
-    "SEDE": "Principal",
-    "GRADO": "6",
-    "CURSO": "6PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1065884031",
@@ -1509,7 +1571,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1065884031",
@@ -1517,7 +1580,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "2SS"
+    "CURSO": "2SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1065884031",
@@ -1525,7 +1589,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "2SS"
+    "CURSO": "2SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1065884031",
@@ -1533,7 +1598,8 @@
     "ASIGNATURA": "Geografía",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1065884031",
@@ -1541,7 +1607,8 @@
     "ASIGNATURA": "Geografía",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "2SS"
+    "CURSO": "2SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1065884031",
@@ -1549,7 +1616,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1065884031",
@@ -1557,7 +1625,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "2SS"
+    "CURSO": "2SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1065884031",
@@ -1565,39 +1634,44 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "1SS"
-  },
-  {
-    "ID": "1065884031",
-    "NOMBRE": "ANDERSON FABIAN GALVIS RODRIGUEZ",
-    "ASIGNATURA": "Estadística",
-    "SEDE": "Principal",
-    "GRADO": "8",
-    "CURSO": "1SS"
-  },
-  {
-    "ID": "1065884031",
-    "NOMBRE": "ANDERSON FABIAN GALVIS RODRIGUEZ",
-    "ASIGNATURA": "Informática",
-    "SEDE": "Principal",
-    "GRADO": "8",
-    "CURSO": "1SS"
-  },
-  {
-    "ID": "1065884031",
-    "NOMBRE": "ANDERSON FABIAN GALVIS RODRIGUEZ",
-    "ASIGNATURA": "Educación ética Y valores",
-    "SEDE": "Principal",
-    "GRADO": "9",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1065884031",
     "NOMBRE": "ANDERSON FABIAN GALVIS RODRIGUEZ",
     "ASIGNATURA": "Estadística",
     "SEDE": "Principal",
+    "GRADO": "8",
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
+  },
+  {
+    "ID": "1065884031",
+    "NOMBRE": "ANDERSON FABIAN GALVIS RODRIGUEZ",
+    "ASIGNATURA": "Informática",
+    "SEDE": "Principal",
+    "GRADO": "8",
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
+  },
+  {
+    "ID": "1065884031",
+    "NOMBRE": "ANDERSON FABIAN GALVIS RODRIGUEZ",
+    "ASIGNATURA": "Educación ética Y valores",
+    "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
+  },
+  {
+    "ID": "1065884031",
+    "NOMBRE": "ANDERSON FABIAN GALVIS RODRIGUEZ",
+    "ASIGNATURA": "Estadística",
+    "SEDE": "Principal",
+    "GRADO": "9",
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1065884031",
@@ -1605,7 +1679,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1065884031",
@@ -1613,7 +1688,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1065884031",
@@ -1621,7 +1697,8 @@
     "ASIGNATURA": "Educación ética Y valores",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1065884031",
@@ -1629,7 +1706,8 @@
     "ASIGNATURA": "Formación Humana",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1065884031",
@@ -1637,191 +1715,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "1SS"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "JEINNY MILENA GUTIERREZ MENDOZA",
-    "ASIGNATURA": "Educación ética Y valores",
-    "SEDE": "Principal",
-    "GRADO": "6",
-    "CURSO": "1PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "JEINNY MILENA GUTIERREZ MENDOZA",
-    "ASIGNATURA": "Educación ética Y valores",
-    "SEDE": "Principal",
-    "GRADO": "6",
-    "CURSO": "2PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "JEINNY MILENA GUTIERREZ MENDOZA",
-    "ASIGNATURA": "Educación ética Y valores",
-    "SEDE": "Principal",
-    "GRADO": "6",
-    "CURSO": "3PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "JEINNY MILENA GUTIERREZ MENDOZA",
-    "ASIGNATURA": "Educación ética Y valores",
-    "SEDE": "Principal",
-    "GRADO": "6",
-    "CURSO": "4PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "JEINNY MILENA GUTIERREZ MENDOZA",
-    "ASIGNATURA": "Educación ética Y valores",
-    "SEDE": "Principal",
-    "GRADO": "6",
-    "CURSO": "5PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "JEINNY MILENA GUTIERREZ MENDOZA",
-    "ASIGNATURA": "Educación ética Y valores",
-    "SEDE": "Principal",
-    "GRADO": "6",
-    "CURSO": "6PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "JEINNY MILENA GUTIERREZ MENDOZA",
-    "ASIGNATURA": "Educación ética Y valores",
-    "SEDE": "Principal",
-    "GRADO": "7",
-    "CURSO": "1PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "JEINNY MILENA GUTIERREZ MENDOZA",
-    "ASIGNATURA": "Educación ética Y valores",
-    "SEDE": "Principal",
-    "GRADO": "7",
-    "CURSO": "2PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "JEINNY MILENA GUTIERREZ MENDOZA",
-    "ASIGNATURA": "Educación ética Y valores",
-    "SEDE": "Principal",
-    "GRADO": "7",
-    "CURSO": "3PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "JEINNY MILENA GUTIERREZ MENDOZA",
-    "ASIGNATURA": "Educación ética Y valores",
-    "SEDE": "Principal",
-    "GRADO": "7",
-    "CURSO": "4PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "JEINNY MILENA GUTIERREZ MENDOZA",
-    "ASIGNATURA": "Educación ética Y valores",
-    "SEDE": "Principal",
-    "GRADO": "7",
-    "CURSO": "5PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "JEINNY MILENA GUTIERREZ MENDOZA",
-    "ASIGNATURA": "Educación ética Y valores",
-    "SEDE": "Principal",
-    "GRADO": "8",
-    "CURSO": "1PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "JEINNY MILENA GUTIERREZ MENDOZA",
-    "ASIGNATURA": "Educación ética Y valores",
-    "SEDE": "Principal",
-    "GRADO": "8",
-    "CURSO": "2PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "JEINNY MILENA GUTIERREZ MENDOZA",
-    "ASIGNATURA": "Educación ética Y valores",
-    "SEDE": "Principal",
-    "GRADO": "9",
-    "CURSO": "1PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "JEINNY MILENA GUTIERREZ MENDOZA",
-    "ASIGNATURA": "Educación ética Y valores",
-    "SEDE": "Principal",
-    "GRADO": "9",
-    "CURSO": "2PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "JEINNY MILENA GUTIERREZ MENDOZA",
-    "ASIGNATURA": "Educación ética Y valores",
-    "SEDE": "Principal",
-    "GRADO": "9",
-    "CURSO": "3PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "JEINNY MILENA GUTIERREZ MENDOZA",
-    "ASIGNATURA": "Educación ética Y valores",
-    "SEDE": "Principal",
-    "GRADO": "9",
-    "CURSO": "4PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "JEINNY MILENA GUTIERREZ MENDOZA",
-    "ASIGNATURA": "Educación ética Y valores",
-    "SEDE": "Principal",
-    "GRADO": "10",
-    "CURSO": "1PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "JEINNY MILENA GUTIERREZ MENDOZA",
-    "ASIGNATURA": "Educación ética Y valores",
-    "SEDE": "Principal",
-    "GRADO": "10",
-    "CURSO": "2PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "JEINNY MILENA GUTIERREZ MENDOZA",
-    "ASIGNATURA": "Educación ética Y valores",
-    "SEDE": "Principal",
-    "GRADO": "10",
-    "CURSO": "3PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "JEINNY MILENA GUTIERREZ MENDOZA",
-    "ASIGNATURA": "Educación ética Y valores",
-    "SEDE": "Principal",
-    "GRADO": "11",
-    "CURSO": "1PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "JEINNY MILENA GUTIERREZ MENDOZA",
-    "ASIGNATURA": "Educación ética Y valores",
-    "SEDE": "Principal",
-    "GRADO": "11",
-    "CURSO": "2PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "JEINNY MILENA GUTIERREZ MENDOZA",
-    "ASIGNATURA": "Educación ética Y valores",
-    "SEDE": "Principal",
-    "GRADO": "11",
-    "CURSO": "3PPAL"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "85449501",
@@ -1829,7 +1724,8 @@
     "ASIGNATURA": "Educación Física",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "85449501",
@@ -1837,7 +1733,8 @@
     "ASIGNATURA": "Educación Física",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "85449501",
@@ -1845,7 +1742,8 @@
     "ASIGNATURA": "Educación Física",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "85449501",
@@ -1853,7 +1751,8 @@
     "ASIGNATURA": "Formación Humana",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "85449501",
@@ -1861,7 +1760,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "85449501",
@@ -1869,7 +1769,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "85449501",
@@ -1877,7 +1778,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "85449501",
@@ -1885,7 +1787,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "85449501",
@@ -1893,7 +1796,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "85449501",
@@ -1901,7 +1805,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "6PPAL"
+    "CURSO": "6PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "85449501",
@@ -1909,7 +1814,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "85449501",
@@ -1917,7 +1823,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280306",
@@ -1925,7 +1832,8 @@
     "ASIGNATURA": "Educación Religiosa",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280306",
@@ -1933,7 +1841,8 @@
     "ASIGNATURA": "Educación Religiosa",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280306",
@@ -1941,7 +1850,8 @@
     "ASIGNATURA": "Educación Religiosa",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280306",
@@ -1949,7 +1859,8 @@
     "ASIGNATURA": "Educación Religiosa",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280306",
@@ -1957,7 +1868,8 @@
     "ASIGNATURA": "Educación Religiosa",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280306",
@@ -1965,7 +1877,8 @@
     "ASIGNATURA": "Educación Religiosa",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "6PPAL"
+    "CURSO": "6PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280306",
@@ -1973,7 +1886,8 @@
     "ASIGNATURA": "Educación Religiosa",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280306",
@@ -1981,7 +1895,8 @@
     "ASIGNATURA": "Educación Religiosa",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280306",
@@ -1989,7 +1904,8 @@
     "ASIGNATURA": "Educación Religiosa",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280306",
@@ -1997,7 +1913,8 @@
     "ASIGNATURA": "Educación Religiosa",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280306",
@@ -2005,7 +1922,8 @@
     "ASIGNATURA": "Educación Religiosa",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280306",
@@ -2013,7 +1931,8 @@
     "ASIGNATURA": "Educación Religiosa",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280306",
@@ -2021,7 +1940,8 @@
     "ASIGNATURA": "Educación Religiosa",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280306",
@@ -2029,7 +1949,8 @@
     "ASIGNATURA": "Educación Religiosa",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280306",
@@ -2037,7 +1958,8 @@
     "ASIGNATURA": "Educación Religiosa",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280306",
@@ -2045,7 +1967,8 @@
     "ASIGNATURA": "Educación Religiosa",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280306",
@@ -2053,7 +1976,8 @@
     "ASIGNATURA": "Educación Religiosa",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280306",
@@ -2061,7 +1985,8 @@
     "ASIGNATURA": "Educación Religiosa",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280306",
@@ -2069,7 +1994,8 @@
     "ASIGNATURA": "Educación Religiosa",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280306",
@@ -2077,7 +2003,8 @@
     "ASIGNATURA": "Educación Religiosa",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280306",
@@ -2085,7 +2012,8 @@
     "ASIGNATURA": "Educación Religiosa",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280306",
@@ -2093,7 +2021,8 @@
     "ASIGNATURA": "Educación Religiosa",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1047381539",
@@ -2101,7 +2030,8 @@
     "ASIGNATURA": "Historia",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1047381539",
@@ -2109,7 +2039,8 @@
     "ASIGNATURA": "Historia",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1047381539",
@@ -2117,7 +2048,8 @@
     "ASIGNATURA": "Historia",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1047381539",
@@ -2125,7 +2057,8 @@
     "ASIGNATURA": "Historia",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1047381539",
@@ -2133,7 +2066,8 @@
     "ASIGNATURA": "Historia",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1047381539",
@@ -2141,7 +2075,8 @@
     "ASIGNATURA": "Historia",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "6PPAL"
+    "CURSO": "6PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1047381539",
@@ -2149,7 +2084,8 @@
     "ASIGNATURA": "Historia",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1047381539",
@@ -2157,7 +2093,8 @@
     "ASIGNATURA": "Historia",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1047381539",
@@ -2165,7 +2102,8 @@
     "ASIGNATURA": "Historia",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1047381539",
@@ -2173,7 +2111,8 @@
     "ASIGNATURA": "Historia",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1047381539",
@@ -2181,7 +2120,8 @@
     "ASIGNATURA": "Historia",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1047381539",
@@ -2189,7 +2129,8 @@
     "ASIGNATURA": "Formación Humana",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1047381539",
@@ -2197,7 +2138,8 @@
     "ASIGNATURA": "Historia",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1047381539",
@@ -2205,7 +2147,8 @@
     "ASIGNATURA": "Historia",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1047381539",
@@ -2213,7 +2156,8 @@
     "ASIGNATURA": "Historia",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1047381539",
@@ -2221,7 +2165,8 @@
     "ASIGNATURA": "Historia",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1047381539",
@@ -2229,7 +2174,8 @@
     "ASIGNATURA": "Historia",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1047381539",
@@ -2237,7 +2183,8 @@
     "ASIGNATURA": "Historia",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1047381539",
@@ -2245,7 +2192,8 @@
     "ASIGNATURA": "Historia",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1047381539",
@@ -2253,7 +2201,8 @@
     "ASIGNATURA": "Historia",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1047381539",
@@ -2261,7 +2210,8 @@
     "ASIGNATURA": "Economía",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1047381539",
@@ -2269,7 +2219,8 @@
     "ASIGNATURA": "Economía",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1047381539",
@@ -2277,7 +2228,8 @@
     "ASIGNATURA": "Economía",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19617022",
@@ -2285,7 +2237,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19617022",
@@ -2293,7 +2246,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19617022",
@@ -2301,7 +2255,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19617022",
@@ -2309,7 +2264,8 @@
     "ASIGNATURA": "Formación Humana",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19617022",
@@ -2317,7 +2273,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19617022",
@@ -2325,7 +2282,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19617022",
@@ -2333,7 +2291,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57449437",
@@ -2341,7 +2300,8 @@
     "ASIGNATURA": "Procesos Biológicos",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57449437",
@@ -2349,7 +2309,8 @@
     "ASIGNATURA": "Procesos Químicos",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57449437",
@@ -2357,7 +2318,8 @@
     "ASIGNATURA": "Procesos Químicos",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57449437",
@@ -2365,7 +2327,8 @@
     "ASIGNATURA": "Procesos Químicos",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57449437",
@@ -2373,7 +2336,8 @@
     "ASIGNATURA": "Procesos Químicos",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57449437",
@@ -2381,7 +2345,8 @@
     "ASIGNATURA": "Biología",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57449437",
@@ -2389,7 +2354,8 @@
     "ASIGNATURA": "Biología",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57449437",
@@ -2397,7 +2363,8 @@
     "ASIGNATURA": "Biología",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57449437",
@@ -2405,7 +2372,8 @@
     "ASIGNATURA": "Formación Humana",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57449437",
@@ -2413,7 +2381,8 @@
     "ASIGNATURA": "Química",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57449437",
@@ -2421,7 +2390,8 @@
     "ASIGNATURA": "Química",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57449437",
@@ -2429,7 +2399,8 @@
     "ASIGNATURA": "Química",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57449437",
@@ -2437,7 +2408,8 @@
     "ASIGNATURA": "Biología",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57448535",
@@ -2445,7 +2417,8 @@
     "ASIGNATURA": "Educación Artística",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57448535",
@@ -2453,7 +2426,8 @@
     "ASIGNATURA": "Educación Artística",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57448535",
@@ -2461,7 +2435,8 @@
     "ASIGNATURA": "Educación Artística",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57448535",
@@ -2469,7 +2444,8 @@
     "ASIGNATURA": "Educación ética Y valores",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57448535",
@@ -2477,7 +2453,8 @@
     "ASIGNATURA": "Educación ética Y valores",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57448535",
@@ -2485,7 +2462,8 @@
     "ASIGNATURA": "Formación Humana",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57448535",
@@ -2493,7 +2471,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57448535",
@@ -2501,7 +2480,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57448535",
@@ -2509,7 +2489,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57448535",
@@ -2517,7 +2498,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57448535",
@@ -2525,7 +2507,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57448535",
@@ -2533,7 +2516,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57448535",
@@ -2541,63 +2525,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "3PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "LUIS CARLOS MIRANDA MIRANDA",
-    "ASIGNATURA": "Aritmética",
-    "SEDE": "Principal",
-    "GRADO": "8",
-    "CURSO": "1PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "LUIS CARLOS MIRANDA MIRANDA",
-    "ASIGNATURA": "Aritmética",
-    "SEDE": "Principal",
-    "GRADO": "8",
-    "CURSO": "2PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "LUIS CARLOS MIRANDA MIRANDA",
-    "ASIGNATURA": "Aritmética",
-    "SEDE": "Principal",
-    "GRADO": "8",
-    "CURSO": "3PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "LUIS CARLOS MIRANDA MIRANDA",
-    "ASIGNATURA": "Aritmética",
-    "SEDE": "Principal",
-    "GRADO": "8",
-    "CURSO": "4PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "LUIS CARLOS MIRANDA MIRANDA",
-    "ASIGNATURA": "Estadística",
-    "SEDE": "Principal",
-    "GRADO": "11",
-    "CURSO": "1PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "LUIS CARLOS MIRANDA MIRANDA",
-    "ASIGNATURA": "Estadística",
-    "SEDE": "Principal",
-    "GRADO": "11",
-    "CURSO": "2PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "LUIS CARLOS MIRANDA MIRANDA",
-    "ASIGNATURA": "Estadística",
-    "SEDE": "Principal",
-    "GRADO": "11",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280584",
@@ -2605,7 +2534,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280584",
@@ -2613,7 +2543,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280584",
@@ -2621,7 +2552,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280584",
@@ -2629,7 +2561,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280584",
@@ -2637,7 +2570,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280584",
@@ -2645,7 +2579,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "6PPAL"
+    "CURSO": "6PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280584",
@@ -2653,7 +2588,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280584",
@@ -2661,7 +2597,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280584",
@@ -2669,7 +2606,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280584",
@@ -2677,7 +2615,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280584",
@@ -2685,7 +2624,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19584832",
@@ -2693,7 +2633,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19584832",
@@ -2701,7 +2642,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "2SS"
+    "CURSO": "2SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19584832",
@@ -2709,7 +2651,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19584832",
@@ -2717,7 +2660,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19584832",
@@ -2725,7 +2669,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19584832",
@@ -2733,7 +2678,8 @@
     "ASIGNATURA": "Historia",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19584832",
@@ -2741,7 +2687,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19584832",
@@ -2749,7 +2696,8 @@
     "ASIGNATURA": "Historia",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19584832",
@@ -2757,7 +2705,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19584832",
@@ -2765,7 +2714,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19584832",
@@ -2773,7 +2723,8 @@
     "ASIGNATURA": "Formación Humana",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082869969",
@@ -2781,7 +2732,8 @@
     "ASIGNATURA": "Formación Humana",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082869969",
@@ -2789,7 +2741,8 @@
     "ASIGNATURA": "Procesos Biológicos",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082869969",
@@ -2797,7 +2750,8 @@
     "ASIGNATURA": "Procesos Biológicos",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082869969",
@@ -2805,7 +2759,8 @@
     "ASIGNATURA": "Procesos Biológicos",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082869969",
@@ -2813,7 +2768,8 @@
     "ASIGNATURA": "Procesos Biológicos",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082869969",
@@ -2821,7 +2777,8 @@
     "ASIGNATURA": "Procesos Biológicos",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082869969",
@@ -2829,7 +2786,8 @@
     "ASIGNATURA": "Procesos Biológicos",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "6PPAL"
+    "CURSO": "6PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082869969",
@@ -2837,7 +2795,8 @@
     "ASIGNATURA": "Procesos Biológicos",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082869969",
@@ -2845,7 +2804,8 @@
     "ASIGNATURA": "Procesos Biológicos",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082869969",
@@ -2853,7 +2813,8 @@
     "ASIGNATURA": "Procesos Biológicos",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082869969",
@@ -2861,7 +2822,8 @@
     "ASIGNATURA": "Procesos Biológicos",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082869969",
@@ -2869,7 +2831,8 @@
     "ASIGNATURA": "Procesos Biológicos",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "49791255",
@@ -2877,7 +2840,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "49791255",
@@ -2885,7 +2849,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "49791255",
@@ -2893,7 +2858,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "49791255",
@@ -2901,7 +2867,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "49791255",
@@ -2909,7 +2876,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "49791255",
@@ -2917,7 +2885,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "49791255",
@@ -2925,7 +2894,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "72287633",
@@ -2933,7 +2903,8 @@
     "ASIGNATURA": "MUSICA",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "72287633",
@@ -2941,7 +2912,8 @@
     "ASIGNATURA": "MUSICA",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "72287633",
@@ -2949,7 +2921,8 @@
     "ASIGNATURA": "MUSICA",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "72287633",
@@ -2957,7 +2930,8 @@
     "ASIGNATURA": "MUSICA",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "72287633",
@@ -2965,7 +2939,8 @@
     "ASIGNATURA": "MUSICA",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "72287633",
@@ -2973,7 +2948,8 @@
     "ASIGNATURA": "MUSICA",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "6PPAL"
+    "CURSO": "6PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "72287633",
@@ -2981,7 +2957,8 @@
     "ASIGNATURA": "MUSICA",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "72287633",
@@ -2989,7 +2966,8 @@
     "ASIGNATURA": "MUSICA",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "72287633",
@@ -2997,7 +2975,8 @@
     "ASIGNATURA": "MUSICA",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "72287633",
@@ -3005,7 +2984,8 @@
     "ASIGNATURA": "MUSICA",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "72287633",
@@ -3013,7 +2993,8 @@
     "ASIGNATURA": "MUSICA",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19563034",
@@ -3021,7 +3002,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19563034",
@@ -3029,7 +3011,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19563034",
@@ -3037,7 +3020,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19563034",
@@ -3045,7 +3029,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19563034",
@@ -3053,7 +3038,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19563034",
@@ -3061,7 +3047,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19563034",
@@ -3069,7 +3056,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19563034",
@@ -3077,7 +3065,8 @@
     "ASIGNATURA": "Formación Humana",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1085110182",
@@ -3085,7 +3074,8 @@
     "ASIGNATURA": "Geografía",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1085110182",
@@ -3093,7 +3083,8 @@
     "ASIGNATURA": "Geografía",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1085110182",
@@ -3101,7 +3092,8 @@
     "ASIGNATURA": "Geografía",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1085110182",
@@ -3109,7 +3101,8 @@
     "ASIGNATURA": "Geografía",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1085110182",
@@ -3117,7 +3110,8 @@
     "ASIGNATURA": "Geografía",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1085110182",
@@ -3125,7 +3119,8 @@
     "ASIGNATURA": "Geografía",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1085110182",
@@ -3133,7 +3128,8 @@
     "ASIGNATURA": "Geografía",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1085110182",
@@ -3141,7 +3137,8 @@
     "ASIGNATURA": "Geografía",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1085110182",
@@ -3149,7 +3146,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1085110182",
@@ -3157,7 +3155,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1085110182",
@@ -3165,7 +3164,8 @@
     "ASIGNATURA": "Economía",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1085110182",
@@ -3173,7 +3173,8 @@
     "ASIGNATURA": "Economía",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1085110182",
@@ -3181,7 +3182,8 @@
     "ASIGNATURA": "Economía",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1085110182",
@@ -3189,7 +3191,8 @@
     "ASIGNATURA": "Formación Humana",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "36452539",
@@ -3197,7 +3200,8 @@
     "ASIGNATURA": "Educación Física",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "36452539",
@@ -3205,7 +3209,8 @@
     "ASIGNATURA": "Educación Física",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "36452539",
@@ -3213,7 +3218,8 @@
     "ASIGNATURA": "Educación Física",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "36452539",
@@ -3221,7 +3227,8 @@
     "ASIGNATURA": "Educación Física",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "36452539",
@@ -3229,7 +3236,8 @@
     "ASIGNATURA": "Educación Física",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "36452539",
@@ -3237,7 +3245,8 @@
     "ASIGNATURA": "Educación Física",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "36452539",
@@ -3245,7 +3254,8 @@
     "ASIGNATURA": "Educación Física",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "36452539",
@@ -3253,7 +3263,8 @@
     "ASIGNATURA": "Educación Física",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "36452539",
@@ -3261,7 +3272,8 @@
     "ASIGNATURA": "Educación Física",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "36452539",
@@ -3269,7 +3281,8 @@
     "ASIGNATURA": "Educación Física",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "36452539",
@@ -3277,7 +3290,8 @@
     "ASIGNATURA": "Educación Física",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1084744566",
@@ -3285,7 +3299,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1084744566",
@@ -3293,7 +3308,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1084744566",
@@ -3301,7 +3317,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1084744566",
@@ -3309,7 +3326,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "6PPAL"
+    "CURSO": "6PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1084744566",
@@ -3317,7 +3335,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1084744566",
@@ -3325,7 +3344,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1084744566",
@@ -3333,7 +3353,8 @@
     "ASIGNATURA": "Formación Humana",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1084744566",
@@ -3341,7 +3362,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1084744566",
@@ -3349,7 +3371,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1084744566",
@@ -3357,23 +3380,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "3PPAL"
-  },
-  {
-    "ID": "1084744566",
-    "NOMBRE": "NAREN DAVID PERTUZ VIDES",
-    "ASIGNATURA": "Informática",
-    "SEDE": "Principal",
-    "GRADO": "11",
-    "CURSO": "1PPAL"
-  },
-  {
-    "ID": "1084744566",
-    "NOMBRE": "NAREN DAVID PERTUZ VIDES",
-    "ASIGNATURA": "Informática",
-    "SEDE": "Principal",
-    "GRADO": "11",
-    "CURSO": "2PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1084744566",
@@ -3381,183 +3389,26 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "3PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
-    "ID": "",
-    "NOMBRE": "LUIS EDUARDO POLO BARRIOS",
-    "ASIGNATURA": "Educación Religiosa",
+    "ID": "1084744566",
+    "NOMBRE": "NAREN DAVID PERTUZ VIDES",
+    "ASIGNATURA": "Informática",
     "SEDE": "Principal",
-    "GRADO": "6",
-    "CURSO": "1PPAL"
+    "GRADO": "11",
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
-    "ID": "",
-    "NOMBRE": "LUIS EDUARDO POLO BARRIOS",
-    "ASIGNATURA": "Educación Religiosa",
+    "ID": "1084744566",
+    "NOMBRE": "NAREN DAVID PERTUZ VIDES",
+    "ASIGNATURA": "Informática",
     "SEDE": "Principal",
-    "GRADO": "6",
-    "CURSO": "2PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "LUIS EDUARDO POLO BARRIOS",
-    "ASIGNATURA": "Educación Religiosa",
-    "SEDE": "Principal",
-    "GRADO": "6",
-    "CURSO": "3PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "LUIS EDUARDO POLO BARRIOS",
-    "ASIGNATURA": "Educación Religiosa",
-    "SEDE": "Principal",
-    "GRADO": "6",
-    "CURSO": "4PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "LUIS EDUARDO POLO BARRIOS",
-    "ASIGNATURA": "Educación Religiosa",
-    "SEDE": "Principal",
-    "GRADO": "6",
-    "CURSO": "5PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "LUIS EDUARDO POLO BARRIOS",
-    "ASIGNATURA": "Educación Religiosa",
-    "SEDE": "Principal",
-    "GRADO": "6",
-    "CURSO": "6PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "LUIS EDUARDO POLO BARRIOS",
-    "ASIGNATURA": "Educación Religiosa",
-    "SEDE": "Principal",
-    "GRADO": "7",
-    "CURSO": "1PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "LUIS EDUARDO POLO BARRIOS",
-    "ASIGNATURA": "Educación Religiosa",
-    "SEDE": "Principal",
-    "GRADO": "7",
-    "CURSO": "2PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "LUIS EDUARDO POLO BARRIOS",
-    "ASIGNATURA": "Educación Religiosa",
-    "SEDE": "Principal",
-    "GRADO": "7",
-    "CURSO": "3PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "LUIS EDUARDO POLO BARRIOS",
-    "ASIGNATURA": "Educación Religiosa",
-    "SEDE": "Principal",
-    "GRADO": "7",
-    "CURSO": "4PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "LUIS EDUARDO POLO BARRIOS",
-    "ASIGNATURA": "Educación Religiosa",
-    "SEDE": "Principal",
-    "GRADO": "7",
-    "CURSO": "5PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "LUIS EDUARDO POLO BARRIOS",
-    "ASIGNATURA": "Educación Religiosa",
-    "SEDE": "Principal",
-    "GRADO": "8",
-    "CURSO": "1PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "LUIS EDUARDO POLO BARRIOS",
-    "ASIGNATURA": "Educación Religiosa",
-    "SEDE": "Principal",
-    "GRADO": "8",
-    "CURSO": "2PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "LUIS EDUARDO POLO BARRIOS",
-    "ASIGNATURA": "Educación Religiosa",
-    "SEDE": "Principal",
-    "GRADO": "8",
-    "CURSO": "3PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "LUIS EDUARDO POLO BARRIOS",
-    "ASIGNATURA": "Educación Religiosa",
-    "SEDE": "Principal",
-    "GRADO": "8",
-    "CURSO": "4PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "LUIS EDUARDO POLO BARRIOS",
-    "ASIGNATURA": "Educación Religiosa",
-    "SEDE": "Principal",
-    "GRADO": "9",
-    "CURSO": "1PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "LUIS EDUARDO POLO BARRIOS",
-    "ASIGNATURA": "Educación Religiosa",
-    "SEDE": "Principal",
-    "GRADO": "9",
-    "CURSO": "2PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "LUIS EDUARDO POLO BARRIOS",
-    "ASIGNATURA": "Educación Religiosa",
-    "SEDE": "Principal",
-    "GRADO": "9",
-    "CURSO": "3PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "LUIS EDUARDO POLO BARRIOS",
-    "ASIGNATURA": "Educación Religiosa",
-    "SEDE": "Principal",
-    "GRADO": "9",
-    "CURSO": "4PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "LUIS EDUARDO POLO BARRIOS",
-    "ASIGNATURA": "Educación Religiosa",
-    "SEDE": "Principal",
-    "GRADO": "10",
-    "CURSO": "1PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "LUIS EDUARDO POLO BARRIOS",
-    "ASIGNATURA": "Educación Religiosa",
-    "SEDE": "Principal",
-    "GRADO": "10",
-    "CURSO": "2PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "LUIS EDUARDO POLO BARRIOS",
-    "ASIGNATURA": "Educación Religiosa",
-    "SEDE": "Principal",
-    "GRADO": "10",
-    "CURSO": "3PPAL"
+    "GRADO": "11",
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19618032",
@@ -3565,7 +3416,8 @@
     "ASIGNATURA": "Formación Humana",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19618032",
@@ -3573,7 +3425,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19618032",
@@ -3581,7 +3434,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19618032",
@@ -3589,7 +3443,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19618032",
@@ -3597,7 +3452,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19618032",
@@ -3605,7 +3461,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19618032",
@@ -3613,7 +3470,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19618032",
@@ -3621,7 +3479,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19618032",
@@ -3629,7 +3488,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19618032",
@@ -3637,7 +3497,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19618032",
@@ -3645,7 +3506,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19618032",
@@ -3653,7 +3515,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57281082",
@@ -3661,7 +3524,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57281082",
@@ -3669,7 +3533,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57281082",
@@ -3677,7 +3542,8 @@
     "ASIGNATURA": "Formación Humana",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57281082",
@@ -3685,7 +3551,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57281082",
@@ -3693,7 +3560,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57281082",
@@ -3701,7 +3569,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57281082",
@@ -3709,7 +3578,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280046",
@@ -3717,7 +3587,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280046",
@@ -3725,7 +3596,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280046",
@@ -3733,7 +3605,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280046",
@@ -3741,7 +3614,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280046",
@@ -3749,7 +3623,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280046",
@@ -3757,7 +3632,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "6PPAL"
+    "CURSO": "6PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280046",
@@ -3765,7 +3641,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280046",
@@ -3773,7 +3650,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "6PPAL"
+    "CURSO": "6PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280046",
@@ -3781,7 +3659,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19562431",
@@ -3789,7 +3668,8 @@
     "ASIGNATURA": "Formación Humana",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "2SS"
+    "CURSO": "2SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19562431",
@@ -3797,7 +3677,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19562431",
@@ -3805,7 +3686,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "2SS"
+    "CURSO": "2SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19562431",
@@ -3813,7 +3695,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19562431",
@@ -3821,7 +3704,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19562431",
@@ -3829,7 +3713,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19562431",
@@ -3837,7 +3722,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19562431",
@@ -3845,7 +3731,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19562431",
@@ -3853,7 +3740,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19562431",
@@ -3861,7 +3749,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57425832",
@@ -3869,7 +3758,8 @@
     "ASIGNATURA": "Educación ética Y valores",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57425832",
@@ -3877,7 +3767,8 @@
     "ASIGNATURA": "Formación Humana",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57425832",
@@ -3885,7 +3776,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57425832",
@@ -3893,7 +3785,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57425832",
@@ -3901,7 +3794,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57425832",
@@ -3909,7 +3803,8 @@
     "ASIGNATURA": "Educación ética Y valores",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57425832",
@@ -3917,7 +3812,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57425832",
@@ -3925,7 +3821,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "85449095",
@@ -3933,7 +3830,8 @@
     "ASIGNATURA": "Procesos Físicos",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "85449095",
@@ -3941,7 +3839,8 @@
     "ASIGNATURA": "Formación Humana",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "85449095",
@@ -3949,7 +3848,8 @@
     "ASIGNATURA": "Procesos Físicos",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "85449095",
@@ -3957,7 +3857,8 @@
     "ASIGNATURA": "Procesos Físicos",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "85449095",
@@ -3965,7 +3866,8 @@
     "ASIGNATURA": "Procesos Físicos",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "85449095",
@@ -3973,7 +3875,8 @@
     "ASIGNATURA": "Procesos Físicos",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "85449095",
@@ -3981,7 +3884,8 @@
     "ASIGNATURA": "Procesos Físicos",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "85449095",
@@ -3989,7 +3893,8 @@
     "ASIGNATURA": "Procesos Biológicos",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "85449095",
@@ -3997,7 +3902,8 @@
     "ASIGNATURA": "Procesos Físicos",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "85449095",
@@ -4005,7 +3911,8 @@
     "ASIGNATURA": "Procesos Físicos",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "85449095",
@@ -4013,7 +3920,8 @@
     "ASIGNATURA": "Procesos Físicos",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "85449095",
@@ -4021,7 +3929,8 @@
     "ASIGNATURA": "Procesos Físicos",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "85449095",
@@ -4029,7 +3938,8 @@
     "ASIGNATURA": "Biología",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "51654137",
@@ -4037,7 +3947,8 @@
     "ASIGNATURA": "Procesos Físicos",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "51654137",
@@ -4045,7 +3956,8 @@
     "ASIGNATURA": "Procesos Físicos",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "6PPAL"
+    "CURSO": "6PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "51654137",
@@ -4053,7 +3965,8 @@
     "ASIGNATURA": "Procesos Químicos",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "51654137",
@@ -4061,7 +3974,8 @@
     "ASIGNATURA": "Procesos Químicos",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "51654137",
@@ -4069,7 +3983,8 @@
     "ASIGNATURA": "Procesos Químicos",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "51654137",
@@ -4077,7 +3992,8 @@
     "ASIGNATURA": "Procesos Químicos",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "51654137",
@@ -4085,7 +4001,8 @@
     "ASIGNATURA": "Procesos Químicos",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "51654137",
@@ -4093,7 +4010,8 @@
     "ASIGNATURA": "Biología",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "51654137",
@@ -4101,7 +4019,8 @@
     "ASIGNATURA": "Química",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "51654137",
@@ -4109,7 +4028,8 @@
     "ASIGNATURA": "Química",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "51654137",
@@ -4117,7 +4037,8 @@
     "ASIGNATURA": "Química",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280858",
@@ -4125,7 +4046,8 @@
     "ASIGNATURA": "Formación Humana",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280858",
@@ -4133,7 +4055,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280858",
@@ -4141,7 +4064,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280858",
@@ -4149,7 +4073,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280858",
@@ -4157,7 +4082,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280858",
@@ -4165,7 +4091,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280858",
@@ -4173,7 +4100,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280858",
@@ -4181,7 +4109,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280858",
@@ -4189,7 +4118,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1084738659",
@@ -4197,7 +4127,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1084738659",
@@ -4205,7 +4136,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1084738659",
@@ -4213,7 +4145,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1084738659",
@@ -4221,7 +4154,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1084738659",
@@ -4229,7 +4163,8 @@
     "ASIGNATURA": "Filosofía",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1084738659",
@@ -4237,7 +4172,8 @@
     "ASIGNATURA": "Filosofía",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1084738659",
@@ -4245,7 +4181,8 @@
     "ASIGNATURA": "Filosofía",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1084738659",
@@ -4253,7 +4190,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1084738659",
@@ -4261,7 +4199,8 @@
     "ASIGNATURA": "Filosofía",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1084738659",
@@ -4269,7 +4208,8 @@
     "ASIGNATURA": "Filosofía",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1084738659",
@@ -4277,7 +4217,8 @@
     "ASIGNATURA": "Filosofía",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1084738659",
@@ -4285,7 +4226,8 @@
     "ASIGNATURA": "Formación Humana",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082996784",
@@ -4293,7 +4235,8 @@
     "ASIGNATURA": "Educación ética Y valores",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082996784",
@@ -4301,7 +4244,8 @@
     "ASIGNATURA": "Educación ética Y valores",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "2SS"
+    "CURSO": "2SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082996784",
@@ -4309,7 +4253,8 @@
     "ASIGNATURA": "Formación Humana",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082996784",
@@ -4317,7 +4262,8 @@
     "ASIGNATURA": "Procesos Biológicos",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082996784",
@@ -4325,7 +4271,8 @@
     "ASIGNATURA": "Procesos Biológicos",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "2SS"
+    "CURSO": "2SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082996784",
@@ -4333,7 +4280,8 @@
     "ASIGNATURA": "Procesos Químicos",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082996784",
@@ -4341,7 +4289,8 @@
     "ASIGNATURA": "Procesos Químicos",
     "SEDE": "Principal",
     "GRADO": "6",
-    "CURSO": "2SS"
+    "CURSO": "2SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082996784",
@@ -4349,7 +4298,8 @@
     "ASIGNATURA": "Procesos Biológicos",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082996784",
@@ -4357,7 +4307,8 @@
     "ASIGNATURA": "Procesos Químicos",
     "SEDE": "Principal",
     "GRADO": "7",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082996784",
@@ -4365,7 +4316,8 @@
     "ASIGNATURA": "Procesos Biológicos",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082996784",
@@ -4373,7 +4325,8 @@
     "ASIGNATURA": "Procesos Químicos",
     "SEDE": "Principal",
     "GRADO": "8",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082996784",
@@ -4381,7 +4334,8 @@
     "ASIGNATURA": "Procesos Biológicos",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082996784",
@@ -4389,7 +4343,8 @@
     "ASIGNATURA": "Procesos Químicos",
     "SEDE": "Principal",
     "GRADO": "9",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082996784",
@@ -4397,7 +4352,8 @@
     "ASIGNATURA": "Biología",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082996784",
@@ -4405,7 +4361,8 @@
     "ASIGNATURA": "Economía",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082996784",
@@ -4413,7 +4370,8 @@
     "ASIGNATURA": "Química",
     "SEDE": "Principal",
     "GRADO": "10",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082996784",
@@ -4421,7 +4379,8 @@
     "ASIGNATURA": "Biología",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082996784",
@@ -4429,7 +4388,8 @@
     "ASIGNATURA": "Economía",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082996784",
@@ -4437,6 +4397,16 @@
     "ASIGNATURA": "Química",
     "SEDE": "Principal",
     "GRADO": "11",
-    "CURSO": "1SS"
+    "CURSO": "1SS",
+    "COORDINADOR": "NO"
+  },
+  {
+    "ID": "72302591",
+    "NOMBRE": "ALAIN CASSIS CASTRO",
+    "ASIGNATURA": "Matemáticas",
+    "SEDE": "Municipal",
+    "GRADO": "10",
+    "CURSO": "2PPAL",
+    "COORDINADOR": "SI"
   }
 ]
