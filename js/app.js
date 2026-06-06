@@ -95,11 +95,6 @@
     adminResultGroup: "all",
     adminResultSubject: "all",
     adminResultStudent: "all",
-    adminAnalysisSede: "all",
-    adminAnalysisGrade: "all",
-    adminAnalysisMode: "grade",
-    adminAnalysisSubject: "all",
-    adminAnalysisDetail: null,
     adminCargaTeacherId: "",
     adminDirectorTeacherId: "",
     activeSession: null
@@ -935,15 +930,7 @@
   }
 
   function teacherModeTabs(teacher, activeMode) {
-    const assignments = teacher.assignments || [];
-    const directorGroups = teacher.directorGroups || [];
-    if (!assignments.length && !directorGroups.length) return "";
-    return `
-      <nav class="teacher-mode-tabs">
-        <button class="nav-chip ${activeMode === "asignaturas" ? "active" : ""}" data-action="teacher-mode" data-mode="asignaturas" ${assignments.length ? "" : "disabled"}>Mis asignaturas</button>
-        <button class="nav-chip ${activeMode === "director" ? "active" : ""}" data-action="teacher-mode" data-mode="director" ${directorGroups.length ? "" : "disabled"}>Director de grupo</button>
-      </nav>
-    `;
+    return "";
   }
 
   function renderTeacherAssignments(teacher) {
@@ -1065,8 +1052,7 @@
         <button class="director-subject-card" data-action="director-subject-detail" data-key="${escAttr(active?.key || "")}" data-subject="${escAttr(subject.name)}">
           <span class="director-subject-head">${subjectIcon(subject.name)}<strong>${esc(subject.name)}</strong></span>
           <span class="director-subject-score">${display}<small>/100</small></span>
-          <span class="admin-analysis-mini-bar"><i style="width:${percent}%"></i></span>
-          <em>${values.length} estudiante${values.length === 1 ? "" : "s"}</em>
+          <span class="director-mini-bar"><i style="width:${percent}%"></i></span>
         </button>
       `;
     }).join("");
@@ -1094,11 +1080,6 @@
       </div>
 
       ${active ? `
-        <section class="teacher-stat-strip teacher-stat-strip-three">
-          <article class="card card-pad teacher-stat"><span>Estudiantes</span><strong>${students.length}</strong></article>
-          <article class="card card-pad teacher-stat"><span>Promedio general</span><strong>${avg(scorePool)}<small>/100</small></strong></article>
-          <article class="card card-pad teacher-stat"><span>Áreas evaluadas</span><strong>${subjects.length}</strong></article>
-        </section>
         <section class="director-subject-grid">
           ${subjectCards || `<div class="card card-pad empty-state">No hay resultados por asignatura para este grupo.</div>`}
         </section>
@@ -1134,9 +1115,10 @@
         </tr>
       `;
     }).join("");
+    document.body.classList.add("modal-open");
     modalRoot.innerHTML = `
-      <div class="modal-backdrop" data-action="close-modal">
-        <section class="modal" style="max-width:980px;">
+      <div class="modal-backdrop director-detail-backdrop" data-action="close-modal">
+        <section class="modal director-detail-modal" style="max-width:980px;">
           <div class="modal-head">
             <div>
               <h2>${esc(subject)}</h2>
@@ -1184,11 +1166,11 @@
   }
 
   function renderAdmin() {
+    if (state.adminTab === "analisis") state.adminTab = "resumen";
     const tabs = [
       ["resumen", "Resumen"],
       ["estudiantes", "Estudiantes"],
       ["resultados", "Resultados"],
-      ["analisis", "Análisis"],
       ["apariencia", "Apariencia"],
       ["logos", "Logos"],
       ["cargas", "Cargas"],
@@ -1215,7 +1197,6 @@
     switch (state.adminTab) {
       case "estudiantes": return adminStudentsHtml();
       case "resultados": return adminResultsHtml();
-      case "analisis": return adminAnalyticsHtml();
       case "apariencia": return adminAppearanceHtml();
       case "logos": return adminLogosHtml();
       case "cargas": return adminCargaHtml();
@@ -1472,155 +1453,6 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     const base = SUBJECTS.map((subject) => subject.name);
     return [...new Set([...base, ...fromKeys].map(canonicalSubject).filter(Boolean))]
       .sort((a, b) => a.localeCompare(b, "es", { sensitivity: "base" }));
-  }
-
-  function adminAnalyticsHtml() {
-    const sedes = ["all", ...uniqueValues(state.computedStudents.map((s) => s.sede))];
-    const grades = ["all", ...uniqueValues(state.computedStudents
-      .filter((s) => state.adminAnalysisSede === "all" || s.sede === state.adminAnalysisSede)
-      .map((s) => s.grade).filter(Boolean)).sort((a, b) => Number(a) - Number(b))];
-    const subjects = ["all", ...availableSubjects()];
-    const selectedSubjects = state.adminAnalysisSubject === "all" ? availableSubjects() : [state.adminAnalysisSubject];
-    const baseStudents = state.computedStudents
-      .filter((s) => state.adminAnalysisSede === "all" || s.sede === state.adminAnalysisSede)
-      .filter((s) => state.adminAnalysisGrade === "all" || String(s.grade) === String(state.adminAnalysisGrade));
-    const mode = state.adminAnalysisMode === "course" ? "course" : "grade";
-    const groups = adminAnalysisGroups(baseStudents, mode);
-    const detail = state.adminAnalysisDetail;
-
-    return `
-      <section class="toolbar">
-        <div>
-          <span class="section-eyebrow">Análisis visual</span>
-          <h2 style="margin:8px 0 0;font-weight:900;">Mapa de desempeño por grado, curso y asignatura</h2>
-          <p class="muted-copy">Mira rápidamente cómo va cada grado o curso. Cada tarjeta muestra el promedio de nota y permite abrir el detalle con la misma lógica de la vista docente.</p>
-        </div>
-      </section>
-      <section class="card card-pad admin-analysis-filters">
-        <div class="form-grid compact">
-          <div class="field"><label>Sede</label><select class="select-pill" data-admin-analysis-field="sede">
-            ${sedes.map((value) => `<option value="${escAttr(value)}" ${state.adminAnalysisSede === value ? "selected" : ""}>${value === "all" ? "Todas las sedes" : esc(value)}</option>`).join("")}
-          </select></div>
-          <div class="field"><label>Grado</label><select class="select-pill" data-admin-analysis-field="grade">
-            ${grades.map((value) => `<option value="${escAttr(value)}" ${String(state.adminAnalysisGrade) === String(value) ? "selected" : ""}>${value === "all" ? "Todos los grados" : `${esc(value)}°`}</option>`).join("")}
-          </select></div>
-          <div class="field"><label>Agrupar por</label><select class="select-pill" data-admin-analysis-field="mode">
-            <option value="grade" ${mode === "grade" ? "selected" : ""}>Grado general</option>
-            <option value="course" ${mode === "course" ? "selected" : ""}>Curso</option>
-          </select></div>
-          <div class="field"><label>Asignatura</label><select class="select-pill" data-admin-analysis-field="subject">
-            ${subjects.map((value) => `<option value="${escAttr(value)}" ${state.adminAnalysisSubject === value ? "selected" : ""}>${value === "all" ? "Todas las asignaturas" : esc(value)}</option>`).join("")}
-          </select></div>
-        </div>
-      </section>
-      <section class="admin-analysis-board">
-        ${groups.map((group) => adminAnalysisGroupCard(group, selectedSubjects)).join("") || `<div class="card card-pad empty-state">No hay datos para los filtros seleccionados.</div>`}
-      </section>
-      ${detail ? adminAnalysisDetailHtml(detail) : `<section class="card card-pad admin-analysis-hint"><strong>Toca una asignatura</strong><span> para abrir promedios de componentes, competencias y listado de estudiantes.</span></section>`}
-    `;
-  }
-
-  function adminAnalysisGroups(students, mode) {
-    const map = new Map();
-    students.forEach((student) => {
-      const key = mode === "course" ? `${student.sede || "Sin sede"}||${student.grade}||${student.group || "Sin curso"}` : `${student.sede || "Sin sede"}||${student.grade}`;
-      if (!map.has(key)) {
-        map.set(key, {
-          key,
-          mode,
-          sede: student.sede || "Sin sede",
-          grade: student.grade,
-          group: mode === "course" ? (student.group || "Sin curso") : "",
-          label: mode === "course" ? `${student.grade}° · ${student.group || "Sin curso"}` : `${student.grade}°`,
-          students: []
-        });
-      }
-      map.get(key).students.push(student);
-    });
-    return [...map.values()].sort((a, b) => Number(a.grade) - Number(b.grade) || String(a.group).localeCompare(String(b.group), "es", { numeric: true, sensitivity: "base" }));
-  }
-
-  function adminAnalysisGroupCard(group, subjects) {
-    const cells = subjects.map((subject) => {
-      const scores = group.students.map((student) => student.subjectStats[subject]?.score).filter((value) => Number.isFinite(value));
-      const value = Number(avg(scores));
-      const display = Number.isFinite(value) ? value : "—";
-      const percent = Number.isFinite(value) ? clamp(value, 0, 100) : 0;
-      const count = scores.length;
-      return `
-        <button class="admin-analysis-subject ${count ? "has-data" : "no-data"}" data-action="admin-analysis-cell" data-mode="${escAttr(group.mode)}" data-sede="${escAttr(group.sede)}" data-grade="${escAttr(group.grade)}" data-group="${escAttr(group.group)}" data-subject="${escAttr(subject)}">
-          <span class="admin-analysis-subject-head">${subjectIcon(subject)} <strong>${esc(subject)}</strong></span>
-          <span class="admin-analysis-score">${display}<small>/100</small></span>
-          <span class="admin-analysis-mini-bar"><i style="width:${percent}%"></i></span>
-          <small>${count} estudiante${count === 1 ? "" : "s"}</small>
-        </button>
-      `;
-    }).join("");
-    const allScores = group.students.flatMap((student) => Object.values(student.subjectStats || {}).map((stat) => stat?.score).filter((value) => Number.isFinite(value)));
-    return `
-      <article class="card card-pad admin-analysis-group-card">
-        <header>
-          <div>
-            <span class="section-eyebrow">${group.mode === "course" ? "Curso" : "Grado"}</span>
-            <h3>${esc(group.label)}</h3>
-            <p>${esc(group.sede)} · ${group.students.length} estudiante${group.students.length === 1 ? "" : "s"}</p>
-          </div>
-          <strong class="admin-analysis-group-avg">${avg(allScores)}<small>/100</small></strong>
-        </header>
-        <div class="admin-analysis-subject-grid">${cells}</div>
-      </article>
-    `;
-  }
-
-  function adminAnalysisDetailHtml(detail) {
-    const subject = canonicalSubject(detail.subject);
-    const students = state.computedStudents
-      .filter((student) => detail.sede === "all" || student.sede === detail.sede)
-      .filter((student) => String(student.grade) === String(detail.grade))
-      .filter((student) => !detail.group || student.group === detail.group)
-      .filter((student) => student.subjectStats[subject]?.total)
-      .sort((a, b) => a.name.localeCompare(b.name, "es", { sensitivity: "base" }));
-    const details = aggregateDetails(students, subject);
-    const scores = students.map((student) => student.subjectStats[subject]?.score).filter((value) => Number.isFinite(value));
-    const rows = students.map((student, index) => {
-      const stat = student.subjectStats[subject];
-      return `
-        <tr class="table-row-click" data-action="open-detail" data-roll="${escAttr(student.roll)}" data-subject="${escAttr(subject)}">
-          <td class="teacher-index">${index + 1}</td>
-          <td><strong>${esc(student.name)}</strong><br><span class="student-subid">ID Prueba ${esc(student.roll)} · ${esc(student.sede || "Sin sede")} · ${esc(student.grade)}° ${esc(student.group || "")}</span></td>
-          <td><span class="teacher-score teacher-score-plain">${stat.score ?? "—"}</span></td>
-          <td><strong>${stat.correct}/${stat.total}</strong></td>
-        </tr>
-      `;
-    }).join("");
-    return `
-      <section class="card card-pad admin-analysis-detail">
-        <div class="toolbar compact-toolbar">
-          <div>
-            <span class="section-eyebrow">Detalle seleccionado</span>
-            <h3>${esc(subject)} · ${esc(detail.grade)}°${detail.group ? ` · ${esc(detail.group)}` : ""}</h3>
-            <p class="muted-copy">${esc(detail.sede)} · ${students.length} estudiante${students.length === 1 ? "" : "s"}</p>
-          </div>
-          <div class="inline-actions">
-            <button class="secondary-btn" data-action="open-answer-key" data-grade="${escAttr(detail.grade)}" data-subject="${escAttr(subject)}">Ver respuestas correctas</button>
-            <button class="ghost-btn" data-action="admin-analysis-clear-detail">Cerrar detalle</button>
-          </div>
-        </div>
-        <section class="teacher-stat-strip teacher-stat-strip-two admin-results-stats">
-          <article class="card card-pad teacher-stat"><span>Estudiantes</span><strong>${students.length}</strong></article>
-          <article class="card card-pad teacher-stat"><span>Promedio</span><strong>${avg(scores)}<small>/100</small></strong></article>
-        </section>
-        <section class="teacher-metrics-row admin-results-metrics">
-          ${teacherAggregateMetricsHtmlForDetails(details)}
-        </section>
-        <div class="table-wrap">
-          <table class="teacher-table">
-            <thead><tr><th>#</th><th>Estudiante</th><th>Nota</th><th>Correctas</th></tr></thead>
-            <tbody>${rows || `<tr><td colspan="4" class="empty-state">No hay estudiantes con esta selección.</td></tr>`}</tbody>
-          </table>
-        </div>
-      </section>
-    `;
   }
 
   function adminAppearanceHtml() {
@@ -2160,9 +1992,14 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       `;
     }
     if (role === "teacher") {
+      const teacher = state.teachers.get(state.activeSession?.id) || null;
+      const hasAssignments = !!(teacher?.assignments || []).length;
+      const hasDirector = !!(teacher?.directorGroups || []).length;
+      const activeMode = state.teacherMode === "director" ? "director" : "asignaturas";
       return `
-        <nav class="app-nav">
-          <button class="nav-chip active">Panel docente</button>
+        <nav class="app-nav teacher-top-nav">
+          <button class="nav-chip ${activeMode === "asignaturas" ? "active" : ""}" data-action="teacher-mode" data-mode="asignaturas" ${hasAssignments ? "" : "disabled"}>Panel docente</button>
+          ${hasDirector ? `<button class="nav-chip ${activeMode === "director" ? "active" : ""}" data-action="teacher-mode" data-mode="director">Panel director de grupo</button>` : ""}
           <button class="nav-chip logout" data-action="logout">Salir</button>
         </nav>
       `;
@@ -2331,24 +2168,6 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
         state.adminSubjectFilter = "all";
       }
       renderAdmin();
-    }
-
-    if (action === "admin-analysis-cell") {
-      state.adminAnalysisDetail = {
-        mode: target.dataset.mode || "grade",
-        sede: target.dataset.sede || "all",
-        grade: toInt(target.dataset.grade),
-        group: cleanText(target.dataset.group || ""),
-        subject: canonicalSubject(target.dataset.subject)
-      };
-      renderAdmin();
-      return;
-    }
-
-    if (action === "admin-analysis-clear-detail") {
-      state.adminAnalysisDetail = null;
-      renderAdmin();
-      return;
     }
 
     if (action === "clear-banner") {
@@ -2654,16 +2473,6 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       if (field === "grade") { state.adminResultGroup = "all"; state.adminResultSubject = "all"; }
       if (field === "group") { state.adminResultSubject = "all"; }
       state.adminResultStudent = "all";
-      renderAdmin();
-      return;
-    }
-
-    if (target.dataset.adminAnalysisField) {
-      const field = target.dataset.adminAnalysisField;
-      const map = { sede: "adminAnalysisSede", grade: "adminAnalysisGrade", mode: "adminAnalysisMode", subject: "adminAnalysisSubject" };
-      if (map[field]) state[map[field]] = target.value;
-      if (field === "sede") state.adminAnalysisGrade = "all";
-      state.adminAnalysisDetail = null;
       renderAdmin();
       return;
     }
@@ -3306,11 +3115,13 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     const backdrop = modalRoot.querySelector(".modal-backdrop");
     if (!backdrop) {
       modalRoot.innerHTML = "";
+      document.body.classList.remove("modal-open");
       return;
     }
     backdrop.classList.add("is-closing");
     window.setTimeout(() => {
       modalRoot.innerHTML = "";
+      document.body.classList.remove("modal-open");
     }, 180);
   }
 

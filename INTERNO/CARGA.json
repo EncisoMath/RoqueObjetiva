@@ -592,6 +592,70 @@
     "CURSO": "1SS"
   },
   {
+    "ID": "",
+    "NOMBRE": "",
+    "ASIGNATURA": "Aritmética",
+    "SEDE": "Principal",
+    "GRADO": "9",
+    "CURSO": "1PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "",
+    "ASIGNATURA": "Aritmética",
+    "SEDE": "Principal",
+    "GRADO": "9",
+    "CURSO": "2PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "",
+    "ASIGNATURA": "Aritmética",
+    "SEDE": "Principal",
+    "GRADO": "9",
+    "CURSO": "3PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "",
+    "ASIGNATURA": "Aritmética",
+    "SEDE": "Principal",
+    "GRADO": "9",
+    "CURSO": "4PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "",
+    "ASIGNATURA": "Formación Humana",
+    "SEDE": "Principal",
+    "GRADO": "9",
+    "CURSO": "3PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "",
+    "ASIGNATURA": "Estadística",
+    "SEDE": "Principal",
+    "GRADO": "10",
+    "CURSO": "1PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "",
+    "ASIGNATURA": "Estadística",
+    "SEDE": "Principal",
+    "GRADO": "10",
+    "CURSO": "2PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "",
+    "ASIGNATURA": "Estadística",
+    "SEDE": "Principal",
+    "GRADO": "10",
+    "CURSO": "3PPAL"
+  },
+  {
     "ID": "19562066",
     "NOMBRE": "FIDEDID BARRIOS HERNANDEZ",
     "ASIGNATURA": "Procesos Físicos",
@@ -1392,6 +1456,54 @@
     "CURSO": "3PPAL"
   },
   {
+    "ID": "",
+    "NOMBRE": "HERMINIA FLOREZ CERVANTES",
+    "ASIGNATURA": "Ingles",
+    "SEDE": "Principal",
+    "GRADO": "6",
+    "CURSO": "1PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "HERMINIA FLOREZ CERVANTES",
+    "ASIGNATURA": "Ingles",
+    "SEDE": "Principal",
+    "GRADO": "6",
+    "CURSO": "2PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "HERMINIA FLOREZ CERVANTES",
+    "ASIGNATURA": "Ingles",
+    "SEDE": "Principal",
+    "GRADO": "6",
+    "CURSO": "3PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "HERMINIA FLOREZ CERVANTES",
+    "ASIGNATURA": "Ingles",
+    "SEDE": "Principal",
+    "GRADO": "6",
+    "CURSO": "4PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "HERMINIA FLOREZ CERVANTES",
+    "ASIGNATURA": "Ingles",
+    "SEDE": "Principal",
+    "GRADO": "6",
+    "CURSO": "5PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "HERMINIA FLOREZ CERVANTES",
+    "ASIGNATURA": "Ingles",
+    "SEDE": "Principal",
+    "GRADO": "6",
+    "CURSO": "6PPAL"
+  },
+  {
     "ID": "1065884031",
     "NOMBRE": "ANDERSON FABIAN GALVIS RODRIGUEZ",
     "ASIGNATURA": "Constitución",
@@ -1526,6 +1638,190 @@
     "SEDE": "Principal",
     "GRADO": "11",
     "CURSO": "1SS"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "JEINNY MILENA GUTIERREZ MENDOZA",
+    "ASIGNATURA": "Educación ética Y valores",
+    "SEDE": "Principal",
+    "GRADO": "6",
+    "CURSO": "1PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "JEINNY MILENA GUTIERREZ MENDOZA",
+    "ASIGNATURA": "Educación ética Y valores",
+    "SEDE": "Principal",
+    "GRADO": "6",
+    "CURSO": "2PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "JEINNY MILENA GUTIERREZ MENDOZA",
+    "ASIGNATURA": "Educación ética Y valores",
+    "SEDE": "Principal",
+    "GRADO": "6",
+    "CURSO": "3PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "JEINNY MILENA GUTIERREZ MENDOZA",
+    "ASIGNATURA": "Educación ética Y valores",
+    "SEDE": "Principal",
+    "GRADO": "6",
+    "CURSO": "4PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "JEINNY MILENA GUTIERREZ MENDOZA",
+    "ASIGNATURA": "Educación ética Y valores",
+    "SEDE": "Principal",
+    "GRADO": "6",
+    "CURSO": "5PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "JEINNY MILENA GUTIERREZ MENDOZA",
+    "ASIGNATURA": "Educación ética Y valores",
+    "SEDE": "Principal",
+    "GRADO": "6",
+    "CURSO": "6PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "JEINNY MILENA GUTIERREZ MENDOZA",
+    "ASIGNATURA": "Educación ética Y valores",
+    "SEDE": "Principal",
+    "GRADO": "7",
+    "CURSO": "1PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "JEINNY MILENA GUTIERREZ MENDOZA",
+    "ASIGNATURA": "Educación ética Y valores",
+    "SEDE": "Principal",
+    "GRADO": "7",
+    "CURSO": "2PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "JEINNY MILENA GUTIERREZ MENDOZA",
+    "ASIGNATURA": "Educación ética Y valores",
+    "SEDE": "Principal",
+    "GRADO": "7",
+    "CURSO": "3PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "JEINNY MILENA GUTIERREZ MENDOZA",
+    "ASIGNATURA": "Educación ética Y valores",
+    "SEDE": "Principal",
+    "GRADO": "7",
+    "CURSO": "4PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "JEINNY MILENA GUTIERREZ MENDOZA",
+    "ASIGNATURA": "Educación ética Y valores",
+    "SEDE": "Principal",
+    "GRADO": "7",
+    "CURSO": "5PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "JEINNY MILENA GUTIERREZ MENDOZA",
+    "ASIGNATURA": "Educación ética Y valores",
+    "SEDE": "Principal",
+    "GRADO": "8",
+    "CURSO": "1PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "JEINNY MILENA GUTIERREZ MENDOZA",
+    "ASIGNATURA": "Educación ética Y valores",
+    "SEDE": "Principal",
+    "GRADO": "8",
+    "CURSO": "2PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "JEINNY MILENA GUTIERREZ MENDOZA",
+    "ASIGNATURA": "Educación ética Y valores",
+    "SEDE": "Principal",
+    "GRADO": "9",
+    "CURSO": "1PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "JEINNY MILENA GUTIERREZ MENDOZA",
+    "ASIGNATURA": "Educación ética Y valores",
+    "SEDE": "Principal",
+    "GRADO": "9",
+    "CURSO": "2PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "JEINNY MILENA GUTIERREZ MENDOZA",
+    "ASIGNATURA": "Educación ética Y valores",
+    "SEDE": "Principal",
+    "GRADO": "9",
+    "CURSO": "3PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "JEINNY MILENA GUTIERREZ MENDOZA",
+    "ASIGNATURA": "Educación ética Y valores",
+    "SEDE": "Principal",
+    "GRADO": "9",
+    "CURSO": "4PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "JEINNY MILENA GUTIERREZ MENDOZA",
+    "ASIGNATURA": "Educación ética Y valores",
+    "SEDE": "Principal",
+    "GRADO": "10",
+    "CURSO": "1PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "JEINNY MILENA GUTIERREZ MENDOZA",
+    "ASIGNATURA": "Educación ética Y valores",
+    "SEDE": "Principal",
+    "GRADO": "10",
+    "CURSO": "2PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "JEINNY MILENA GUTIERREZ MENDOZA",
+    "ASIGNATURA": "Educación ética Y valores",
+    "SEDE": "Principal",
+    "GRADO": "10",
+    "CURSO": "3PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "JEINNY MILENA GUTIERREZ MENDOZA",
+    "ASIGNATURA": "Educación ética Y valores",
+    "SEDE": "Principal",
+    "GRADO": "11",
+    "CURSO": "1PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "JEINNY MILENA GUTIERREZ MENDOZA",
+    "ASIGNATURA": "Educación ética Y valores",
+    "SEDE": "Principal",
+    "GRADO": "11",
+    "CURSO": "2PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "JEINNY MILENA GUTIERREZ MENDOZA",
+    "ASIGNATURA": "Educación ética Y valores",
+    "SEDE": "Principal",
+    "GRADO": "11",
+    "CURSO": "3PPAL"
   },
   {
     "ID": "85449501",
@@ -2248,6 +2544,62 @@
     "CURSO": "3PPAL"
   },
   {
+    "ID": "",
+    "NOMBRE": "LUIS CARLOS MIRANDA MIRANDA",
+    "ASIGNATURA": "Aritmética",
+    "SEDE": "Principal",
+    "GRADO": "8",
+    "CURSO": "1PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "LUIS CARLOS MIRANDA MIRANDA",
+    "ASIGNATURA": "Aritmética",
+    "SEDE": "Principal",
+    "GRADO": "8",
+    "CURSO": "2PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "LUIS CARLOS MIRANDA MIRANDA",
+    "ASIGNATURA": "Aritmética",
+    "SEDE": "Principal",
+    "GRADO": "8",
+    "CURSO": "3PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "LUIS CARLOS MIRANDA MIRANDA",
+    "ASIGNATURA": "Aritmética",
+    "SEDE": "Principal",
+    "GRADO": "8",
+    "CURSO": "4PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "LUIS CARLOS MIRANDA MIRANDA",
+    "ASIGNATURA": "Estadística",
+    "SEDE": "Principal",
+    "GRADO": "11",
+    "CURSO": "1PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "LUIS CARLOS MIRANDA MIRANDA",
+    "ASIGNATURA": "Estadística",
+    "SEDE": "Principal",
+    "GRADO": "11",
+    "CURSO": "2PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "LUIS CARLOS MIRANDA MIRANDA",
+    "ASIGNATURA": "Estadística",
+    "SEDE": "Principal",
+    "GRADO": "11",
+    "CURSO": "3PPAL"
+  },
+  {
     "ID": "57280584",
     "NOMBRE": "EMPERATRIZ MORENO CARRETERO",
     "ASIGNATURA": "Constitución",
@@ -3029,6 +3381,182 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Principal",
     "GRADO": "11",
+    "CURSO": "3PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "LUIS EDUARDO POLO BARRIOS",
+    "ASIGNATURA": "Educación Religiosa",
+    "SEDE": "Principal",
+    "GRADO": "6",
+    "CURSO": "1PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "LUIS EDUARDO POLO BARRIOS",
+    "ASIGNATURA": "Educación Religiosa",
+    "SEDE": "Principal",
+    "GRADO": "6",
+    "CURSO": "2PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "LUIS EDUARDO POLO BARRIOS",
+    "ASIGNATURA": "Educación Religiosa",
+    "SEDE": "Principal",
+    "GRADO": "6",
+    "CURSO": "3PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "LUIS EDUARDO POLO BARRIOS",
+    "ASIGNATURA": "Educación Religiosa",
+    "SEDE": "Principal",
+    "GRADO": "6",
+    "CURSO": "4PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "LUIS EDUARDO POLO BARRIOS",
+    "ASIGNATURA": "Educación Religiosa",
+    "SEDE": "Principal",
+    "GRADO": "6",
+    "CURSO": "5PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "LUIS EDUARDO POLO BARRIOS",
+    "ASIGNATURA": "Educación Religiosa",
+    "SEDE": "Principal",
+    "GRADO": "6",
+    "CURSO": "6PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "LUIS EDUARDO POLO BARRIOS",
+    "ASIGNATURA": "Educación Religiosa",
+    "SEDE": "Principal",
+    "GRADO": "7",
+    "CURSO": "1PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "LUIS EDUARDO POLO BARRIOS",
+    "ASIGNATURA": "Educación Religiosa",
+    "SEDE": "Principal",
+    "GRADO": "7",
+    "CURSO": "2PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "LUIS EDUARDO POLO BARRIOS",
+    "ASIGNATURA": "Educación Religiosa",
+    "SEDE": "Principal",
+    "GRADO": "7",
+    "CURSO": "3PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "LUIS EDUARDO POLO BARRIOS",
+    "ASIGNATURA": "Educación Religiosa",
+    "SEDE": "Principal",
+    "GRADO": "7",
+    "CURSO": "4PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "LUIS EDUARDO POLO BARRIOS",
+    "ASIGNATURA": "Educación Religiosa",
+    "SEDE": "Principal",
+    "GRADO": "7",
+    "CURSO": "5PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "LUIS EDUARDO POLO BARRIOS",
+    "ASIGNATURA": "Educación Religiosa",
+    "SEDE": "Principal",
+    "GRADO": "8",
+    "CURSO": "1PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "LUIS EDUARDO POLO BARRIOS",
+    "ASIGNATURA": "Educación Religiosa",
+    "SEDE": "Principal",
+    "GRADO": "8",
+    "CURSO": "2PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "LUIS EDUARDO POLO BARRIOS",
+    "ASIGNATURA": "Educación Religiosa",
+    "SEDE": "Principal",
+    "GRADO": "8",
+    "CURSO": "3PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "LUIS EDUARDO POLO BARRIOS",
+    "ASIGNATURA": "Educación Religiosa",
+    "SEDE": "Principal",
+    "GRADO": "8",
+    "CURSO": "4PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "LUIS EDUARDO POLO BARRIOS",
+    "ASIGNATURA": "Educación Religiosa",
+    "SEDE": "Principal",
+    "GRADO": "9",
+    "CURSO": "1PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "LUIS EDUARDO POLO BARRIOS",
+    "ASIGNATURA": "Educación Religiosa",
+    "SEDE": "Principal",
+    "GRADO": "9",
+    "CURSO": "2PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "LUIS EDUARDO POLO BARRIOS",
+    "ASIGNATURA": "Educación Religiosa",
+    "SEDE": "Principal",
+    "GRADO": "9",
+    "CURSO": "3PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "LUIS EDUARDO POLO BARRIOS",
+    "ASIGNATURA": "Educación Religiosa",
+    "SEDE": "Principal",
+    "GRADO": "9",
+    "CURSO": "4PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "LUIS EDUARDO POLO BARRIOS",
+    "ASIGNATURA": "Educación Religiosa",
+    "SEDE": "Principal",
+    "GRADO": "10",
+    "CURSO": "1PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "LUIS EDUARDO POLO BARRIOS",
+    "ASIGNATURA": "Educación Religiosa",
+    "SEDE": "Principal",
+    "GRADO": "10",
+    "CURSO": "2PPAL"
+  },
+  {
+    "ID": "",
+    "NOMBRE": "LUIS EDUARDO POLO BARRIOS",
+    "ASIGNATURA": "Educación Religiosa",
+    "SEDE": "Principal",
+    "GRADO": "10",
     "CURSO": "3PPAL"
   },
   {
@@ -3910,13 +4438,5 @@
     "SEDE": "Principal",
     "GRADO": "11",
     "CURSO": "1SS"
-  },
-  {
-    "ID": "72302591",
-    "NOMBRE": "ALAIN CASSIS CASTRO",
-    "ASIGNATURA": "Matemáticas",
-    "SEDE": "Municipal",
-    "GRADO": "10",
-    "CURSO": "2PPAL"
   }
 ]
