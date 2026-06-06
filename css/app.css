@@ -4640,3 +4640,272 @@ body {
     height: 6px !important;
   }
 }
+
+
+/* Ajustes v32: tarjetas superiores limpias, sin palabras verticales */
+@media (min-width: 941px) {
+  .student-workspace .subject-list {
+    grid-template-columns: repeat(5, minmax(210px, 1fr)) !important;
+  }
+}
+
+.student-workspace .subject-row-grid-card,
+.director-subject-card {
+  min-height: 104px !important;
+  padding: 14px 16px 12px !important;
+  border-radius: var(--button-radius, 4px) !important;
+  background: #fff !important;
+  background-image: none !important;
+  box-shadow: var(--shadow-soft) !important;
+  display: grid !important;
+  grid-template-columns: 52px minmax(0, 1fr) auto !important;
+  grid-template-rows: 1fr auto !important;
+  gap: 8px 10px !important;
+  align-items: center !important;
+}
+
+.student-workspace .subject-row-left,
+.director-subject-head {
+  display: contents !important;
+}
+
+.student-workspace .subject-row-left > .subject-icon,
+.director-subject-head .subject-icon {
+  grid-column: 1 !important;
+  grid-row: 1 !important;
+  width: 52px !important;
+  height: 52px !important;
+  min-width: 52px !important;
+  margin: 0 !important;
+  align-self: center !important;
+  justify-self: start !important;
+}
+
+.student-workspace .subject-row-left span:last-child,
+.director-subject-head strong {
+  grid-column: 2 !important;
+  grid-row: 1 !important;
+  align-self: center !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  font-size: .92rem !important;
+  line-height: 1.08 !important;
+  font-weight: 800 !important;
+  color: var(--ink) !important;
+  overflow-wrap: normal !important;
+  word-break: normal !important;
+  hyphens: none !important;
+  white-space: normal !important;
+}
+
+.student-workspace .subject-row-right,
+.director-subject-score {
+  grid-column: 3 !important;
+  grid-row: 1 !important;
+  display: inline-flex !important;
+  align-items: baseline !important;
+  justify-content: flex-end !important;
+  gap: 2px !important;
+  min-width: max-content !important;
+  font-size: 1.55rem !important;
+  line-height: 1 !important;
+  font-weight: 900 !important;
+  letter-spacing: -.045em !important;
+  white-space: nowrap !important;
+}
+
+.student-workspace .subject-score,
+.director-subject-score {
+  font-size: 1.55rem !important;
+  line-height: 1 !important;
+}
+
+.student-workspace .subject-score small,
+.director-subject-score small {
+  font-size: .48em !important;
+  margin-left: 2px !important;
+}
+
+.student-workspace .subject-chevron {
+  font-size: .78rem !important;
+  margin-left: 5px !important;
+}
+
+.subject-card-progress,
+.director-mini-bar {
+  grid-column: 1 / -1 !important;
+  grid-row: 2 !important;
+  height: 7px !important;
+  margin-top: 2px !important;
+}
+
+@media (max-width: 1180px) and (min-width: 941px) {
+  .student-workspace .subject-list,
+  .director-subject-grid {
+    grid-template-columns: repeat(3, minmax(210px, 1fr)) !important;
+  }
+}
+
+@media (max-width: 940px) {
+  .student-workspace .subject-list,
+  .director-subject-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .student-workspace .subject-row-grid-card,
+  .director-subject-card {
+    min-height: 88px !important;
+    grid-template-columns: 58px minmax(0, 1fr) auto !important;
+    padding: 12px 14px !important;
+  }
+  .student-workspace .subject-row-left > .subject-icon,
+  .director-subject-head .subject-icon {
+    width: 58px !important;
+    height: 58px !important;
+  }
+  .student-workspace .subject-row-left span:last-child,
+  .director-subject-head strong {
+    font-size: 1rem !important;
+  }
+  .student-workspace .subject-score,
+  .director-subject-score {
+    font-size: 1.72rem !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .student-workspace .subject-row-grid-card,
+  .director-subject-card {
+    grid-template-columns: 52px minmax(0, 1fr) auto !important;
+    gap: 7px 8px !important;
+  }
+  .student-workspace .subject-row-left > .subject-icon,
+  .director-subject-head .subject-icon {
+    width: 52px !important;
+    height: 52px !important;
+  }
+  .student-workspace .subject-row-left span:last-child,
+  .director-subject-head strong {
+    font-size: .92rem !important;
+  }
+  .student-workspace .subject-score,
+  .director-subject-score {
+    font-size: 1.5rem !important;
+  }
+}
+
+/* Ajustes v32: tarjetas de resumen docente sin rounded-corners grandes y con mismo estilo */
+.teacher-stat-strip {
+  gap: 12px !important;
+}
+
+.teacher-stat {
+  border-radius: var(--button-radius, 4px) !important;
+  background: #fff !important;
+  background-image: none !important;
+  box-shadow: var(--shadow-soft) !important;
+  border: 1px solid var(--line) !important;
+  min-height: 96px !important;
+}
+
+.teacher-stat-action {
+  background: #fff !important;
+  background-image: none !important;
+  border-color: var(--line) !important;
+}
+
+.teacher-stat-action:hover {
+  border-color: rgba(var(--primary-rgb, 25, 117, 174), .38) !important;
+  box-shadow: 0 14px 30px rgba(24, 24, 27, .10) !important;
+}
+
+.teacher-stat span,
+.teacher-stat-action span {
+  color: #6f737d !important;
+  font-size: .76rem !important;
+  font-weight: 800 !important;
+}
+
+.teacher-stat strong {
+  color: var(--ink) !important;
+  font-size: 1.45rem !important;
+  font-weight: 900 !important;
+}
+
+.teacher-stat-action em {
+  color: #666b75 !important;
+  font-size: .72rem !important;
+  font-weight: 600 !important;
+}
+
+@media (max-width: 680px) {
+  .teacher-stat-strip-three {
+    grid-template-columns: 1fr !important;
+  }
+  .teacher-stat {
+    min-height: 82px !important;
+  }
+}
+
+/* Ajustes v32: explicación de valor por ítem estilo limpio, similar al puntaje global */
+.score-explain-clean {
+  gap: 16px !important;
+}
+
+.score-mini-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 0 10px;
+  border-bottom: 1px solid var(--line);
+}
+
+.score-mini-hero span {
+  color: var(--primary);
+  font-size: .78rem;
+  font-weight: 900;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.score-mini-hero strong {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  color: var(--ink);
+  font-size: clamp(2.2rem, 8vw, 3.8rem);
+  font-weight: 900;
+  line-height: .9;
+  letter-spacing: -.07em;
+}
+
+.score-mini-hero small {
+  color: #7c818c;
+  font-size: .42em;
+  letter-spacing: -.02em;
+}
+
+.teacher-formula-steps {
+  border: 0 !important;
+  background: transparent !important;
+  padding: 0 !important;
+}
+
+.teacher-formula-steps .formula-step {
+  background: transparent !important;
+  border: 0 !important;
+  padding: 0 !important;
+}
+
+.teacher-formula-steps .formula-line {
+  border-radius: var(--button-radius, 4px) !important;
+  background: #fff !important;
+  border: 1px solid var(--line) !important;
+  box-shadow: 0 10px 26px rgba(24, 24, 27, .06) !important;
+}
+
+.teacher-formula-steps .formula-line.colorful {
+  color: var(--primary) !important;
+  background: rgba(var(--primary-rgb, 25, 117, 174), .06) !important;
+  border-color: rgba(var(--primary-rgb, 25, 117, 174), .16) !important;
+}

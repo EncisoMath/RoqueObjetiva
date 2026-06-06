@@ -2917,15 +2917,29 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
             <button type="button" class="icon-btn" data-action="close-modal" aria-label="Cerrar">×</button>
           </div>
           <div class="modal-body">
-            <section class="score-explain-card">
-              <div class="score-explain-hero">
-                <span>Valor por ítem</span>
+            <section class="score-explain-card score-explain-clean">
+              <div class="score-mini-hero">
+                <span>Valor de cada ítem</span>
                 <strong>${esc(itemValue)}<small> puntos</small></strong>
               </div>
-              <p>La escala de la prueba va de <strong>20</strong> a <strong>100</strong>. Por eso, los ítems no reparten 100 puntos completos, sino los <strong>80 puntos</strong> que hay entre la nota mínima y la nota máxima.</p>
-              <div class="formula-line colorful">Valor de cada ítem = (100 − 20) ÷ ${esc(total || "total de ítems")} = ${esc(itemValue)}</div>
-              <div class="formula-line">Nota = 20 + (correctas × ${esc(itemValue)})</div>
-              ${total ? `<p>Ejemplo: si un estudiante responde bien <strong>${exampleCorrect}</strong> de <strong>${total}</strong> ítems, su nota sería <strong>20 + (${exampleCorrect} × ${esc(itemValue)}) = ${exampleScore}</strong>.</p>` : `<p>Cuando haya ítems registrados para esta asignatura, aquí se mostrará el valor exacto por pregunta.</p>`}
+
+              <div class="formula-steps teacher-formula-steps">
+                <div class="formula-step">
+                  <span>1</span>
+                  <p>La escala va de <strong>20</strong> a <strong>100</strong>. La diferencia entre esos dos valores es <strong>80 puntos</strong>.</p>
+                </div>
+                <div class="formula-step">
+                  <span>2</span>
+                  <p>Esos <strong>80 puntos</strong> se reparten entre los <strong>${esc(total || "ítems")}</strong> ítems de la prueba.</p>
+                </div>
+                <div class="formula-line colorful">(100 − 20) ÷ ${esc(total || "total de ítems")} = ${esc(itemValue)} puntos por ítem</div>
+                <div class="formula-step">
+                  <span>3</span>
+                  <p>La nota se calcula sumando a la base mínima <strong>20</strong> el valor de los ítems correctos.</p>
+                </div>
+                <div class="formula-line">Nota = 20 + (correctas × ${esc(itemValue)})</div>
+                ${total ? `<div class="formula-step"><span>4</span><p>Ejemplo: con <strong>${exampleCorrect}</strong> correctas de <strong>${total}</strong>, la nota sería <strong>20 + (${exampleCorrect} × ${esc(itemValue)}) = ${exampleScore}</strong>.</p></div>` : `<p>Cuando haya ítems registrados para esta asignatura, aquí se mostrará el valor exacto por pregunta.</p>`}
+              </div>
               <p class="excluded-note">Las dobles marcas y las respuestas sin marcar no suman como correctas.</p>
             </section>
           </div>
