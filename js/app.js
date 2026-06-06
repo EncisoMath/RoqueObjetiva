@@ -688,7 +688,7 @@
         ${detailHeader}
 
         <div class="subject-stats-row">
-          <div><span>Correctas</span><strong>${stat.correct ?? 0} de ${stat.total ?? 0}</strong></div>
+          <div><span>Correctas</span><strong>${stat.correct ?? 0}</strong></div>
           <div><span>Incorrectas</span><strong>${(stat.wrong ?? 0) + (stat.doubleMark ?? 0)}</strong></div>
           <div><span>Sin marcar</span><strong>${stat.empty ?? 0}</strong></div>
         </div>
