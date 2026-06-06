@@ -35,7 +35,7 @@
     logoImage: "assets/logo-principal.png",
     bannerImage: "",
     footerText: "Consulta institucional de resultados",
-    primaryColor: "#314b9b",
+    primaryColor: "#1975ae",
     buttonRadius: 4,
     logoZoom: 1,
     subjectLogos: {},
@@ -576,7 +576,7 @@
   }
 
   function renderLogin(error = "") {
-    const primary = normalizeColor(state.config.primaryColor || "#314b9b");
+    const primary = normalizeColor(state.config.primaryColor || "#1975ae");
     const primaryDark = shadeColor(primary, -26);
     const primaryDeep = shadeColor(primary, -52);
     const primarySoft = mixWithWhite(primary, 34);
@@ -635,7 +635,7 @@
 
   function renderShell(content, nav = "") {
     const cfg = state.config;
-    const primary = normalizeColor(cfg.primaryColor || "#314b9b");
+    const primary = normalizeColor(cfg.primaryColor || "#1975ae");
     const primaryDark = shadeColor(primary, -18);
     const primarySoft = mixWithWhite(primary, 34);
     const rgb = hexToRgb(primary);
@@ -811,9 +811,9 @@
     `;
   }
 
-  function buildSubjectDetailHtml(student, subject, stat, compact = false) {
+  function buildSubjectDetailHtml(student, subject, stat, compact = false, showCorrect = false) {
     if (!stat) return `<div class="empty-state">No hay información para esta asignatura.</div>`;
-    const detailRows = (stat.details || []).map((detail, index) => answerPill(detail, student.roll, index + 1)).join("");
+    const detailRows = (stat.details || []).map((detail, index) => answerPill(detail, student.roll, index + 1, showCorrect)).join("");
     const activeMetric = state.metricTab === "competences" ? "competences" : "components";
     const detailHeader = compact ? `
         <header class="subject-detail-head">
@@ -867,6 +867,14 @@
     `;
   }
 
+  function subjectItemValue(grade, subject, stat = null) {
+    const total = Number(stat?.total) || state.keys.filter((key) => (!grade || key.grade === Number(grade)) && sameSubject(key.area, subject)).length;
+    if (!total) return { total: 0, value: null, label: "—" };
+    const value = 80 / total;
+    const label = Number.isInteger(value) ? String(value) : value.toFixed(2).replace(/0+$/, "").replace(/\.$/, "");
+    return { total, value, label };
+  }
+
   function renderTeacher(teacher) {
     const assignments = teacher.assignments || [];
     if (!state.teacherActive || !assignments.some((a) => a.key === state.teacherActive.key)) {
@@ -895,6 +903,9 @@
 
     const filtered = students
       .sort((a, b) => a.name.localeCompare(b.name, "es", { sensitivity: "base" }));
+
+    const activeStatForValue = filtered.find((student) => student.subjectStats[active?.subject])?.subjectStats?.[active?.subject] || null;
+    const itemValueInfo = active ? subjectItemValue(active.grade, active.subject, activeStatForValue) : { total: 0, value: null, label: "—" };
 
     const rows = filtered.map((student, index) => {
       const stat = student.subjectStats[active.subject];
@@ -927,6 +938,11 @@
           <article class="card card-pad teacher-stat"><span>Estudiantes</span><strong>${filtered.length}</strong></article>
           <article class="card card-pad teacher-stat"><span>Promedio</span><strong>${avg(filtered.map((s) => s.subjectStats[active.subject].score))}<small>/100</small></strong></article>
         </section>
+        <button class="teacher-score-info-card" data-action="teacher-score-info" data-subject="${escAttr(active.subject)}" data-grade="${escAttr(active.grade)}" data-total="${escAttr(itemValueInfo.total)}">
+          <span>Cálculo de nota</span>
+          <strong>Cada ítem en esta prueba vale ${esc(itemValueInfo.label)} punto${itemValueInfo.label === "1" ? "" : "s"}.</strong>
+          <small>Toca para ver cómo se calculan las notas de tus estudiantes.</small>
+        </button>
         <section class="teacher-metrics-row">
           ${teacherAggregateMetricsHtml(filtered, active.subject)}
         </section>
@@ -1209,7 +1225,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
           </div>
           <div class="field">
             <label>Color principal</label>
-            <input type="color" value="${escAttr(cfg.primaryColor || "#314b9b")}" data-config-field="primaryColor">
+            <input type="color" value="${escAttr(cfg.primaryColor || "#1975ae")}" data-config-field="primaryColor">
           </div>
           <div class="field">
             <label>Texto institucional auxiliar</label>
@@ -1477,7 +1493,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
 
   function cargaAssignmentCard(row) {
     const colorIndex = SUBJECTS.findIndex((s) => s.name === canonicalSubject(row.subjectRaw || row.subject));
-    const colors = ["#314b9b", "#8b5cf6", "#16a34a", "#eab308", "#dc2626", "#f97316", "#ec4899", "#0891b2", "#4f46e5", "#64748b"];
+    const colors = ["#1975ae", "#8b5cf6", "#16a34a", "#eab308", "#dc2626", "#f97316", "#ec4899", "#0891b2", "#4f46e5", "#64748b"];
     const color = colors[colorIndex >= 0 ? colorIndex : 0];
     return `
       <article class="carga-assignment-card" style="--subject-color:${escAttr(color)};">
@@ -1686,6 +1702,11 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
 
     if (action === "open-answer-key") {
       openAnswerKeyModal(toInt(target.dataset.grade), target.dataset.subject);
+      return;
+    }
+
+    if (action === "teacher-score-info") {
+      openTeacherScoreInfo(toInt(target.dataset.grade), target.dataset.subject, toInt(target.dataset.total));
       return;
     }
 
@@ -2314,6 +2335,40 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     `;
   }
 
+  function openTeacherScoreInfo(grade, subject, totalFromButton = 0) {
+    const info = subjectItemValue(grade, subject, { total: totalFromButton });
+    const total = info.total || totalFromButton || 0;
+    const itemValue = info.label;
+    const exampleCorrect = total ? Math.min(Math.max(Math.round(total * 0.6), 1), total) : 0;
+    const exampleScore = total ? Math.round(20 + exampleCorrect * (80 / total)) : "—";
+    modalRoot.innerHTML = `
+      <div class="modal-backdrop" data-action="close-modal">
+        <section class="modal" style="max-width:620px;">
+          <div class="modal-head">
+            <div>
+              <h2>Cómo se calcula la nota</h2>
+              <span style="color:#7d8089;font-weight:600;">${esc(subject)} · ${grade ? `${esc(grade)}°` : "grado activo"}</span>
+            </div>
+            <button type="button" class="icon-btn" data-action="close-modal" aria-label="Cerrar">×</button>
+          </div>
+          <div class="modal-body">
+            <section class="score-explain-card">
+              <div class="score-explain-hero">
+                <span>Valor por ítem</span>
+                <strong>${esc(itemValue)}<small> puntos</small></strong>
+              </div>
+              <p>La escala de la prueba va de <strong>20</strong> a <strong>100</strong>. Por eso, los ítems no reparten 100 puntos completos, sino los <strong>80 puntos</strong> que hay entre la nota mínima y la nota máxima.</p>
+              <div class="formula-line colorful">Valor de cada ítem = (100 − 20) ÷ ${esc(total || "total de ítems")} = ${esc(itemValue)}</div>
+              <div class="formula-line">Nota = 20 + (correctas × ${esc(itemValue)})</div>
+              ${total ? `<p>Ejemplo: si un estudiante responde bien <strong>${exampleCorrect}</strong> de <strong>${total}</strong> ítems, su nota sería <strong>20 + (${exampleCorrect} × ${esc(itemValue)}) = ${exampleScore}</strong>.</p>` : `<p>Cuando haya ítems registrados para esta asignatura, aquí se mostrará el valor exacto por pregunta.</p>`}
+              <p class="excluded-note">Las dobles marcas y las respuestas sin marcar no suman como correctas.</p>
+            </section>
+          </div>
+        </section>
+      </div>
+    `;
+  }
+
   function openAnswerKeyModal(grade, subject) {
     const rows = state.keys
       .filter((key) => (!grade || key.grade === grade) && sameSubject(key.area, subject))
@@ -2366,7 +2421,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
             <button type="button" class="icon-btn" data-action="close-modal" aria-label="Cerrar">×</button>
           </div>
           <div class="modal-body">
-            <section class="card detail-card">${buildSubjectDetailHtml(student, realSubject, stat, true)}</section>
+            <section class="card detail-card">${buildSubjectDetailHtml(student, realSubject, stat, true, true)}</section>
           </div>
         </section>
       </div>
@@ -2451,11 +2506,12 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     window.setTimeout(() => loader.remove(), 360);
   }
 
-  function answerPill(detail, roll, displayIndex = detail.item) {
+  function answerPill(detail, roll, displayIndex = detail.item, showCorrect = false) {
     return `
-      <button class="answer-pill ${detail.status}" data-action="answer-info" data-roll="${escAttr(roll)}" data-subject="${escAttr(detail.subject)}" data-item="${escAttr(detail.item)}" title="Ver detalle del ítem ${escAttr(displayIndex)}">
+      <button class="answer-pill ${detail.status} ${showCorrect ? "with-correct" : ""}" data-action="answer-info" data-roll="${escAttr(roll)}" data-subject="${escAttr(detail.subject)}" data-item="${escAttr(detail.item)}" title="Ver detalle del ítem ${escAttr(displayIndex)}">
         <strong>${esc(displayIndex)}.</strong>
         <span>${esc(displayMarked(detail.marked))}</span>
+        ${showCorrect ? `<small>Correcta: ${esc(displayMarked(detail.correct))}</small>` : ""}
       </button>
     `;
   }
@@ -2845,7 +2901,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
   }
 
   function normalizeColor(value) {
-    const fallback = "#314b9b";
+    const fallback = "#1975ae";
     const raw = String(value || "").trim();
     if (/^#[0-9a-f]{6}$/i.test(raw)) return raw.toLowerCase();
     if (/^#[0-9a-f]{3}$/i.test(raw)) {
