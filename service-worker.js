@@ -1,4 +1,4 @@
-const CACHE_VERSION = "resultados-pwa-v27";
+const CACHE_VERSION = "resultados-pwa-v28";
 const APP_SHELL = [
   "./",
   "index.html",
@@ -6,6 +6,7 @@ const APP_SHELL = [
   "js/app.js",
   "config/data-manifest.json",
   "config/site-config.json",
+  "INTERNO/DIRECTORESGRUPO.json",
   "manifest.webmanifest",
   "icons/icon-192.png",
   "icons/icon-512.png",

@@ -11,6 +11,7 @@
     logos: "po_subject_logos_v1",
     answers: "po_answer_overrides_v1",
     carga: "po_carga_override_v1",
+    directores: "po_directores_grupo_override_v1",
     session: "po_session_v1",
     github: "po_github_publish_v1",
     students: "po_students_override_v1"
@@ -49,6 +50,7 @@
     config: "config/site-config.json",
     estudiantes: "ESTUDIANTES/ESTUDIANTES.json",
     carga: "INTERNO/CARGA.json",
+    directoresGrupo: "INTERNO/DIRECTORESGRUPO.json",
     grades: DEFAULT_GRADES,
     keyTemplate: "KEYS/KEYS_{grade}.json",
     resultTemplate: "RESULTADOS/{grade}S{session}.json",
@@ -68,6 +70,7 @@
     keys: [],
     studentsRegistry: [],
     cargaRows: [],
+    directorRows: [],
     teachers: new Map(),
     responsesByRoll: new Map(),
     missingFiles: [],
@@ -79,6 +82,8 @@
     selectedSubject: null,
     metricTab: "components",
     teacherActive: null,
+    teacherMode: "asignaturas",
+    teacherDirectorActiveKey: "",
     teacherSearch: "",
     adminTab: "resumen",
     adminStudentSearch: "",
@@ -96,6 +101,7 @@
     adminAnalysisSubject: "all",
     adminAnalysisDetail: null,
     adminCargaTeacherId: "",
+    adminDirectorTeacherId: "",
     activeSession: null
   };
 
@@ -185,6 +191,15 @@
       state.cargaRows = parseCarga(cargaText);
     }
     state.manifest = addGradesToManifest(state.manifest, state.cargaRows.map((row) => row.grade));
+
+    const storedDirectores = readJSON(STORAGE.directores, null);
+    if (storedDirectores && Array.isArray(storedDirectores.rows)) {
+      state.directorRows = storedDirectores.rows.map(normalizeDirectorRow).filter((row) => row.id && row.sede && row.grade && row.group);
+    } else {
+      const directorText = await fetchText(state.manifest.directoresGrupo || "INTERNO/DIRECTORESGRUPO.json", false);
+      state.directorRows = directorText ? parseDirectoresGrupo(directorText) : [];
+    }
+    state.manifest = addGradesToManifest(state.manifest, state.directorRows.map((row) => row.grade));
 
     for (const keyFile of state.manifest.keys || []) {
       const required = !(keyFile.optional || keyFile.required === false);
@@ -350,6 +365,11 @@
     })).filter((r) => r.id && r.subjectRaw && r.grade);
   }
 
+  function parseDirectoresGrupo(text) {
+    const objects = parseDataObjects(text, ["Identificación", "Sede"]);
+    return objects.map(normalizeDirectorRow).filter((row) => row.id && row.sede && row.grade && row.group);
+  }
+
   function parseAnswerKey(text, fileInfo) {
     const objects = parseDataObjects(text, ["Respuesta sugerida"]);
     const grade = toInt(fileInfo.grade) || inferGradeFromPath(fileInfo.path);
@@ -421,7 +441,7 @@
     state.teachers = new Map();
     for (const row of state.cargaRows) {
       if (!state.teachers.has(row.id)) {
-        state.teachers.set(row.id, { id: row.id, name: row.name, assignments: [] });
+        state.teachers.set(row.id, { id: row.id, name: row.name, assignments: [], directorGroups: [] });
       }
       const teacher = state.teachers.get(row.id);
       if (!teacher.name && row.name) teacher.name = row.name;
@@ -435,6 +455,19 @@
           sede: row.sede || "",
           group: row.group || ""
         });
+      }
+    }
+
+    for (const row of state.directorRows || []) {
+      if (!row.id) continue;
+      if (!state.teachers.has(row.id)) {
+        state.teachers.set(row.id, { id: row.id, name: teacherNameById(row.id), assignments: [], directorGroups: [] });
+      }
+      const teacher = state.teachers.get(row.id);
+      if (!teacher.directorGroups) teacher.directorGroups = [];
+      const key = directorKeyFor(row);
+      if (!teacher.directorGroups.some((item) => item.key === key)) {
+        teacher.directorGroups.push({ key, id: row.id, sede: row.sede || "", grade: row.grade, group: row.group || "" });
       }
     }
 
@@ -887,6 +920,34 @@
 
   function renderTeacher(teacher) {
     const assignments = teacher.assignments || [];
+    const directorGroups = teacher.directorGroups || [];
+    const hasAssignments = assignments.length > 0;
+    const hasDirector = directorGroups.length > 0;
+
+    if (!hasAssignments && hasDirector) state.teacherMode = "director";
+    if (!hasDirector && state.teacherMode === "director") state.teacherMode = "asignaturas";
+    if (!state.teacherMode) state.teacherMode = hasAssignments ? "asignaturas" : "director";
+
+    if (state.teacherMode === "director" && hasDirector) {
+      return renderTeacherDirector(teacher);
+    }
+    return renderTeacherAssignments(teacher);
+  }
+
+  function teacherModeTabs(teacher, activeMode) {
+    const assignments = teacher.assignments || [];
+    const directorGroups = teacher.directorGroups || [];
+    if (!assignments.length && !directorGroups.length) return "";
+    return `
+      <nav class="teacher-mode-tabs">
+        <button class="nav-chip ${activeMode === "asignaturas" ? "active" : ""}" data-action="teacher-mode" data-mode="asignaturas" ${assignments.length ? "" : "disabled"}>Mis asignaturas</button>
+        <button class="nav-chip ${activeMode === "director" ? "active" : ""}" data-action="teacher-mode" data-mode="director" ${directorGroups.length ? "" : "disabled"}>Director de grupo</button>
+      </nav>
+    `;
+  }
+
+  function renderTeacherAssignments(teacher) {
+    const assignments = teacher.assignments || [];
     if (!state.teacherActive || !assignments.some((a) => a.key === state.teacherActive.key)) {
       state.teacherActive = assignments.find((assignment) => state.computedStudents.some((student) => teacherAssignmentMatches(student, assignment))) || assignments[0] || null;
     }
@@ -938,6 +999,8 @@
         </div>
       </section>
 
+      ${teacherModeTabs(teacher, "asignaturas")}
+
       <div class="teacher-nav-block">
         <nav class="teacher-assignment-nav teacher-subject-nav">${subjectButtons || `<span class="badge gray">Sin cargas asignadas</span>`}</nav>
         ${activeSubject ? `<nav class="teacher-assignment-nav teacher-group-nav">${groupButtons || `<span class="badge gray">Sin cursos para esta asignatura</span>`}</nav>` : ""}
@@ -972,6 +1035,140 @@
     `, navFor("teacher"));
   }
 
+  function renderTeacherDirector(teacher) {
+    const groups = (teacher.directorGroups || []).slice().sort((a, b) => {
+      const sede = String(a.sede || "").localeCompare(String(b.sede || ""), "es", { sensitivity: "base" });
+      if (sede) return sede;
+      const grade = Number(a.grade || 0) - Number(b.grade || 0);
+      if (grade) return grade;
+      return String(a.group || "").localeCompare(String(b.group || ""), "es", { sensitivity: "base", numeric: true });
+    });
+    if (!state.teacherDirectorActiveKey || !groups.some((group) => group.key === state.teacherDirectorActiveKey)) {
+      state.teacherDirectorActiveKey = groups[0]?.key || "";
+    }
+    const active = groups.find((group) => group.key === state.teacherDirectorActiveKey) || groups[0] || null;
+    const students = active
+      ? state.computedStudents.filter((student) => directorGroupMatches(student, active)).sort((a, b) => a.name.localeCompare(b.name, "es", { sensitivity: "base" }))
+      : [];
+    const subjects = SUBJECTS.filter((subject) => students.some((student) => student.subjectStats[subject.name]?.total));
+    const scorePool = students.flatMap((student) => subjects.map((subject) => student.subjectStats[subject.name]?.score).filter((value) => Number.isFinite(value)));
+    const groupButtons = groups.map((group) => `
+      <button class="tab-btn teacher-group-tab ${active?.key === group.key ? "active" : ""}" data-action="teacher-director-group" data-key="${escAttr(group.key)}">
+        ${esc(group.sede)} · ${esc(group.grade)}° · ${esc(group.group)}
+      </button>
+    `).join("");
+    const subjectCards = subjects.map((subject) => {
+      const values = students.map((student) => student.subjectStats[subject.name]?.score).filter((value) => Number.isFinite(value));
+      const display = avg(values);
+      const percent = Number.isFinite(Number(display)) ? clamp(Number(display), 0, 100) : 0;
+      return `
+        <button class="director-subject-card" data-action="director-subject-detail" data-key="${escAttr(active?.key || "")}" data-subject="${escAttr(subject.name)}">
+          <span class="director-subject-head">${subjectIcon(subject.name)}<strong>${esc(subject.name)}</strong></span>
+          <span class="director-subject-score">${display}<small>/100</small></span>
+          <span class="admin-analysis-mini-bar"><i style="width:${percent}%"></i></span>
+          <em>${values.length} estudiante${values.length === 1 ? "" : "s"}</em>
+        </button>
+      `;
+    }).join("");
+    const tableRows = students.map((student, index) => `
+      <tr>
+        <td class="teacher-index">${index + 1}</td>
+        <td><strong>${esc(student.name)}</strong><br><span class="student-subid">ID Prueba ${esc(student.roll)}</span></td>
+        ${subjects.map((subject) => `<td><span class="teacher-score teacher-score-plain">${student.subjectStats[subject.name]?.score ?? "—"}</span></td>`).join("")}
+      </tr>
+    `).join("");
+
+    renderShell(`
+      <section class="toolbar teacher-toolbar">
+        <div>
+          <span class="section-eyebrow">Director de grupo</span>
+          <h2 style="margin:8px 0 0;font-size:clamp(1.4rem,4vw,2.2rem);font-weight:900;letter-spacing:-.04em;">${esc(teacher.name || "Docente")}</h2>
+          ${active ? `<p class="teacher-active-label">${esc(active.sede)} · ${esc(active.grade)}° · ${esc(active.group)}</p>` : ""}
+        </div>
+      </section>
+
+      ${teacherModeTabs(teacher, "director")}
+
+      <div class="teacher-nav-block">
+        <nav class="teacher-assignment-nav teacher-group-nav">${groupButtons || `<span class="badge gray">No tienes dirección de grupo asignada.</span>`}</nav>
+      </div>
+
+      ${active ? `
+        <section class="teacher-stat-strip teacher-stat-strip-three">
+          <article class="card card-pad teacher-stat"><span>Estudiantes</span><strong>${students.length}</strong></article>
+          <article class="card card-pad teacher-stat"><span>Promedio general</span><strong>${avg(scorePool)}<small>/100</small></strong></article>
+          <article class="card card-pad teacher-stat"><span>Áreas evaluadas</span><strong>${subjects.length}</strong></article>
+        </section>
+        <section class="director-subject-grid">
+          ${subjectCards || `<div class="card card-pad empty-state">No hay resultados por asignatura para este grupo.</div>`}
+        </section>
+        <section class="card table-card teacher-table-card director-table-card">
+          <div class="table-wrap">
+            <table class="teacher-table director-table">
+              <thead><tr><th>#</th><th>Estudiante</th>${subjects.map((subject) => `<th>${esc(subject.short || subject.name)}</th>`).join("")}</tr></thead>
+              <tbody>${tableRows || `<tr><td colspan="${2 + subjects.length}" class="empty-state">No hay estudiantes con resultados en este grupo.</td></tr>`}</tbody>
+            </table>
+          </div>
+        </section>
+      ` : `<section class="card card-pad empty-state">No tienes dirección de grupo asignada.</section>`}
+    `, navFor("teacher"));
+  }
+
+  function openDirectorSubjectDetail(key, subject) {
+    const teacher = state.teachers.get(state.activeSession?.id);
+    const directorGroup = (teacher?.directorGroups || []).find((group) => group.key === key);
+    if (!directorGroup || !subject) return;
+    const students = state.computedStudents
+      .filter((student) => directorGroupMatches(student, directorGroup) && student.subjectStats[subject]?.total)
+      .sort((a, b) => a.name.localeCompare(b.name, "es", { sensitivity: "base" }));
+    const details = aggregateDetails(students, subject);
+    const scores = students.map((student) => student.subjectStats[subject]?.score).filter((value) => Number.isFinite(value));
+    const rows = students.map((student, index) => {
+      const stat = student.subjectStats[subject];
+      return `
+        <tr class="table-row-click" data-action="open-detail" data-roll="${escAttr(student.roll)}" data-subject="${escAttr(subject)}">
+          <td class="teacher-index">${index + 1}</td>
+          <td><strong>${esc(student.name)}</strong><br><span class="student-subid">ID Prueba ${esc(student.roll)}</span></td>
+          <td><span class="teacher-score teacher-score-plain">${stat.score ?? "—"}</span></td>
+          <td><strong>${stat.correct}/${stat.total}</strong></td>
+        </tr>
+      `;
+    }).join("");
+    modalRoot.innerHTML = `
+      <div class="modal-backdrop" data-action="close-modal">
+        <section class="modal" style="max-width:980px;">
+          <div class="modal-head">
+            <div>
+              <h2>${esc(subject)}</h2>
+              <span style="color:#7d8089;font-weight:600;">${esc(directorGroup.sede)} · ${esc(directorGroup.grade)}° · ${esc(directorGroup.group)}</span>
+            </div>
+            <button type="button" class="icon-btn" data-action="close-modal" aria-label="Cerrar">×</button>
+          </div>
+          <div class="modal-body">
+            <section class="teacher-stat-strip teacher-stat-strip-two admin-results-stats">
+              <article class="card card-pad teacher-stat"><span>Estudiantes</span><strong>${students.length}</strong></article>
+              <article class="card card-pad teacher-stat"><span>Promedio</span><strong>${avg(scores)}<small>/100</small></strong></article>
+            </section>
+            <section class="teacher-metrics-row admin-results-metrics">
+              ${teacherAggregateMetricsHtmlForDetails(details)}
+            </section>
+            <section class="teacher-key-actions">
+              <button class="secondary-btn" data-action="open-answer-key" data-grade="${escAttr(directorGroup.grade)}" data-subject="${escAttr(subject)}">Ver respuestas correctas</button>
+            </section>
+            <section class="card table-card teacher-table-card">
+              <div class="table-wrap">
+                <table class="teacher-table">
+                  <thead><tr><th>#</th><th>Estudiante</th><th>Nota</th><th>Correctas</th></tr></thead>
+                  <tbody>${rows || `<tr><td colspan="4" class="empty-state">No hay estudiantes para esta selección.</td></tr>`}</tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+        </section>
+      </div>
+    `;
+  }
+
   function teacherAggregateMetricsHtml(students, subject) {
     const details = students.flatMap((student) => student.subjectStats[subject]?.details || []);
     return `
@@ -995,6 +1192,7 @@
       ["apariencia", "Apariencia"],
       ["logos", "Logos"],
       ["cargas", "Cargas"],
+      ["directores", "Directores de grupo"],
       ["claves", "Claves"],
       ["github", "GitHub"]
     ];
@@ -1021,6 +1219,7 @@
       case "apariencia": return adminAppearanceHtml();
       case "logos": return adminLogosHtml();
       case "cargas": return adminCargaHtml();
+      case "directores": return adminDirectoresHtml();
       case "claves": return adminKeysHtml();
       case "github": return adminGithubHtml();
       default: return adminSummaryHtml();
@@ -1545,7 +1744,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
           <div class="span-2 github-publish-box">
             <div>
               <strong>Archivos que se publicarán</strong>
-              <p>config/site-config.json, config/data-manifest.json, ESTUDIANTES/ESTUDIANTES.json, INTERNO/CARGA.json, las claves KEYS/KEYS_#.json y las imágenes nuevas en ICONOS o assets.</p>
+              <p>config/site-config.json, config/data-manifest.json, ESTUDIANTES/ESTUDIANTES.json, INTERNO/CARGA.json, INTERNO/DIRECTORESGRUPO.json, las claves KEYS/KEYS_#.json y las imágenes nuevas en ICONOS o assets.</p>
             </div>
             <button class="primary-btn" type="button" data-action="publish-github">Publicar cambios en GitHub</button>
           </div>
@@ -1609,6 +1808,15 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       examId: cleanId(row.examId || row.ID_PRUEBA || row.IdPrueba || row.ID || row.id),
       nationalId: cleanId(row.nationalId || row.ID_ALUMNO || row.IdAlumno || row.Documento || row.documento),
       name: cleanText(row.name || row.NOMBRE_COMPLETO || row.NOMBRE || row.Nombre || row.NOMBRES || row.APellidos),
+      sede: cleanText(row.sede || row.SEDE || row.Sede),
+      grade: toInt(row.grade || row.GRADO || row.Grado),
+      group: cleanText(row.group || row.GRUPO || row.Grupo || row.CURSO || row.Curso)
+    };
+  }
+
+  function normalizeDirectorRow(row) {
+    return {
+      id: cleanId(row.id || row.ID || row.Id || row.Identificacion || row["Identificación"] || row.identificacion),
       sede: cleanText(row.sede || row.SEDE || row.Sede),
       grade: toInt(row.grade || row.GRADO || row.Grado),
       group: cleanText(row.group || row.GRUPO || row.Grupo || row.CURSO || row.Curso)
@@ -1774,6 +1982,118 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     return true;
   }
 
+  function adminDirectoresHtml() {
+    const teachers = buildDirectorTeachers();
+    if (!state.adminDirectorTeacherId || !teachers.some((teacher) => teacher.id === state.adminDirectorTeacherId)) {
+      state.adminDirectorTeacherId = teachers[0]?.id || "";
+    }
+    const active = teachers.find((teacher) => teacher.id === state.adminDirectorTeacherId) || teachers[0] || null;
+    return `
+      <section class="toolbar">
+        <div>
+          <span class="section-eyebrow">Directores de grupo</span>
+          <h2 style="margin:8px 0 0;font-weight:900;">Asignación de salones</h2>
+          <p class="muted-copy">Asigna a docentes ya existentes una dirección de grupo. Las sedes, grados y cursos salen de ESTUDIANTES.json.</p>
+        </div>
+        <div class="inline-actions">
+          <button class="primary-btn" data-action="add-director-assignment">Agregar dirección de grupo</button>
+          <button class="secondary-btn" data-action="save-directores">Guardar directores</button>
+          <button class="ghost-btn" data-action="export-directores">Exportar JSON</button>
+          <button class="secondary-btn" data-action="publish-github">Publicar en GitHub</button>
+        </div>
+      </section>
+      <div class="admin-note">No se crean docentes nuevos en esta vista. Para asignar una dirección de grupo, primero el docente debe existir en la carga docente o en el archivo de directores actual.</div>
+      <section class="carga-manager director-manager">
+        <aside class="card carga-teacher-list">
+          <h3>Docentes</h3>
+          ${teachers.map((teacher) => `
+            <button class="carga-teacher-card ${active?.id === teacher.id ? "active" : ""}" data-action="select-director-teacher" data-id="${escAttr(teacher.id)}">
+              <strong>${esc(teacher.name || `Docente ${teacher.id}`)}</strong>
+              <span>ID ${esc(teacher.id || "sin ID")} · ${teacher.directorGroups.length} dirección${teacher.directorGroups.length === 1 ? "" : "es"}</span>
+            </button>
+          `).join("") || `<div class="empty-state">No hay docentes disponibles para asignar dirección.</div>`}
+        </aside>
+        <div class="card card-pad carga-detail">
+          ${active ? directorTeacherDetailHtml(active) : `<div class="empty-state">Agrega una dirección de grupo a un docente existente.</div>`}
+        </div>
+      </section>
+    `;
+  }
+
+  function buildDirectorTeachers() {
+    const map = new Map();
+    (state.teachers || new Map()).forEach((teacher, id) => {
+      map.set(id, { id, name: teacher.name || teacherNameById(id), directorGroups: [] });
+    });
+    (state.directorRows || []).forEach((row, index) => {
+      const id = row.id;
+      if (!id) return;
+      if (!map.has(id)) map.set(id, { id, name: teacherNameById(id), directorGroups: [] });
+      map.get(id).directorGroups.push({ ...row, index, key: directorKeyFor(row) });
+    });
+    return Array.from(map.values())
+      .sort((a, b) => (a.name || a.id).localeCompare((b.name || b.id), "es", { sensitivity: "base" }));
+  }
+
+  function directorTeacherDetailHtml(teacher) {
+    return `
+      <div class="carga-teacher-head">
+        <div>
+          <span class="section-eyebrow">Docente</span>
+          <h3 style="margin:6px 0 0;font-size:1.4rem;">${esc(teacher.name || `Docente ${teacher.id}`)}</h3>
+          <p class="muted-copy">ID ${esc(teacher.id)} · ${teacher.directorGroups.length} dirección${teacher.directorGroups.length === 1 ? "" : "es"} de grupo</p>
+        </div>
+        <div class="inline-actions">
+          <button class="primary-btn" data-action="add-director-assignment" data-id="${escAttr(teacher.id)}">Agregar dirección</button>
+        </div>
+      </div>
+      <div class="carga-assignment-grid director-assignment-grid">
+        ${teacher.directorGroups.map((row) => directorAssignmentCard(row)).join("") || `<div class="empty-state">Este docente todavía no tiene dirección de grupo.</div>`}
+      </div>
+    `;
+  }
+
+  function directorAssignmentCard(row) {
+    return `
+      <article class="carga-assignment-card director-assignment-card" style="--subject-color:var(--primary);">
+        <div class="carga-card-title">
+          <span class="director-card-icon">DG</span>
+          <div><strong>Dirección de grupo</strong><span>${row.grade ? `${esc(row.grade)}°` : "Sin grado"} ${esc(row.group || "")} · ${esc(row.sede || "Sin sede")}</span></div>
+        </div>
+        <div class="form-grid compact">
+          <div class="field"><label>Sede</label><select class="select-pill" data-director-row="${row.index}" data-field="sede">${cargaSelectOptions("sede", row.sede)}</select></div>
+          <div class="field"><label>Grado</label><select class="select-pill" data-director-row="${row.index}" data-field="grade">${cargaSelectOptions("grade", row.grade)}</select></div>
+          <div class="field"><label>Curso</label><select class="select-pill" data-director-row="${row.index}" data-field="group">${cargaSelectOptions("group", row.group)}</select></div>
+        </div>
+        <button class="danger-btn" data-action="delete-director" data-index="${row.index}">Quitar dirección</button>
+      </article>
+    `;
+  }
+
+  function directorTeacherOptions(currentId = "") {
+    const current = cleanId(currentId);
+    const teachers = buildDirectorTeachers().filter((teacher) => teacher.id);
+    return [`<option value="">Selecciona docente</option>`, ...teachers.map((teacher) => `<option value="${escAttr(teacher.id)}" ${teacher.id === current ? "selected" : ""}>${esc(teacher.name || `Docente ${teacher.id}`)} · ID ${esc(teacher.id)}</option>`)].join("");
+  }
+
+  function updateDirectorRowField(target) {
+    if (!target.dataset.directorRow) return false;
+    const index = Number(target.dataset.directorRow);
+    const field = target.dataset.field;
+    if (!state.directorRows[index]) return true;
+    if (field === "grade") state.directorRows[index].grade = toInt(target.value);
+    if (field === "sede") state.directorRows[index].sede = target.value;
+    if (field === "group") state.directorRows[index].group = target.value;
+    state.directorRows[index] = normalizeDirectorRow(state.directorRows[index]);
+    return true;
+  }
+
+  function normalizeDirectorRows() {
+    state.directorRows = (state.directorRows || [])
+      .map(normalizeDirectorRow)
+      .filter((row) => row.id && row.sede && row.grade && row.group);
+  }
+
   function adminKeysHtml() {
     const grades = [...new Set(state.keys.map((k) => k.grade).filter(Boolean))].sort((a, b) => a - b);
     const grade = state.adminGradeFilter === "all" ? (grades[0] || "all") : state.adminGradeFilter;
@@ -1870,7 +2190,11 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
 
       if (state.teachers.has(user)) {
         state.teacherActive = null;
-        enterSessionWithLoader({ role: "teacher", id: user }, () => renderTeacher(state.teachers.get(user)), "Preparando vista docente...");
+        state.teacherMode = "asignaturas";
+        state.teacherDirectorActiveKey = "";
+        const teacher = state.teachers.get(user);
+        if (!(teacher?.assignments || []).length && (teacher?.directorGroups || []).length) state.teacherMode = "director";
+        enterSessionWithLoader({ role: "teacher", id: user }, () => renderTeacher(teacher), "Preparando vista docente...");
         return;
       }
 
@@ -1951,6 +2275,24 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
         sede: cleanText(target.dataset.sede)
       };
       renderBySession();
+      return;
+    }
+
+    if (action === "teacher-mode") {
+      state.teacherMode = target.dataset.mode === "director" ? "director" : "asignaturas";
+      renderBySession();
+      return;
+    }
+
+    if (action === "teacher-director-group") {
+      state.teacherDirectorActiveKey = target.dataset.key || "";
+      renderBySession();
+      return;
+    }
+
+    if (action === "director-subject-detail") {
+      openDirectorSubjectDetail(target.dataset.key || "", canonicalSubject(target.dataset.subject));
+      return;
     }
 
     if (action === "open-detail") {
@@ -2138,6 +2480,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     if (action === "save-carga") {
       normalizeCargaRows();
       writeJSON(STORAGE.carga, { rows: state.cargaRows });
+      writeJSON(STORAGE.directores, { rows: state.directorRows });
       buildRepository();
       toast("Carga guardada localmente.");
       renderAdmin();
@@ -2145,6 +2488,64 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
 
     if (action === "export-carga") {
       exportCarga();
+    }
+
+    if (action === "select-director-teacher") {
+      state.adminDirectorTeacherId = target.dataset.id || "";
+      renderAdmin();
+      return;
+    }
+
+    if (action === "add-director-assignment") {
+      openAddDirectorAssignmentModal(target.dataset.id || state.adminDirectorTeacherId || "");
+      return;
+    }
+
+    if (action === "confirm-add-director-assignment") {
+      const id = cleanId(document.getElementById("newDirectorTeacher")?.value || "");
+      const sede = document.getElementById("newDirectorSede")?.value || "";
+      const grade = toInt(document.getElementById("newDirectorGrade")?.value || "");
+      const group = document.getElementById("newDirectorGroup")?.value || "";
+      if (!id || !sede || !grade || !group) {
+        toast("Selecciona docente, sede, grado y curso.");
+        return;
+      }
+      const row = { id, sede, grade, group };
+      const key = directorKeyFor(row);
+      const duplicated = state.directorRows.some((item) => item.id === id && directorKeyFor(item) === key);
+      if (duplicated) {
+        toast("Ese docente ya tiene asignado ese grupo.");
+        return;
+      }
+      state.directorRows.push(row);
+      state.adminDirectorTeacherId = id;
+      buildRepository();
+      closeModal();
+      renderAdmin();
+      return;
+    }
+
+    if (action === "delete-director") {
+      const index = Number(target.dataset.index);
+      state.directorRows.splice(index, 1);
+      normalizeDirectorRows();
+      buildRepository();
+      renderAdmin();
+      return;
+    }
+
+    if (action === "save-directores") {
+      normalizeDirectorRows();
+      writeJSON(STORAGE.directores, { rows: state.directorRows });
+      buildRepository();
+      toast("Directores de grupo guardados localmente.");
+      renderAdmin();
+      return;
+    }
+
+    if (action === "export-directores") {
+      exportDirectores();
+      return;
     }
 
     if (action === "save-keys") {
@@ -2234,6 +2635,13 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
 
     if (target.dataset.cargaRow) {
       updateCargaRowField(target);
+      renderAdmin();
+      return;
+    }
+
+    if (target.dataset.directorRow) {
+      updateDirectorRowField(target);
+      buildRepository();
       renderAdmin();
       return;
     }
@@ -2353,6 +2761,11 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     downloadFile("CARGA.json", JSON.stringify(exportCargaRows(), null, 2), "application/json;charset=utf-8");
   }
 
+  function exportDirectores() {
+    normalizeDirectorRows();
+    downloadFile("DIRECTORESGRUPO.json", JSON.stringify(exportDirectoresRows(), null, 2), "application/json;charset=utf-8");
+  }
+
   function exportStudents() {
     state.studentsRegistry = state.studentsRegistry.map(normalizeStudentRow).filter((s) => s.examId || s.nationalId || s.name);
     downloadFile("ESTUDIANTES.json", JSON.stringify(exportStudentRows(), null, 2), "application/json;charset=utf-8");
@@ -2404,6 +2817,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
 
   async function publishAllToGithub() {
     normalizeCargaRows();
+    normalizeDirectorRows();
     const gh = getGithubSettings();
     if (!gh.owner || !gh.repo || !gh.branch || !gh.token) {
       toast("Completa usuario, repositorio, rama y token de GitHub.");
@@ -2462,6 +2876,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       files.push({ path: "config/data-manifest.json", content: JSON.stringify(exportManifestForRepo(), null, 2) });
       files.push({ path: state.manifest.estudiantes || "ESTUDIANTES/ESTUDIANTES.json", content: JSON.stringify(exportStudentRows(), null, 2) });
       files.push({ path: state.manifest.carga || "INTERNO/CARGA.json", content: JSON.stringify(exportCargaRows(), null, 2) });
+      files.push({ path: state.manifest.directoresGrupo || "INTERNO/DIRECTORESGRUPO.json", content: JSON.stringify(exportDirectoresRows(), null, 2) });
 
       const keysByPath = groupBy(state.keys, (row) => row.sourcePath || `KEYS/KEYS_${row.grade}.json`);
       for (const [path, rows] of keysByPath.entries()) {
@@ -2496,6 +2911,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       config: state.manifest.config || "config/site-config.json",
       estudiantes: state.manifest.estudiantes || "ESTUDIANTES/ESTUDIANTES.json",
       carga: state.manifest.carga || "INTERNO/CARGA.json",
+      directoresGrupo: state.manifest.directoresGrupo || "INTERNO/DIRECTORESGRUPO.json",
       grades: (state.manifest.grades || DEFAULT_GRADES).map(Number).filter(Boolean),
       keyTemplate: state.manifest.keyTemplate || "KEYS/KEYS_{grade}.json",
       resultTemplate: state.manifest.resultTemplate || "RESULTADOS/{grade}S{session}.json",
@@ -2525,6 +2941,15 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       SEDE: row.sede || "",
       GRADO: String(row.grade || ""),
       CURSO: row.group || ""
+    }));
+  }
+
+  function exportDirectoresRows() {
+    return (state.directorRows || []).map((row) => ({
+      "Identificación": row.id || "",
+      "Sede": row.sede || "",
+      "Grado": String(row.grade || ""),
+      "Grupo": row.group || ""
     }));
   }
 
@@ -2839,6 +3264,36 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
             <div class="admin-note" style="margin-top:14px;">Las sedes, grados y cursos salen de <strong>ESTUDIANTES.json</strong>. Las asignaturas salen de las claves cargadas en <strong>KEYS</strong>.</div>
             <div class="inline-actions" style="margin-top:16px;">
               <button class="primary-btn" data-action="confirm-add-carga-assignment" data-id="${escAttr(teacherId)}">Agregar carga</button>
+              <button class="ghost-btn" data-action="close-modal">Cancelar</button>
+            </div>
+          </div>
+        </section>
+      </div>
+    `;
+  }
+
+  function openAddDirectorAssignmentModal(teacherId = "") {
+    const selectedTeacher = cleanId(teacherId || state.adminDirectorTeacherId || "");
+    modalRoot.innerHTML = `
+      <div class="modal-backdrop" data-action="close-modal">
+        <section class="modal" style="max-width:660px;">
+          <div class="modal-head">
+            <div>
+              <h2>Agregar dirección de grupo</h2>
+              <span style="color:#7d8089;font-weight:600;">Selecciona un docente existente y el grupo a cargo.</span>
+            </div>
+            <button type="button" class="icon-btn" data-action="close-modal" aria-label="Cerrar">×</button>
+          </div>
+          <div class="modal-body">
+            <div class="form-grid compact">
+              <div class="field span-2"><label>Docente</label><select id="newDirectorTeacher" class="select-pill">${directorTeacherOptions(selectedTeacher)}</select></div>
+              <div class="field"><label>Sede</label><select id="newDirectorSede" class="select-pill">${cargaSelectOptions("sede", "")}</select></div>
+              <div class="field"><label>Grado</label><select id="newDirectorGrade" class="select-pill">${cargaSelectOptions("grade", "")}</select></div>
+              <div class="field"><label>Curso</label><select id="newDirectorGroup" class="select-pill">${cargaSelectOptions("group", "")}</select></div>
+            </div>
+            <div class="admin-note" style="margin-top:14px;">Las sedes, grados y cursos salen de <strong>ESTUDIANTES.json</strong>. En esta pantalla no se crean docentes nuevos.</div>
+            <div class="inline-actions" style="margin-top:16px;">
+              <button class="primary-btn" data-action="confirm-add-director-assignment">Agregar dirección</button>
               <button class="ghost-btn" data-action="close-modal">Cancelar</button>
             </div>
           </div>
@@ -3213,7 +3668,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
   }
 
   function toInt(value) {
-    const match = cleanText(value).match(/\d+/);
+    const match = cleanText(value).match(/-?\d+/);
     return match ? Number(match[0]) : 0;
   }
 
@@ -3241,6 +3696,26 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     const subject = normalizeText(canonicalSubject(row.subjectRaw || row.subject));
     const group = normalizeText(row.group || "");
     return `${grade}|${group}|${subject}`;
+  }
+
+  function directorKeyFor(row) {
+    const sede = normalizeText(row.sede || "");
+    const grade = toInt(row.grade);
+    const group = normalizeText(row.group || "");
+    return `${sede}|${grade}|${group}`;
+  }
+
+  function directorGroupMatches(student, directorGroup) {
+    if (!student || !directorGroup) return false;
+    return normalizeText(student.sede) === normalizeText(directorGroup.sede)
+      && String(student.grade) === String(directorGroup.grade)
+      && normalizeText(student.group) === normalizeText(directorGroup.group);
+  }
+
+  function teacherNameById(id) {
+    const clean = cleanId(id);
+    const carga = (state.cargaRows || []).find((row) => row.id === clean && row.name);
+    return cleanText(carga?.name || `Docente ${clean}`);
   }
 
   function groupAssignmentsBySubject(assignments) {

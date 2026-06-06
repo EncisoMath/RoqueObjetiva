@@ -244,3 +244,11 @@ Esta versión incluye soporte básico de PWA:
 En Android/Chrome o PC/Edge/Chrome debe aparecer la opción de instalar la aplicación. En iPhone se instala desde Safari usando **Compartir → Agregar a pantalla de inicio**.
 
 El `service-worker.js` usa estrategia de red primero para archivos JSON, para evitar que los resultados, cargas o configuraciones queden demasiado desactualizados cuando se publique una versión nueva en GitHub Pages.
+
+## Cambios v28
+
+- Se agrega el archivo `INTERNO/DIRECTORESGRUPO.json` para asignar directores de grupo.
+- En modo docente aparece el panel **Director de grupo** cuando el ID del docente tiene un grupo asignado.
+- El director de grupo puede ver todas las asignaturas del curso: promedios por área, tabla de estudiantes y detalle por asignatura.
+- En admin se agrega la pestaña **Directores de grupo** para asignar, editar, quitar, guardar, exportar y publicar direcciones de grupo.
+- El panel de directores no crea docentes nuevos; usa docentes existentes y permite asignarles sede, grado y curso desde listas basadas en `ESTUDIANTES.json`.

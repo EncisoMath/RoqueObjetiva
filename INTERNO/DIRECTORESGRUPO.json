@@ -1,0 +1,566 @@
+[
+  {
+    "Identificación": "57281014",
+    "Sede": "Gral Garzón AM",
+    "Grado": "-2",
+    "Grupo": "1GGAM"
+  },
+  {
+    "Identificación": "57424579",
+    "Sede": "Las Flores",
+    "Grado": "-2",
+    "Grupo": "1LF"
+  },
+  {
+    "Identificación": "52477024",
+    "Sede": "Punto Fijo",
+    "Grado": "-2",
+    "Grupo": "1PF"
+  },
+  {
+    "Identificación": "1044421852",
+    "Sede": "San Sebastian del Bongo",
+    "Grado": "-2",
+    "Grupo": "1SS"
+  },
+  {
+    "Identificación": "1010146449",
+    "Sede": "Zacapa",
+    "Grado": "-2",
+    "Grupo": "1ZP"
+  },
+  {
+    "Identificación": "1085112893",
+    "Sede": "Gral Garzón AM",
+    "Grado": "-1",
+    "Grupo": "1GGAM"
+  },
+  {
+    "Identificación": "57281122",
+    "Sede": "Gral Garzón PM",
+    "Grado": "-1",
+    "Grupo": "1GGPM"
+  },
+  {
+    "Identificación": "57424579",
+    "Sede": "Las Flores",
+    "Grado": "-1",
+    "Grupo": "1LF"
+  },
+  {
+    "Identificación": "52477024",
+    "Sede": "Punto Fijo",
+    "Grado": "-1",
+    "Grupo": "1PF"
+  },
+  {
+    "Identificación": "1044421852",
+    "Sede": "San Sebastian del Bongo",
+    "Grado": "-1",
+    "Grupo": "1SS"
+  },
+  {
+    "Identificación": "1010146449",
+    "Sede": "Zacapa",
+    "Grado": "-1",
+    "Grupo": "1ZP"
+  },
+  {
+    "Identificación": "57281014",
+    "Sede": "Gral Garzón AM",
+    "Grado": "-1",
+    "Grupo": "2GGAM"
+  },
+  {
+    "Identificación": "1082961332",
+    "Sede": "Gral Garzón AM",
+    "Grado": "0",
+    "Grupo": "1GGAM"
+  },
+  {
+    "Identificación": "57281122",
+    "Sede": "Gral Garzón PM",
+    "Grado": "0",
+    "Grupo": "1GGPM"
+  },
+  {
+    "Identificación": "57424579",
+    "Sede": "Las Flores",
+    "Grado": "0",
+    "Grupo": "1LF"
+  },
+  {
+    "Identificación": "52477024",
+    "Sede": "Punto Fijo",
+    "Grado": "0",
+    "Grupo": "1PF"
+  },
+  {
+    "Identificación": "1044421852",
+    "Sede": "San Sebastian del Bongo",
+    "Grado": "0",
+    "Grupo": "1SS"
+  },
+  {
+    "Identificación": "1010146449",
+    "Sede": "Zacapa",
+    "Grado": "0",
+    "Grupo": "1ZP"
+  },
+  {
+    "Identificación": "1085112893",
+    "Sede": "Gral Garzón AM",
+    "Grado": "0",
+    "Grupo": "2GGAM"
+  },
+  {
+    "Identificación": "1084741810",
+    "Sede": "San Sebastian del Bongo",
+    "Grado": "0",
+    "Grupo": "2SS"
+  },
+  {
+    "Identificación": "57281014",
+    "Sede": "Gral Garzón AM",
+    "Grado": "0",
+    "Grupo": "3GGAM"
+  },
+  {
+    "Identificación": "57421095",
+    "Sede": "Gral Garzón AM",
+    "Grado": "1",
+    "Grupo": "1GGAM"
+  },
+  {
+    "Identificación": "57280942",
+    "Sede": "Gral Garzón PM",
+    "Grado": "1",
+    "Grupo": "1GGPM"
+  },
+  {
+    "Identificación": "26692486",
+    "Sede": "Las Flores",
+    "Grado": "1",
+    "Grupo": "1LF"
+  },
+  {
+    "Identificación": "52477024",
+    "Sede": "Punto Fijo",
+    "Grado": "1",
+    "Grupo": "1PF"
+  },
+  {
+    "Identificación": "57422898",
+    "Sede": "San Sebastian del Bongo",
+    "Grado": "1",
+    "Grupo": "1SS"
+  },
+  {
+    "Identificación": "1010146449",
+    "Sede": "Zacapa",
+    "Grado": "1",
+    "Grupo": "1ZP"
+  },
+  {
+    "Identificación": "57280834",
+    "Sede": "Gral Garzón AM",
+    "Grado": "1",
+    "Grupo": "2GGAM"
+  },
+  {
+    "Identificación": "26688236",
+    "Sede": "Gral Garzón AM",
+    "Grado": "1",
+    "Grupo": "3GGAM"
+  },
+  {
+    "Identificación": "57280345",
+    "Sede": "Gral Garzón AM",
+    "Grado": "2",
+    "Grupo": "1GGAM"
+  },
+  {
+    "Identificación": "57401938",
+    "Sede": "Gral Garzón PM",
+    "Grado": "2",
+    "Grupo": "1GGPM"
+  },
+  {
+    "Identificación": "57425680",
+    "Sede": "Las Flores",
+    "Grado": "2",
+    "Grupo": "1LF"
+  },
+  {
+    "Identificación": "52477024",
+    "Sede": "Punto Fijo",
+    "Grado": "2",
+    "Grupo": "1PF"
+  },
+  {
+    "Identificación": "57422898",
+    "Sede": "San Sebastian del Bongo",
+    "Grado": "2",
+    "Grupo": "1SS"
+  },
+  {
+    "Identificación": "32732981",
+    "Sede": "Zacapa",
+    "Grado": "2",
+    "Grupo": "1ZP"
+  },
+  {
+    "Identificación": "1085104783",
+    "Sede": "Gral Garzón AM",
+    "Grado": "2",
+    "Grupo": "2GGAM"
+  },
+  {
+    "Identificación": "57280120",
+    "Sede": "Gral Garzón AM",
+    "Grado": "2",
+    "Grupo": "3GGAM"
+  },
+  {
+    "Identificación": "36728935",
+    "Sede": "Gral Garzón AM",
+    "Grado": "3",
+    "Grupo": "1GGAM"
+  },
+  {
+    "Identificación": "26689000",
+    "Sede": "Gral Garzón PM",
+    "Grado": "3",
+    "Grupo": "1GGPM"
+  },
+  {
+    "Identificación": "57425680",
+    "Sede": "Las Flores",
+    "Grado": "3",
+    "Grupo": "1LF"
+  },
+  {
+    "Identificación": "32885380",
+    "Sede": "Punto Fijo",
+    "Grado": "3",
+    "Grupo": "1PF"
+  },
+  {
+    "Identificación": "19561114",
+    "Sede": "San Sebastian del Bongo",
+    "Grado": "3",
+    "Grupo": "1SS"
+  },
+  {
+    "Identificación": "32732981",
+    "Sede": "Zacapa",
+    "Grado": "3",
+    "Grupo": "1ZP"
+  },
+  {
+    "Identificación": "1085106046",
+    "Sede": "Gral Garzón AM",
+    "Grado": "3",
+    "Grupo": "2GGAM"
+  },
+  {
+    "Identificación": "57433549",
+    "Sede": "Gral Garzón AM",
+    "Grado": "3",
+    "Grupo": "3GGAM"
+  },
+  {
+    "Identificación": "1085106205",
+    "Sede": "Las Flores",
+    "Grado": "3",
+    "Grupo": "ALF"
+  },
+  {
+    "Identificación": "57280551",
+    "Sede": "Gral Garzón AM",
+    "Grado": "4",
+    "Grupo": "1GGAM"
+  },
+  {
+    "Identificación": "26688774",
+    "Sede": "Gral Garzón PM",
+    "Grado": "4",
+    "Grupo": "1GGPM"
+  },
+  {
+    "Identificación": "19616838",
+    "Sede": "Las Flores",
+    "Grado": "4",
+    "Grupo": "1LF"
+  },
+  {
+    "Identificación": "32885380",
+    "Sede": "Punto Fijo",
+    "Grado": "4",
+    "Grupo": "1PF"
+  },
+  {
+    "Identificación": "19561877",
+    "Sede": "San Sebastian del Bongo",
+    "Grado": "4",
+    "Grupo": "1SS"
+  },
+  {
+    "Identificación": "32732981",
+    "Sede": "Zacapa",
+    "Grado": "4",
+    "Grupo": "1ZP"
+  },
+  {
+    "Identificación": "1004504618",
+    "Sede": "Gral Garzón AM",
+    "Grado": "4",
+    "Grupo": "2GGAM"
+  },
+  {
+    "Identificación": "26759595",
+    "Sede": "Gral Garzón AM",
+    "Grado": "4",
+    "Grupo": "3GGAM"
+  },
+  {
+    "Identificación": "57280967",
+    "Sede": "Gral Garzón AM",
+    "Grado": "5",
+    "Grupo": "1GGAM"
+  },
+  {
+    "Identificación": "26689341",
+    "Sede": "Gral Garzón PM",
+    "Grado": "5",
+    "Grupo": "1GGPM"
+  },
+  {
+    "Identificación": "19616838",
+    "Sede": "Las Flores",
+    "Grado": "5",
+    "Grupo": "1LF"
+  },
+  {
+    "Identificación": "32885380",
+    "Sede": "Punto Fijo",
+    "Grado": "5",
+    "Grupo": "1PF"
+  },
+  {
+    "Identificación": "26689204",
+    "Sede": "San Sebastian del Bongo",
+    "Grado": "5",
+    "Grupo": "1SS"
+  },
+  {
+    "Identificación": "32732981",
+    "Sede": "Zacapa",
+    "Grado": "5",
+    "Grupo": "1ZP"
+  },
+  {
+    "Identificación": "57280842",
+    "Sede": "Gral Garzón AM",
+    "Grado": "5",
+    "Grupo": "2GGAM"
+  },
+  {
+    "Identificación": "26689766",
+    "Sede": "Gral Garzón AM",
+    "Grado": "5",
+    "Grupo": "3GGAM"
+  },
+  {
+    "Identificación": "57421870",
+    "Sede": "Municipal",
+    "Grado": "6",
+    "Grupo": "1PPAL"
+  },
+  {
+    "Identificación": "91253555",
+    "Sede": "San Sebastian del Bongo",
+    "Grado": "6",
+    "Grupo": "1SS"
+  },
+  {
+    "Identificación": "19563034",
+    "Sede": "Municipal",
+    "Grado": "6",
+    "Grupo": "2PPAL"
+  },
+  {
+    "Identificación": "1065622537",
+    "Sede": "Municipal",
+    "Grado": "6",
+    "Grupo": "3PPAL"
+  },
+  {
+    "Identificación": "19562005",
+    "Sede": "Municipal",
+    "Grado": "6",
+    "Grupo": "4PPAL"
+  },
+  {
+    "Identificación": "19561554",
+    "Sede": "Municipal",
+    "Grado": "6",
+    "Grupo": "5PPAL"
+  },
+  {
+    "Identificación": "8693123",
+    "Sede": "Municipal",
+    "Grado": "6",
+    "Grupo": "6PPAL"
+  },
+  {
+    "Identificación": "85449095",
+    "Sede": "Municipal",
+    "Grado": "7",
+    "Grupo": "1PPAL"
+  },
+  {
+    "Identificación": "1082996784",
+    "Sede": "San Sebastian del Bongo",
+    "Grado": "7",
+    "Grupo": "1SS"
+  },
+  {
+    "Identificación": "1082869969",
+    "Sede": "Municipal",
+    "Grado": "7",
+    "Grupo": "2PPAL"
+  },
+  {
+    "Identificación": "19562431",
+    "Sede": "San Sebastian del Bongo",
+    "Grado": "7",
+    "Grupo": "2SS"
+  },
+  {
+    "Identificación": "1044431393",
+    "Sede": "Municipal",
+    "Grado": "7",
+    "Grupo": "3PPAL"
+  },
+  {
+    "Identificación": "1081800046",
+    "Sede": "Municipal",
+    "Grado": "7",
+    "Grupo": "4PPAL"
+  },
+  {
+    "Identificación": "36452539",
+    "Sede": "Municipal",
+    "Grado": "7",
+    "Grupo": "5PPAL"
+  },
+  {
+    "Identificación": "57280442",
+    "Sede": "Municipal",
+    "Grado": "8",
+    "Grupo": "1PPAL"
+  },
+  {
+    "Identificación": "57425832",
+    "Sede": "San Sebastian del Bongo",
+    "Grado": "8",
+    "Grupo": "1SS"
+  },
+  {
+    "Identificación": "57448535",
+    "Sede": "Municipal",
+    "Grado": "8",
+    "Grupo": "2PPAL"
+  },
+  {
+    "Identificación": "1047381539",
+    "Sede": "Municipal",
+    "Grado": "8",
+    "Grupo": "3PPAL"
+  },
+  {
+    "Identificación": "20795846",
+    "Sede": "Municipal",
+    "Grado": "8",
+    "Grupo": "4PPAL"
+  },
+  {
+    "Identificación": "57280858",
+    "Sede": "Municipal",
+    "Grado": "9",
+    "Grupo": "1PPAL"
+  },
+  {
+    "Identificación": "12449362",
+    "Sede": "San Sebastian del Bongo",
+    "Grado": "9",
+    "Grupo": "1SS"
+  },
+  {
+    "Identificación": "19562066",
+    "Sede": "Municipal",
+    "Grado": "9",
+    "Grupo": "2PPAL"
+  },
+  {
+    "Identificación": "1085108727",
+    "Sede": "Municipal",
+    "Grado": "9",
+    "Grupo": "3PPAL"
+  },
+  {
+    "Identificación": "1081808285",
+    "Sede": "Municipal",
+    "Grado": "9",
+    "Grupo": "4PPAL"
+  },
+  {
+    "Identificación": "57281082",
+    "Sede": "Municipal",
+    "Grado": "10",
+    "Grupo": "1PPAL"
+  },
+  {
+    "Identificación": "1082923621",
+    "Sede": "San Sebastian del Bongo",
+    "Grado": "10",
+    "Grupo": "1SS"
+  },
+  {
+    "Identificación": "1026594822",
+    "Sede": "Municipal",
+    "Grado": "10",
+    "Grupo": "2PPAL"
+  },
+  {
+    "Identificación": "1084744566",
+    "Sede": "Municipal",
+    "Grado": "10",
+    "Grupo": "3PPAL"
+  },
+  {
+    "Identificación": "49791255",
+    "Sede": "Municipal",
+    "Grado": "11",
+    "Grupo": "1PPAL"
+  },
+  {
+    "Identificación": "19584832",
+    "Sede": "San Sebastian del Bongo",
+    "Grado": "11",
+    "Grupo": "1SS"
+  },
+  {
+    "Identificación": "57449437",
+    "Sede": "Municipal",
+    "Grado": "11",
+    "Grupo": "2PPAL"
+  },
+  {
+    "Identificación": "19617022",
+    "Sede": "Municipal",
+    "Grado": "11",
+    "Grupo": "3PPAL"
+  }
+]

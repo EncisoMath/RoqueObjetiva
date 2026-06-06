@@ -4394,3 +4394,127 @@ body {
   object-fit: contain;
   padding: 7px;
 }
+
+/* Ajustes v28: dirección de grupo para docentes y administración */
+.teacher-mode-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 2px 0 14px;
+}
+
+.teacher-mode-tabs .nav-chip[disabled] {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+.director-subject-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  margin: 0 0 16px;
+}
+
+.director-subject-card {
+  width: 100%;
+  border: 1px solid rgba(var(--primary-rgb, 25, 117, 174), .14);
+  background: linear-gradient(135deg, rgba(var(--primary-rgb, 25, 117, 174), .06), #fff 72%);
+  border-radius: 18px;
+  padding: 14px;
+  display: grid;
+  gap: 8px;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 12px 28px rgba(31, 41, 55, .06);
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+
+.director-subject-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(var(--primary-rgb, 25, 117, 174), .36);
+  box-shadow: 0 18px 38px rgba(31, 41, 55, .10);
+}
+
+.director-subject-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink);
+}
+
+.director-subject-head .subject-icon {
+  width: 42px !important;
+  height: 42px !important;
+  flex: 0 0 42px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.director-subject-head strong {
+  font-size: .95rem;
+  line-height: 1.12;
+  font-weight: 800;
+}
+
+.director-subject-score {
+  color: var(--ink);
+  font-size: 1.6rem;
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: -.04em;
+}
+
+.director-subject-score small {
+  color: #858892;
+  font-size: .48em;
+  margin-left: 2px;
+}
+
+.director-subject-card em {
+  color: #6f737d;
+  font-size: .75rem;
+  font-style: normal;
+  font-weight: 600;
+}
+
+.director-table-card {
+  margin-top: 10px;
+}
+
+.director-table {
+  min-width: 960px;
+}
+
+.director-table th:nth-child(n+3),
+.director-table td:nth-child(n+3) {
+  text-align: center;
+  white-space: nowrap;
+}
+
+.director-card-icon {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: rgba(var(--primary-rgb, 25, 117, 174), .12);
+  color: var(--primary);
+  font-weight: 900;
+  letter-spacing: -.04em;
+}
+
+.director-assignment-card {
+  border-left-color: var(--primary) !important;
+}
+
+@media (max-width: 680px) {
+  .director-subject-grid {
+    grid-template-columns: 1fr;
+  }
+  .teacher-mode-tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 4px;
+  }
+}
