@@ -172,3 +172,10 @@ El color institucional predeterminado es `#314b9b` y el logo principal predeterm
 - El color base predeterminado sigue siendo `#314b9b`.
 - El logo principal predeterminado sigue apuntando a `assets/logo-principal.png`, pero este paquete no lo incluye para no reemplazar tu logo institucional. Debes conservar o subir tu propio archivo con ese nombre en la carpeta `assets/`.
 - El banner ahora usa un degradado oscuro: color principal hacia una versión más oscura del mismo color.
+
+
+## Cambios v15
+
+- Aumenta el espacio superior del detalle de estudiante en la vista docente.
+- Evita que los encabezados de la tabla de respuestas correctas atraviesen el título del modal al hacer scroll.
+- Mejora la visibilidad de rankings 1, 2 y 3 con números más grandes, glow y más estrellas animadas.

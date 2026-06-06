@@ -3400,3 +3400,108 @@ body {
     font-size: 1.12rem !important;
   }
 }
+
+/* Ajustes v15: modal docente, encabezados de respuestas correctas y rankings destacados */
+.modal .detail-card .subject-detail {
+  padding-top: 34px !important;
+}
+
+.modal .detail-card .subject-detail-head {
+  margin-top: 0 !important;
+  padding-top: 2px;
+}
+
+.answer-key-modal .answer-key-table th {
+  position: static !important;
+  top: auto !important;
+  z-index: auto !important;
+}
+
+.answer-key-modal .table-wrap {
+  max-height: calc(88vh - 138px);
+  overflow: auto;
+}
+
+.ranking-box.rank-medal {
+  min-height: 126px;
+  padding: 16px 12px 14px;
+  box-shadow: 0 18px 42px rgba(24, 24, 27, .16), inset 0 1px 0 rgba(255, 255, 255, .72);
+}
+
+.ranking-box.rank-medal::before,
+.ranking-box.rank-medal::after {
+  content: "✦ ✧ ★ ✦ ✧ ★ ✦";
+  font-size: 1.85rem;
+  letter-spacing: .18rem;
+  opacity: .34;
+  animation: medalStars v15stars 3.2s ease-in-out infinite;
+}
+
+.ranking-box.rank-medal::after {
+  content: "✧ ✦ ✧ ★ ✦";
+  font-size: 1.45rem;
+  opacity: .24;
+}
+
+.ranking-box.rank-gold {
+  background:
+    radial-gradient(circle at 18% 18%, rgba(255, 236, 128, .70), transparent 32%),
+    radial-gradient(circle at 84% 22%, rgba(255, 255, 255, .62), transparent 26%),
+    linear-gradient(135deg, rgba(255, 247, 205, .98), rgba(255, 212, 53, .52));
+}
+
+.ranking-box.rank-silver {
+  background:
+    radial-gradient(circle at 18% 18%, rgba(255, 255, 255, .80), transparent 32%),
+    radial-gradient(circle at 84% 22%, rgba(210, 219, 230, .65), transparent 26%),
+    linear-gradient(135deg, rgba(253, 254, 255, .98), rgba(174, 187, 199, .54));
+}
+
+.ranking-box.rank-bronze {
+  background:
+    radial-gradient(circle at 18% 18%, rgba(255, 211, 169, .72), transparent 32%),
+    radial-gradient(circle at 84% 22%, rgba(255, 243, 230, .58), transparent 26%),
+    linear-gradient(135deg, rgba(255, 238, 222, .98), rgba(190, 101, 38, .52));
+}
+
+.ranking-box.rank-medal strong {
+  font-size: clamp(3.25rem, 9vw, 5.4rem) !important;
+  line-height: .82;
+  animation: rankNumberGlow 2.2s ease-in-out infinite;
+}
+
+.ranking-box.rank-gold strong {
+  filter: drop-shadow(0 0 7px rgba(255, 203, 42, .75)) drop-shadow(0 0 20px rgba(255, 203, 42, .34));
+}
+
+.ranking-box.rank-silver strong {
+  filter: drop-shadow(0 0 7px rgba(205, 217, 230, .78)) drop-shadow(0 0 20px rgba(205, 217, 230, .34));
+}
+
+.ranking-box.rank-bronze strong {
+  filter: drop-shadow(0 0 7px rgba(201, 113, 50, .72)) drop-shadow(0 0 20px rgba(201, 113, 50, .32));
+}
+
+@keyframes v15stars {
+  0%, 100% { transform: translateY(0) rotate(-12deg) scale(1); opacity: .20; }
+  50% { transform: translateY(-8px) rotate(-5deg) scale(1.12); opacity: .46; }
+}
+
+@keyframes rankNumberGlow {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.055); }
+}
+
+@media (max-width: 680px) {
+  .ranking-box.rank-medal {
+    min-height: 118px;
+  }
+
+  .ranking-box.rank-medal strong {
+    font-size: clamp(3.2rem, 18vw, 4.8rem) !important;
+  }
+
+  .modal .detail-card .subject-detail {
+    padding-top: 30px !important;
+  }
+}
