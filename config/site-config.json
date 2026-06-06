@@ -1,22 +1,16 @@
 {
   "title": "Resultados de Pruebas Objetivas",
-  "subtitle": "Este reporte no se pasa ni se pierde. Es una herramienta para identificar fortalezas, habilidades y oportunidades de mejora.",
-  "logoImage": "assets/logo-principal.png",
+  "subtitle": "Consulta tu desempeño académico por áreas, componentes y competencias.",
+  "logoImage": "assets/default-logo.svg",
   "bannerImage": "",
   "footerText": "Consulta institucional de resultados",
-  "primaryColor": "#314b9b",
+  "primaryColor": "#ff7900",
   "buttonRadius": 4,
-  "logoZoom": 1,
-  "subjectLogos": {
-    "Matemáticas": "ICONOS/matematicas.png",
-    "Lenguaje": "ICONOS/lenguaje.png",
-    "Ciencias Naturales": "ICONOS/ciencias-naturales.png",
-    "Inglés": "ICONOS/ingles.png",
-    "Ciencias Sociales y Ciudadanía": "ICONOS/ciencias-sociales-y-ciudadania.png",
-    "Ética y Valores": "ICONOS/etica-y-valores.png",
-    "Artística": "ICONOS/artistica.png",
-    "Educación Física": "ICONOS/educacion-fisica.png",
-    "Informática": "ICONOS/informatica.png",
-    "Religión": "ICONOS/religion.png"
-  }
+  "subjectLogos": {},
+  "github": {
+    "owner": "",
+    "repo": "",
+    "branch": "main"
+  },
+  "logoZoom": 1
 }

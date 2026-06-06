@@ -1747,12 +1747,18 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
         <small>Peso ×${area.weight} · aporte ${Number.isFinite(area.weighted) ? area.weighted : "—"}</small>
       </article>
     `).join("");
-    const formulaValues = calc.canCalculate
-      ? `((${calc.math} × 3) + (${calc.language} × 3) + (${calc.natural} × 3) + (${calc.social} × 3) + (${calc.english} × 1)) × 5 ÷ 13 = ${calc.score}`
-      : "Falta al menos una de las cinco áreas que componen el cálculo.";
+    const multiplicationLines = calc.areas.map((area) => `
+      <li>
+        <span>${esc(area.label)}</span>
+        <strong>${area.score ?? "—"} × ${area.weight} = ${Number.isFinite(area.weighted) ? area.weighted : "—"}</strong>
+      </li>
+    `).join("");
     const weightedList = calc.canCalculate
       ? `${calc.math * 3} + ${calc.language * 3} + ${calc.natural * 3} + ${calc.social * 3} + ${calc.english * 1} = ${calc.weightedSum}`
       : "No disponible";
+    const timesFive = calc.canCalculate ? calc.weightedSum * 5 : null;
+    const rawScore = calc.canCalculate ? ((calc.weightedSum * 5) / 13) : null;
+    const rawScoreText = Number.isFinite(rawScore) ? rawScore.toFixed(1).replace(".0", "") : "—";
 
     modalRoot.innerHTML = `
       <div class="modal-backdrop" data-action="close-modal">
@@ -1765,28 +1771,35 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
             <button type="button" class="icon-btn" data-action="close-modal" aria-label="Cerrar">×</button>
           </div>
           <div class="modal-body">
-            <section class="global-score-hero">
+            <section class="global-score-hero clean">
               <div>
                 <span>Resultado estimado</span>
                 <strong>${calc.score ?? "—"}<small>/500</small></strong>
               </div>
-              <p>Este valor simula el puntaje global de una Prueba Saber usando solo las áreas que hacen parte de ese cálculo.</p>
+              <p>Este valor simula el puntaje global de una Prueba Saber. Solo se usan Matemáticas, Lenguaje, Ciencias Naturales, Ciencias Sociales e Inglés.</p>
             </section>
 
-            <div class="formula-box formula-box-strong">
+            <div class="formula-box formula-box-strong clean">
               <div class="formula-step">
                 <span>1</span>
-                <p>Primero se ponderan las áreas: Matemáticas, Lenguaje, Ciencias Naturales y Ciencias Sociales valen <strong>×3</strong>. Inglés vale <strong>×1</strong>.</p>
+                <div>
+                  <p>Primero se multiplica cada nota por su peso.</p>
+                  <ul class="global-step-list">${multiplicationLines}</ul>
+                </div>
               </div>
               <div class="formula-step">
                 <span>2</span>
-                <p>Luego se suman esos aportes: <strong>${esc(weightedList)}</strong>.</p>
+                <p>Después se suman todos los aportes ponderados: <strong>${esc(weightedList)}</strong>.</p>
               </div>
               <div class="formula-step">
                 <span>3</span>
-                <p>Finalmente esa suma se multiplica por <strong>5</strong> y se divide entre <strong>13</strong>.</p>
+                <p>Luego esa suma se multiplica por <strong>5</strong>: <strong>${calc.canCalculate ? `${calc.weightedSum} × 5 = ${timesFive}` : "—"}</strong>.</p>
               </div>
-              <div class="formula-line colorful">${esc(formulaValues)}</div>
+              <div class="formula-step">
+                <span>4</span>
+                <p>Finalmente se divide entre <strong>13</strong>: <strong>${calc.canCalculate ? `${timesFive} ÷ 13 = ${rawScoreText}` : "—"}</strong>. Redondeado, el puntaje global es <strong>${calc.score ?? "—"}/500</strong>.</p>
+              </div>
+              <div class="formula-line colorful">${calc.canCalculate ? `${calc.weightedSum} × 5 ÷ 13 = ${calc.score}` : "Falta al menos una de las cinco áreas que componen el cálculo."}</div>
               <p class="excluded-note">Ética, Artística, Educación Física, Informática y Religión no cuentan dentro de este cálculo tipo Saber.</p>
             </div>
 

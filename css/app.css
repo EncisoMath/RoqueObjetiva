@@ -3192,3 +3192,129 @@ body {
     gap: 3px;
   }
 }
+
+/* Ajustes v11: logos completos en tarjetas y puntaje global paso a paso más claro */
+.subject-row {
+  min-height: 92px;
+  padding: 12px 16px 12px 12px !important;
+}
+
+.subject-row-left {
+  gap: 14px !important;
+}
+
+.subject-row-left > .subject-icon {
+  width: 86px !important;
+  height: 86px !important;
+  flex: 0 0 86px !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+}
+
+.subject-row-left > .subject-icon img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+.subject-row {
+  overflow: hidden;
+}
+
+@media (max-width: 680px) {
+  .subject-row {
+    min-height: 88px;
+    padding: 11px 12px !important;
+  }
+
+  .subject-row-left {
+    gap: 12px !important;
+  }
+
+  .subject-row-left > .subject-icon {
+    width: 76px !important;
+    height: 76px !important;
+    flex-basis: 76px !important;
+    margin: 0 !important;
+  }
+}
+
+.global-score-hero.clean {
+  background: #fff !important;
+  border: 1px solid var(--line);
+  box-shadow: 0 10px 28px rgba(24, 24, 27, .06);
+}
+
+.formula-box-strong.clean {
+  background: #fff !important;
+  box-shadow: inset 0 0 0 1px rgba(var(--primary-rgb, 255, 121, 0), .14), 0 10px 28px rgba(24, 24, 27, .05);
+}
+
+.global-step-list {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0 0;
+  display: grid;
+  gap: 7px;
+}
+
+.global-step-list li {
+  display: grid;
+  grid-template-columns: minmax(140px, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 9px 10px;
+  border-radius: 12px;
+  background: rgba(var(--primary-rgb, 255, 121, 0), .06);
+}
+
+.global-step-list li span {
+  color: #4f535d;
+  font-weight: 600;
+}
+
+.global-step-list li strong {
+  color: var(--primary);
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.formula-step {
+  margin-bottom: 14px;
+}
+
+.formula-line.colorful {
+  margin-top: 4px;
+  text-align: center;
+  font-weight: 800;
+}
+
+@media (max-width: 680px) {
+  .global-step-list li {
+    grid-template-columns: 1fr;
+    gap: 3px;
+  }
+
+  .global-step-list li strong {
+    white-space: normal;
+  }
+
+  .formula-step {
+    grid-template-columns: 28px minmax(0, 1fr);
+    gap: 9px;
+  }
+
+  .formula-step > span {
+    width: 28px;
+    height: 28px;
+  }
+
+  .global-score-hero.clean {
+    padding: 14px;
+  }
+}
