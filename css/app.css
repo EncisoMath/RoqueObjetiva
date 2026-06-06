@@ -5179,3 +5179,43 @@ body {
   min-width: 0 !important;
   opacity: 0 !important;
 }
+
+
+/* Ajustes v36: relleno visible de barras de progreso */
+.student-workspace .subject-card-progress,
+.director-mini-bar {
+  position: relative !important;
+  background: #e7ebf0 !important;
+  overflow: hidden !important;
+  isolation: isolate !important;
+}
+
+.student-workspace .subject-card-progress::before,
+.director-mini-bar::before {
+  content: "" !important;
+  position: absolute !important;
+  left: 0 !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  width: var(--score, 0%) !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  border-radius: inherit !important;
+  background: linear-gradient(90deg, var(--orange, #1975ae), var(--orange-2, #78b8db)) !important;
+  opacity: 1 !important;
+  z-index: 1 !important;
+}
+
+.student-workspace .subject-card-progress i,
+.director-mini-bar i {
+  display: block !important;
+  position: relative !important;
+  z-index: 2 !important;
+  height: 100% !important;
+  width: var(--score, 0%) !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  border-radius: inherit !important;
+  background: linear-gradient(90deg, var(--orange, #1975ae), var(--orange-2, #78b8db)) !important;
+  opacity: 1 !important;
+}

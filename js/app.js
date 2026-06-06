@@ -622,6 +622,8 @@
     document.documentElement.style.setProperty("--orange", primary);
     document.documentElement.style.setProperty("--orange-2", primarySoft);
     document.documentElement.style.setProperty("--orange-3", primaryDark);
+    document.documentElement.style.setProperty("--primary", primary);
+    document.documentElement.style.setProperty("--primary-soft", primarySoft);
     document.documentElement.style.setProperty("--login-deep", primaryDeep);
     document.documentElement.style.setProperty("--primary-rgb", `${rgb.r}, ${rgb.g}, ${rgb.b}`);
     document.querySelector('meta[name="theme-color"]')?.setAttribute("content", primaryDark);
@@ -679,6 +681,8 @@
     document.documentElement.style.setProperty("--orange", primary);
     document.documentElement.style.setProperty("--orange-2", primarySoft);
     document.documentElement.style.setProperty("--orange-3", primaryDark);
+    document.documentElement.style.setProperty("--primary", primary);
+    document.documentElement.style.setProperty("--primary-soft", primarySoft);
     document.documentElement.style.setProperty("--primary-rgb", `${rgb.r}, ${rgb.g}, ${rgb.b}`);
     document.documentElement.style.setProperty("--button-radius", `${Number(cfg.buttonRadius ?? 4)}px`);
     document.documentElement.style.setProperty("--logo-zoom", `${Number(cfg.logoZoom ?? 1)}`);
