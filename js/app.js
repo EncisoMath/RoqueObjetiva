@@ -42,15 +42,22 @@
     github: { owner: "", repo: "", branch: "main" }
   };
 
+  const DEFAULT_GRADES = [6, 7, 8, 9, 10];
+
   const DEFAULT_MANIFEST = {
     config: "config/site-config.json",
-    keys: [{ grade: 10, path: "KEYS/KEYS_10.json" }],
-    resultados: [
-      { grade: 10, session: 1, startItem: 1, path: "RESULTADOS/10S1.json" },
-      { grade: 10, session: 2, startItem: 71, path: "RESULTADOS/10S2.json" }
-    ],
     estudiantes: "ESTUDIANTES/ESTUDIANTES.json",
-    carga: "INTERNO/CARGA.json"
+    carga: "INTERNO/CARGA.json",
+    grades: DEFAULT_GRADES,
+    keyTemplate: "KEYS/KEYS_{grade}.json",
+    resultTemplate: "RESULTADOS/{grade}S{session}.json",
+    sessions: [
+      { session: 1, startItem: 1 },
+      { session: 2, startItem: 71 }
+    ],
+    optionalGradeFiles: true,
+    keys: [],
+    resultados: []
   };
 
   const state = {
@@ -62,6 +69,7 @@
     cargaRows: [],
     teachers: new Map(),
     responsesByRoll: new Map(),
+    missingFiles: [],
     computedStudents: [],
     computedByRoll: new Map(),
     studentLogin: new Map(),
@@ -131,7 +139,9 @@
   async function loadAllData() {
     const manifestText = await fetchText("config/data-manifest.json", false);
     if (manifestText) {
-      state.manifest = { ...DEFAULT_MANIFEST, ...JSON.parse(manifestText) };
+      state.manifest = normalizeManifest({ ...DEFAULT_MANIFEST, ...JSON.parse(manifestText) });
+    } else {
+      state.manifest = normalizeManifest(DEFAULT_MANIFEST);
     }
 
     const savedConfig = readJSON(STORAGE.config, null);
@@ -148,6 +158,7 @@
 
     state.keys = [];
     state.responsesByRoll = new Map();
+    state.missingFiles = [];
 
     const studentText = await fetchText(state.manifest.estudiantes, true);
     state.studentsRegistry = parseStudents(studentText);
@@ -155,6 +166,7 @@
     if (storedStudents && Array.isArray(storedStudents.rows)) {
       state.studentsRegistry = storedStudents.rows.map(normalizeStudentRow).filter((s) => s.examId || s.nationalId || s.name);
     }
+    state.manifest = addGradesToManifest(state.manifest, state.studentsRegistry.map((student) => student.grade));
 
     const storedCarga = readJSON(STORAGE.carga, null);
     if (storedCarga && Array.isArray(storedCarga.rows)) {
@@ -163,16 +175,27 @@
       const cargaText = await fetchText(state.manifest.carga, true);
       state.cargaRows = parseCarga(cargaText);
     }
+    state.manifest = addGradesToManifest(state.manifest, state.cargaRows.map((row) => row.grade));
 
     for (const keyFile of state.manifest.keys || []) {
-      const text = await fetchText(keyFile.path, true);
+      const required = !(keyFile.optional || keyFile.required === false);
+      const text = await fetchText(keyFile.path, required);
+      if (!text) {
+        state.missingFiles.push({ type: "key", grade: keyFile.grade, path: keyFile.path });
+        continue;
+      }
       state.keys.push(...parseAnswerKey(text, keyFile));
     }
 
     applyAnswerOverrides();
 
     for (const resultFile of state.manifest.resultados || []) {
-      const text = await fetchText(resultFile.path, true);
+      const required = !(resultFile.optional || resultFile.required === false);
+      const text = await fetchText(resultFile.path, required);
+      if (!text) {
+        state.missingFiles.push({ type: "result", grade: resultFile.grade, session: resultFile.session, path: resultFile.path });
+        continue;
+      }
       parseResultFile(text, resultFile);
     }
   }
@@ -191,6 +214,101 @@
       if (!required) return "";
       throw new Error(`No se pudo leer "${path}". En GitHub Pages verifica la carpeta, el nombre y las mayúsculas/minúsculas.`);
     }
+  }
+
+  function normalizeManifest(rawManifest = {}) {
+    const base = { ...DEFAULT_MANIFEST, ...(rawManifest || {}) };
+    const configuredGrades = normalizeGradeList(base.grades, base.keys, base.resultados);
+    const sessions = normalizeManifestSessions(base.sessions);
+    const optional = base.optionalGradeFiles !== false;
+
+    const generatedKeys = configuredGrades.map((grade) => ({
+      grade,
+      path: templatePath(base.keyTemplate || "KEYS/KEYS_{grade}.json", { grade }),
+      optional
+    }));
+
+    const generatedResults = configuredGrades.flatMap((grade) => sessions.map((sessionInfo) => ({
+      grade,
+      session: sessionInfo.session,
+      startItem: sessionInfo.startItem,
+      path: templatePath(base.resultTemplate || "RESULTADOS/{grade}S{session}.json", { grade, session: sessionInfo.session }),
+      optional
+    })));
+
+    const explicitKeys = (Array.isArray(base.keys) ? base.keys : [])
+      .map((item) => ({ ...item, grade: toInt(item.grade) || inferGradeFromPath(item.path), path: cleanText(item.path), optional: item.optional !== undefined ? item.optional : (item.required === false ? true : optional) }))
+      .filter((item) => item.grade && item.path);
+
+    const explicitResults = (Array.isArray(base.resultados) ? base.resultados : [])
+      .map((item) => ({
+        ...item,
+        grade: toInt(item.grade) || inferGradeFromPath(item.path),
+        session: toInt(item.session) || inferSessionFromPath(item.path),
+        startItem: toInt(item.startItem) || (toInt(item.session) === 2 || inferSessionFromPath(item.path) === 2 ? 71 : 1),
+        path: cleanText(item.path),
+        optional: item.optional !== undefined ? item.optional : (item.required === false ? true : optional)
+      }))
+      .filter((item) => item.grade && item.path);
+
+    return {
+      ...base,
+      grades: configuredGrades,
+      sessions,
+      keys: mergeManifestFiles(generatedKeys, explicitKeys),
+      resultados: mergeManifestFiles(generatedResults, explicitResults)
+    };
+  }
+
+  function normalizeGradeList(grades, keys = [], resultados = []) {
+    const values = [];
+    const pushGrade = (value) => {
+      const grade = toInt(typeof value === "object" && value ? (value.grade || value.GRADO || value.value) : value);
+      if (grade && !values.includes(grade)) values.push(grade);
+    };
+    if (Array.isArray(grades) && grades.length) grades.forEach(pushGrade);
+    (Array.isArray(keys) ? keys : []).forEach((item) => pushGrade(item.grade || inferGradeFromPath(item.path)));
+    (Array.isArray(resultados) ? resultados : []).forEach((item) => pushGrade(item.grade || inferGradeFromPath(item.path)));
+    if (!values.length) DEFAULT_GRADES.forEach(pushGrade);
+    return values.sort((a, b) => a - b);
+  }
+
+  function addGradesToManifest(manifest, gradeValues = []) {
+    const current = normalizeGradeList(manifest?.grades || [], manifest?.keys || [], manifest?.resultados || []);
+    const next = [...current];
+    (gradeValues || []).forEach((value) => {
+      const grade = toInt(value);
+      if (grade && !next.includes(grade)) next.push(grade);
+    });
+    next.sort((a, b) => a - b);
+    if (next.join("|") === current.join("|")) return manifest;
+    return normalizeManifest({ ...manifest, grades: next });
+  }
+
+  function normalizeManifestSessions(sessions) {
+    const list = Array.isArray(sessions) && sessions.length ? sessions : DEFAULT_MANIFEST.sessions;
+    return list.map((item, index) => {
+      const session = toInt(item.session || item.id || item.SESSION) || index + 1;
+      return {
+        session,
+        startItem: toInt(item.startItem || item.start || item.offset && Number(item.offset) + 1) || (session === 2 ? 71 : 1)
+      };
+    }).filter((item) => item.session && item.startItem);
+  }
+
+  function templatePath(template, values) {
+    return cleanText(template)
+      .replace(/\{grade\}/g, String(values.grade ?? ""))
+      .replace(/\{session\}/g, String(values.session ?? ""));
+  }
+
+  function mergeManifestFiles(generated, explicit) {
+    const map = new Map();
+    [...generated, ...explicit].forEach((item) => {
+      if (!item?.path) return;
+      map.set(item.path, { ...map.get(item.path), ...item });
+    });
+    return [...map.values()].sort((a, b) => (Number(a.grade || 0) - Number(b.grade || 0)) || (Number(a.session || 0) - Number(b.session || 0)) || String(a.path).localeCompare(String(b.path)));
   }
 
   function parseStudents(text) {
@@ -897,7 +1015,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
         <article class="card card-pad"><span class="section-eyebrow">Exámenes</span><h3 style="margin:8px 0 0;font-size:2rem;">${state.computedStudents.length}</h3></article>
         <article class="card card-pad"><span class="section-eyebrow">Docentes</span><h3 style="margin:8px 0 0;font-size:2rem;">${state.teachers.size}</h3></article>
         <article class="card card-pad"><span class="section-eyebrow">Grados</span><h3 style="margin:8px 0 0;font-size:2rem;">${grades.join(", ") || "—"}</h3></article>
-        <article class="card card-pad"><span class="section-eyebrow">Promedio global</span><h3 style="margin:8px 0 0;font-size:2rem;">${avgGlobal}<small style="color:#8c8f98">/100</small></h3></article>
+        <article class="card card-pad"><span class="section-eyebrow">Promedio global tipo Saber</span><h3 style="margin:8px 0 0;font-size:2rem;">${avgGlobal}<small style="color:#8c8f98">/500</small></h3></article>
       </section>
       <section class="grid grid-2" style="margin-top:18px;">
         <article class="card card-pad">
@@ -914,12 +1032,14 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
           }).join("")}
         </article>
         <article class="card card-pad">
-          <h3 style="margin:0 0 12px;font-weight:900;">Carpetas esperadas en GitHub</h3>
-          <div class="meta-row"><span>Claves</span><strong>KEYS/KEYS_10.json</strong></div>
-          <div class="meta-row"><span>Resultados</span><strong>RESULTADOS/10S1.json · 10S2.json</strong></div>
+          <h3 style="margin:0 0 12px;font-weight:900;">Estructura multigrado</h3>
+          <div class="meta-row"><span>Grados configurados</span><strong>${(state.manifest.grades || []).join(", ") || "—"}</strong></div>
+          <div class="meta-row"><span>Claves esperadas</span><strong>KEYS/KEYS_#.json</strong></div>
+          <div class="meta-row"><span>Resultados esperados</span><strong>RESULTADOS/#S1.json · #S2.json</strong></div>
           <div class="meta-row"><span>Estudiantes</span><strong>ESTUDIANTES/ESTUDIANTES.json</strong></div>
           <div class="meta-row"><span>Carga docente</span><strong>INTERNO/CARGA.json</strong></div>
-          <p style="color:#686b74;font-weight:650;line-height:1.5;">Para nuevos grados agrega los archivos y actualiza <strong>config/data-manifest.json</strong>.</p>
+          ${state.missingFiles.length ? `<p style="color:#8a5a00;font-weight:700;line-height:1.5;">Hay ${state.missingFiles.length} archivo(s) de grados configurados que aún no existen. No bloquean la página; se activarán cuando los subas al repo.</p>` : ""}
+          <p style="color:#686b74;font-weight:650;line-height:1.5;">Para agregar otro grado, súbelo con el patrón <strong>KEYS_#.json</strong>, <strong>#S1.json</strong>, <strong>#S2.json</strong> y añade el grado en <strong>config/data-manifest.json</strong>.</p>
         </article>
       </section>
     `;
@@ -1178,7 +1298,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
           <div class="span-2 github-publish-box">
             <div>
               <strong>Archivos que se publicarán</strong>
-              <p>config/site-config.json, ESTUDIANTES/ESTUDIANTES.json, INTERNO/CARGA.json, KEYS/KEYS_10.json y las imágenes nuevas en ICONOS o assets.</p>
+              <p>config/site-config.json, config/data-manifest.json, ESTUDIANTES/ESTUDIANTES.json, INTERNO/CARGA.json, las claves KEYS/KEYS_#.json y las imágenes nuevas en ICONOS o assets.</p>
             </div>
             <button class="primary-btn" type="button" data-action="publish-github">Publicar cambios en GitHub</button>
           </div>
@@ -1973,6 +2093,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       }
 
       files.push({ path: state.manifest.config || "config/site-config.json", content: JSON.stringify(repoConfig, null, 2) });
+      files.push({ path: "config/data-manifest.json", content: JSON.stringify(exportManifestForRepo(), null, 2) });
       files.push({ path: state.manifest.estudiantes || "ESTUDIANTES/ESTUDIANTES.json", content: JSON.stringify(exportStudentRows(), null, 2) });
       files.push({ path: state.manifest.carga || "INTERNO/CARGA.json", content: JSON.stringify(exportCargaRows(), null, 2) });
 
@@ -2001,6 +2122,21 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       hideRouteLoader();
       toast(error.message || "No fue posible publicar en GitHub.");
     }
+  }
+
+  function exportManifestForRepo() {
+    return {
+      config: state.manifest.config || "config/site-config.json",
+      estudiantes: state.manifest.estudiantes || "ESTUDIANTES/ESTUDIANTES.json",
+      carga: state.manifest.carga || "INTERNO/CARGA.json",
+      grades: (state.manifest.grades || DEFAULT_GRADES).map(Number).filter(Boolean),
+      keyTemplate: state.manifest.keyTemplate || "KEYS/KEYS_{grade}.json",
+      resultTemplate: state.manifest.resultTemplate || "RESULTADOS/{grade}S{session}.json",
+      sessions: state.manifest.sessions || DEFAULT_MANIFEST.sessions,
+      optionalGradeFiles: true,
+      keys: [],
+      resultados: []
+    };
   }
 
   function exportStudentRows() {

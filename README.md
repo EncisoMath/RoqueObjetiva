@@ -8,17 +8,29 @@ Aplicación web estática para consultar resultados de pruebas objetivas desde G
 - Estudiantes: ingresan con el ID de prueba o con el documento registrado en `ESTUDIANTES/ESTUDIANTES.json`.
 - Docentes: ingresan con el ID registrado en `INTERNO/CARGA.json`.
 
-## Estructura de datos JSON
+## Estructura de datos JSON multigrado
 
 ```text
 config/
-  data-manifest.json
+  data-manifest.json      ← define grados, rutas y sesiones
   site-config.json
 
 KEYS/
+  KEYS_6.json
+  KEYS_7.json
+  KEYS_8.json
+  KEYS_9.json
   KEYS_10.json
 
 RESULTADOS/
+  6S1.json
+  6S2.json
+  7S1.json
+  7S2.json
+  8S1.json
+  8S2.json
+  9S1.json
+  9S2.json
   10S1.json
   10S2.json
 
@@ -41,9 +53,19 @@ ICONOS/
   religion.svg
 ```
 
+La aplicación ya no está amarrada solo al grado 10. Cuando un estudiante inicia sesión, el sistema toma su `GRADO` desde `ESTUDIANTES/ESTUDIANTES.json` y carga automáticamente:
+
+```text
+KEYS/KEYS_<GRADO>.json
+RESULTADOS/<GRADO>S1.json
+RESULTADOS/<GRADO>S2.json
+```
+
+Los archivos de grados que todavía no existan no bloquean la carga. Simplemente se activan cuando los subas al repositorio.
+
 ## Cómo se calcula cada nota de asignatura
 
-La aplicación compara cada respuesta marcada contra la clave de `KEYS/KEYS_10.json`.
+La aplicación compara cada respuesta marcada contra la clave del grado correspondiente, por ejemplo `KEYS/KEYS_6.json`, `KEYS/KEYS_7.json` o `KEYS/KEYS_10.json`.
 
 ```text
 nota = 20 + (correctas / total_de_preguntas) * 80
@@ -95,8 +117,10 @@ La aplicación publicará mediante commit los cambios en:
 
 ```text
 config/site-config.json
+config/data-manifest.json
+ESTUDIANTES/ESTUDIANTES.json
 INTERNO/CARGA.json
-KEYS/KEYS_10.json
+KEYS/KEYS_#.json
 ICONOS/
 assets/
 ```
@@ -122,32 +146,36 @@ https://tuusuario.github.io/nombre-del-repositorio/
 
 ## Agregar otro grado
 
-1. Agrega la clave en `KEYS`, por ejemplo:
-
-```text
-KEYS/KEYS_9.json
-```
-
-2. Agrega los resultados en `RESULTADOS`, por ejemplo:
-
-```text
-RESULTADOS/9S1.json
-RESULTADOS/9S2.json
-```
-
-3. Edita `config/data-manifest.json` y agrega las rutas:
+La forma recomendada es editar `config/data-manifest.json` y agregar el grado dentro de `grades`:
 
 ```json
 {
-  "keys": [
-    { "grade": 10, "path": "KEYS/KEYS_10.json" },
-    { "grade": 9, "path": "KEYS/KEYS_9.json" }
-  ],
-  "resultados": [
-    { "grade": 10, "session": 1, "startItem": 1, "path": "RESULTADOS/10S1.json" },
-    { "grade": 10, "session": 2, "startItem": 71, "path": "RESULTADOS/10S2.json" },
-    { "grade": 9, "session": 1, "startItem": 1, "path": "RESULTADOS/9S1.json" },
-    { "grade": 9, "session": 2, "startItem": 71, "path": "RESULTADOS/9S2.json" }
+  "grades": [6, 7, 8, 9, 10, 11]
+}
+```
+
+Después sube los archivos correspondientes:
+
+```text
+KEYS/KEYS_11.json
+RESULTADOS/11S1.json
+RESULTADOS/11S2.json
+```
+
+Por defecto, el sistema asume:
+
+```text
+S1: Q 1 Options → ítem 1
+S2: Q 1 Options → ítem 71
+```
+
+Si un grado usa otra distribución, cambia `sessions` en `config/data-manifest.json`:
+
+```json
+{
+  "sessions": [
+    { "session": 1, "startItem": 1 },
+    { "session": 2, "startItem": 71 }
   ]
 }
 ```
@@ -179,3 +207,12 @@ El color institucional predeterminado es `#314b9b` y el logo principal predeterm
 - Aumenta el espacio superior del detalle de estudiante en la vista docente.
 - Evita que los encabezados de la tabla de respuestas correctas atraviesen el título del modal al hacer scroll.
 - Mejora la visibilidad de rankings 1, 2 y 3 con números más grandes, glow y más estrellas animadas.
+
+
+## Cambios v18
+
+- La aplicación queda preparada para trabajar con varios grados: 6, 7, 8, 9 y 10.
+- `config/data-manifest.json` ahora usa plantillas: `KEYS/KEYS_{grade}.json` y `RESULTADOS/{grade}S{session}.json`.
+- Los archivos de grados faltantes son opcionales: no dañan la carga de grado 10.
+- Para agregar nuevos grados, basta con añadirlos en `grades` y subir sus claves/resultados.
+- Los cálculos de estudiante, docente y admin usan la clave del grado correspondiente a cada estudiante.
