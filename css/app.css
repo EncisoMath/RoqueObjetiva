@@ -3318,3 +3318,85 @@ body {
     padding: 14px;
   }
 }
+
+/* Ajustes v14: sidebar mas ancho, docente agrupado y detalles menos repetidos */
+@media (min-width: 941px) {
+  .student-workspace {
+    grid-template-columns: minmax(305px, 30%) minmax(0, 1fr) !important;
+  }
+
+  .subject-list-panel {
+    min-width: 305px;
+  }
+
+  .subject-row-left span:last-child {
+    font-size: .98rem;
+    line-height: 1.12;
+  }
+}
+
+.subject-row-left {
+  min-width: 0;
+}
+
+.subject-row-left span:last-child {
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: normal !important;
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+
+.teacher-toolbar {
+  grid-template-columns: 1fr !important;
+}
+
+.teacher-nav-block {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.teacher-subject-nav,
+.teacher-group-nav {
+  margin-bottom: 0 !important;
+}
+
+.teacher-subject-nav .tab-btn {
+  font-weight: 700;
+}
+
+.teacher-group-nav .tab-btn {
+  font-size: .82rem;
+  padding: 9px 12px;
+  background: rgba(var(--primary-rgb, 49, 75, 155), .07);
+}
+
+.teacher-stat-strip-two {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+.teacher-score.teacher-score-plain {
+  font-size: 1.22rem !important;
+  font-weight: 800 !important;
+  letter-spacing: -.02em;
+}
+
+.teacher-table th:nth-child(2),
+.teacher-table td:nth-child(2) {
+  text-align: left !important;
+}
+
+.student-detail-panel .subject-detail:not(:has(.subject-detail-head)) {
+  padding-top: 20px;
+}
+
+@media (max-width: 680px) {
+  .teacher-stat-strip-two {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .teacher-score.teacher-score-plain {
+    font-size: 1.12rem !important;
+  }
+}

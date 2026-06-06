@@ -671,8 +671,7 @@
     if (!stat) return `<div class="empty-state">No hay información para esta asignatura.</div>`;
     const detailRows = (stat.details || []).map((detail, index) => answerPill(detail, student.roll, index + 1)).join("");
     const activeMetric = state.metricTab === "competences" ? "competences" : "components";
-    return `
-      <div class="subject-detail">
+    const detailHeader = compact ? `
         <header class="subject-detail-head">
           <div class="subject-detail-title">
             ${subjectIcon(subject)}
@@ -683,6 +682,10 @@
           </div>
           <div class="subject-detail-score">${stat.score ?? "—"}<small>/100</small></div>
         </header>
+    ` : "";
+    return `
+      <div class="subject-detail">
+        ${detailHeader}
 
         <div class="subject-stats-row">
           <div><span>Correctas</span><strong>${stat.correct ?? 0} de ${stat.total ?? 0}</strong></div>
@@ -727,9 +730,18 @@
     }
 
     const active = state.teacherActive;
-    const assignmentButtons = assignments.map((a) => `
-      <button class="tab-btn ${active?.key === a.key ? "active" : ""}" data-action="teacher-assignment" data-key="${escAttr(a.key)}" data-grade="${escAttr(a.grade)}" data-subject="${escAttr(a.subject)}" data-group="${escAttr(a.group || "")}" data-sede="${escAttr(a.sede || "")}">
-        ${esc(a.subject)} · ${esc(a.grade)}°${a.group ? ` · ${esc(a.group)}` : ""}
+    const groupedAssignments = groupAssignmentsBySubject(assignments);
+    const activeSubject = active?.subject || groupedAssignments[0]?.subject || "";
+
+    const subjectButtons = groupedAssignments.map((group) => `
+      <button class="tab-btn teacher-subject-tab ${activeSubject === group.subject ? "active" : ""}" data-action="teacher-subject" data-subject="${escAttr(group.subject)}">
+        ${esc(group.subject)}
+      </button>
+    `).join("");
+
+    const groupButtons = (groupedAssignments.find((group) => group.subject === activeSubject)?.assignments || []).map((a) => `
+      <button class="tab-btn teacher-group-tab ${active?.key === a.key ? "active" : ""}" data-action="teacher-assignment" data-key="${escAttr(a.key)}" data-grade="${escAttr(a.grade)}" data-subject="${escAttr(a.subject)}" data-group="${escAttr(a.group || "")}" data-sede="${escAttr(a.sede || "")}">
+        ${esc(a.grade)}°${a.group ? ` · ${esc(a.group)}` : ""}${a.sede ? ` · ${esc(a.sede)}` : ""}
       </button>
     `).join("");
 
@@ -737,9 +749,7 @@
       ? state.computedStudents.filter((student) => teacherAssignmentMatches(student, active))
       : [];
 
-    const query = normalizeText(state.teacherSearch);
     const filtered = students
-      .filter((s) => !query || normalizeText(`${s.name} ${s.roll} ${s.group}`).includes(query))
       .sort((a, b) => a.name.localeCompare(b.name, "es", { sensitivity: "base" }));
 
     const rows = filtered.map((student, index) => {
@@ -748,7 +758,7 @@
         <tr class="table-row-click" data-action="open-detail" data-roll="${escAttr(student.roll)}" data-subject="${escAttr(active.subject)}">
           <td class="teacher-index">${index + 1}</td>
           <td><strong>${esc(student.name)}</strong><br><span class="student-subid">ID Prueba ${esc(student.roll)}</span></td>
-          <td><span class="teacher-score">${stat.score ?? "—"}<small>/100</small></span></td>
+          <td><span class="teacher-score teacher-score-plain">${stat.score ?? "—"}</span></td>
           <td><strong>${stat.correct}/${stat.total}</strong></td>
         </tr>
       `;
@@ -759,16 +769,17 @@
         <div>
           <span class="section-eyebrow">Panel docente</span>
           <h2 style="margin:8px 0 0;font-size:clamp(1.4rem,4vw,2.2rem);font-weight:900;letter-spacing:-.04em;">${esc(teacher.name || "Docente")}</h2>
-          ${active ? `<p class="teacher-active-label">${esc(active.subject)} · ${esc(active.grade)}°${active.group ? ` · ${esc(active.group)}` : ""}</p>` : ""}
+          ${active ? `<p class="teacher-active-label">${esc(active.subject)} · ${esc(active.grade)}°${active.group ? ` · ${esc(active.group)}` : ""}${active.sede ? ` · ${esc(active.sede)}` : ""}</p>` : ""}
         </div>
-        <div class="search-box"><input placeholder="Buscar estudiante..." value="${escAttr(state.teacherSearch)}" data-action="teacher-search"></div>
       </section>
 
-      <nav class="teacher-assignment-nav">${assignmentButtons || `<span class="badge gray">Sin cargas asignadas</span>`}</nav>
+      <div class="teacher-nav-block">
+        <nav class="teacher-assignment-nav teacher-subject-nav">${subjectButtons || `<span class="badge gray">Sin cargas asignadas</span>`}</nav>
+        ${activeSubject ? `<nav class="teacher-assignment-nav teacher-group-nav">${groupButtons || `<span class="badge gray">Sin cursos para esta asignatura</span>`}</nav>` : ""}
+      </div>
 
       ${active ? `
-        <section class="teacher-stat-strip">
-          <article class="card card-pad teacher-stat"><span>Grado</span><strong>${esc(active.grade)}°${active.group ? ` · ${esc(active.group)}` : ""}</strong></article>
+        <section class="teacher-stat-strip teacher-stat-strip-two">
           <article class="card card-pad teacher-stat"><span>Estudiantes</span><strong>${filtered.length}</strong></article>
           <article class="card card-pad teacher-stat"><span>Promedio</span><strong>${avg(filtered.map((s) => s.subjectStats[active.subject].score))}<small>/100</small></strong></article>
         </section>
@@ -1281,6 +1292,15 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       return;
     }
 
+    if (action === "teacher-subject") {
+      const teacher = state.teachers.get(state.activeSession?.id);
+      const subject = canonicalSubject(target.dataset.subject);
+      const assignments = (teacher?.assignments || []).filter((assignment) => assignment.subject === subject);
+      state.teacherActive = assignments.find((assignment) => state.computedStudents.some((student) => teacherAssignmentMatches(student, assignment))) || assignments[0] || null;
+      renderBySession();
+      return;
+    }
+
     if (action === "teacher-assignment") {
       state.teacherActive = {
         key: target.dataset.key || assignmentKeyFor({ grade: target.dataset.grade, subjectRaw: target.dataset.subject, group: target.dataset.group, sede: target.dataset.sede }),
@@ -1732,21 +1752,6 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     const student = state.computedByRoll.get(roll) || state.computedByRoll.get(state.activeSession?.roll);
     if (!student) return;
     const calc = saberGlobalBreakdown(student.subjectStats);
-    const rows = calc.areas.map((area) => `
-      <tr>
-        <td>${esc(area.label)}</td>
-        <td><span class="weight-pill">×${area.weight}</span></td>
-        <td>${area.score ?? "—"}</td>
-        <td>${Number.isFinite(area.weighted) ? area.weighted : "—"}</td>
-      </tr>
-    `).join("");
-    const cards = calc.areas.map((area) => `
-      <article class="saber-area-card">
-        <span>${esc(area.label)}</span>
-        <strong>${area.score ?? "—"}</strong>
-        <small>Peso ×${area.weight} · aporte ${Number.isFinite(area.weighted) ? area.weighted : "—"}</small>
-      </article>
-    `).join("");
     const multiplicationLines = calc.areas.map((area) => `
       <li>
         <span>${esc(area.label)}</span>
@@ -1803,16 +1808,6 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
               <p class="excluded-note">Ética, Artística, Educación Física, Informática y Religión no cuentan dentro de este cálculo tipo Saber.</p>
             </div>
 
-            <div class="saber-area-cards">${cards}</div>
-            <div class="table-wrap saber-table-wrap">
-              <table class="compact-table saber-global-table">
-                <thead><tr><th>Área</th><th>Peso</th><th>Nota</th><th>Aporte</th></tr></thead>
-                <tbody>
-                  ${rows}
-                  <tr class="weighted-sum-row"><td colspan="3">Suma ponderada</td><td>${calc.canCalculate ? calc.weightedSum : "—"}</td></tr>
-                </tbody>
-              </table>
-            </div>
           </div>
         </section>
       </div>
@@ -2300,6 +2295,25 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     const subject = normalizeText(canonicalSubject(row.subjectRaw || row.subject));
     const group = normalizeText(row.group || "");
     return `${grade}|${group}|${subject}`;
+  }
+
+  function groupAssignmentsBySubject(assignments) {
+    const map = new Map();
+    (assignments || []).forEach((assignment) => {
+      const subject = canonicalSubject(assignment.subject || assignment.subjectRaw);
+      if (!map.has(subject)) map.set(subject, { subject, assignments: [] });
+      map.get(subject).assignments.push(assignment);
+    });
+    return Array.from(map.values())
+      .sort((a, b) => a.subject.localeCompare(b.subject, "es", { sensitivity: "base" }))
+      .map((group) => ({
+        ...group,
+        assignments: group.assignments.slice().sort((a, b) => {
+          const gradeDiff = Number(a.grade || 0) - Number(b.grade || 0);
+          if (gradeDiff) return gradeDiff;
+          return String(a.group || "").localeCompare(String(b.group || ""), "es", { sensitivity: "base", numeric: true });
+        })
+      }));
   }
 
   function teacherAssignmentMatches(student, assignment) {
