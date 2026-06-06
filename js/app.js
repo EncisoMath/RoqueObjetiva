@@ -12,7 +12,8 @@
     answers: "po_answer_overrides_v1",
     carga: "po_carga_override_v1",
     session: "po_session_v1",
-    github: "po_github_publish_v1"
+    github: "po_github_publish_v1",
+    students: "po_students_override_v1"
   };
 
   const SUBJECTS = [
@@ -74,6 +75,13 @@
     adminStudentSearch: "",
     adminGradeFilter: "all",
     adminSubjectFilter: "all",
+    adminResultScope: "sede",
+    adminResultSede: "all",
+    adminResultGrade: "all",
+    adminResultGroup: "all",
+    adminResultSubject: "all",
+    adminResultStudent: "all",
+    adminCargaTeacherId: "",
     activeSession: null
   };
 
@@ -143,6 +151,10 @@
 
     const studentText = await fetchText(state.manifest.estudiantes, true);
     state.studentsRegistry = parseStudents(studentText);
+    const storedStudents = readJSON(STORAGE.students, null);
+    if (storedStudents && Array.isArray(storedStudents.rows)) {
+      state.studentsRegistry = storedStudents.rows.map(normalizeStudentRow).filter((s) => s.examId || s.nationalId || s.name);
+    }
 
     const storedCarga = readJSON(STORAGE.carga, null);
     if (storedCarga && Array.isArray(storedCarga.rows)) {
@@ -185,7 +197,7 @@
     const objects = parseDataObjects(text, ["ID_PRUEBA", "NOMBRES"]);
     return objects.map((row) => {
       const apellidos = cleanText(row.APELLIDOS || row.Apellidos || row.apellidos);
-      const nombres = cleanText(row.NOMBRES || row.Nombres || row.Name || row.Nombre || row.nombre);
+      const nombres = cleanText(row.NOMBRE_COMPLETO || row.NOMBRES || row.Nombres || row.Name || row.Nombre || row.nombre);
       const fullName = cleanText(nombres && apellidos ? `${nombres} ${apellidos}` : (nombres || apellidos));
       return {
         examId: cleanId(row.ID_PRUEBA || row.IdPrueba || row.ID || row.Id || row.id),
@@ -510,6 +522,16 @@
     app.innerHTML = `
       <div class="app-shell">
         <header class="top-banner" ${bannerStyle}>
+          <div class="banner-shapes" aria-hidden="true">
+            <span class="shape x">×</span>
+            <span class="shape square">□</span>
+            <span class="shape tri">△</span>
+            <span class="shape circle">○</span>
+            <span class="shape x two">×</span>
+            <span class="shape square two">□</span>
+            <span class="shape tri two">△</span>
+            <span class="shape circle two">○</span>
+          </div>
           <div class="banner-inner">
             <div class="banner-copy">
               <h1>${esc(cfg.title)}</h1>
@@ -820,6 +842,7 @@
     const tabs = [
       ["resumen", "Resumen"],
       ["estudiantes", "Estudiantes"],
+      ["resultados", "Resultados"],
       ["apariencia", "Apariencia"],
       ["logos", "Logos"],
       ["cargas", "Cargas"],
@@ -828,21 +851,14 @@
     ];
 
     const nav = `
-      <nav class="app-nav">
+      <nav class="app-nav admin-top-tabs">
         ${tabs.map(([id, label]) => `<button class="nav-chip ${state.adminTab === id ? "active" : ""}" data-action="admin-tab" data-tab="${id}">${label}</button>`).join("")}
         <button class="nav-chip logout" data-action="logout">Salir</button>
       </nav>
     `;
 
-    const menu = `
-      <aside class="card admin-menu">
-        ${tabs.map(([id, label]) => `<button class="ghost-btn ${state.adminTab === id ? "active" : ""}" data-action="admin-tab" data-tab="${id}">${label}</button>`).join("")}
-      </aside>
-    `;
-
     renderShell(`
-      <section class="admin-layout">
-        ${menu}
+      <section class="admin-layout admin-layout-full">
         <div class="admin-panel">${renderAdminTab()}</div>
       </section>
     `, nav);
@@ -851,6 +867,7 @@
   function renderAdminTab() {
     switch (state.adminTab) {
       case "estudiantes": return adminStudentsHtml();
+      case "resultados": return adminResultsHtml();
       case "apariencia": return adminAppearanceHtml();
       case "logos": return adminLogosHtml();
       case "cargas": return adminCargaHtml();
@@ -909,51 +926,136 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
   }
 
   function adminStudentsHtml() {
-    const grades = [...new Set(state.computedStudents.map((s) => s.grade).filter(Boolean))].sort((a, b) => a - b);
+    const grades = [...new Set(state.studentsRegistry.map((s) => s.grade).filter(Boolean))].sort((a, b) => a - b);
     const query = normalizeText(state.adminStudentSearch);
-    const subject = state.adminSubjectFilter;
-    let students = state.computedStudents.filter((s) => {
-      const matchesText = !query || normalizeText(`${s.name} ${s.roll} ${s.group} ${s.sede}`).includes(query);
+    let rows = state.studentsRegistry.filter((s) => {
+      const matchesText = !query || normalizeText(`${s.name} ${s.examId} ${s.nationalId} ${s.group} ${s.sede}`).includes(query);
       const matchesGrade = state.adminGradeFilter === "all" || String(s.grade) === String(state.adminGradeFilter);
-      const matchesSubject = subject === "all" || s.subjectStats[subject]?.total;
-      return matchesText && matchesGrade && matchesSubject;
-    });
-
-    students = students.sort((a, b) => (b.globalScore ?? 0) - (a.globalScore ?? 0));
+      return matchesText && matchesGrade;
+    }).sort((a, b) => a.name.localeCompare(b.name, "es", { sensitivity: "base" }));
 
     return `
       <section class="toolbar">
         <div>
-          <span class="section-eyebrow">Todos los exámenes</span>
-          <h2 style="margin:8px 0 0;font-weight:900;">Resultados por estudiante</h2>
+          <span class="section-eyebrow">Registro de estudiantes</span>
+          <h2 style="margin:8px 0 0;font-weight:900;">Modificar información de estudiantes</h2>
+          <p class="muted-copy">Edita nombres, identificaciones, sedes, grados y cursos. Estos datos se cruzan con el ID de prueba para mostrar resultados.</p>
         </div>
         <div class="toolbar-right">
-          <div class="search-box"><input placeholder="Buscar..." value="${escAttr(state.adminStudentSearch)}" data-action="admin-student-search"></div>
+          <div class="search-box"><input placeholder="Buscar estudiante..." value="${escAttr(state.adminStudentSearch)}" data-action="admin-student-search"></div>
           <select class="select-pill" data-action="admin-grade-filter">
             <option value="all">Todos los grados</option>
             ${grades.map((g) => `<option value="${g}" ${String(state.adminGradeFilter) === String(g) ? "selected" : ""}>${g}°</option>`).join("")}
           </select>
-          <select class="select-pill" data-action="admin-subject-filter">
-            <option value="all">Todas las áreas</option>
-            ${SUBJECTS.map((s) => `<option value="${escAttr(s.name)}" ${subject === s.name ? "selected" : ""}>${esc(s.name)}</option>`).join("")}
-          </select>
         </div>
       </section>
-      <section class="card table-card">
+      <div class="inline-actions admin-actions-line">
+        <button class="primary-btn" data-action="add-student">Agregar estudiante</button>
+        <button class="secondary-btn" data-action="save-students">Guardar estudiantes</button>
+        <button class="ghost-btn" data-action="export-students">Exportar JSON</button>
+        <button class="secondary-btn" data-action="publish-github">Publicar en GitHub</button>
+      </div>
+      <section class="card table-card admin-edit-table">
         <div class="table-wrap">
           <table>
-            <thead><tr><th>#</th><th>Estudiante</th><th>Grado/curso</th><th>Global</th><th>Rank grado</th><th>Acción</th></tr></thead>
+            <thead><tr><th>#</th><th>ID prueba</th><th>ID estudiante</th><th>Nombre completo</th><th>Sede</th><th>Grado</th><th>Curso</th><th></th></tr></thead>
             <tbody>
-              ${students.map((student, index) => `
+              ${rows.map((student, viewIndex) => {
+                const index = state.studentsRegistry.indexOf(student);
+                return `
+                  <tr>
+                    <td><span class="badge gray">${viewIndex + 1}</span></td>
+                    <td><input class="small-input" value="${escAttr(student.examId)}" data-student-row="${index}" data-field="examId"></td>
+                    <td><input class="small-input" value="${escAttr(student.nationalId)}" data-student-row="${index}" data-field="nationalId"></td>
+                    <td><input class="small-input wide-input" value="${escAttr(student.name)}" data-student-row="${index}" data-field="name"></td>
+                    <td><input class="small-input" value="${escAttr(student.sede)}" data-student-row="${index}" data-field="sede"></td>
+                    <td><input class="small-input" value="${escAttr(student.grade)}" data-student-row="${index}" data-field="grade"></td>
+                    <td><input class="small-input" value="${escAttr(student.group)}" data-student-row="${index}" data-field="group"></td>
+                    <td><button class="danger-btn" data-action="delete-student" data-index="${index}">Eliminar</button></td>
+                  </tr>
+                `;
+              }).join("") || `<tr><td colspan="8" class="empty-state">No hay estudiantes con los filtros actuales.</td></tr>`}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    `;
+  }
+
+  function adminResultsHtml() {
+    const sedes = ["all", ...new Set(state.computedStudents.map((s) => s.sede).filter(Boolean))].sort((a, b) => a === "all" ? -1 : b === "all" ? 1 : a.localeCompare(b, "es"));
+    const grades = ["all", ...new Set(state.computedStudents.map((s) => s.grade).filter(Boolean))].sort((a, b) => a === "all" ? -1 : b === "all" ? 1 : Number(a) - Number(b));
+    const groups = ["all", ...new Set(state.computedStudents.map((s) => s.group).filter(Boolean))].sort((a, b) => a === "all" ? -1 : b === "all" ? 1 : String(a).localeCompare(String(b), "es", { numeric: true }));
+    const scope = state.adminResultScope || "sede";
+    const subject = state.adminResultSubject || "all";
+    const filtered = state.computedStudents.filter((s) => {
+      const okSede = state.adminResultSede === "all" || s.sede === state.adminResultSede;
+      const okGrade = state.adminResultGrade === "all" || String(s.grade) === String(state.adminResultGrade);
+      const okGroup = state.adminResultGroup === "all" || s.group === state.adminResultGroup;
+      const okStudent = state.adminResultStudent === "all" || s.roll === state.adminResultStudent;
+      const okSubject = subject === "all" || s.subjectStats[subject]?.total;
+      return okSede && okGrade && okGroup && okStudent && okSubject;
+    });
+    const details = aggregateDetails(filtered, subject);
+    const scoreValues = filtered.flatMap((s) => subject === "all" ? SUBJECTS.map((sub) => s.subjectStats[sub.name]?.score).filter((v) => Number.isFinite(v)) : [s.subjectStats[subject]?.score].filter((v) => Number.isFinite(v)));
+    const groupRows = buildAdminResultRows(filtered, scope, subject);
+    const studentOptions = state.computedStudents.slice().sort((a,b)=>a.name.localeCompare(b.name,"es",{sensitivity:"base"}));
+
+    return `
+      <section class="toolbar">
+        <div>
+          <span class="section-eyebrow">Análisis de resultados</span>
+          <h2 style="margin:8px 0 0;font-weight:900;">Vista macro y micro</h2>
+          <p class="muted-copy">Filtra por sede, grado, curso, área o estudiante. Los promedios se recalculan con los datos visibles.</p>
+        </div>
+      </section>
+      <section class="card card-pad admin-results-filters">
+        <div class="form-grid compact">
+          <div class="field"><label>Vista</label><select class="select-pill" data-admin-results-field="scope">
+            ${[["sede","Por sede"],["grado","Por grado"],["curso","Por curso"],["area","Por área/asignatura"],["estudiante","Individual del estudiante"]].map(([id,label]) => `<option value="${id}" ${scope===id?"selected":""}>${label}</option>`).join("")}
+          </select></div>
+          <div class="field"><label>Sede</label><select class="select-pill" data-admin-results-field="sede">
+            ${sedes.map((v) => `<option value="${escAttr(v)}" ${state.adminResultSede===v?"selected":""}>${v === "all" ? "Todas" : esc(v)}</option>`).join("")}
+          </select></div>
+          <div class="field"><label>Grado</label><select class="select-pill" data-admin-results-field="grade">
+            ${grades.map((v) => `<option value="${escAttr(v)}" ${String(state.adminResultGrade)===String(v)?"selected":""}>${v === "all" ? "Todos" : `${esc(v)}°`}</option>`).join("")}
+          </select></div>
+          <div class="field"><label>Curso</label><select class="select-pill" data-admin-results-field="group">
+            ${groups.map((v) => `<option value="${escAttr(v)}" ${state.adminResultGroup===v?"selected":""}>${v === "all" ? "Todos" : esc(v)}</option>`).join("")}
+          </select></div>
+          <div class="field"><label>Área/asignatura</label><select class="select-pill" data-admin-results-field="subject">
+            <option value="all">Todas</option>
+            ${SUBJECTS.map((s) => `<option value="${escAttr(s.name)}" ${subject===s.name?"selected":""}>${esc(s.name)}</option>`).join("")}
+          </select></div>
+          <div class="field span-2"><label>Estudiante</label><select class="select-pill" data-admin-results-field="student">
+            <option value="all">Todos los estudiantes</option>
+            ${studentOptions.map((s) => `<option value="${escAttr(s.roll)}" ${state.adminResultStudent===s.roll?"selected":""}>${esc(s.name)} · ID ${esc(s.roll)}</option>`).join("")}
+          </select></div>
+        </div>
+      </section>
+      <section class="teacher-stat-strip teacher-stat-strip-two admin-results-stats">
+        <article class="card card-pad teacher-stat"><span>Estudiantes</span><strong>${filtered.length}</strong></article>
+        <article class="card card-pad teacher-stat"><span>Promedio de nota</span><strong>${avg(scoreValues)}<small>/100</small></strong></article>
+      </section>
+      <section class="teacher-metrics-row admin-results-metrics">
+        <article class="teacher-metric-card"><h3>Promedio por componentes</h3>${buildMetricBars(details, "component")}</article>
+        <article class="teacher-metric-card"><h3>Promedio por competencias</h3>${buildMetricBars(details, "competence")}</article>
+      </section>
+      <section class="card table-card admin-results-table">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>${scopeLabel(scope)}</th><th>Estudiantes</th><th>Promedio</th><th>Componentes</th><th>Competencias</th></tr></thead>
+            <tbody>
+              ${groupRows.map((row, index) => `
                 <tr>
                   <td><span class="badge gray">${index + 1}</span></td>
-                  <td><strong>${esc(student.name)}</strong><br><span style="color:#83858e;font-size:.78rem;">ID ${esc(student.roll)} · ${esc(student.sede)}</span></td>
-                  <td>${esc(student.grade)}° · ${esc(student.group)}</td>
-                  <td><span class="inline-score">${student.globalScore ?? "—"}<small>/500</small></span></td>
-                  <td>${rankText(student.gradeRank, student.gradeCount)}</td>
-                  <td><button class="secondary-btn" data-action="open-detail" data-roll="${escAttr(student.roll)}" data-subject="${escAttr(subject === "all" ? SUBJECTS[0].name : subject)}">Ver</button></td>
+                  <td><strong>${esc(row.label)}</strong>${row.sub ? `<br><span class="student-subid">${esc(row.sub)}</span>` : ""}</td>
+                  <td>${row.count}</td>
+                  <td><span class="teacher-score teacher-score-plain">${row.avg}</span></td>
+                  <td>${row.componentAvg}%</td>
+                  <td>${row.competenceAvg}%</td>
                 </tr>
-              `).join("") || `<tr><td colspan="6" class="empty-state">No hay resultados con los filtros actuales.</td></tr>`}
+              `).join("") || `<tr><td colspan="6" class="empty-state">No hay datos con los filtros actuales.</td></tr>`}
             </tbody>
           </table>
         </div>
@@ -1076,7 +1178,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
           <div class="span-2 github-publish-box">
             <div>
               <strong>Archivos que se publicarán</strong>
-              <p>config/site-config.json, INTERNO/CARGA.json, KEYS/KEYS_10.json y las imágenes nuevas en ICONOS o assets.</p>
+              <p>config/site-config.json, ESTUDIANTES/ESTUDIANTES.json, INTERNO/CARGA.json, KEYS/KEYS_10.json y las imágenes nuevas en ICONOS o assets.</p>
             </div>
             <button class="primary-btn" type="button" data-action="publish-github">Publicar cambios en GitHub</button>
           </div>
@@ -1096,41 +1198,177 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
   }
 
   function adminCargaHtml() {
-    const rows = state.cargaRows;
+    const teachers = buildCargaTeachers();
+    if (!state.adminCargaTeacherId || !teachers.some((t) => t.id === state.adminCargaTeacherId)) {
+      state.adminCargaTeacherId = teachers[0]?.id || "";
+    }
+    const active = teachers.find((t) => t.id === state.adminCargaTeacherId) || teachers[0] || null;
     return `
       <section class="toolbar">
         <div>
           <span class="section-eyebrow">Carga docente</span>
-          <h2 style="margin:8px 0 0;font-weight:900;">Docente · asignatura · sede · grado · curso</h2>
+          <h2 style="margin:8px 0 0;font-weight:900;">Docentes y asignaciones</h2>
+          <p class="muted-copy">Selecciona un docente, edita sus datos y administra sus asignaturas por sede, grado y curso.</p>
         </div>
         <div class="inline-actions">
-          <button class="primary-btn" data-action="add-carga">Agregar fila</button>
+          <button class="primary-btn" data-action="add-carga-teacher">Agregar docente</button>
           <button class="secondary-btn" data-action="save-carga">Guardar cargas</button>
           <button class="ghost-btn" data-action="export-carga">Exportar JSON</button>
           <button class="secondary-btn" data-action="publish-github">Publicar en GitHub</button>
         </div>
       </section>
-      <div class="admin-note">Al guardar, la carga se reemplaza localmente. Para publicarla para todos, usa la pestaña <strong>GitHub</strong> o exporta el JSON manualmente.</div>
-      <section class="card table-card">
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>ID docente</th><th>Nombre</th><th>Asignatura</th><th>Sede</th><th>Grado</th><th>Curso</th><th></th></tr></thead>
-            <tbody>
-              ${rows.map((row, index) => `
-                <tr>
-                  <td><input class="small-input" value="${escAttr(row.id)}" data-carga-row="${index}" data-field="id"></td>
-                  <td><input class="small-input" value="${escAttr(row.name)}" data-carga-row="${index}" data-field="name"></td>
-                  <td><input class="small-input" value="${escAttr(row.subjectRaw || row.subject)}" data-carga-row="${index}" data-field="subjectRaw"></td>
-                  <td><input class="small-input" value="${escAttr(row.sede || "")}" data-carga-row="${index}" data-field="sede"></td>
-                  <td><input class="small-input" value="${escAttr(row.grade)}" data-carga-row="${index}" data-field="grade"></td>
-                  <td><input class="small-input" value="${escAttr(row.group || "")}" data-carga-row="${index}" data-field="group"></td>
-                  <td><button class="danger-btn" data-action="delete-carga" data-index="${index}">Eliminar</button></td>
-                </tr>
-              `).join("")}
-            </tbody>
-          </table>
+      <div class="admin-note">La carga se organiza por docente. Cada tarjeta de asignatura puede modificarse o eliminarse. Para que todos vean los cambios, publícalos en GitHub.</div>
+      <section class="carga-manager">
+        <aside class="card carga-teacher-list">
+          <h3>Docentes</h3>
+          ${teachers.map((teacher) => `
+            <button class="carga-teacher-card ${active?.id === teacher.id ? "active" : ""}" data-action="select-carga-teacher" data-id="${escAttr(teacher.id)}">
+              <strong>${esc(teacher.name || "Docente sin nombre")}</strong>
+              <span>ID ${esc(teacher.id || "sin ID")} · ${teacher.assignments.length} carga${teacher.assignments.length === 1 ? "" : "s"}</span>
+            </button>
+          `).join("") || `<div class="empty-state">No hay docentes registrados.</div>`}
+        </aside>
+        <div class="card card-pad carga-detail">
+          ${active ? cargaTeacherDetailHtml(active) : `<div class="empty-state">Agrega o selecciona un docente para editar su carga.</div>`}
         </div>
       </section>
+    `;
+  }
+
+
+
+  function normalizeStudentRow(row) {
+    return {
+      examId: cleanId(row.examId || row.ID_PRUEBA || row.IdPrueba || row.ID || row.id),
+      nationalId: cleanId(row.nationalId || row.ID_ALUMNO || row.IdAlumno || row.Documento || row.documento),
+      name: cleanText(row.name || row.NOMBRE_COMPLETO || row.NOMBRE || row.Nombre || row.NOMBRES || row.APellidos),
+      sede: cleanText(row.sede || row.SEDE || row.Sede),
+      grade: toInt(row.grade || row.GRADO || row.Grado),
+      group: cleanText(row.group || row.GRUPO || row.Grupo || row.CURSO || row.Curso)
+    };
+  }
+
+  function aggregateDetails(students, subject = "all") {
+    return students.flatMap((student) => {
+      if (subject !== "all") return student.subjectStats[subject]?.details || [];
+      return SUBJECTS.flatMap((s) => student.subjectStats[s.name]?.details || []);
+    });
+  }
+
+  function percentFromDetails(details, field) {
+    const usable = details.filter((d) => cleanText(d[field]));
+    if (!usable.length) return 0;
+    const correct = usable.filter((d) => d.status === "correct").length;
+    return Math.round((correct / usable.length) * 100);
+  }
+
+  function scopeLabel(scope) {
+    return {
+      sede: "Sede",
+      grado: "Grado",
+      curso: "Curso",
+      area: "Área/asignatura",
+      estudiante: "Estudiante"
+    }[scope] || "Grupo";
+  }
+
+  function buildAdminResultRows(students, scope, subject) {
+    const map = new Map();
+    const add = (key, label, sub, listSubject, student) => {
+      if (!map.has(key)) map.set(key, { label, sub, students: [], subject: listSubject });
+      map.get(key).students.push(student);
+    };
+
+    students.forEach((student) => {
+      if (scope === "estudiante") {
+        add(student.roll, student.name, `ID ${student.roll} · ${student.grade}° ${student.group || ""}`, subject, student);
+        return;
+      }
+      if (scope === "grado") {
+        add(String(student.grade), `${student.grade}°`, student.sede || "", subject, student);
+        return;
+      }
+      if (scope === "curso") {
+        add(`${student.sede}|${student.grade}|${student.group}`, `${student.grade}° · ${student.group || "Sin curso"}`, student.sede || "", subject, student);
+        return;
+      }
+      if (scope === "area") {
+        const subjects = subject === "all" ? SUBJECTS.map((s) => s.name) : [subject];
+        subjects.forEach((subj) => {
+          if (student.subjectStats[subj]?.total) add(subj, subj, "Promedio del área", subj, student);
+        });
+        return;
+      }
+      add(student.sede || "Sin sede", student.sede || "Sin sede", "", subject, student);
+    });
+
+    return [...map.values()].map((group) => {
+      const scores = group.students.flatMap((student) => {
+        if (group.subject && group.subject !== "all") return [student.subjectStats[group.subject]?.score].filter((v) => Number.isFinite(v));
+        return SUBJECTS.map((s) => student.subjectStats[s.name]?.score).filter((v) => Number.isFinite(v));
+      });
+      const details = aggregateDetails(group.students, group.subject || subject);
+      return {
+        label: group.label,
+        sub: group.sub,
+        count: new Set(group.students.map((s) => s.roll)).size,
+        avg: avg(scores),
+        componentAvg: percentFromDetails(details, "component"),
+        competenceAvg: percentFromDetails(details, "competence")
+      };
+    }).sort((a, b) => String(a.label).localeCompare(String(b.label), "es", { numeric: true, sensitivity: "base" }));
+  }
+
+  function buildCargaTeachers() {
+    const map = new Map();
+    state.cargaRows.forEach((row, index) => {
+      const id = row.id || `sin-id-${index}`;
+      if (!map.has(id)) map.set(id, { id, name: row.name || "", assignments: [] });
+      const teacher = map.get(id);
+      if (!teacher.name && row.name) teacher.name = row.name;
+      teacher.assignments.push({ ...row, index });
+    });
+    return [...map.values()].sort((a, b) => String(a.name || a.id).localeCompare(String(b.name || b.id), "es", { sensitivity: "base" }));
+  }
+
+  function cargaTeacherDetailHtml(teacher) {
+    const firstIndex = teacher.assignments[0]?.index;
+    const baseRow = firstIndex !== undefined ? state.cargaRows[firstIndex] : { id: teacher.id, name: teacher.name };
+    return `
+      <div class="carga-teacher-head">
+        <div class="form-grid compact">
+          <div class="field"><label>ID docente</label><input value="${escAttr(baseRow.id || "")}" data-carga-teacher-field="id" data-old-id="${escAttr(teacher.id)}"></div>
+          <div class="field"><label>Nombre docente</label><input value="${escAttr(baseRow.name || teacher.name || "")}" data-carga-teacher-field="name" data-old-id="${escAttr(teacher.id)}"></div>
+        </div>
+        <div class="inline-actions">
+          <button class="primary-btn" data-action="add-carga-to-teacher" data-id="${escAttr(teacher.id)}">Agregar carga</button>
+          <button class="danger-btn" data-action="delete-carga-teacher" data-id="${escAttr(teacher.id)}">Eliminar docente</button>
+        </div>
+      </div>
+      <div class="carga-assignment-grid">
+        ${teacher.assignments.map((row) => cargaAssignmentCard(row)).join("") || `<div class="empty-state">Este docente no tiene cargas todavía.</div>`}
+      </div>
+    `;
+  }
+
+  function cargaAssignmentCard(row) {
+    const colorIndex = SUBJECTS.findIndex((s) => s.name === canonicalSubject(row.subjectRaw || row.subject));
+    const colors = ["#314b9b", "#8b5cf6", "#16a34a", "#eab308", "#dc2626", "#f97316", "#ec4899", "#0891b2", "#4f46e5", "#64748b"];
+    const color = colors[colorIndex >= 0 ? colorIndex : 0];
+    return `
+      <article class="carga-assignment-card" style="--subject-color:${escAttr(color)};">
+        <div class="carga-card-title">
+          ${subjectIcon(canonicalSubject(row.subjectRaw || row.subject))}
+          <div><strong>${esc(row.subjectRaw || row.subject || "Asignatura")}</strong><span>${esc(row.grade || "") }° ${esc(row.group || "")} · ${esc(row.sede || "Sin sede")}</span></div>
+        </div>
+        <div class="form-grid compact">
+          <div class="field"><label>Asignatura</label><input value="${escAttr(row.subjectRaw || row.subject || "")}" data-carga-row="${row.index}" data-field="subjectRaw"></div>
+          <div class="field"><label>Sede</label><input value="${escAttr(row.sede || "")}" data-carga-row="${row.index}" data-field="sede"></div>
+          <div class="field"><label>Grado</label><input value="${escAttr(row.grade || "")}" data-carga-row="${row.index}" data-field="grade"></div>
+          <div class="field"><label>Curso</label><input value="${escAttr(row.group || "")}" data-carga-row="${row.index}" data-field="group"></div>
+        </div>
+        <button class="danger-btn" data-action="delete-carga" data-index="${row.index}">Quitar carga</button>
+      </article>
     `;
   }
 
@@ -1376,6 +1614,65 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       renderAdmin();
     }
 
+    if (action === "add-student") {
+      state.studentsRegistry.unshift({ examId: "", nationalId: "", name: "", sede: "", grade: 10, group: "" });
+      renderAdmin();
+      return;
+    }
+
+    if (action === "delete-student") {
+      const index = Number(target.dataset.index);
+      state.studentsRegistry.splice(index, 1);
+      buildRepository();
+      renderAdmin();
+      return;
+    }
+
+    if (action === "save-students") {
+      state.studentsRegistry = state.studentsRegistry.map(normalizeStudentRow).filter((s) => s.examId || s.nationalId || s.name);
+      writeJSON(STORAGE.students, { rows: state.studentsRegistry });
+      buildRepository();
+      toast("Estudiantes guardados localmente.");
+      renderAdmin();
+      return;
+    }
+
+    if (action === "export-students") {
+      exportStudents();
+      return;
+    }
+
+    if (action === "select-carga-teacher") {
+      state.adminCargaTeacherId = target.dataset.id || "";
+      renderAdmin();
+      return;
+    }
+
+    if (action === "add-carga-teacher") {
+      const newId = `nuevo-${Date.now()}`;
+      state.cargaRows.unshift({ id: newId, name: "Nuevo docente", subjectRaw: "Matemáticas", subject: "Matemáticas", sede: "Principal", grade: 10, group: "1PPAL" });
+      state.adminCargaTeacherId = newId;
+      renderAdmin();
+      return;
+    }
+
+    if (action === "delete-carga-teacher") {
+      const id = target.dataset.id || "";
+      state.cargaRows = state.cargaRows.filter((row) => row.id !== id);
+      state.adminCargaTeacherId = "";
+      renderAdmin();
+      return;
+    }
+
+    if (action === "add-carga-to-teacher") {
+      const id = target.dataset.id || state.adminCargaTeacherId || "";
+      const existing = state.cargaRows.find((row) => row.id === id) || { id, name: "" };
+      state.cargaRows.push({ id: existing.id, name: existing.name, subjectRaw: "Matemáticas", subject: "Matemáticas", sede: "Principal", grade: 10, group: "1PPAL" });
+      state.adminCargaTeacherId = existing.id;
+      renderAdmin();
+      return;
+    }
+
     if (action === "add-carga") {
       state.cargaRows.unshift({ id: "", name: "", subjectRaw: "Matemáticas", subject: "Matemáticas", sede: "", grade: 10, group: "" });
       renderAdmin();
@@ -1433,6 +1730,35 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       state.config[target.dataset.configField] = target.value;
     }
 
+    if (target.dataset.studentRow) {
+      const index = Number(target.dataset.studentRow);
+      const field = target.dataset.field;
+      if (!state.studentsRegistry[index]) return;
+      if (field === "grade") state.studentsRegistry[index].grade = toInt(target.value);
+      else if (field === "examId") state.studentsRegistry[index].examId = cleanId(target.value);
+      else if (field === "nationalId") state.studentsRegistry[index].nationalId = cleanId(target.value);
+      else if (field === "name") state.studentsRegistry[index].name = target.value;
+      else if (field === "sede") state.studentsRegistry[index].sede = target.value;
+      else if (field === "group") state.studentsRegistry[index].group = target.value;
+    }
+
+    if (target.dataset.cargaTeacherField) {
+      const oldId = target.dataset.oldId || state.adminCargaTeacherId;
+      const currentId = state.adminCargaTeacherId;
+      const field = target.dataset.cargaTeacherField;
+      const value = field === "id" ? cleanId(target.value) : target.value;
+      state.cargaRows.forEach((row) => {
+        if (row.id === oldId || row.id === currentId) {
+          if (field === "id") row.id = value;
+          if (field === "name") row.name = value;
+        }
+      });
+      if (field === "id") {
+        state.adminCargaTeacherId = value;
+        target.dataset.oldId = value;
+      }
+    }
+
     if (target.dataset.githubField) {
       const settings = getGithubSettings();
       settings[target.dataset.githubField] = target.value.trim();
@@ -1462,6 +1788,14 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
 
   function handleChange(event) {
     const target = event.target;
+
+    if (target.dataset.adminResultsField) {
+      const field = target.dataset.adminResultsField;
+      const map = { scope: "adminResultScope", sede: "adminResultSede", grade: "adminResultGrade", group: "adminResultGroup", subject: "adminResultSubject", student: "adminResultStudent" };
+      if (map[field]) state[map[field]] = target.value;
+      renderAdmin();
+      return;
+    }
 
     if (target.dataset.action === "admin-grade-filter") {
       state.adminGradeFilter = target.value;
@@ -1544,6 +1878,11 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
   function exportCarga() {
     normalizeCargaRows();
     downloadFile("CARGA.json", JSON.stringify(exportCargaRows(), null, 2), "application/json;charset=utf-8");
+  }
+
+  function exportStudents() {
+    state.studentsRegistry = state.studentsRegistry.map(normalizeStudentRow).filter((s) => s.examId || s.nationalId || s.name);
+    downloadFile("ESTUDIANTES.json", JSON.stringify(exportStudentRows(), null, 2), "application/json;charset=utf-8");
   }
 
   function exportKeys() {
@@ -1634,6 +1973,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       }
 
       files.push({ path: state.manifest.config || "config/site-config.json", content: JSON.stringify(repoConfig, null, 2) });
+      files.push({ path: state.manifest.estudiantes || "ESTUDIANTES/ESTUDIANTES.json", content: JSON.stringify(exportStudentRows(), null, 2) });
       files.push({ path: state.manifest.carga || "INTERNO/CARGA.json", content: JSON.stringify(exportCargaRows(), null, 2) });
 
       const keysByPath = groupBy(state.keys, (row) => row.sourcePath || `KEYS/KEYS_${row.grade}.json`);
@@ -1650,6 +1990,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       state.config.subjectLogos = { ...repoConfig.subjectLogos };
       writeJSON(STORAGE.config, state.config);
       writeJSON(STORAGE.logos, state.logos);
+      writeJSON(STORAGE.students, { rows: state.studentsRegistry });
       writeJSON(STORAGE.carga, { rows: state.cargaRows });
       toast("Cambios publicados en GitHub. GitHub Pages puede tardar un momento en reflejarlos.");
       hideRouteLoader();
@@ -1660,6 +2001,17 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       hideRouteLoader();
       toast(error.message || "No fue posible publicar en GitHub.");
     }
+  }
+
+  function exportStudentRows() {
+    return state.studentsRegistry.map((row) => ({
+      ID_PRUEBA: row.examId || "",
+      ID_ALUMNO: row.nationalId || "",
+      NOMBRE_COMPLETO: row.name || "",
+      SEDE: row.sede || "",
+      GRADO: String(row.grade || ""),
+      GRUPO: row.group || ""
+    }));
   }
 
   function exportCargaRows() {
