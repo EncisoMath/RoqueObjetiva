@@ -2090,6 +2090,33 @@ body {
   margin-left: 2px;
 }
 
+.teacher-stat-action {
+  width: 100%;
+  border: 1px solid rgba(var(--primary-rgb, 25, 117, 174), .18);
+  cursor: pointer;
+  text-align: left;
+  background: linear-gradient(135deg, rgba(var(--primary-rgb, 25, 117, 174), .10), #fff 72%);
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+
+.teacher-stat-action:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 30px rgba(var(--primary-rgb, 25, 117, 174), .14);
+  border-color: rgba(var(--primary-rgb, 25, 117, 174), .34);
+}
+
+.teacher-stat-action span {
+  color: var(--primary);
+}
+
+.teacher-stat-action em {
+  color: #6f737d;
+  font-size: .72rem;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
 .teacher-table {
   min-width: 520px;
 }
@@ -3384,8 +3411,9 @@ body {
   background: rgba(var(--primary-rgb, 25, 117, 174), .07);
 }
 
-.teacher-stat-strip-two {
-  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+.teacher-stat-strip-two,
+.teacher-stat-strip-three {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
 }
 
 .teacher-score.teacher-score-plain {
@@ -3404,8 +3432,9 @@ body {
 }
 
 @media (max-width: 680px) {
-  .teacher-stat-strip-two {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  .teacher-stat-strip-two,
+  .teacher-stat-strip-three {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
   }
 
   .teacher-score.teacher-score-plain {
@@ -4133,4 +4162,24 @@ body {
   color: rgba(24, 24, 27, .62);
   font-weight: 700;
   white-space: nowrap;
+}
+
+
+@media (max-width: 520px) {
+  .teacher-stat-strip-three {
+    gap: 8px;
+  }
+  .teacher-stat-strip-three .teacher-stat {
+    padding: 10px 8px;
+    min-height: 76px;
+  }
+  .teacher-stat-strip-three .teacher-stat span {
+    font-size: .58rem;
+  }
+  .teacher-stat-strip-three .teacher-stat strong {
+    font-size: 1.05rem;
+  }
+  .teacher-stat-strip-three .teacher-stat-action em {
+    font-size: .58rem;
+  }
 }

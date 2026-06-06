@@ -934,15 +934,15 @@
       </div>
 
       ${active ? `
-        <section class="teacher-stat-strip teacher-stat-strip-two">
+        <section class="teacher-stat-strip teacher-stat-strip-three">
           <article class="card card-pad teacher-stat"><span>Estudiantes</span><strong>${filtered.length}</strong></article>
           <article class="card card-pad teacher-stat"><span>Promedio</span><strong>${avg(filtered.map((s) => s.subjectStats[active.subject].score))}<small>/100</small></strong></article>
+          <button class="card card-pad teacher-stat teacher-stat-action" data-action="teacher-score-info" data-subject="${escAttr(active.subject)}" data-grade="${escAttr(active.grade)}" data-total="${escAttr(itemValueInfo.total)}">
+            <span>Valor de cada ítem</span>
+            <strong>${esc(itemValueInfo.label)}<small> puntos</small></strong>
+            <em>Toca para ver cómo se calculan las notas de tus estudiantes.</em>
+          </button>
         </section>
-        <button class="teacher-score-info-card" data-action="teacher-score-info" data-subject="${escAttr(active.subject)}" data-grade="${escAttr(active.grade)}" data-total="${escAttr(itemValueInfo.total)}">
-          <span>Cálculo de nota</span>
-          <strong>Cada ítem en esta prueba vale ${esc(itemValueInfo.label)} punto${itemValueInfo.label === "1" ? "" : "s"}.</strong>
-          <small>Toca para ver cómo se calculan las notas de tus estudiantes.</small>
-        </button>
         <section class="teacher-metrics-row">
           ${teacherAggregateMetricsHtml(filtered, active.subject)}
         </section>
