@@ -5092,3 +5092,60 @@ body {
     font-size: 1.6rem !important;
   }
 }
+
+
+/* Ajustes v34: detalle móvil vuelve a aparecer debajo de la asignatura seleccionada */
+@media (max-width: 940px) {
+  .student-workspace .student-detail-panel {
+    display: none !important;
+  }
+
+  .student-workspace .subject-list-item {
+    overflow: visible !important;
+  }
+
+  .student-workspace .subject-mobile-detail {
+    display: grid !important;
+    grid-template-rows: 0fr !important;
+    opacity: 0 !important;
+    transform: translateY(-6px) !important;
+    overflow: hidden !important;
+    transition: grid-template-rows .32s cubic-bezier(.2, .8, .2, 1), opacity .24s ease, transform .32s cubic-bezier(.2, .8, .2, 1) !important;
+  }
+
+  .student-workspace .subject-mobile-detail-inner {
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .student-workspace .subject-list-item.active .subject-mobile-detail {
+    grid-template-rows: 1fr !important;
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+  }
+
+  .student-workspace .subject-list-item.active .subject-mobile-detail-inner {
+    overflow: visible !important;
+  }
+
+  .student-workspace .subject-mobile-detail .subject-detail {
+    margin-top: 10px !important;
+    padding: 16px !important;
+    background: #fff !important;
+    border: 1px solid var(--line) !important;
+    border-radius: var(--button-radius, 4px) !important;
+    box-shadow: var(--shadow-soft) !important;
+  }
+
+  .student-workspace .subject-list-item.active {
+    background: transparent !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+}
+
+@media (min-width: 941px) {
+  .student-workspace .subject-mobile-detail {
+    display: none !important;
+  }
+}

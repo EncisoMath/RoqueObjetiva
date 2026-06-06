@@ -751,6 +751,11 @@
             </span>
             <span class="subject-card-progress" aria-hidden="true"><i style="width:${percent}%"></i></span>
           </button>
+          <div class="subject-mobile-detail">
+            <div class="subject-mobile-detail-inner">
+              ${active ? buildSubjectDetailHtml(student, item.name, s, true) : ""}
+            </div>
+          </div>
         </article>
       `;
     }).join("");
