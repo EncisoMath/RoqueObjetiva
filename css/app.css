@@ -5552,3 +5552,60 @@ body {
     font-size: 1.6rem !important;
   }
 }
+
+/* v41: admin student exam preview + coordinator access */
+.compact-select {
+  min-width: 140px;
+}
+
+.coordinator-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  margin: 12px 0;
+  border: 1px solid rgba(25, 117, 174, .22);
+  background: #fff;
+  border-radius: var(--radius-small, 4px);
+  font-weight: 750;
+  color: #30323a;
+}
+
+.coordinator-check input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary, #1975ae);
+}
+
+.coordinator-admin-panel .toolbar {
+  margin-top: 0;
+}
+
+.admin-student-report-modal .modal-body {
+  max-height: min(76vh, 760px);
+  overflow: auto;
+}
+
+.admin-student-summary {
+  margin-bottom: 12px;
+}
+
+.admin-student-subject-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.admin-student-subject-card {
+  width: 100%;
+}
+
+@media (max-width: 940px) {
+  .admin-student-subject-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-student-report-modal {
+    width: calc(100vw - 28px) !important;
+  }
+}
