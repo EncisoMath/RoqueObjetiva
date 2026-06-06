@@ -13,7 +13,8 @@
     carga: "po_carga_override_v1",
     session: "po_session_v1",
     github: "po_github_publish_v1",
-    students: "po_students_override_v1"
+    students: "po_students_override_v1",
+    theme: "po_theme_v1"
   };
 
   const SUBJECTS = [
@@ -90,7 +91,8 @@
     adminResultSubject: "all",
     adminResultStudent: "all",
     adminCargaTeacherId: "",
-    activeSession: null
+    activeSession: null,
+    theme: "light"
   };
 
   document.addEventListener("DOMContentLoaded", init);
@@ -130,6 +132,8 @@
   function loadLocalState() {
     state.config = { ...DEFAULT_CONFIG, ...readJSON(STORAGE.config, {}) };
     state.logos = readJSON(STORAGE.logos, {});
+    state.theme = localStorage.getItem(STORAGE.theme) === "dark" ? "dark" : "light";
+    applyTheme();
     const storedCarga = readJSON(STORAGE.carga, null);
     if (storedCarga && Array.isArray(storedCarga.rows)) {
       state.cargaRows = storedCarga.rows;
@@ -576,7 +580,8 @@
 
   function renderLogin(error = "") {
     const primary = normalizeColor(state.config.primaryColor || "#314b9b");
-    const primaryDark = shadeColor(primary, -18);
+    const primaryDark = shadeColor(primary, -26);
+    const primaryDeep = shadeColor(primary, -52);
     const primarySoft = mixWithWhite(primary, 34);
     const rgb = hexToRgb(primary);
     document.documentElement.style.setProperty("--button-radius", `${Number(state.config.buttonRadius ?? 4)}px`);
@@ -584,41 +589,62 @@
     document.documentElement.style.setProperty("--orange", primary);
     document.documentElement.style.setProperty("--orange-2", primarySoft);
     document.documentElement.style.setProperty("--orange-3", primaryDark);
+    document.documentElement.style.setProperty("--login-deep", primaryDeep);
     document.documentElement.style.setProperty("--primary-rgb", `${rgb.r}, ${rgb.g}, ${rgb.b}`);
-    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", primary);
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", primaryDark);
     const logo = state.config.logoImage || "assets/logo-principal.png";
     app.innerHTML = `
-      <section class="login-shell">
+      <section class="login-shell login-shell-dark" style="--login-primary:${primary};--login-dark:${primaryDark};--login-deep:${primaryDeep};">
+        <div class="login-bg-shapes" aria-hidden="true">
+          ${renderPlayShapes("login")}
+        </div>
         <div class="login-panel">
-          <div class="login-card">
+          <div class="login-card login-card-dark">
+            ${logo ? `<div class="login-main-logo"><img src="${escAttr(logo)}" alt="Logo institucional"></div>` : ""}
             <span class="login-eyebrow">Consulta de resultados</span>
             <h1>Bienvenido</h1>
-            <p>Ingresa con el ID del examen, el documento del estudiante o el ID docente. Para administración usa <strong>admin</strong> / <strong>admin</strong>.</p>
-            ${error ? `<div class="admin-note">${esc(error)}</div>` : ""}
+            <p>Ingresa con el ID del examen, el documento del estudiante o el ID docente.</p>
+            ${error ? `<div class="admin-note login-error">${esc(error)}</div>` : ""}
             <form class="login-form" id="loginForm">
               <div class="field">
                 <label for="loginUser">Usuario o ID</label>
                 <input id="loginUser" autocomplete="username" placeholder="Ej. 2585, 1085111839, ID docente o admin" required />
               </div>
-              <div class="field">
+              <div class="field login-password-field is-hidden" id="loginPasswordField">
                 <label for="loginPass">Contraseña</label>
-                <input id="loginPass" type="password" autocomplete="current-password" placeholder="Solo requerida para admin" />
+                <input id="loginPass" type="password" autocomplete="current-password" placeholder="Contraseña de administrador" />
               </div>
               <div class="login-actions">
                 <button class="primary-btn" type="submit">Ingresar</button>
-                <span class="login-hint">Los estudiantes y docentes ingresan solo con su ID.</span>
+                <span class="login-hint">Estudiantes y docentes ingresan solo con su ID.</span>
               </div>
             </form>
-          </div>
-        </div>
-        <div class="login-hero">
-          <div class="hero-logo">
-            ${logo ? `<img src="${escAttr(logo)}" alt="Logo institucional">` : `<div class="hero-wordmark">icfes+</div>`}
           </div>
         </div>
       </section>
     `;
     setTimeout(() => document.getElementById("loginUser")?.focus(), 50);
+  }
+
+  function renderPlayShapes(prefix = "banner") {
+    const shapes = ["x", "square", "tri", "circle"];
+    const variants = ["", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"];
+    const symbols = { x: "×", square: "□", tri: "△", circle: "○" };
+    return variants.map((variant, index) => {
+      const shape = shapes[index % shapes.length];
+      return `<span class="shape ${shape} ${variant}" aria-hidden="true">${symbols[shape]}</span>`;
+    }).join("");
+  }
+
+  function applyTheme() {
+    const theme = state.theme === "dark" ? "dark" : "light";
+    document.documentElement.dataset.theme = theme;
+    localStorage.setItem(STORAGE.theme, theme);
+  }
+
+  function themeToggleHtml() {
+    const dark = state.theme === "dark";
+    return `<button class="theme-toggle" type="button" data-action="toggle-theme" aria-label="Cambiar a modo ${dark ? "claro" : "oscuro"}"><span class="theme-toggle-track"><i></i></span><span>${dark ? "Modo oscuro" : "Modo claro"}</span></button>`;
   }
 
   function renderShell(content, nav = "") {
@@ -633,22 +659,14 @@
     document.documentElement.style.setProperty("--primary-rgb", `${rgb.r}, ${rgb.g}, ${rgb.b}`);
     document.documentElement.style.setProperty("--button-radius", `${Number(cfg.buttonRadius ?? 4)}px`);
     document.documentElement.style.setProperty("--logo-zoom", `${Number(cfg.logoZoom ?? 1)}`);
+    applyTheme();
     document.querySelector('meta[name="theme-color"]')?.setAttribute("content", primary);
-    const bannerStyle = cfg.bannerImage
-      ? `style="background-image: linear-gradient(100deg, ${alphaColor(primary, .88)}, ${alphaColor(primaryDark, .82)}), url('${escAttr(cfg.bannerImage)}')"`
-      : "";
+    const bannerStyle = `style="background: linear-gradient(105deg, ${primary} 0%, ${primary} 42%, ${primaryDark} 100%)"`;
     app.innerHTML = `
       <div class="app-shell">
         <header class="top-banner" ${bannerStyle}>
           <div class="banner-shapes" aria-hidden="true">
-            <span class="shape x">×</span>
-            <span class="shape square">□</span>
-            <span class="shape tri">△</span>
-            <span class="shape circle">○</span>
-            <span class="shape x two">×</span>
-            <span class="shape square two">□</span>
-            <span class="shape tri two">△</span>
-            <span class="shape circle two">○</span>
+            ${renderPlayShapes("banner")}
           </div>
           <div class="banner-inner">
             <div class="banner-copy">
@@ -659,6 +677,7 @@
               ${cfg.logoImage ? `<span class="banner-logo-frame"><img class="banner-logo" src="${escAttr(cfg.logoImage)}" alt="Logo"></span>` : `<div class="banner-mark-text">Resultados</div>`}
             </div>
           </div>
+          <div class="banner-theme-control">${themeToggleHtml()}</div>
           ${nav}
         </header>
         <main class="page">
@@ -1625,6 +1644,13 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
 
     const action = target.dataset.action;
 
+    if (action === "toggle-theme") {
+      state.theme = state.theme === "dark" ? "light" : "dark";
+      applyTheme();
+      renderBySession();
+      return;
+    }
+
     if (action === "retry") {
       init();
     }
@@ -1835,6 +1861,14 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
 
   function handleInput(event) {
     const target = event.target;
+
+    if (target.id === "loginUser") {
+      const passField = document.getElementById("loginPasswordField");
+      const passInput = document.getElementById("loginPass");
+      const isAdmin = normalizeText(target.value) === "admin";
+      passField?.classList.toggle("is-hidden", !isAdmin);
+      if (!isAdmin && passInput) passInput.value = "";
+    }
 
     if (target.dataset.action === "teacher-search") {
       state.teacherSearch = target.value;

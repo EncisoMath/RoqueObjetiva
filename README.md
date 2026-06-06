@@ -216,3 +216,10 @@ El color institucional predeterminado es `#314b9b` y el logo principal predeterm
 - Los archivos de grados faltantes son opcionales: no dañan la carga de grado 10.
 - Para agregar nuevos grados, basta con añadirlos en `grades` y subir sus claves/resultados.
 - Los cálculos de estudiante, docente y admin usan la clave del grado correspondiente a cada estudiante.
+
+
+## Cambios v19
+
+- Banner sin manchas/círculos laterales ni imagen de fondo aplicada por defecto.
+- Fondo del banner: color principal seleccionado con degradado oscuro hacia la derecha.
+- Figuras decorativas del banner más grandes, visibles y numerosas.
