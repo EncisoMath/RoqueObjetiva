@@ -749,7 +749,7 @@
                 </span>
               </span>
             </span>
-            <span class="subject-card-progress" aria-hidden="true"><i style="width:${percent}%"></i></span>
+            <span class="subject-card-progress" aria-hidden="true" style="--score:${percent}%;"><i style="width:${percent}%"></i></span>
           </button>
           <div class="subject-mobile-detail">
             <div class="subject-mobile-detail-inner">
@@ -1061,7 +1061,7 @@
               <span class="director-subject-score">${display}<small>/100</small></span>
             </span>
           </span>
-          <span class="director-mini-bar"><i style="width:${percent}%"></i></span>
+          <span class="director-mini-bar" style="--score:${percent}%;"><i style="width:${percent}%"></i></span>
         </button>
       `;
     }).join("");

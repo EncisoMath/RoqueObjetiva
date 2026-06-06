@@ -5149,3 +5149,33 @@ body {
     display: none !important;
   }
 }
+
+
+/* Ajustes v35: barras de progreso reales en Estudiante y Director de grupo */
+.student-workspace .subject-card-progress,
+.director-mini-bar {
+  position: relative !important;
+  background: rgba(17, 24, 39, .08) !important;
+  overflow: hidden !important;
+}
+
+.student-workspace .subject-card-progress::before,
+.director-mini-bar::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 auto 0 0 !important;
+  width: var(--score, 0%) !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  border-radius: inherit !important;
+  background: linear-gradient(90deg, var(--primary), var(--primary-soft)) !important;
+  transition: width .35s ease !important;
+}
+
+.student-workspace .subject-card-progress i,
+.director-mini-bar i {
+  width: var(--score, 0%) !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  opacity: 0 !important;
+}
