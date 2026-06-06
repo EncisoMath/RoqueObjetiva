@@ -1123,84 +1123,133 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
   }
 
   function adminResultsHtml() {
-    const sedes = ["all", ...new Set(state.computedStudents.map((s) => s.sede).filter(Boolean))].sort((a, b) => a === "all" ? -1 : b === "all" ? 1 : a.localeCompare(b, "es"));
-    const grades = ["all", ...new Set(state.computedStudents.map((s) => s.grade).filter(Boolean))].sort((a, b) => a === "all" ? -1 : b === "all" ? 1 : Number(a) - Number(b));
-    const groups = ["all", ...new Set(state.computedStudents.map((s) => s.group).filter(Boolean))].sort((a, b) => a === "all" ? -1 : b === "all" ? 1 : String(a).localeCompare(String(b), "es", { numeric: true }));
-    const scope = state.adminResultScope || "sede";
+    const sedes = ["all", ...uniqueValues(state.computedStudents.map((s) => s.sede))];
+    const grades = ["all", ...uniqueValues(state.computedStudents.map((s) => s.grade).filter(Boolean)).sort((a, b) => Number(a) - Number(b))];
+    const groups = ["all", ...uniqueValues(state.computedStudents
+      .filter((s) => state.adminResultGrade === "all" || String(s.grade) === String(state.adminResultGrade))
+      .map((s) => s.group))];
+    const subjectOptions = ["all", ...availableSubjects()];
     const subject = state.adminResultSubject || "all";
-    const filtered = state.computedStudents.filter((s) => {
-      const okSede = state.adminResultSede === "all" || s.sede === state.adminResultSede;
-      const okGrade = state.adminResultGrade === "all" || String(s.grade) === String(state.adminResultGrade);
-      const okGroup = state.adminResultGroup === "all" || s.group === state.adminResultGroup;
-      const okStudent = state.adminResultStudent === "all" || s.roll === state.adminResultStudent;
-      const okSubject = subject === "all" || s.subjectStats[subject]?.total;
+
+    const filtered = state.computedStudents.filter((student) => {
+      const okSede = state.adminResultSede === "all" || student.sede === state.adminResultSede;
+      const okGrade = state.adminResultGrade === "all" || String(student.grade) === String(state.adminResultGrade);
+      const okGroup = state.adminResultGroup === "all" || student.group === state.adminResultGroup;
+      const okStudent = state.adminResultStudent === "all" || student.roll === state.adminResultStudent;
+      const okSubject = subject === "all" || student.subjectStats[subject]?.total;
       return okSede && okGrade && okGroup && okStudent && okSubject;
-    });
+    }).sort((a, b) => a.name.localeCompare(b.name, "es", { sensitivity: "base" }));
+
     const details = aggregateDetails(filtered, subject);
-    const scoreValues = filtered.flatMap((s) => subject === "all" ? SUBJECTS.map((sub) => s.subjectStats[sub.name]?.score).filter((v) => Number.isFinite(v)) : [s.subjectStats[subject]?.score].filter((v) => Number.isFinite(v)));
-    const groupRows = buildAdminResultRows(filtered, scope, subject);
-    const studentOptions = state.computedStudents.slice().sort((a,b)=>a.name.localeCompare(b.name,"es",{sensitivity:"base"}));
+    const scoreValues = filtered.map((student) => adminStudentSubjectStat(student, subject).score).filter((value) => Number.isFinite(value));
+    const studentOptions = state.computedStudents.slice().sort((a, b) => a.name.localeCompare(b.name, "es", { sensitivity: "base" }));
+
+    const rows = filtered.map((student, index) => {
+      const stat = adminStudentSubjectStat(student, subject);
+      const clickable = subject !== "all" && student.subjectStats[subject]?.total;
+      return `
+        <tr class="${clickable ? "table-row-click" : ""}" ${clickable ? `data-action="open-detail" data-roll="${escAttr(student.roll)}" data-subject="${escAttr(subject)}"` : ""}>
+          <td class="teacher-index">${index + 1}</td>
+          <td><strong>${esc(student.name)}</strong><br><span class="student-subid">ID Prueba ${esc(student.roll)} · ${esc(student.sede || "Sin sede")} · ${esc(student.grade)}° ${esc(student.group || "")}</span></td>
+          <td><span class="teacher-score teacher-score-plain">${Number.isFinite(stat.score) ? stat.score : "—"}</span></td>
+          <td><strong>${stat.total ? `${stat.correct}/${stat.total}` : "—"}</strong></td>
+        </tr>
+      `;
+    }).join("");
+
+    const scopeText = [
+      state.adminResultSede !== "all" ? state.adminResultSede : "Todas las sedes",
+      state.adminResultGrade !== "all" ? `${state.adminResultGrade}°` : "Todos los grados",
+      state.adminResultGroup !== "all" ? state.adminResultGroup : "Todos los cursos",
+      subject !== "all" ? subject : "Todas las áreas"
+    ].filter(Boolean).join(" · ");
 
     return `
       <section class="toolbar">
         <div>
-          <span class="section-eyebrow">Análisis de resultados</span>
-          <h2 style="margin:8px 0 0;font-weight:900;">Vista macro y micro</h2>
-          <p class="muted-copy">Filtra por sede, grado, curso, área o estudiante. Los promedios se recalculan con los datos visibles.</p>
+          <span class="section-eyebrow">Resultados institucionales</span>
+          <h2 style="margin:8px 0 0;font-weight:900;">Vista tipo docente, con filtros de admin</h2>
+          <p class="muted-copy">Parametriza sede, grado, curso y área. La tabla, promedios, componentes y competencias se calculan con el mismo formato de la vista docente.</p>
         </div>
       </section>
       <section class="card card-pad admin-results-filters">
         <div class="form-grid compact">
-          <div class="field"><label>Vista</label><select class="select-pill" data-admin-results-field="scope">
-            ${[["sede","Por sede"],["grado","Por grado"],["curso","Por curso"],["area","Por área/asignatura"],["estudiante","Individual del estudiante"]].map(([id,label]) => `<option value="${id}" ${scope===id?"selected":""}>${label}</option>`).join("")}
-          </select></div>
           <div class="field"><label>Sede</label><select class="select-pill" data-admin-results-field="sede">
-            ${sedes.map((v) => `<option value="${escAttr(v)}" ${state.adminResultSede===v?"selected":""}>${v === "all" ? "Todas" : esc(v)}</option>`).join("")}
+            ${sedes.map((value) => `<option value="${escAttr(value)}" ${state.adminResultSede === value ? "selected" : ""}>${value === "all" ? "Todas las sedes" : esc(value)}</option>`).join("")}
           </select></div>
           <div class="field"><label>Grado</label><select class="select-pill" data-admin-results-field="grade">
-            ${grades.map((v) => `<option value="${escAttr(v)}" ${String(state.adminResultGrade)===String(v)?"selected":""}>${v === "all" ? "Todos" : `${esc(v)}°`}</option>`).join("")}
+            ${grades.map((value) => `<option value="${escAttr(value)}" ${String(state.adminResultGrade) === String(value) ? "selected" : ""}>${value === "all" ? "Todos los grados" : `${esc(value)}°`}</option>`).join("")}
           </select></div>
           <div class="field"><label>Curso</label><select class="select-pill" data-admin-results-field="group">
-            ${groups.map((v) => `<option value="${escAttr(v)}" ${state.adminResultGroup===v?"selected":""}>${v === "all" ? "Todos" : esc(v)}</option>`).join("")}
+            ${groups.map((value) => `<option value="${escAttr(value)}" ${state.adminResultGroup === value ? "selected" : ""}>${value === "all" ? "Todos los cursos" : esc(value)}</option>`).join("")}
           </select></div>
           <div class="field"><label>Área/asignatura</label><select class="select-pill" data-admin-results-field="subject">
-            <option value="all">Todas</option>
-            ${SUBJECTS.map((s) => `<option value="${escAttr(s.name)}" ${subject===s.name?"selected":""}>${esc(s.name)}</option>`).join("")}
+            ${subjectOptions.map((value) => `<option value="${escAttr(value)}" ${subject === value ? "selected" : ""}>${value === "all" ? "Todas las áreas" : esc(value)}</option>`).join("")}
           </select></div>
           <div class="field span-2"><label>Estudiante</label><select class="select-pill" data-admin-results-field="student">
             <option value="all">Todos los estudiantes</option>
-            ${studentOptions.map((s) => `<option value="${escAttr(s.roll)}" ${state.adminResultStudent===s.roll?"selected":""}>${esc(s.name)} · ID ${esc(s.roll)}</option>`).join("")}
+            ${studentOptions.map((student) => `<option value="${escAttr(student.roll)}" ${state.adminResultStudent === student.roll ? "selected" : ""}>${esc(student.name)} · ID ${esc(student.roll)} · ${esc(student.grade)}° ${esc(student.group || "")}</option>`).join("")}
           </select></div>
         </div>
       </section>
+      <div class="teacher-active-label admin-results-scope">${esc(scopeText)}</div>
       <section class="teacher-stat-strip teacher-stat-strip-two admin-results-stats">
         <article class="card card-pad teacher-stat"><span>Estudiantes</span><strong>${filtered.length}</strong></article>
-        <article class="card card-pad teacher-stat"><span>Promedio de nota</span><strong>${avg(scoreValues)}<small>/100</small></strong></article>
+        <article class="card card-pad teacher-stat"><span>Promedio</span><strong>${avg(scoreValues)}<small>/100</small></strong></article>
       </section>
       <section class="teacher-metrics-row admin-results-metrics">
-        <article class="teacher-metric-card"><h3>Promedio por componentes</h3>${buildMetricBars(details, "component")}</article>
-        <article class="teacher-metric-card"><h3>Promedio por competencias</h3>${buildMetricBars(details, "competence")}</article>
+        ${teacherAggregateMetricsHtmlForDetails(details)}
       </section>
-      <section class="card table-card admin-results-table">
+      <section class="teacher-key-actions">
+        ${subject !== "all" ? `<button class="secondary-btn" data-action="open-answer-key" data-grade="${escAttr(state.adminResultGrade === "all" ? "" : state.adminResultGrade)}" data-subject="${escAttr(subject)}">Ver respuestas correctas</button>` : `<span class="badge gray">Selecciona un área para abrir detalles por estudiante y ver la clave.</span>`}
+      </section>
+      <section class="card table-card teacher-table-card admin-results-table">
         <div class="table-wrap">
-          <table>
-            <thead><tr><th>#</th><th>${scopeLabel(scope)}</th><th>Estudiantes</th><th>Promedio</th><th>Componentes</th><th>Competencias</th></tr></thead>
-            <tbody>
-              ${groupRows.map((row, index) => `
-                <tr>
-                  <td><span class="badge gray">${index + 1}</span></td>
-                  <td><strong>${esc(row.label)}</strong>${row.sub ? `<br><span class="student-subid">${esc(row.sub)}</span>` : ""}</td>
-                  <td>${row.count}</td>
-                  <td><span class="teacher-score teacher-score-plain">${row.avg}</span></td>
-                  <td>${row.componentAvg}%</td>
-                  <td>${row.competenceAvg}%</td>
-                </tr>
-              `).join("") || `<tr><td colspan="6" class="empty-state">No hay datos con los filtros actuales.</td></tr>`}
-            </tbody>
+          <table class="teacher-table">
+            <thead><tr><th>#</th><th>Estudiante</th><th>Nota</th><th>Correctas</th></tr></thead>
+            <tbody>${rows || `<tr><td colspan="4" class="empty-state">No hay estudiantes con los filtros actuales.</td></tr>`}</tbody>
           </table>
         </div>
       </section>
     `;
+  }
+
+  function teacherAggregateMetricsHtmlForDetails(details) {
+    return `
+      <article class="teacher-metric-card">
+        <h3>Promedio por componentes</h3>
+        ${buildMetricBars(details, "component")}
+      </article>
+      <article class="teacher-metric-card">
+        <h3>Promedio por competencias</h3>
+        ${buildMetricBars(details, "competence")}
+      </article>
+    `;
+  }
+
+  function adminStudentSubjectStat(student, subject) {
+    if (subject !== "all") {
+      const stat = student.subjectStats[subject] || {};
+      return { score: stat.score, correct: stat.correct || 0, total: stat.total || 0 };
+    }
+    const stats = SUBJECTS.map((subjectInfo) => student.subjectStats[subjectInfo.name]).filter((stat) => stat?.total);
+    const scores = stats.map((stat) => stat.score).filter((value) => Number.isFinite(value));
+    return {
+      score: scores.length ? Math.round(scores.reduce((sum, value) => sum + value, 0) / scores.length) : null,
+      correct: stats.reduce((sum, stat) => sum + (stat.correct || 0), 0),
+      total: stats.reduce((sum, stat) => sum + (stat.total || 0), 0)
+    };
+  }
+
+  function uniqueValues(values) {
+    return [...new Set(values.map((value) => cleanText(value)).filter(Boolean))].sort((a, b) => String(a).localeCompare(String(b), "es", { numeric: true, sensitivity: "base" }));
+  }
+
+  function availableSubjects() {
+    const fromKeys = uniqueValues(state.keys.map((key) => key.area));
+    const base = SUBJECTS.map((subject) => subject.name);
+    return [...new Set([...base, ...fromKeys].map(canonicalSubject).filter(Boolean))]
+      .sort((a, b) => a.localeCompare(b, "es", { sensitivity: "base" }));
   }
 
   function adminAppearanceHtml() {
@@ -1492,24 +1541,59 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
   }
 
   function cargaAssignmentCard(row) {
-    const colorIndex = SUBJECTS.findIndex((s) => s.name === canonicalSubject(row.subjectRaw || row.subject));
+    const subjectName = canonicalSubject(row.subjectRaw || row.subject);
+    const colorIndex = SUBJECTS.findIndex((s) => s.name === subjectName);
     const colors = ["#1975ae", "#8b5cf6", "#16a34a", "#eab308", "#dc2626", "#f97316", "#ec4899", "#0891b2", "#4f46e5", "#64748b"];
     const color = colors[colorIndex >= 0 ? colorIndex : 0];
     return `
       <article class="carga-assignment-card" style="--subject-color:${escAttr(color)};">
         <div class="carga-card-title">
-          ${subjectIcon(canonicalSubject(row.subjectRaw || row.subject))}
-          <div><strong>${esc(row.subjectRaw || row.subject || "Asignatura")}</strong><span>${esc(row.grade || "") }° ${esc(row.group || "")} · ${esc(row.sede || "Sin sede")}</span></div>
+          ${subjectIcon(subjectName || "Matemáticas")}
+          <div><strong>${esc(row.subjectRaw || row.subject || "Carga sin asignatura")}</strong><span>${row.grade ? `${esc(row.grade)}°` : "Sin grado"} ${esc(row.group || "")} · ${esc(row.sede || "Sin sede")}</span></div>
         </div>
         <div class="form-grid compact">
-          <div class="field"><label>Asignatura</label><input value="${escAttr(row.subjectRaw || row.subject || "")}" data-carga-row="${row.index}" data-field="subjectRaw"></div>
-          <div class="field"><label>Sede</label><input value="${escAttr(row.sede || "")}" data-carga-row="${row.index}" data-field="sede"></div>
-          <div class="field"><label>Grado</label><input value="${escAttr(row.grade || "")}" data-carga-row="${row.index}" data-field="grade"></div>
-          <div class="field"><label>Curso</label><input value="${escAttr(row.group || "")}" data-carga-row="${row.index}" data-field="group"></div>
+          <div class="field"><label>Asignatura</label><select class="select-pill" data-carga-row="${row.index}" data-field="subjectRaw">${cargaSelectOptions("subject", row.subjectRaw || row.subject)}</select></div>
+          <div class="field"><label>Sede</label><select class="select-pill" data-carga-row="${row.index}" data-field="sede">${cargaSelectOptions("sede", row.sede)}</select></div>
+          <div class="field"><label>Grado</label><select class="select-pill" data-carga-row="${row.index}" data-field="grade">${cargaSelectOptions("grade", row.grade)}</select></div>
+          <div class="field"><label>Curso</label><select class="select-pill" data-carga-row="${row.index}" data-field="group">${cargaSelectOptions("group", row.group)}</select></div>
         </div>
         <button class="danger-btn" data-action="delete-carga" data-index="${row.index}">Quitar carga</button>
       </article>
     `;
+  }
+
+  function cargaSelectOptions(kind, currentValue = "") {
+    const current = cleanText(currentValue);
+    let values = [];
+    if (kind === "subject") values = availableSubjects();
+    if (kind === "sede") values = uniqueValues(state.studentsRegistry.map((student) => student.sede).concat(state.computedStudents.map((student) => student.sede)));
+    if (kind === "grade") values = uniqueValues(state.studentsRegistry.map((student) => student.grade).concat(state.computedStudents.map((student) => student.grade)).filter(Boolean)).sort((a, b) => Number(a) - Number(b));
+    if (kind === "group") values = uniqueValues(state.studentsRegistry.map((student) => student.group).concat(state.computedStudents.map((student) => student.group)));
+    if (current && !values.some((value) => String(value) === String(current))) values.unshift(current);
+    const placeholder = kind === "subject" ? "Selecciona asignatura" : kind === "sede" ? "Selecciona sede" : kind === "grade" ? "Selecciona grado" : "Selecciona curso";
+    return [`<option value="">${placeholder}</option>`, ...values.map((value) => `<option value="${escAttr(value)}" ${String(value) === String(current) ? "selected" : ""}>${kind === "grade" && value ? `${esc(value)}°` : esc(value)}</option>`)].join("");
+  }
+
+  function updateCargaRowField(target) {
+    if (!target.dataset.cargaRow) return false;
+    const index = Number(target.dataset.cargaRow);
+    const field = target.dataset.field;
+    if (!state.cargaRows[index]) return true;
+    if (field === "grade") {
+      state.cargaRows[index].grade = toInt(target.value);
+    } else if (field === "subjectRaw") {
+      state.cargaRows[index].subjectRaw = target.value;
+      state.cargaRows[index].subject = canonicalSubject(target.value);
+    } else if (field === "id") {
+      state.cargaRows[index].id = cleanId(target.value);
+    } else if (field === "name") {
+      state.cargaRows[index].name = target.value;
+    } else if (field === "sede") {
+      state.cargaRows[index].sede = target.value;
+    } else if (field === "group") {
+      state.cargaRows[index].group = target.value;
+    }
+    return true;
   }
 
   function adminKeysHtml() {
@@ -1794,9 +1878,20 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     }
 
     if (action === "add-carga-teacher") {
-      const newId = `nuevo-${Date.now()}`;
-      state.cargaRows.unshift({ id: newId, name: "Nuevo docente", subjectRaw: "Matemáticas", subject: "Matemáticas", sede: "Principal", grade: 10, group: "1PPAL" });
-      state.adminCargaTeacherId = newId;
+      openAddCargaTeacherModal();
+      return;
+    }
+
+    if (action === "confirm-add-carga-teacher") {
+      const id = cleanId(document.getElementById("newTeacherId")?.value || "");
+      const name = cleanText(document.getElementById("newTeacherName")?.value || "");
+      if (!id || !name) {
+        toast("Escribe ID y nombre del docente.");
+        return;
+      }
+      state.cargaRows.unshift({ id, name, subjectRaw: "", subject: "", sede: "", grade: "", group: "" });
+      state.adminCargaTeacherId = id;
+      closeModal();
       renderAdmin();
       return;
     }
@@ -1810,10 +1905,25 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     }
 
     if (action === "add-carga-to-teacher") {
+      openAddCargaAssignmentModal(target.dataset.id || state.adminCargaTeacherId || "");
+      return;
+    }
+
+    if (action === "confirm-add-carga-assignment") {
       const id = target.dataset.id || state.adminCargaTeacherId || "";
       const existing = state.cargaRows.find((row) => row.id === id) || { id, name: "" };
-      state.cargaRows.push({ id: existing.id, name: existing.name, subjectRaw: "Matemáticas", subject: "Matemáticas", sede: "Principal", grade: 10, group: "1PPAL" });
+      const subjectRaw = document.getElementById("newCargaSubject")?.value || "";
+      const sede = document.getElementById("newCargaSede")?.value || "";
+      const grade = toInt(document.getElementById("newCargaGrade")?.value || "");
+      const group = document.getElementById("newCargaGroup")?.value || "";
+      if (!id || !subjectRaw || !sede || !grade || !group) {
+        toast("Selecciona asignatura, sede, grado y curso.");
+        return;
+      }
+      state.cargaRows = state.cargaRows.filter((row) => !(row.id === id && !row.subjectRaw && !row.subject));
+      state.cargaRows.push({ id: existing.id, name: existing.name, subjectRaw, subject: canonicalSubject(subjectRaw), sede, grade, group });
       state.adminCargaTeacherId = existing.id;
+      closeModal();
       renderAdmin();
       return;
     }
@@ -1919,28 +2029,18 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     }
 
     if (target.dataset.cargaRow) {
-      const index = Number(target.dataset.cargaRow);
-      const field = target.dataset.field;
-      if (!state.cargaRows[index]) return;
-      if (field === "grade") {
-        state.cargaRows[index].grade = toInt(target.value);
-      } else if (field === "subjectRaw") {
-        state.cargaRows[index].subjectRaw = target.value;
-        state.cargaRows[index].subject = canonicalSubject(target.value);
-      } else if (field === "id") {
-        state.cargaRows[index].id = cleanId(target.value);
-      } else if (field === "name") {
-        state.cargaRows[index].name = target.value;
-      } else if (field === "sede") {
-        state.cargaRows[index].sede = target.value;
-      } else if (field === "group") {
-        state.cargaRows[index].group = target.value;
-      }
+      updateCargaRowField(target);
     }
   }
 
   function handleChange(event) {
     const target = event.target;
+
+    if (target.dataset.cargaRow) {
+      updateCargaRowField(target);
+      renderAdmin();
+      return;
+    }
 
     if (target.dataset.adminResultsField) {
       const field = target.dataset.adminResultsField;
@@ -2450,6 +2550,62 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
                 <div class="meta-row"><span>Componente</span><strong>${esc(detail.component || "Sin registro")}</strong></div>
                 <div class="meta-row"><span>Competencia</span><strong>${esc(detail.competence || "Sin registro")}</strong></div>
               </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    `;
+  }
+
+  function openAddCargaTeacherModal() {
+    modalRoot.innerHTML = `
+      <div class="modal-backdrop" data-action="close-modal">
+        <section class="modal" style="max-width:560px;">
+          <div class="modal-head">
+            <div>
+              <h2>Agregar docente</h2>
+              <span style="color:#7d8089;font-weight:600;">Registra el ID y el nombre. Luego podrás asignarle cargas.</span>
+            </div>
+            <button type="button" class="icon-btn" data-action="close-modal" aria-label="Cerrar">×</button>
+          </div>
+          <div class="modal-body">
+            <div class="form-grid compact">
+              <div class="field"><label>ID docente</label><input id="newTeacherId" placeholder="Ej. 12345678"></div>
+              <div class="field"><label>Nombre docente</label><input id="newTeacherName" placeholder="Nombre completo"></div>
+            </div>
+            <div class="inline-actions" style="margin-top:16px;">
+              <button class="primary-btn" data-action="confirm-add-carga-teacher">Agregar docente</button>
+              <button class="ghost-btn" data-action="close-modal">Cancelar</button>
+            </div>
+          </div>
+        </section>
+      </div>
+    `;
+  }
+
+  function openAddCargaAssignmentModal(teacherId) {
+    const teacher = buildCargaTeachers().find((item) => item.id === teacherId);
+    modalRoot.innerHTML = `
+      <div class="modal-backdrop" data-action="close-modal">
+        <section class="modal" style="max-width:660px;">
+          <div class="modal-head">
+            <div>
+              <h2>Agregar carga</h2>
+              <span style="color:#7d8089;font-weight:600;">${esc(teacher?.name || "Docente")} · ID ${esc(teacherId || "sin ID")}</span>
+            </div>
+            <button type="button" class="icon-btn" data-action="close-modal" aria-label="Cerrar">×</button>
+          </div>
+          <div class="modal-body">
+            <div class="form-grid compact">
+              <div class="field"><label>Área/asignatura</label><select id="newCargaSubject" class="select-pill">${cargaSelectOptions("subject", "")}</select></div>
+              <div class="field"><label>Sede</label><select id="newCargaSede" class="select-pill">${cargaSelectOptions("sede", "")}</select></div>
+              <div class="field"><label>Grado</label><select id="newCargaGrade" class="select-pill">${cargaSelectOptions("grade", "")}</select></div>
+              <div class="field"><label>Curso</label><select id="newCargaGroup" class="select-pill">${cargaSelectOptions("group", "")}</select></div>
+            </div>
+            <div class="admin-note" style="margin-top:14px;">Las sedes, grados y cursos salen de <strong>ESTUDIANTES.json</strong>. Las asignaturas salen de las claves cargadas en <strong>KEYS</strong>.</div>
+            <div class="inline-actions" style="margin-top:16px;">
+              <button class="primary-btn" data-action="confirm-add-carga-assignment" data-id="${escAttr(teacherId)}">Agregar carga</button>
+              <button class="ghost-btn" data-action="close-modal">Cancelar</button>
             </div>
           </div>
         </section>
