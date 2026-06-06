@@ -5219,3 +5219,155 @@ body {
   background: linear-gradient(90deg, var(--orange, #1975ae), var(--orange-2, #78b8db)) !important;
   opacity: 1 !important;
 }
+
+
+/* Ajustes v37: en móvil la nota va a la derecha y el detalle abre en modal */
+.item-value-note {
+  margin: 12px 0 16px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--button-radius, 4px);
+  background: #fff;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, .05);
+  display: grid;
+  gap: 2px;
+}
+
+.item-value-note span {
+  color: #747986;
+  font-size: .76rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.item-value-note strong {
+  color: var(--primary);
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.item-value-note small {
+  color: #666b76;
+  font-size: .82rem;
+  line-height: 1.25;
+}
+
+.student-subject-modal .modal-body {
+  max-height: min(76vh, 760px);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+@media (max-width: 940px) {
+  .student-workspace .subject-row-grid-card,
+  .director-subject-card {
+    min-height: 74px !important;
+    padding: 10px 12px !important;
+    gap: 8px !important;
+  }
+
+  .student-workspace .subject-card-main,
+  .director-card-main {
+    display: grid !important;
+    grid-template-columns: 50px minmax(0, 1fr) auto !important;
+    align-items: center !important;
+    column-gap: 10px !important;
+  }
+
+  .student-workspace .subject-card-main > .subject-icon,
+  .director-card-main > .subject-icon {
+    width: 50px !important;
+    height: 50px !important;
+    min-width: 50px !important;
+  }
+
+  .student-workspace .subject-card-text,
+  .director-card-text {
+    display: contents !important;
+  }
+
+  .student-workspace .subject-card-title,
+  .director-card-title {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    align-self: center !important;
+    font-size: .98rem !important;
+    line-height: 1.05 !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: unset !important;
+    max-width: 100% !important;
+  }
+
+  .student-workspace .subject-card-scoreline,
+  .director-card-text .director-subject-score {
+    grid-column: 3 !important;
+    grid-row: 1 !important;
+    justify-self: end !important;
+    align-self: center !important;
+    display: inline-flex !important;
+    align-items: baseline !important;
+    gap: 2px !important;
+    white-space: nowrap !important;
+  }
+
+  .student-workspace .subject-card-scoreline .subject-score,
+  .director-card-text .director-subject-score {
+    font-size: 1.62rem !important;
+    line-height: 1 !important;
+  }
+
+  .student-workspace .subject-card-scoreline small,
+  .director-card-text .director-subject-score small {
+    font-size: .48em !important;
+  }
+
+  .student-workspace .subject-chevron {
+    margin-left: 6px !important;
+  }
+
+  .student-workspace .subject-card-progress,
+  .director-mini-bar {
+    height: 6px !important;
+    margin-top: 0 !important;
+  }
+
+  .student-workspace .subject-mobile-detail {
+    display: none !important;
+  }
+
+  .student-subject-modal {
+    width: calc(100vw - 18px) !important;
+    max-width: calc(100vw - 18px) !important;
+  }
+
+  .student-subject-modal .subject-detail-head {
+    align-items: center !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .student-workspace .subject-card-main,
+  .director-card-main {
+    grid-template-columns: 46px minmax(0, 1fr) auto !important;
+    column-gap: 8px !important;
+  }
+
+  .student-workspace .subject-card-main > .subject-icon,
+  .director-card-main > .subject-icon {
+    width: 46px !important;
+    height: 46px !important;
+    min-width: 46px !important;
+  }
+
+  .student-workspace .subject-card-title,
+  .director-card-title {
+    font-size: .92rem !important;
+  }
+
+  .student-workspace .subject-card-scoreline .subject-score,
+  .director-card-text .director-subject-score {
+    font-size: 1.45rem !important;
+  }
+}

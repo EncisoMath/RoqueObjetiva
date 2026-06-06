@@ -834,6 +834,36 @@
     }, 220);
   }
 
+  function isMobileViewport() {
+    return window.matchMedia && window.matchMedia("(max-width: 940px)").matches;
+  }
+
+  function openStudentSubjectModal(subject) {
+    const roll = state.activeSession?.roll;
+    const student = state.computedByRoll.get(roll);
+    if (!student || !subject) return;
+    const stat = student.subjectStats?.[subject];
+    if (!stat?.total) return;
+    state.metricTab = "components";
+    document.body.classList.add("modal-open");
+    modalRoot.innerHTML = `
+      <div class="modal-backdrop student-subject-modal-backdrop" data-action="close-modal">
+        <section class="modal student-subject-modal" style="max-width:760px;">
+          <div class="modal-head">
+            <div>
+              <h2>${esc(subject)}</h2>
+              <span style="color:#7d8089;font-weight:600;">${esc(student.name)} · ${esc(student.grade)}° ${esc(student.group || "")}</span>
+            </div>
+            <button type="button" class="icon-btn" data-action="close-modal" aria-label="Cerrar">×</button>
+          </div>
+          <div class="modal-body">
+            ${buildSubjectDetailHtml(student, subject, stat, true, false)}
+          </div>
+        </section>
+      </div>
+    `;
+  }
+
   function updateMetricTabDom() {
     const activeMetric = state.metricTab === "competences" ? "competences" : "components";
     document.querySelectorAll(".metric-tab").forEach((button) => {
@@ -893,6 +923,10 @@
           </div>
         </div>
         <div class="answers-grid">${detailRows || `<div class="empty-state">No hay ítems para esta asignatura.</div>`}</div>
+        ${(() => {
+          const info = subjectItemValue(student.grade, subject, stat);
+          return info.total ? `<div class="item-value-note"><span>Valor de cada ítem</span><strong>${esc(info.label)} puntos</strong><small>La nota se calcula desde 20 hasta 100; las respuestas sin marcar o dobles no suman.</small></div>` : "";
+        })()}
 
         <div class="metric-tabs" role="tablist" aria-label="Análisis por componente y competencia">
           <button class="metric-tab ${activeMetric === "components" ? "active" : ""}" data-action="select-metric-tab" data-tab="components">Componentes</button>
@@ -2096,7 +2130,11 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
 
     if (action === "select-subject") {
       const nextSubject = target.dataset.subject;
-      transitionStudentSubject(nextSubject, target);
+      if (state.activeSession?.role === "student" && isMobileViewport()) {
+        openStudentSubjectModal(nextSubject);
+      } else {
+        transitionStudentSubject(nextSubject, target);
+      }
       return;
     }
 
