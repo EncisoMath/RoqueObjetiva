@@ -1,17 +1,28 @@
 {
   "title": "Resultados de Pruebas Objetivas",
-  "subtitle": "Consulta tu desempeño académico por áreas, componentes y competencias.",
+  "subtitle": "Este reporte no se pasa ni se pierde. Es una herramienta para identificar fortalezas, habilidades y oportunidades de mejora.",
   "logoImage": "assets/logo-principal.png",
+  "appIcon": "icons/app-icon-1780716993015-512.png",
   "bannerImage": "",
   "footerText": "Consulta institucional de resultados",
   "primaryColor": "#1975ae",
   "buttonRadius": 4,
-  "subjectLogos": {},
-  "github": {
-    "owner": "",
-    "repo": "",
-    "branch": "main"
-  },
   "logoZoom": 1,
-  "appIcon": "icons/icon-512.png"
+  "subjectLogos": {
+    "Matemáticas": "ICONOS/matematicas.png",
+    "Lenguaje": "ICONOS/lenguaje.png",
+    "Ciencias Naturales": "ICONOS/ciencias-naturales.png",
+    "Inglés": "ICONOS/ingles.png",
+    "Ciencias Sociales y Ciudadanía": "ICONOS/ciencias-sociales-y-ciudadania.png",
+    "Ética y Valores": "ICONOS/etica-y-valores.png",
+    "Artística": "ICONOS/artistica.png",
+    "Educación Física": "ICONOS/educacion-fisica.png",
+    "Informática": "ICONOS/informatica.png",
+    "Religión": "ICONOS/religion.png"
+  },
+  "appIcon192": "icons/app-icon-1780716993015-192.png",
+  "appIconMaskable": "icons/app-icon-1780716993015-maskable.png",
+  "appleTouchIcon": "icons/app-icon-1780716993015-apple.png",
+  "favicon32": "icons/favicon-1780716993015-32.png",
+  "favicon16": "icons/favicon-1780716993015-16.png"
 }
