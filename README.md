@@ -230,3 +230,17 @@ El color institucional predeterminado es `#314b9b` y el logo principal predeterm
 - Se retiró el interruptor de modo claro/oscuro.
 - La pantalla de inicio conserva el estilo oscuro animado.
 - Las vistas de estudiante, docente y admin quedan fijas en modo claro.
+
+
+## PWA instalable
+
+Esta versión incluye soporte básico de PWA:
+
+- `manifest.webmanifest`
+- `service-worker.js`
+- íconos en `icons/`
+- metadatos para Android, PC e iOS básico
+
+En Android/Chrome o PC/Edge/Chrome debe aparecer la opción de instalar la aplicación. En iPhone se instala desde Safari usando **Compartir → Agregar a pantalla de inicio**.
+
+El `service-worker.js` usa estrategia de red primero para archivos JSON, para evitar que los resultados, cargas o configuraciones queden demasiado desactualizados cuando se publique una versión nueva en GitHub Pages.

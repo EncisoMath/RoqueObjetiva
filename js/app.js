@@ -3154,4 +3154,15 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     clearTimeout(toast._timer);
     toast._timer = setTimeout(() => toastEl.classList.remove("show"), 2500);
   }
+
+  function registerPWA() {
+    if (!("serviceWorker" in navigator)) return;
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("service-worker.js").catch(() => {
+        /* La app sigue funcionando aunque el registro PWA falle. */
+      });
+    });
+  }
+
+  registerPWA();
 })();
