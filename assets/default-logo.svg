@@ -1,14 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 80" role="img" aria-label="Pruebas Objetivas">
   <defs>
     <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#ff7a00"/>
-      <stop offset="1" stop-color="#d72638"/>
+      <stop offset="0" stop-color="#314b9b"/>
+      <stop offset="1" stop-color="#283d7f"/>
     </linearGradient>
   </defs>
   <rect width="220" height="80" rx="24" fill="url(#g)"/>
   <path d="M38 22h18v36H38zM60 22h18v36H60zM82 22h18v36H82z" fill="white" opacity=".92"/>
   <circle cx="128" cy="40" r="18" fill="white" opacity=".96"/>
-  <path d="M122 40l5 6 12-15" fill="none" stroke="#ff7a00" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M122 40l5 6 12-15" fill="none" stroke="#314b9b" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
   <text x="154" y="35" font-family="Montserrat, Arial, sans-serif" font-size="14" fill="white" font-weight="800">Pruebas</text>
   <text x="154" y="53" font-family="Montserrat, Arial, sans-serif" font-size="14" fill="white" font-weight="700">Objetivas</text>
 </svg>

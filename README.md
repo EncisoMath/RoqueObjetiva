@@ -161,3 +161,14 @@ GitHub Pages público no es un sistema seguro para publicar información sensibl
 
 - El puntaje global vuelve a mostrarse como x/500.
 - Se ajusto el espaciado visual de los digitos del puntaje global para que no se vean tan apinados.
+
+
+## Configuracion predeterminada
+
+El color institucional predeterminado es `#314b9b` y el logo principal predeterminado se lee desde `assets/logo-principal.png`.
+
+## Nota v13
+
+- El color base predeterminado sigue siendo `#314b9b`.
+- El logo principal predeterminado sigue apuntando a `assets/logo-principal.png`, pero este paquete no lo incluye para no reemplazar tu logo institucional. Debes conservar o subir tu propio archivo con ese nombre en la carpeta `assets/`.
+- El banner ahora usa un degradado oscuro: color principal hacia una versión más oscura del mismo color.

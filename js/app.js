@@ -31,10 +31,10 @@
   const DEFAULT_CONFIG = {
     title: "Resultados de Pruebas Objetivas",
     subtitle: "Este reporte no se pasa ni se pierde. Es una herramienta para identificar fortalezas, habilidades y oportunidades de mejora.",
-    logoImage: "assets/default-logo.svg",
+    logoImage: "assets/logo-principal.png",
     bannerImage: "",
     footerText: "Consulta institucional de resultados",
-    primaryColor: "#ff7900",
+    primaryColor: "#314b9b",
     buttonRadius: 4,
     logoZoom: 1,
     subjectLogos: {},
@@ -445,7 +445,7 @@
   }
 
   function renderLogin(error = "") {
-    const primary = normalizeColor(state.config.primaryColor || "#ff7900");
+    const primary = normalizeColor(state.config.primaryColor || "#314b9b");
     const primaryDark = shadeColor(primary, -18);
     const primarySoft = mixWithWhite(primary, 34);
     const rgb = hexToRgb(primary);
@@ -456,7 +456,7 @@
     document.documentElement.style.setProperty("--orange-3", primaryDark);
     document.documentElement.style.setProperty("--primary-rgb", `${rgb.r}, ${rgb.g}, ${rgb.b}`);
     document.querySelector('meta[name="theme-color"]')?.setAttribute("content", primary);
-    const logo = state.config.logoImage || "assets/default-logo.svg";
+    const logo = state.config.logoImage || "assets/logo-principal.png";
     app.innerHTML = `
       <section class="login-shell">
         <div class="login-panel">
@@ -493,7 +493,7 @@
 
   function renderShell(content, nav = "") {
     const cfg = state.config;
-    const primary = normalizeColor(cfg.primaryColor || "#ff7900");
+    const primary = normalizeColor(cfg.primaryColor || "#314b9b");
     const primaryDark = shadeColor(primary, -18);
     const primarySoft = mixWithWhite(primary, 34);
     const rgb = hexToRgb(primary);
@@ -972,7 +972,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
           </div>
           <div class="field">
             <label>Color principal</label>
-            <input type="color" value="${escAttr(cfg.primaryColor || "#ff7900")}" data-config-field="primaryColor">
+            <input type="color" value="${escAttr(cfg.primaryColor || "#314b9b")}" data-config-field="primaryColor">
           </div>
           <div class="field">
             <label>Texto institucional auxiliar</label>
@@ -2331,7 +2331,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
   }
 
   function normalizeColor(value) {
-    const fallback = "#ff7900";
+    const fallback = "#314b9b";
     const raw = String(value || "").trim();
     if (/^#[0-9a-f]{6}$/i.test(raw)) return raw.toLowerCase();
     if (/^#[0-9a-f]{3}$/i.test(raw)) {

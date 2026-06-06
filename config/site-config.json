@@ -1,10 +1,10 @@
 {
   "title": "Resultados de Pruebas Objetivas",
   "subtitle": "Consulta tu desempeño académico por áreas, componentes y competencias.",
-  "logoImage": "assets/default-logo.svg",
+  "logoImage": "assets/logo-principal.png",
   "bannerImage": "",
   "footerText": "Consulta institucional de resultados",
-  "primaryColor": "#ff7900",
+  "primaryColor": "#314b9b",
   "buttonRadius": 4,
   "subjectLogos": {},
   "github": {

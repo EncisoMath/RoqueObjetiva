@@ -1,8 +1,8 @@
 
 :root {
-  --orange: #ff7900;
-  --orange-2: #ff982a;
-  --orange-3: #e65f00;
+  --orange: #314b9b;
+  --orange-2: #7788bd;
+  --orange-3: #283d7f;
   --red: #c81d2a;
   --teal: #00a7b5;
   --blue: #2ca7f8;
@@ -320,7 +320,7 @@ a {
   overflow: hidden;
   min-height: 132px;
   color: #fff;
-  background: linear-gradient(100deg, var(--orange), #ff8e1d);
+  background: linear-gradient(100deg, var(--orange), var(--orange-3));
   background-size: cover;
   background-position: center;
   box-shadow: 0 12px 34px rgba(255, 122, 0, .18);
@@ -333,7 +333,7 @@ a {
   width: 240px;
   height: 150px;
   border-radius: 55% 45% 60% 40%;
-  background: rgba(143, 54, 0, .20);
+  background: rgba(0, 0, 0, .18);
   filter: blur(.2px);
 }
 
@@ -1899,18 +1899,18 @@ td {
 /* Ajustes v3: apertura manual, color global configurable y panel docente compacto */
 body {
   background:
-    radial-gradient(circle at 8% -6%, rgba(var(--primary-rgb, 255, 121, 0), .13), transparent 28rem),
+    radial-gradient(circle at 8% -6%, rgba(var(--primary-rgb, 49, 75, 155), .13), transparent 28rem),
     radial-gradient(circle at 95% 8%, rgba(44, 167, 248, .10), transparent 26rem),
     var(--bg);
 }
 
 .primary-btn {
   background: linear-gradient(135deg, var(--orange), var(--orange-3));
-  box-shadow: 0 14px 28px rgba(var(--primary-rgb, 255, 121, 0), .28);
+  box-shadow: 0 14px 28px rgba(var(--primary-rgb, 49, 75, 155), .28);
 }
 
 .secondary-btn {
-  background: rgba(var(--primary-rgb, 255, 121, 0), .11);
+  background: rgba(var(--primary-rgb, 49, 75, 155), .11);
   color: var(--orange-3);
 }
 
@@ -1918,18 +1918,18 @@ body {
 .field select:focus,
 .field textarea:focus {
   border-color: var(--orange);
-  box-shadow: 0 0 0 4px rgba(var(--primary-rgb, 255, 121, 0), .12);
+  box-shadow: 0 0 0 4px rgba(var(--primary-rgb, 49, 75, 155), .12);
 }
 
 .boot-mark {
   background: linear-gradient(135deg, var(--orange), var(--orange-3));
-  box-shadow: 0 18px 36px rgba(var(--primary-rgb, 255, 121, 0), .32);
+  box-shadow: 0 18px 36px rgba(var(--primary-rgb, 49, 75, 155), .32);
 }
 
 .top-banner {
   min-height: 104px;
-  background: linear-gradient(100deg, var(--orange), var(--orange-2));
-  box-shadow: 0 12px 34px rgba(var(--primary-rgb, 255, 121, 0), .18);
+  background: linear-gradient(100deg, var(--orange), var(--orange-3));
+  box-shadow: 0 12px 34px rgba(var(--primary-rgb, 49, 75, 155), .18);
 }
 
 .top-banner::before,
@@ -1938,8 +1938,8 @@ body {
 }
 
 .subject-list-item.active .subject-row {
-  border-color: rgba(var(--primary-rgb, 255, 121, 0), .56);
-  background: rgba(var(--primary-rgb, 255, 121, 0), .08);
+  border-color: rgba(var(--primary-rgb, 49, 75, 155), .56);
+  background: rgba(var(--primary-rgb, 49, 75, 155), .08);
 }
 
 .subject-row-right {
@@ -2006,7 +2006,7 @@ body {
   display: grid;
   place-items: center;
   border-radius: var(--button-radius, 4px);
-  background: rgba(var(--primary-rgb, 255, 121, 0), .12);
+  background: rgba(var(--primary-rgb, 49, 75, 155), .12);
   color: var(--orange);
   font-size: 2rem;
   font-weight: 900;
@@ -2040,7 +2040,7 @@ body {
   background: var(--orange);
   color: #fff;
   border-color: var(--orange);
-  box-shadow: 0 10px 24px rgba(var(--primary-rgb, 255, 121, 0), .22);
+  box-shadow: 0 10px 24px rgba(var(--primary-rgb, 49, 75, 155), .22);
 }
 
 .teacher-stat-strip {
@@ -2113,7 +2113,7 @@ body {
 }
 
 .teacher-table .table-row-click:hover {
-  background: rgba(var(--primary-rgb, 255, 121, 0), .07);
+  background: rgba(var(--primary-rgb, 49, 75, 155), .07);
 }
 
 .modal-backdrop.is-closing {
@@ -2391,14 +2391,14 @@ td {
 /* Ajustes v6: transiciones, puntaje Saber y vista docente */
 body {
   background:
-    radial-gradient(circle at 8% -6%, rgba(var(--primary-rgb, 255, 121, 0), .13), transparent 28rem),
+    radial-gradient(circle at 8% -6%, rgba(var(--primary-rgb, 49, 75, 155), .13), transparent 28rem),
     radial-gradient(circle at 95% 8%, rgba(44, 167, 248, .10), transparent 26rem),
     var(--bg);
 }
 
 .top-banner,
 .primary-btn {
-  box-shadow: 0 12px 34px rgba(var(--primary-rgb, 255, 121, 0), .18);
+  box-shadow: 0 12px 34px rgba(var(--primary-rgb, 49, 75, 155), .18);
 }
 
 .saber-score-block {
@@ -2410,7 +2410,7 @@ body {
 }
 
 .saber-score-block:hover {
-  background: rgba(var(--primary-rgb, 255, 121, 0), .07);
+  background: rgba(var(--primary-rgb, 49, 75, 155), .07);
   transform: translateY(-1px);
 }
 
@@ -2511,7 +2511,7 @@ body {
 }
 
 .formula-box {
-  background: rgba(var(--primary-rgb, 255, 121, 0), .07);
+  background: rgba(var(--primary-rgb, 49, 75, 155), .07);
   border-radius: 18px;
   padding: 16px;
   margin-bottom: 16px;
@@ -2529,7 +2529,7 @@ body {
 
 .formula-line {
   background: #fff;
-  border: 1px solid rgba(var(--primary-rgb, 255, 121, 0), .18);
+  border: 1px solid rgba(var(--primary-rgb, 49, 75, 155), .18);
   border-radius: 12px;
   padding: 12px;
   margin: 10px 0;
@@ -2651,7 +2651,7 @@ body {
   height: 52px;
   border-radius: 18px;
   background: linear-gradient(135deg, var(--orange), var(--orange-2));
-  box-shadow: 0 18px 38px rgba(var(--primary-rgb, 255, 121, 0), .24);
+  box-shadow: 0 18px 38px rgba(var(--primary-rgb, 49, 75, 155), .24);
   animation: routePulse 1s infinite alternate ease-in-out;
 }
 
@@ -2713,11 +2713,11 @@ body {
   grid-template-columns: auto minmax(0, 1fr);
   gap: 18px;
   align-items: center;
-  background: linear-gradient(135deg, rgba(var(--primary-rgb, 255, 121, 0), .16), rgba(var(--primary-rgb, 255, 121, 0), .05));
+  background: linear-gradient(135deg, rgba(var(--primary-rgb, 49, 75, 155), .16), rgba(var(--primary-rgb, 49, 75, 155), .05));
   border-radius: 22px;
   padding: 18px;
   margin-bottom: 14px;
-  box-shadow: inset 0 0 0 1px rgba(var(--primary-rgb, 255, 121, 0), .12);
+  box-shadow: inset 0 0 0 1px rgba(var(--primary-rgb, 49, 75, 155), .12);
 }
 
 .global-score-hero span {
@@ -2755,9 +2755,9 @@ body {
 
 .formula-box-strong {
   background:
-    radial-gradient(circle at 0 0, rgba(var(--primary-rgb, 255, 121, 0), .20), transparent 12rem),
-    rgba(var(--primary-rgb, 255, 121, 0), .07);
-  box-shadow: inset 0 0 0 1px rgba(var(--primary-rgb, 255, 121, 0), .14);
+    radial-gradient(circle at 0 0, rgba(var(--primary-rgb, 49, 75, 155), .20), transparent 12rem),
+    rgba(var(--primary-rgb, 49, 75, 155), .07);
+  box-shadow: inset 0 0 0 1px rgba(var(--primary-rgb, 49, 75, 155), .14);
 }
 
 .formula-step {
@@ -2786,7 +2786,7 @@ body {
 .formula-line.colorful {
   border: 0;
   background: #fff;
-  box-shadow: 0 10px 26px rgba(var(--primary-rgb, 255, 121, 0), .12);
+  box-shadow: 0 10px 26px rgba(var(--primary-rgb, 49, 75, 155), .12);
   color: var(--orange);
   font-size: .96rem;
 }
@@ -2802,7 +2802,7 @@ body {
   justify-content: center;
   padding: 4px 8px;
   border-radius: 999px;
-  background: rgba(var(--primary-rgb, 255, 121, 0), .10);
+  background: rgba(var(--primary-rgb, 49, 75, 155), .10);
   color: var(--orange);
   font-weight: 800;
 }
@@ -2810,7 +2810,7 @@ body {
 .weighted-sum-row td {
   font-weight: 800;
   color: #2f3138;
-  background: rgba(var(--primary-rgb, 255, 121, 0), .07);
+  background: rgba(var(--primary-rgb, 49, 75, 155), .07);
 }
 
 .saber-area-cards {
@@ -2828,7 +2828,7 @@ body {
   gap: 16px;
   padding: 14px;
   border-radius: 16px;
-  background: rgba(var(--primary-rgb, 255, 121, 0), .07);
+  background: rgba(var(--primary-rgb, 49, 75, 155), .07);
 }
 
 .github-publish-box strong {
@@ -2843,7 +2843,7 @@ body {
 
 @media (max-width: 680px) {
   .subject-list-item.active {
-    border: 1px solid rgba(var(--primary-rgb, 255, 121, 0), .24);
+    border: 1px solid rgba(var(--primary-rgb, 49, 75, 155), .24);
     border-radius: var(--button-radius, 4px) !important;
     overflow: hidden;
     box-shadow: 0 10px 26px rgba(24, 24, 27, .08);
@@ -2851,9 +2851,9 @@ body {
 
   .subject-list-item.active .subject-row {
     border: 0 !important;
-    border-bottom: 1px solid rgba(var(--primary-rgb, 255, 121, 0), .12) !important;
+    border-bottom: 1px solid rgba(var(--primary-rgb, 49, 75, 155), .12) !important;
     border-radius: 0 !important;
-    background: rgba(var(--primary-rgb, 255, 121, 0), .055);
+    background: rgba(var(--primary-rgb, 49, 75, 155), .055);
   }
 
   .global-score-hero {
@@ -3252,7 +3252,7 @@ body {
 
 .formula-box-strong.clean {
   background: #fff !important;
-  box-shadow: inset 0 0 0 1px rgba(var(--primary-rgb, 255, 121, 0), .14), 0 10px 28px rgba(24, 24, 27, .05);
+  box-shadow: inset 0 0 0 1px rgba(var(--primary-rgb, 49, 75, 155), .14), 0 10px 28px rgba(24, 24, 27, .05);
 }
 
 .global-step-list {
@@ -3270,7 +3270,7 @@ body {
   align-items: center;
   padding: 9px 10px;
   border-radius: 12px;
-  background: rgba(var(--primary-rgb, 255, 121, 0), .06);
+  background: rgba(var(--primary-rgb, 49, 75, 155), .06);
 }
 
 .global-step-list li span {
