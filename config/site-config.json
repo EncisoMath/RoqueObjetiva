@@ -2,7 +2,7 @@
   "title": "Resultados de Pruebas Objetivas",
   "subtitle": "Este reporte no se pasa ni se pierde. Es una herramienta para identificar fortalezas, habilidades y oportunidades de mejora.",
   "logoImage": "assets/logo-principal.png",
-  "appIcon": "icons/app-icon-1780716993015-512.png",
+  "appIcon": "icons/app-icon-1780721209248-512.png",
   "bannerImage": "",
   "footerText": "Consulta institucional de resultados",
   "primaryColor": "#1975ae",
@@ -20,9 +20,9 @@
     "Informática": "ICONOS/informatica.png",
     "Religión": "ICONOS/religion.png"
   },
-  "appIcon192": "icons/app-icon-1780716993015-192.png",
-  "appIconMaskable": "icons/app-icon-1780716993015-maskable.png",
-  "appleTouchIcon": "icons/app-icon-1780716993015-apple.png",
-  "favicon32": "icons/favicon-1780716993015-32.png",
-  "favicon16": "icons/favicon-1780716993015-16.png"
+  "appIcon192": "icons/app-icon-1780721209248-192.png",
+  "appIconMaskable": "icons/app-icon-1780721209248-maskable.png",
+  "appleTouchIcon": "icons/app-icon-1780721209248-apple.png",
+  "favicon32": "icons/favicon-1780721209248-32.png",
+  "favicon16": "icons/favicon-1780721209248-16.png"
 }
