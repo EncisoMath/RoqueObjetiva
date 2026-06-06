@@ -2,7 +2,14 @@
   "config": "config/site-config.json",
   "estudiantes": "ESTUDIANTES/ESTUDIANTES.json",
   "carga": "INTERNO/CARGA.json",
-  "grades": [6, 7, 8, 9, 10],
+  "grades": [
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+  ],
   "keyTemplate": "KEYS/KEYS_{grade}.json",
   "resultTemplate": "RESULTADOS/{grade}S{session}.json",
   "sessions": [
