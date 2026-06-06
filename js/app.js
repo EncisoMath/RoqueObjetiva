@@ -89,6 +89,11 @@
     adminResultGroup: "all",
     adminResultSubject: "all",
     adminResultStudent: "all",
+    adminAnalysisSede: "all",
+    adminAnalysisGrade: "all",
+    adminAnalysisMode: "grade",
+    adminAnalysisSubject: "all",
+    adminAnalysisDetail: null,
     adminCargaTeacherId: "",
     activeSession: null
   };
@@ -981,6 +986,7 @@
       ["resumen", "Resumen"],
       ["estudiantes", "Estudiantes"],
       ["resultados", "Resultados"],
+      ["analisis", "Análisis"],
       ["apariencia", "Apariencia"],
       ["logos", "Logos"],
       ["cargas", "Cargas"],
@@ -1006,6 +1012,7 @@
     switch (state.adminTab) {
       case "estudiantes": return adminStudentsHtml();
       case "resultados": return adminResultsHtml();
+      case "analisis": return adminAnalyticsHtml();
       case "apariencia": return adminAppearanceHtml();
       case "logos": return adminLogosHtml();
       case "cargas": return adminCargaHtml();
@@ -1124,31 +1131,38 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
 
   function adminResultsHtml() {
     const sedes = ["all", ...uniqueValues(state.computedStudents.map((s) => s.sede))];
-    const grades = ["all", ...uniqueValues(state.computedStudents.map((s) => s.grade).filter(Boolean)).sort((a, b) => Number(a) - Number(b))];
+    const grades = ["all", ...uniqueValues(state.computedStudents
+      .filter((s) => state.adminResultSede === "all" || s.sede === state.adminResultSede)
+      .map((s) => s.grade).filter(Boolean)).sort((a, b) => Number(a) - Number(b))];
     const groups = ["all", ...uniqueValues(state.computedStudents
+      .filter((s) => state.adminResultSede === "all" || s.sede === state.adminResultSede)
       .filter((s) => state.adminResultGrade === "all" || String(s.grade) === String(state.adminResultGrade))
       .map((s) => s.group))];
-    const subjectOptions = ["all", ...availableSubjects()];
+    const subjectBase = state.computedStudents
+      .filter((s) => state.adminResultSede === "all" || s.sede === state.adminResultSede)
+      .filter((s) => state.adminResultGrade === "all" || String(s.grade) === String(state.adminResultGrade))
+      .filter((s) => state.adminResultGroup === "all" || s.group === state.adminResultGroup);
+    const subjectOptions = ["all", ...uniqueValues(subjectBase.flatMap((student) => Object.entries(student.subjectStats || {})
+      .filter(([, stat]) => stat?.total)
+      .map(([name]) => name)))];
     const subject = state.adminResultSubject || "all";
+    const isReady = state.adminResultSede !== "all" && state.adminResultGrade !== "all" && state.adminResultGroup !== "all" && subject !== "all";
 
-    const filtered = state.computedStudents.filter((student) => {
-      const okSede = state.adminResultSede === "all" || student.sede === state.adminResultSede;
-      const okGrade = state.adminResultGrade === "all" || String(student.grade) === String(state.adminResultGrade);
-      const okGroup = state.adminResultGroup === "all" || student.group === state.adminResultGroup;
-      const okStudent = state.adminResultStudent === "all" || student.roll === state.adminResultStudent;
-      const okSubject = subject === "all" || student.subjectStats[subject]?.total;
-      return okSede && okGrade && okGroup && okStudent && okSubject;
-    }).sort((a, b) => a.name.localeCompare(b.name, "es", { sensitivity: "base" }));
+    const filtered = isReady ? state.computedStudents.filter((student) => {
+      const okSede = student.sede === state.adminResultSede;
+      const okGrade = String(student.grade) === String(state.adminResultGrade);
+      const okGroup = student.group === state.adminResultGroup;
+      const okSubject = student.subjectStats[subject]?.total;
+      return okSede && okGrade && okGroup && okSubject;
+    }).sort((a, b) => a.name.localeCompare(b.name, "es", { sensitivity: "base" })) : [];
 
     const details = aggregateDetails(filtered, subject);
     const scoreValues = filtered.map((student) => adminStudentSubjectStat(student, subject).score).filter((value) => Number.isFinite(value));
-    const studentOptions = state.computedStudents.slice().sort((a, b) => a.name.localeCompare(b.name, "es", { sensitivity: "base" }));
 
     const rows = filtered.map((student, index) => {
       const stat = adminStudentSubjectStat(student, subject);
-      const clickable = subject !== "all" && student.subjectStats[subject]?.total;
       return `
-        <tr class="${clickable ? "table-row-click" : ""}" ${clickable ? `data-action="open-detail" data-roll="${escAttr(student.roll)}" data-subject="${escAttr(subject)}"` : ""}>
+        <tr class="table-row-click" data-action="open-detail" data-roll="${escAttr(student.roll)}" data-subject="${escAttr(subject)}">
           <td class="teacher-index">${index + 1}</td>
           <td><strong>${esc(student.name)}</strong><br><span class="student-subid">ID Prueba ${esc(student.roll)} · ${esc(student.sede || "Sin sede")} · ${esc(student.grade)}° ${esc(student.group || "")}</span></td>
           <td><span class="teacher-score teacher-score-plain">${Number.isFinite(stat.score) ? stat.score : "—"}</span></td>
@@ -1157,41 +1171,11 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       `;
     }).join("");
 
-    const scopeText = [
-      state.adminResultSede !== "all" ? state.adminResultSede : "Todas las sedes",
-      state.adminResultGrade !== "all" ? `${state.adminResultGrade}°` : "Todos los grados",
-      state.adminResultGroup !== "all" ? state.adminResultGroup : "Todos los cursos",
-      subject !== "all" ? subject : "Todas las áreas"
-    ].filter(Boolean).join(" · ");
+    const scopeText = isReady
+      ? `${state.adminResultSede} · ${state.adminResultGrade}° · ${state.adminResultGroup} · ${subject}`
+      : "Selecciona sede, grado, curso y asignatura para generar la vista";
 
-    return `
-      <section class="toolbar">
-        <div>
-          <span class="section-eyebrow">Resultados institucionales</span>
-          <h2 style="margin:8px 0 0;font-weight:900;">Vista tipo docente, con filtros de admin</h2>
-          <p class="muted-copy">Parametriza sede, grado, curso y área. La tabla, promedios, componentes y competencias se calculan con el mismo formato de la vista docente.</p>
-        </div>
-      </section>
-      <section class="card card-pad admin-results-filters">
-        <div class="form-grid compact">
-          <div class="field"><label>Sede</label><select class="select-pill" data-admin-results-field="sede">
-            ${sedes.map((value) => `<option value="${escAttr(value)}" ${state.adminResultSede === value ? "selected" : ""}>${value === "all" ? "Todas las sedes" : esc(value)}</option>`).join("")}
-          </select></div>
-          <div class="field"><label>Grado</label><select class="select-pill" data-admin-results-field="grade">
-            ${grades.map((value) => `<option value="${escAttr(value)}" ${String(state.adminResultGrade) === String(value) ? "selected" : ""}>${value === "all" ? "Todos los grados" : `${esc(value)}°`}</option>`).join("")}
-          </select></div>
-          <div class="field"><label>Curso</label><select class="select-pill" data-admin-results-field="group">
-            ${groups.map((value) => `<option value="${escAttr(value)}" ${state.adminResultGroup === value ? "selected" : ""}>${value === "all" ? "Todos los cursos" : esc(value)}</option>`).join("")}
-          </select></div>
-          <div class="field"><label>Área/asignatura</label><select class="select-pill" data-admin-results-field="subject">
-            ${subjectOptions.map((value) => `<option value="${escAttr(value)}" ${subject === value ? "selected" : ""}>${value === "all" ? "Todas las áreas" : esc(value)}</option>`).join("")}
-          </select></div>
-          <div class="field span-2"><label>Estudiante</label><select class="select-pill" data-admin-results-field="student">
-            <option value="all">Todos los estudiantes</option>
-            ${studentOptions.map((student) => `<option value="${escAttr(student.roll)}" ${state.adminResultStudent === student.roll ? "selected" : ""}>${esc(student.name)} · ID ${esc(student.roll)} · ${esc(student.grade)}° ${esc(student.group || "")}</option>`).join("")}
-          </select></div>
-        </div>
-      </section>
+    const readyContent = isReady ? `
       <div class="teacher-active-label admin-results-scope">${esc(scopeText)}</div>
       <section class="teacher-stat-strip teacher-stat-strip-two admin-results-stats">
         <article class="card card-pad teacher-stat"><span>Estudiantes</span><strong>${filtered.length}</strong></article>
@@ -1201,7 +1185,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
         ${teacherAggregateMetricsHtmlForDetails(details)}
       </section>
       <section class="teacher-key-actions">
-        ${subject !== "all" ? `<button class="secondary-btn" data-action="open-answer-key" data-grade="${escAttr(state.adminResultGrade === "all" ? "" : state.adminResultGrade)}" data-subject="${escAttr(subject)}">Ver respuestas correctas</button>` : `<span class="badge gray">Selecciona un área para abrir detalles por estudiante y ver la clave.</span>`}
+        <button class="secondary-btn" data-action="open-answer-key" data-grade="${escAttr(state.adminResultGrade)}" data-subject="${escAttr(subject)}">Ver respuestas correctas</button>
       </section>
       <section class="card table-card teacher-table-card admin-results-table">
         <div class="table-wrap">
@@ -1211,6 +1195,40 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
           </table>
         </div>
       </section>
+    ` : `
+      <section class="card card-pad admin-results-wait">
+        <div class="empty-state">
+          <h3>Parametriza la consulta</h3>
+          <p>Para evitar promedios mezclados o lecturas confusas, la tabla solo aparece cuando selecciones <strong>sede</strong>, <strong>grado</strong>, <strong>curso</strong> y <strong>asignatura</strong>.</p>
+        </div>
+      </section>
+    `;
+
+    return `
+      <section class="toolbar">
+        <div>
+          <span class="section-eyebrow">Resultados institucionales</span>
+          <h2 style="margin:8px 0 0;font-weight:900;">Vista tipo docente, con filtros de admin</h2>
+          <p class="muted-copy">Selecciona una combinación exacta. Cuando estén definidos sede, grado, curso y área, se mostrará la misma estructura de resultados que ven los docentes.</p>
+        </div>
+      </section>
+      <section class="card card-pad admin-results-filters">
+        <div class="form-grid compact admin-results-required-grid">
+          <div class="field"><label>Sede</label><select class="select-pill" data-admin-results-field="sede">
+            ${sedes.map((value) => `<option value="${escAttr(value)}" ${state.adminResultSede === value ? "selected" : ""}>${value === "all" ? "Selecciona sede" : esc(value)}</option>`).join("")}
+          </select></div>
+          <div class="field"><label>Grado</label><select class="select-pill" data-admin-results-field="grade">
+            ${grades.map((value) => `<option value="${escAttr(value)}" ${String(state.adminResultGrade) === String(value) ? "selected" : ""}>${value === "all" ? "Selecciona grado" : `${esc(value)}°`}</option>`).join("")}
+          </select></div>
+          <div class="field"><label>Curso</label><select class="select-pill" data-admin-results-field="group">
+            ${groups.map((value) => `<option value="${escAttr(value)}" ${state.adminResultGroup === value ? "selected" : ""}>${value === "all" ? "Selecciona curso" : esc(value)}</option>`).join("")}
+          </select></div>
+          <div class="field"><label>Área/asignatura</label><select class="select-pill" data-admin-results-field="subject">
+            ${subjectOptions.map((value) => `<option value="${escAttr(value)}" ${subject === value ? "selected" : ""}>${value === "all" ? "Selecciona asignatura" : esc(value)}</option>`).join("")}
+          </select></div>
+        </div>
+      </section>
+      ${readyContent}
     `;
   }
 
@@ -1250,6 +1268,155 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     const base = SUBJECTS.map((subject) => subject.name);
     return [...new Set([...base, ...fromKeys].map(canonicalSubject).filter(Boolean))]
       .sort((a, b) => a.localeCompare(b, "es", { sensitivity: "base" }));
+  }
+
+  function adminAnalyticsHtml() {
+    const sedes = ["all", ...uniqueValues(state.computedStudents.map((s) => s.sede))];
+    const grades = ["all", ...uniqueValues(state.computedStudents
+      .filter((s) => state.adminAnalysisSede === "all" || s.sede === state.adminAnalysisSede)
+      .map((s) => s.grade).filter(Boolean)).sort((a, b) => Number(a) - Number(b))];
+    const subjects = ["all", ...availableSubjects()];
+    const selectedSubjects = state.adminAnalysisSubject === "all" ? availableSubjects() : [state.adminAnalysisSubject];
+    const baseStudents = state.computedStudents
+      .filter((s) => state.adminAnalysisSede === "all" || s.sede === state.adminAnalysisSede)
+      .filter((s) => state.adminAnalysisGrade === "all" || String(s.grade) === String(state.adminAnalysisGrade));
+    const mode = state.adminAnalysisMode === "course" ? "course" : "grade";
+    const groups = adminAnalysisGroups(baseStudents, mode);
+    const detail = state.adminAnalysisDetail;
+
+    return `
+      <section class="toolbar">
+        <div>
+          <span class="section-eyebrow">Análisis visual</span>
+          <h2 style="margin:8px 0 0;font-weight:900;">Mapa de desempeño por grado, curso y asignatura</h2>
+          <p class="muted-copy">Mira rápidamente cómo va cada grado o curso. Cada tarjeta muestra el promedio de nota y permite abrir el detalle con la misma lógica de la vista docente.</p>
+        </div>
+      </section>
+      <section class="card card-pad admin-analysis-filters">
+        <div class="form-grid compact">
+          <div class="field"><label>Sede</label><select class="select-pill" data-admin-analysis-field="sede">
+            ${sedes.map((value) => `<option value="${escAttr(value)}" ${state.adminAnalysisSede === value ? "selected" : ""}>${value === "all" ? "Todas las sedes" : esc(value)}</option>`).join("")}
+          </select></div>
+          <div class="field"><label>Grado</label><select class="select-pill" data-admin-analysis-field="grade">
+            ${grades.map((value) => `<option value="${escAttr(value)}" ${String(state.adminAnalysisGrade) === String(value) ? "selected" : ""}>${value === "all" ? "Todos los grados" : `${esc(value)}°`}</option>`).join("")}
+          </select></div>
+          <div class="field"><label>Agrupar por</label><select class="select-pill" data-admin-analysis-field="mode">
+            <option value="grade" ${mode === "grade" ? "selected" : ""}>Grado general</option>
+            <option value="course" ${mode === "course" ? "selected" : ""}>Curso</option>
+          </select></div>
+          <div class="field"><label>Asignatura</label><select class="select-pill" data-admin-analysis-field="subject">
+            ${subjects.map((value) => `<option value="${escAttr(value)}" ${state.adminAnalysisSubject === value ? "selected" : ""}>${value === "all" ? "Todas las asignaturas" : esc(value)}</option>`).join("")}
+          </select></div>
+        </div>
+      </section>
+      <section class="admin-analysis-board">
+        ${groups.map((group) => adminAnalysisGroupCard(group, selectedSubjects)).join("") || `<div class="card card-pad empty-state">No hay datos para los filtros seleccionados.</div>`}
+      </section>
+      ${detail ? adminAnalysisDetailHtml(detail) : `<section class="card card-pad admin-analysis-hint"><strong>Toca una asignatura</strong><span> para abrir promedios de componentes, competencias y listado de estudiantes.</span></section>`}
+    `;
+  }
+
+  function adminAnalysisGroups(students, mode) {
+    const map = new Map();
+    students.forEach((student) => {
+      const key = mode === "course" ? `${student.sede || "Sin sede"}||${student.grade}||${student.group || "Sin curso"}` : `${student.sede || "Sin sede"}||${student.grade}`;
+      if (!map.has(key)) {
+        map.set(key, {
+          key,
+          mode,
+          sede: student.sede || "Sin sede",
+          grade: student.grade,
+          group: mode === "course" ? (student.group || "Sin curso") : "",
+          label: mode === "course" ? `${student.grade}° · ${student.group || "Sin curso"}` : `${student.grade}°`,
+          students: []
+        });
+      }
+      map.get(key).students.push(student);
+    });
+    return [...map.values()].sort((a, b) => Number(a.grade) - Number(b.grade) || String(a.group).localeCompare(String(b.group), "es", { numeric: true, sensitivity: "base" }));
+  }
+
+  function adminAnalysisGroupCard(group, subjects) {
+    const cells = subjects.map((subject) => {
+      const scores = group.students.map((student) => student.subjectStats[subject]?.score).filter((value) => Number.isFinite(value));
+      const value = Number(avg(scores));
+      const display = Number.isFinite(value) ? value : "—";
+      const percent = Number.isFinite(value) ? clamp(value, 0, 100) : 0;
+      const count = scores.length;
+      return `
+        <button class="admin-analysis-subject ${count ? "has-data" : "no-data"}" data-action="admin-analysis-cell" data-mode="${escAttr(group.mode)}" data-sede="${escAttr(group.sede)}" data-grade="${escAttr(group.grade)}" data-group="${escAttr(group.group)}" data-subject="${escAttr(subject)}">
+          <span class="admin-analysis-subject-head">${subjectIcon(subject)} <strong>${esc(subject)}</strong></span>
+          <span class="admin-analysis-score">${display}<small>/100</small></span>
+          <span class="admin-analysis-mini-bar"><i style="width:${percent}%"></i></span>
+          <small>${count} estudiante${count === 1 ? "" : "s"}</small>
+        </button>
+      `;
+    }).join("");
+    const allScores = group.students.flatMap((student) => Object.values(student.subjectStats || {}).map((stat) => stat?.score).filter((value) => Number.isFinite(value)));
+    return `
+      <article class="card card-pad admin-analysis-group-card">
+        <header>
+          <div>
+            <span class="section-eyebrow">${group.mode === "course" ? "Curso" : "Grado"}</span>
+            <h3>${esc(group.label)}</h3>
+            <p>${esc(group.sede)} · ${group.students.length} estudiante${group.students.length === 1 ? "" : "s"}</p>
+          </div>
+          <strong class="admin-analysis-group-avg">${avg(allScores)}<small>/100</small></strong>
+        </header>
+        <div class="admin-analysis-subject-grid">${cells}</div>
+      </article>
+    `;
+  }
+
+  function adminAnalysisDetailHtml(detail) {
+    const subject = canonicalSubject(detail.subject);
+    const students = state.computedStudents
+      .filter((student) => detail.sede === "all" || student.sede === detail.sede)
+      .filter((student) => String(student.grade) === String(detail.grade))
+      .filter((student) => !detail.group || student.group === detail.group)
+      .filter((student) => student.subjectStats[subject]?.total)
+      .sort((a, b) => a.name.localeCompare(b.name, "es", { sensitivity: "base" }));
+    const details = aggregateDetails(students, subject);
+    const scores = students.map((student) => student.subjectStats[subject]?.score).filter((value) => Number.isFinite(value));
+    const rows = students.map((student, index) => {
+      const stat = student.subjectStats[subject];
+      return `
+        <tr class="table-row-click" data-action="open-detail" data-roll="${escAttr(student.roll)}" data-subject="${escAttr(subject)}">
+          <td class="teacher-index">${index + 1}</td>
+          <td><strong>${esc(student.name)}</strong><br><span class="student-subid">ID Prueba ${esc(student.roll)} · ${esc(student.sede || "Sin sede")} · ${esc(student.grade)}° ${esc(student.group || "")}</span></td>
+          <td><span class="teacher-score teacher-score-plain">${stat.score ?? "—"}</span></td>
+          <td><strong>${stat.correct}/${stat.total}</strong></td>
+        </tr>
+      `;
+    }).join("");
+    return `
+      <section class="card card-pad admin-analysis-detail">
+        <div class="toolbar compact-toolbar">
+          <div>
+            <span class="section-eyebrow">Detalle seleccionado</span>
+            <h3>${esc(subject)} · ${esc(detail.grade)}°${detail.group ? ` · ${esc(detail.group)}` : ""}</h3>
+            <p class="muted-copy">${esc(detail.sede)} · ${students.length} estudiante${students.length === 1 ? "" : "s"}</p>
+          </div>
+          <div class="inline-actions">
+            <button class="secondary-btn" data-action="open-answer-key" data-grade="${escAttr(detail.grade)}" data-subject="${escAttr(subject)}">Ver respuestas correctas</button>
+            <button class="ghost-btn" data-action="admin-analysis-clear-detail">Cerrar detalle</button>
+          </div>
+        </div>
+        <section class="teacher-stat-strip teacher-stat-strip-two admin-results-stats">
+          <article class="card card-pad teacher-stat"><span>Estudiantes</span><strong>${students.length}</strong></article>
+          <article class="card card-pad teacher-stat"><span>Promedio</span><strong>${avg(scores)}<small>/100</small></strong></article>
+        </section>
+        <section class="teacher-metrics-row admin-results-metrics">
+          ${teacherAggregateMetricsHtmlForDetails(details)}
+        </section>
+        <div class="table-wrap">
+          <table class="teacher-table">
+            <thead><tr><th>#</th><th>Estudiante</th><th>Nota</th><th>Correctas</th></tr></thead>
+            <tbody>${rows || `<tr><td colspan="4" class="empty-state">No hay estudiantes con esta selección.</td></tr>`}</tbody>
+          </table>
+        </div>
+      </section>
+    `;
   }
 
   function adminAppearanceHtml() {
@@ -1813,6 +1980,24 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       renderAdmin();
     }
 
+    if (action === "admin-analysis-cell") {
+      state.adminAnalysisDetail = {
+        mode: target.dataset.mode || "grade",
+        sede: target.dataset.sede || "all",
+        grade: toInt(target.dataset.grade),
+        group: cleanText(target.dataset.group || ""),
+        subject: canonicalSubject(target.dataset.subject)
+      };
+      renderAdmin();
+      return;
+    }
+
+    if (action === "admin-analysis-clear-detail") {
+      state.adminAnalysisDetail = null;
+      renderAdmin();
+      return;
+    }
+
     if (action === "clear-banner") {
       state.config.bannerImage = "";
       writeJSON(STORAGE.config, state.config);
@@ -2044,8 +2229,22 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
 
     if (target.dataset.adminResultsField) {
       const field = target.dataset.adminResultsField;
-      const map = { scope: "adminResultScope", sede: "adminResultSede", grade: "adminResultGrade", group: "adminResultGroup", subject: "adminResultSubject", student: "adminResultStudent" };
+      const map = { sede: "adminResultSede", grade: "adminResultGrade", group: "adminResultGroup", subject: "adminResultSubject" };
       if (map[field]) state[map[field]] = target.value;
+      if (field === "sede") { state.adminResultGrade = "all"; state.adminResultGroup = "all"; state.adminResultSubject = "all"; }
+      if (field === "grade") { state.adminResultGroup = "all"; state.adminResultSubject = "all"; }
+      if (field === "group") { state.adminResultSubject = "all"; }
+      state.adminResultStudent = "all";
+      renderAdmin();
+      return;
+    }
+
+    if (target.dataset.adminAnalysisField) {
+      const field = target.dataset.adminAnalysisField;
+      const map = { sede: "adminAnalysisSede", grade: "adminAnalysisGrade", mode: "adminAnalysisMode", subject: "adminAnalysisSubject" };
+      if (map[field]) state[map[field]] = target.value;
+      if (field === "sede") state.adminAnalysisGrade = "all";
+      state.adminAnalysisDetail = null;
       renderAdmin();
       return;
     }
