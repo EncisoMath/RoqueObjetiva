@@ -13,8 +13,7 @@
     carga: "po_carga_override_v1",
     session: "po_session_v1",
     github: "po_github_publish_v1",
-    students: "po_students_override_v1",
-    theme: "po_theme_v1"
+    students: "po_students_override_v1"
   };
 
   const SUBJECTS = [
@@ -91,8 +90,7 @@
     adminResultSubject: "all",
     adminResultStudent: "all",
     adminCargaTeacherId: "",
-    activeSession: null,
-    theme: "light"
+    activeSession: null
   };
 
   document.addEventListener("DOMContentLoaded", init);
@@ -132,8 +130,7 @@
   function loadLocalState() {
     state.config = { ...DEFAULT_CONFIG, ...readJSON(STORAGE.config, {}) };
     state.logos = readJSON(STORAGE.logos, {});
-    state.theme = localStorage.getItem(STORAGE.theme) === "dark" ? "dark" : "light";
-    applyTheme();
+    document.documentElement.removeAttribute("data-theme");
     const storedCarga = readJSON(STORAGE.carga, null);
     if (storedCarga && Array.isArray(storedCarga.rows)) {
       state.cargaRows = storedCarga.rows;
@@ -636,17 +633,6 @@
     }).join("");
   }
 
-  function applyTheme() {
-    const theme = state.theme === "dark" ? "dark" : "light";
-    document.documentElement.dataset.theme = theme;
-    localStorage.setItem(STORAGE.theme, theme);
-  }
-
-  function themeToggleHtml() {
-    const dark = state.theme === "dark";
-    return `<button class="theme-toggle" type="button" data-action="toggle-theme" aria-label="Cambiar a modo ${dark ? "claro" : "oscuro"}"><span class="theme-toggle-track"><i></i></span><span>${dark ? "Modo oscuro" : "Modo claro"}</span></button>`;
-  }
-
   function renderShell(content, nav = "") {
     const cfg = state.config;
     const primary = normalizeColor(cfg.primaryColor || "#314b9b");
@@ -659,7 +645,7 @@
     document.documentElement.style.setProperty("--primary-rgb", `${rgb.r}, ${rgb.g}, ${rgb.b}`);
     document.documentElement.style.setProperty("--button-radius", `${Number(cfg.buttonRadius ?? 4)}px`);
     document.documentElement.style.setProperty("--logo-zoom", `${Number(cfg.logoZoom ?? 1)}`);
-    applyTheme();
+    document.documentElement.removeAttribute("data-theme");
     document.querySelector('meta[name="theme-color"]')?.setAttribute("content", primary);
     const bannerStyle = `style="background: linear-gradient(105deg, ${primary} 0%, ${primary} 42%, ${primaryDark} 100%)"`;
     app.innerHTML = `
@@ -677,7 +663,6 @@
               ${cfg.logoImage ? `<span class="banner-logo-frame"><img class="banner-logo" src="${escAttr(cfg.logoImage)}" alt="Logo"></span>` : `<div class="banner-mark-text">Resultados</div>`}
             </div>
           </div>
-          <div class="banner-theme-control">${themeToggleHtml()}</div>
           ${nav}
         </header>
         <main class="page">
@@ -1643,13 +1628,6 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     if (target.classList.contains("modal-backdrop") && event.target !== target) return;
 
     const action = target.dataset.action;
-
-    if (action === "toggle-theme") {
-      state.theme = state.theme === "dark" ? "light" : "dark";
-      applyTheme();
-      renderBySession();
-      return;
-    }
 
     if (action === "retry") {
       init();

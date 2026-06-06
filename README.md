@@ -223,3 +223,10 @@ El color institucional predeterminado es `#314b9b` y el logo principal predeterm
 - Banner sin manchas/círculos laterales ni imagen de fondo aplicada por defecto.
 - Fondo del banner: color principal seleccionado con degradado oscuro hacia la derecha.
 - Figuras decorativas del banner más grandes, visibles y numerosas.
+
+
+## v21
+
+- Se retiró el interruptor de modo claro/oscuro.
+- La pantalla de inicio conserva el estilo oscuro animado.
+- Las vistas de estudiante, docente y admin quedan fijas en modo claro.

@@ -3819,7 +3819,7 @@ body {
   }
 }
 
-/* Ajustes v20: login oscuro, figuras tipo PlayStation y modo claro/oscuro */
+/* Ajustes v21: login oscuro y figuras tipo PlayStation. Las vistas internas permanecen en modo claro. */
 .login-shell-dark {
   position: relative;
   min-height: 100vh;
@@ -4028,136 +4028,7 @@ body {
 .banner-shapes .tri.eleven { right: 35%; bottom: 2%; font-size: clamp(30px, 4.2vw, 62px); animation-delay: -15.5s; }
 .banner-shapes .circle.twelve { left: 4%; bottom: 18%; font-size: clamp(30px, 4.2vw, 62px); animation-delay: -13.5s; }
 
-.theme-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 34px;
-  padding: 6px 10px;
-  border-radius: 999px;
-  color: #fff;
-  background: rgba(255,255,255,.16);
-  border: 1px solid rgba(255,255,255,.22);
-  cursor: pointer;
-  font-size: .78rem;
-  font-weight: 700;
-  backdrop-filter: blur(12px);
-}
-
-.theme-toggle-track {
-  width: 36px;
-  height: 20px;
-  border-radius: 999px;
-  background: rgba(255,255,255,.22);
-  padding: 2px;
-  display: inline-flex;
-  align-items: center;
-}
-
-.theme-toggle-track i {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 2px 8px rgba(0,0,0,.18);
-  transition: transform .22s ease;
-}
-
-html[data-theme="dark"] .theme-toggle-track i {
-  transform: translateX(16px);
-}
-
-.banner-theme-control {
-  position: absolute;
-  right: 20px;
-  bottom: 58px;
-  z-index: 3;
-}
-
-html[data-theme="dark"] body {
-  color: #edf2ff;
-  background:
-    radial-gradient(circle at 12% -8%, rgba(var(--primary-rgb), .22), transparent 32rem),
-    radial-gradient(circle at 100% 0%, rgba(61, 225, 232, .10), transparent 28rem),
-    #081426;
-}
-
-html[data-theme="dark"] .page,
-html[data-theme="dark"] .app-shell {
-  background: transparent;
-}
-
-html[data-theme="dark"] .card,
-html[data-theme="dark"] .subject-list-panel,
-html[data-theme="dark"] .detail-card,
-html[data-theme="dark"] .subject-card,
-html[data-theme="dark"] .modal-card,
-html[data-theme="dark"] .admin-panel,
-html[data-theme="dark"] .table-card,
-html[data-theme="dark"] .teacher-stat,
-html[data-theme="dark"] .teacher-metric-card,
-html[data-theme="dark"] .carga-card,
-html[data-theme="dark"] .admin-note,
-html[data-theme="dark"] .subject-stats-row div,
-html[data-theme="dark"] .empty-subject-detail,
-html[data-theme="dark"] .score-card,
-html[data-theme="dark"] .ranking-box,
-html[data-theme="dark"] .percentile-card,
-html[data-theme="dark"] .saber-area-card {
-  background: #111d31 !important;
-  border-color: rgba(255,255,255,.10) !important;
-  color: #edf2ff !important;
-  box-shadow: 0 20px 60px rgba(0,0,0,.24);
-}
-
-html[data-theme="dark"] .subject-card.active,
-html[data-theme="dark"] .nav-chip.active,
-html[data-theme="dark"] .tab-btn.active,
-html[data-theme="dark"] .metric-tab.active,
-html[data-theme="dark"] .carga-teacher-card.active {
-  background: rgba(var(--primary-rgb), .24) !important;
-  color: #fff !important;
-}
-
-html[data-theme="dark"] .field input,
-html[data-theme="dark"] .field select,
-html[data-theme="dark"] .field textarea,
-html[data-theme="dark"] .select-pill,
-html[data-theme="dark"] .wide-input {
-  background: #0d1728 !important;
-  color: #edf2ff !important;
-  border-color: rgba(255,255,255,.14) !important;
-}
-
-html[data-theme="dark"] table,
-html[data-theme="dark"] th,
-html[data-theme="dark"] td {
-  color: #edf2ff;
-  border-color: rgba(255,255,255,.10) !important;
-}
-
-html[data-theme="dark"] th {
-  background: #0d1728 !important;
-}
-
-html[data-theme="dark"] p,
-html[data-theme="dark"] .muted,
-html[data-theme="dark"] .meta-row,
-html[data-theme="dark"] .login-hint,
-html[data-theme="dark"] .subject-stats-row span,
-html[data-theme="dark"] .teacher-stat span,
-html[data-theme="dark"] .metric-bar-head span,
-html[data-theme="dark"] small,
-html[data-theme="dark"] .ranking-box small {
-  color: #aeb9d0 !important;
-}
-
-html[data-theme="dark"] .ghost-btn,
-html[data-theme="dark"] .secondary-btn {
-  background: #0d1728 !important;
-  color: #edf2ff !important;
-  border: 1px solid rgba(255,255,255,.12);
-}
+/* Modo claro fijo: se elimina el switch claro/oscuro. */
 
 @media (max-width: 940px) {
   .login-shell-dark {
@@ -4180,14 +4051,5 @@ html[data-theme="dark"] .secondary-btn {
   }
   .login-bg-shapes .shape {
     font-size: clamp(30px, 12vw, 64px);
-  }
-  .banner-theme-control {
-    position: relative;
-    right: auto;
-    bottom: auto;
-    padding: 0 14px 6px;
-  }
-  .theme-toggle span:last-child {
-    display: none;
   }
 }
