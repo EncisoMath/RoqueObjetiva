@@ -2,7 +2,8 @@
   {
     "ID_PRUEBA": "2559",
     "ID_ALUMNO": "1085109075",
-    "NOMBRE_COMPLETO": "Carlos Junior Acosta Lopez",
+    "APELLIDOS": "Acosta Lopez",
+    "NOMBRES": "Carlos Junior",
     "SEDE": "Municipal",
     "GRADO": "10",
     "GRUPO": "2PPAL"
@@ -10,7 +11,8 @@
   {
     "ID_PRUEBA": "2530",
     "ID_ALUMNO": "1081809573",
-    "NOMBRE_COMPLETO": "Juan David Altahona Gutierrez",
+    "APELLIDOS": "Altahona Gutierrez",
+    "NOMBRES": "Juan David",
     "SEDE": "Municipal",
     "GRADO": "10",
     "GRUPO": "2PPAL"
@@ -18,7 +20,8 @@
   {
     "ID_PRUEBA": "2531",
     "ID_ALUMNO": "1084742410",
-    "NOMBRE_COMPLETO": "Geovanny De Jesús Altahona Martínez",
+    "APELLIDOS": "Altahona Martínez",
+    "NOMBRES": "Geovanny De Jesús",
     "SEDE": "Municipal",
     "GRADO": "10",
     "GRUPO": "2PPAL"
@@ -26,7 +29,8 @@
   {
     "ID_PRUEBA": "2445",
     "ID_ALUMNO": "1046706360",
-    "NOMBRE_COMPLETO": "Juan Sebastian Arias Pacheco",
+    "APELLIDOS": "Arias Pacheco",
+    "NOMBRES": "Juan Sebastian",
     "SEDE": "Municipal",
     "GRADO": "10",
     "GRUPO": "2PPAL"
@@ -34,7 +38,8 @@
   {
     "ID_PRUEBA": "2534",
     "ID_ALUMNO": "1085109931",
-    "NOMBRE_COMPLETO": "José Manuel Beltran Zarco",
+    "APELLIDOS": "Beltran Zarco",
+    "NOMBRES": "José Manuel",
     "SEDE": "Municipal",
     "GRADO": "10",
     "GRUPO": "2PPAL"
@@ -42,7 +47,8 @@
   {
     "ID_PRUEBA": "2585",
     "ID_ALUMNO": "1085109557",
-    "NOMBRE_COMPLETO": "Jaime Luis Berrio Díaz",
+    "APELLIDOS": "Berrio Díaz",
+    "NOMBRES": "Jaime Luis",
     "SEDE": "Municipal",
     "GRADO": "10",
     "GRUPO": "2PPAL"
@@ -50,7 +56,8 @@
   {
     "ID_PRUEBA": "2753",
     "ID_ALUMNO": "1085105766",
-    "NOMBRE_COMPLETO": "Yercenis Judith Bolaño Crespo",
+    "APELLIDOS": "Bolaño Crespo",
+    "NOMBRES": "Yercenis Judith",
     "SEDE": "Municipal",
     "GRADO": "10",
     "GRUPO": "2PPAL"
@@ -58,7 +65,8 @@
   {
     "ID_PRUEBA": "2505",
     "ID_ALUMNO": "1085110929",
-    "NOMBRE_COMPLETO": "Julio Judceth Cabarcas Altahona",
+    "APELLIDOS": "Cabarcas Altahona",
+    "NOMBRES": "Julio Judceth",
     "SEDE": "Municipal",
     "GRADO": "10",
     "GRUPO": "2PPAL"
@@ -66,7 +74,8 @@
   {
     "ID_PRUEBA": "2421",
     "ID_ALUMNO": "1085110364",
-    "NOMBRE_COMPLETO": "Sandy Loraine Cañate Mendoza",
+    "APELLIDOS": "Cañate Mendoza",
+    "NOMBRES": "Sandy Loraine",
     "SEDE": "Municipal",
     "GRADO": "10",
     "GRUPO": "2PPAL"
@@ -74,7 +83,8 @@
   {
     "ID_PRUEBA": "4197",
     "ID_ALUMNO": "1081762596",
-    "NOMBRE_COMPLETO": "Karelys Sofia Cera Polo",
+    "APELLIDOS": "Cera Polo",
+    "NOMBRES": "Karelys Sofia",
     "SEDE": "Municipal",
     "GRADO": "10",
     "GRUPO": "2PPAL"
@@ -82,7 +92,8 @@
   {
     "ID_PRUEBA": "2451",
     "ID_ALUMNO": "1085109196",
-    "NOMBRE_COMPLETO": "Dunnis Milagro Esmeral Orozco",
+    "APELLIDOS": "Esmeral Orozco",
+    "NOMBRES": "Dunnis Milagro",
     "SEDE": "Municipal",
     "GRADO": "10",
     "GRUPO": "2PPAL"
@@ -90,7 +101,8 @@
   {
     "ID_PRUEBA": "2511",
     "ID_ALUMNO": "1085110617",
-    "NOMBRE_COMPLETO": "Martín Elias Gómez Aviles",
+    "APELLIDOS": "Gómez Aviles",
+    "NOMBRES": "Martín Elias",
     "SEDE": "Municipal",
     "GRADO": "10",
     "GRUPO": "2PPAL"
@@ -98,7 +110,8 @@
   {
     "ID_PRUEBA": "2513",
     "ID_ALUMNO": "1081819366",
-    "NOMBRE_COMPLETO": "Mauricio Andres Gómez Polo",
+    "APELLIDOS": "Gómez Polo",
+    "NOMBRES": "Mauricio Andres",
     "SEDE": "Municipal",
     "GRADO": "10",
     "GRUPO": "2PPAL"
@@ -106,7 +119,8 @@
   {
     "ID_PRUEBA": "2456",
     "ID_ALUMNO": "1085110527",
-    "NOMBRE_COMPLETO": "Maria Jose Guerra Perez",
+    "APELLIDOS": "Guerra Perez",
+    "NOMBRES": "Maria Jose",
     "SEDE": "Municipal",
     "GRADO": "10",
     "GRUPO": "2PPAL"
@@ -114,7 +128,8 @@
   {
     "ID_PRUEBA": "5205",
     "ID_ALUMNO": "1084735441",
-    "NOMBRE_COMPLETO": "Sofia Lara Marin",
+    "APELLIDOS": "Lara Marin",
+    "NOMBRES": "Sofia",
     "SEDE": "Municipal",
     "GRADO": "10",
     "GRUPO": "2PPAL"
@@ -122,7 +137,8 @@
   {
     "ID_PRUEBA": "2459",
     "ID_ALUMNO": "3871636",
-    "NOMBRE_COMPLETO": "Fabian Enrique Marin Molina",
+    "APELLIDOS": "Marin Molina",
+    "NOMBRES": "Fabian Enrique",
     "SEDE": "Municipal",
     "GRADO": "10",
     "GRUPO": "2PPAL"

@@ -889,7 +889,7 @@
 
   function buildSubjectDetailHtml(student, subject, stat, compact = false, showCorrect = false) {
     if (!stat) return `<div class="empty-state">No hay información para esta asignatura.</div>`;
-    const detailRows = (stat.details || []).map((detail, index) => answerPill(detail, student.roll, index + 1, showCorrect)).join("");
+    const detailRows = (stat.details || []).map((detail) => answerPill(detail, student.roll, detail.item, showCorrect)).join("");
     const activeMetric = state.metricTab === "competences" ? "competences" : "components";
     const detailHeader = compact ? `
         <header class="subject-detail-head">
