@@ -4374,3 +4374,23 @@ body {
     justify-self: start;
   }
 }
+
+
+.app-icon-preview {
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  background: #eef2f8;
+  display: grid;
+  place-items: center;
+  margin: 0 0 10px;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(20, 30, 50, .08);
+}
+
+.app-icon-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 7px;
+}

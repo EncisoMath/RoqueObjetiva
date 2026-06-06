@@ -33,6 +33,7 @@
     title: "Resultados de Pruebas Objetivas",
     subtitle: "Este reporte no se pasa ni se pierde. Es una herramienta para identificar fortalezas, habilidades y oportunidades de mejora.",
     logoImage: "assets/logo-principal.png",
+    appIcon: "icons/icon-512.png",
     bannerImage: "",
     footerText: "Consulta institucional de resultados",
     primaryColor: "#1975ae",
@@ -136,6 +137,7 @@
     state.config = { ...DEFAULT_CONFIG, ...readJSON(STORAGE.config, {}) };
     state.logos = readJSON(STORAGE.logos, {});
     document.documentElement.removeAttribute("data-theme");
+    applyAppMeta();
     const storedCarga = readJSON(STORAGE.carga, null);
     if (storedCarga && Array.isArray(storedCarga.rows)) {
       state.cargaRows = storedCarga.rows;
@@ -161,6 +163,7 @@
     state.config = { ...DEFAULT_CONFIG, ...fileConfig, ...(savedConfig || {}) };
     state.config.subjectLogos = { ...(fileConfig.subjectLogos || {}), ...(savedConfig?.subjectLogos || {}) };
     state.logos = { ...state.config.subjectLogos, ...localLogos };
+    applyAppMeta();
 
     state.keys = [];
     state.responsesByRoll = new Map();
@@ -594,6 +597,7 @@
     document.documentElement.style.setProperty("--login-deep", primaryDeep);
     document.documentElement.style.setProperty("--primary-rgb", `${rgb.r}, ${rgb.g}, ${rgb.b}`);
     document.querySelector('meta[name="theme-color"]')?.setAttribute("content", primaryDark);
+    applyAppMeta(primaryDark);
     const logo = state.config.logoImage || "assets/logo-principal.png";
     app.innerHTML = `
       <section class="login-shell login-shell-dark" style="--login-primary:${primary};--login-dark:${primaryDark};--login-deep:${primaryDeep};">
@@ -652,6 +656,7 @@
     document.documentElement.style.setProperty("--logo-zoom", `${Number(cfg.logoZoom ?? 1)}`);
     document.documentElement.removeAttribute("data-theme");
     document.querySelector('meta[name="theme-color"]')?.setAttribute("content", primary);
+    applyAppMeta(primary);
     const bannerStyle = `style="background: linear-gradient(105deg, ${primary} 0%, ${primary} 42%, ${primaryDark} 100%)"`;
     app.innerHTML = `
       <div class="app-shell">
@@ -1461,6 +1466,12 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
             <input type="file" accept="image/*" data-action="upload-logo-main">
           </div>
           <div class="field">
+            <label>Icono de app / pestaña</label>
+            <div class="app-icon-preview"><img src="${escAttr(cfg.appIcon || "icons/icon-512.png")}" alt="Icono actual" onerror="this.style.display='none'"></div>
+            <input type="file" accept="image/*" data-action="upload-app-icon">
+            <small style="color:#7d8089;">Se usará como favicon de Chrome y como icono instalable de la PWA.</small>
+          </div>
+          <div class="field">
             <label>Imagen de banner</label>
             <input type="file" accept="image/*" data-action="upload-banner">
           </div>
@@ -2268,6 +2279,16 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       });
     }
 
+    if (target.dataset.action === "upload-app-icon") {
+      readImageFile(target.files?.[0], (dataUrl) => {
+        state.config.appIcon = dataUrl;
+        writeJSON(STORAGE.config, state.config);
+        applyAppMeta();
+        toast("Icono de app actualizado.");
+        renderAdmin();
+      });
+    }
+
     if (target.dataset.action === "upload-banner") {
       readImageFile(target.files?.[0], (dataUrl) => {
         state.config.bannerImage = dataUrl;
@@ -2411,6 +2432,19 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
         repoConfig.bannerImage = path;
       }
 
+      if (isDataUrl(repoConfig.appIcon)) {
+        const iconPackage = await buildPwaIconFiles(repoConfig.appIcon);
+        files.push(...iconPackage.files);
+        repoConfig.appIcon = iconPackage.paths.icon512;
+        repoConfig.appIcon192 = iconPackage.paths.icon192;
+        repoConfig.appIconMaskable = iconPackage.paths.maskable;
+        repoConfig.appleTouchIcon = iconPackage.paths.apple;
+        repoConfig.favicon32 = iconPackage.paths.favicon32;
+        repoConfig.favicon16 = iconPackage.paths.favicon16;
+      }
+
+      files.push({ path: "manifest.webmanifest", content: JSON.stringify(buildWebManifest(repoConfig), null, 2) });
+
       for (const subject of SUBJECTS) {
         const logo = state.logos[subject.name];
         if (!logo) continue;
@@ -2442,6 +2476,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       state.logos = { ...repoConfig.subjectLogos };
       state.config.subjectLogos = { ...repoConfig.subjectLogos };
       writeJSON(STORAGE.config, state.config);
+      applyAppMeta();
       writeJSON(STORAGE.logos, state.logos);
       writeJSON(STORAGE.students, { rows: state.studentsRegistry });
       writeJSON(STORAGE.carga, { rows: state.cargaRows });
@@ -3301,6 +3336,104 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     const nums = values.filter((value) => Number.isFinite(Number(value))).map(Number);
     if (!nums.length) return "—";
     return Math.round(nums.reduce((a, b) => a + b, 0) / nums.length);
+  }
+
+
+  function applyAppMeta(themeColor = null) {
+    const icon = state.config.appIcon || "icons/icon-512.png";
+    const primary = normalizeColor(themeColor || state.config.primaryColor || "#1975ae");
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", primary);
+    setHeadLink('icon', icon, { type: icon.includes("svg") ? "image/svg+xml" : "image/png", sizes: "any" });
+    setHeadLink('apple-touch-icon', icon);
+  }
+
+  function setHeadLink(rel, href, attrs = {}) {
+    if (!href) return;
+    let link = document.head.querySelector(`link[rel="${rel}"]`);
+    if (!link) {
+      link = document.createElement("link");
+      link.rel = rel;
+      document.head.appendChild(link);
+    }
+    link.href = href;
+    Object.entries(attrs).forEach(([key, value]) => value ? link.setAttribute(key, value) : link.removeAttribute(key));
+  }
+
+  function buildWebManifest(cfg = state.config) {
+    const primary = normalizeColor(cfg.primaryColor || "#1975ae");
+    return {
+      name: "Consulta de Resultados",
+      short_name: "Resultados",
+      description: "Consulta institucional de resultados de pruebas objetivas.",
+      start_url: "./",
+      scope: "./",
+      display: "standalone",
+      display_override: ["window-controls-overlay", "standalone", "minimal-ui", "browser"],
+      orientation: "portrait-primary",
+      background_color: primary,
+      theme_color: primary,
+      lang: "es-CO",
+      categories: ["education", "productivity"],
+      icons: [
+        { src: cfg.appIcon192 || "icons/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
+        { src: cfg.appIcon || "icons/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
+        { src: cfg.appIconMaskable || "icons/maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" }
+      ]
+    };
+  }
+
+  async function buildPwaIconFiles(sourceDataUrl) {
+    const stamp = Date.now();
+    const paths = {
+      icon192: `icons/app-icon-${stamp}-192.png`,
+      icon512: `icons/app-icon-${stamp}-512.png`,
+      maskable: `icons/app-icon-${stamp}-maskable.png`,
+      apple: `icons/app-icon-${stamp}-apple.png`,
+      favicon32: `icons/favicon-${stamp}-32.png`,
+      favicon16: `icons/favicon-${stamp}-16.png`
+    };
+    const files = [];
+    const variants = [
+      [paths.icon192, 192, false],
+      [paths.icon512, 512, false],
+      [paths.maskable, 512, true],
+      [paths.apple, 180, false],
+      [paths.favicon32, 32, false],
+      [paths.favicon16, 16, false]
+    ];
+    for (const [path, size, maskable] of variants) {
+      const dataUrl = await resizeImageToPng(sourceDataUrl, size, maskable);
+      files.push({ path, contentBase64: base64FromDataUrl(dataUrl) });
+    }
+    return { files, paths };
+  }
+
+  function resizeImageToPng(sourceDataUrl, size, maskable = false) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext("2d");
+        ctx.clearRect(0, 0, size, size);
+        if (maskable) {
+          ctx.fillStyle = normalizeColor(state.config.primaryColor || "#1975ae");
+          ctx.fillRect(0, 0, size, size);
+        }
+        const padding = maskable ? Math.round(size * 0.16) : Math.round(size * 0.08);
+        const box = size - padding * 2;
+        const ratio = Math.min(box / img.width, box / img.height);
+        const width = img.width * ratio;
+        const height = img.height * ratio;
+        const x = (size - width) / 2;
+        const y = (size - height) / 2;
+        ctx.drawImage(img, x, y, width, height);
+        resolve(canvas.toDataURL("image/png"));
+      };
+      img.onerror = () => reject(new Error("No se pudo procesar el icono de la app."));
+      img.src = sourceDataUrl;
+    });
   }
 
   function readJSON(key, fallback) {

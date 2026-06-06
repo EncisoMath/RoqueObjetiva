@@ -12,5 +12,6 @@
     "repo": "",
     "branch": "main"
   },
-  "logoZoom": 1
+  "logoZoom": 1,
+  "appIcon": "icons/icon-512.png"
 }
