@@ -578,7 +578,7 @@
       <section class="student-summary card">
         <div class="summary-score-block saber-score-block" data-action="global-info" data-roll="${escAttr(student.roll)}" role="button" tabindex="0">
           <div class="score-label"><span class="score-icon">🏆</span><span>Si esto fuese una prueba Saber, tu puntaje global sería...</span></div>
-          <div class="score-number">${student.globalScore ?? "—"}<small>puntos</small></div>
+          <div class="score-number">${student.globalScore ?? "—"}<small>/500</small></div>
           <button type="button" class="score-help" data-action="global-info" data-roll="${escAttr(student.roll)}">Toca para entender cómo se calcula este puntaje</button>
         </div>
         <div class="summary-info-block">

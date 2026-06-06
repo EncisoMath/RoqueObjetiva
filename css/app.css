@@ -3172,3 +3172,23 @@ body {
 .subject-row-left > .subject-icon img {
   padding: 0 !important;
 }
+
+
+/* Ajuste v10: puntaje global Saber con /500 y dígitos menos apiñados */
+.saber-score-block .score-number {
+  letter-spacing: -0.02em;
+  gap: 4px;
+}
+
+.saber-score-block .score-number small {
+  letter-spacing: -0.02em;
+  margin-left: 0 !important;
+  color: var(--primary);
+}
+
+@media (max-width: 720px) {
+  .saber-score-block .score-number {
+    letter-spacing: -0.015em;
+    gap: 3px;
+  }
+}

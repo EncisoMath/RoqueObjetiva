@@ -155,3 +155,9 @@ RESULTADOS/9S2.json
 ## Advertencia de privacidad
 
 GitHub Pages público no es un sistema seguro para publicar información sensible de estudiantes. Esta versión sirve como prototipo estático, repositorio privado/controlado o datos anonimizados. Para uso institucional real con datos personales, conviene usar autenticación y base de datos con un backend, Firebase o Supabase.
+
+
+## v10
+
+- El puntaje global vuelve a mostrarse como x/500.
+- Se ajusto el espaciado visual de los digitos del puntaje global para que no se vean tan apinados.
