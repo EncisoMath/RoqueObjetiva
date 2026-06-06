@@ -21,19 +21,19 @@
   ],
   "icons": [
     {
-      "src": "icons/app-icon-1780716993015-192.png",
+      "src": "icons/app-icon-1780721209248-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "icons/app-icon-1780716993015-512.png",
+      "src": "icons/app-icon-1780721209248-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "icons/app-icon-1780716993015-maskable.png",
+      "src": "icons/app-icon-1780721209248-maskable.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
