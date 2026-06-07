@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v79";
+  const APP_VERSION = "v80";
 
   const app = document.getElementById("app");
   const toastEl = document.getElementById("toast");
@@ -1986,6 +1986,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
   }
 
   function adminStudentsHtml() {
+    const canEditExam = state.activeSession?.role === "admin";
     const grades = [...new Set(state.studentsRegistry.map((s) => s.grade).filter(Boolean))].sort((a, b) => a - b);
     const query = normalizeText(state.adminStudentSearch);
     let rows = state.studentsRegistry.filter((s) => {
@@ -2035,7 +2036,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
                     <td class="row-actions">
                       <button class="secondary-btn mini-btn" data-action="edit-student-info" data-index="${index}">Editar info</button>
                       <button class="secondary-btn mini-btn" data-action="admin-view-student" data-roll="${escAttr(student.examId)}" ${hasExam ? "" : "disabled"}>Ver examen</button>
-                      <button class="ghost-btn mini-btn" data-action="edit-student-exam" data-roll="${escAttr(student.examId)}" ${hasExam ? "" : "disabled"}>Editar examen</button>
+                      ${canEditExam ? `<button class="ghost-btn mini-btn" data-action="edit-student-exam" data-roll="${escAttr(student.examId)}" ${hasExam ? "" : "disabled"}>Editar examen</button>` : ""}
                       <button class="danger-btn mini-btn" data-action="delete-student" data-index="${index}">Eliminar</button>
                     </td>
                   </tr>
@@ -2697,54 +2698,79 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
   }
 
   function adminKeysHtml() {
+    const canEditKeys = state.activeSession?.role === "admin";
     const grades = [...new Set(state.keys.map((k) => k.grade).filter(Boolean))].sort((a, b) => a - b);
-    const grade = state.adminGradeFilter === "all" ? (grades[0] || "all") : state.adminGradeFilter;
-    const subject = state.adminSubjectFilter;
-    let rows = state.keys.filter((key) => String(key.grade) === String(grade));
+    let grade = state.adminGradeFilter === "all" ? (grades[0] || "all") : state.adminGradeFilter;
+    if (!grades.some((g) => String(g) === String(grade))) grade = grades[0] || "all";
+
+    const gradeRows = state.keys.filter((key) => String(key.grade) === String(grade));
+    const availableSubjects = uniqueValues(gradeRows.map((key) => canonicalSubject(key.area || key.areaRaw)).filter(Boolean));
+    let subject = state.adminSubjectFilter || "all";
+    if (subject !== "all" && !availableSubjects.some((item) => sameSubject(item, subject))) subject = "all";
+
+    let rows = gradeRows;
     if (subject !== "all") rows = rows.filter((key) => sameSubject(key.area, subject));
+    rows = [...rows].sort((a, b) => {
+      const areaCompare = String(a.areaRaw || a.area || "").localeCompare(String(b.areaRaw || b.area || ""), "es");
+      return areaCompare || Number(a.item || 0) - Number(b.item || 0);
+    });
+
+    const title = canEditKeys ? "Claves de respuesta" : "Consulta de claves";
+    const subtitle = canEditKeys
+      ? "Selecciona grado y asignatura. Solo el administrador puede modificar las respuestas."
+      : "Vista de consulta: las respuestas se muestran sin controles de edición.";
 
     return `
-      <section class="toolbar">
+      <section class="toolbar keys-toolbar-v80">
         <div>
           <span class="section-eyebrow">Claves de respuesta</span>
-          <h2 style="margin:8px 0 0;font-weight:900;">Editar respuestas correctas</h2>
-        </div>
-        <div class="toolbar-right">
-          <select class="select-pill" data-action="admin-grade-filter">
-            ${grades.map((g) => `<option value="${g}" ${String(grade) === String(g) ? "selected" : ""}>Grado ${g}°</option>`).join("")}
-          </select>
-          <select class="select-pill" data-action="admin-subject-filter">
-            <option value="all">Todas las áreas</option>
-            ${SUBJECTS.map((s) => `<option value="${escAttr(s.name)}" ${subject === s.name ? "selected" : ""}>${esc(s.name)}</option>`).join("")}
-          </select>
+          <h2 style="margin:8px 0 0;font-weight:900;">${esc(title)}</h2>
+          <p class="muted-copy">${esc(subtitle)}</p>
         </div>
       </section>
-      <div class="admin-note">Después de guardar, los cálculos se actualizan en este navegador. Para publicar las claves para todos, usa la pestaña <strong>GitHub</strong> o exporta el JSON manualmente.</div>
-      <div class="inline-actions" style="margin-bottom:14px;">
-        <button class="secondary-btn" data-action="save-keys">Guardar claves</button>
-        <button class="ghost-btn" data-action="export-keys">Exportar JSON</button>
-        <button class="danger-btn" data-action="reset-keys">Restaurar claves originales</button>
-        <button class="secondary-btn" data-action="publish-github">Publicar en GitHub</button>
-      </div>
-      <section class="card table-card">
+
+      <section class="card card-pad keys-filter-card-v80">
+        <div class="keys-filter-title">Grado</div>
+        <div class="key-tab-row key-grade-tabs" role="tablist" aria-label="Seleccionar grado">
+          ${grades.map((g) => `<button type="button" class="key-tab-btn ${String(grade) === String(g) ? "active" : ""}" data-action="key-grade-tab" data-grade="${escAttr(g)}">${esc(g)}°</button>`).join("") || `<span class="empty-state">No hay grados con claves cargadas.</span>`}
+        </div>
+        <div class="keys-filter-title subject-title">Área/asignatura</div>
+        <div class="key-tab-row key-subject-tabs" role="tablist" aria-label="Seleccionar área o asignatura">
+          <button type="button" class="key-tab-btn ${subject === "all" ? "active" : ""}" data-action="key-subject-tab" data-subject="all">Todas</button>
+          ${availableSubjects.map((name) => `<button type="button" class="key-tab-btn ${sameSubject(subject, name) ? "active" : ""}" data-action="key-subject-tab" data-subject="${escAttr(name)}">${esc(shortSubjectName(name))}</button>`).join("")}
+        </div>
+      </section>
+
+      ${canEditKeys ? `
+        <div class="admin-note">Los cambios quedan guardados localmente al usar <strong>Guardar claves</strong>. Para publicarlos para todos, usa <strong>Publicar en GitHub</strong>.</div>
+        <div class="inline-actions" style="margin-bottom:14px;">
+          <button class="secondary-btn" data-action="save-keys">Guardar claves</button>
+          <button class="ghost-btn" data-action="export-keys">Exportar JSON</button>
+          <button class="danger-btn" data-action="reset-keys">Restaurar claves originales</button>
+          <button class="secondary-btn" data-action="publish-github">Publicar en GitHub</button>
+        </div>
+      ` : `<div class="admin-note">Modo consulta. Las claves no se pueden editar desde una cuenta de coordinación.</div>`}
+
+      <section class="card table-card keys-table-card-v80">
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Grado</th><th>Área</th><th>Ítem</th><th>Respuesta</th><th>Componente</th><th>Competencia</th></tr></thead>
+            <thead><tr><th>Área</th><th>Ítem</th><th>Respuesta</th><th>Componente</th><th>Competencia</th></tr></thead>
             <tbody>
               ${rows.map((key) => `
                 <tr>
-                  <td>${esc(key.grade)}°</td>
                   <td>${esc(key.areaRaw || key.area)}</td>
                   <td><strong>${esc(key.item)}</strong></td>
                   <td>
-                    <select class="small-input" data-key-id="${escAttr(keyId(key))}">
-                      ${["A","B","C","D","E","F","G","H"].map((op) => `<option value="${op}" ${key.correct === op ? "selected" : ""}>${op}</option>`).join("")}
-                    </select>
+                    ${canEditKeys ? `
+                      <select class="small-input" data-key-id="${escAttr(keyId(key))}">
+                        ${["A","B","C","D","E","F","G","H"].map((op) => `<option value="${op}" ${key.correct === op ? "selected" : ""}>${op}</option>`).join("")}
+                      </select>
+                    ` : `<strong class="answer-readonly">${esc(key.correct || "—")}</strong>`}
                   </td>
-                  <td>${esc(key.component)}</td>
-                  <td>${esc(key.competence)}</td>
+                  <td>${esc(key.component || "—")}</td>
+                  <td>${esc(key.competence || "—")}</td>
                 </tr>
-              `).join("") || `<tr><td colspan="6" class="empty-state">No hay claves con este filtro.</td></tr>`}
+              `).join("") || `<tr><td colspan="5" class="empty-state">No hay claves con este filtro.</td></tr>`}
             </tbody>
           </table>
         </div>
@@ -2960,6 +2986,19 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       } else {
         transitionStudentSubject(nextSubject, target);
       }
+      return;
+    }
+
+    if (action === "key-grade-tab") {
+      state.adminGradeFilter = target.dataset.grade || state.adminGradeFilter;
+      state.adminSubjectFilter = "all";
+      renderAdminContext();
+      return;
+    }
+
+    if (action === "key-subject-tab") {
+      state.adminSubjectFilter = target.dataset.subject || "all";
+      renderAdminContext();
       return;
     }
 
@@ -3409,16 +3448,19 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     }
 
     if (action === "save-keys") {
+      if (state.activeSession?.role !== "admin") { toast("Solo el administrador puede editar claves."); return; }
       saveKeys();
       toast("Claves guardadas localmente.");
       renderAdmin();
     }
 
     if (action === "export-keys") {
+      if (state.activeSession?.role !== "admin") { toast("Solo el administrador puede exportar claves desde esta vista."); return; }
       exportKeys();
     }
 
     if (action === "reset-keys") {
+      if (state.activeSession?.role !== "admin") { toast("Solo el administrador puede restaurar claves."); return; }
       localStorage.removeItem(STORAGE.answers);
       toast("Claves locales eliminadas. Recargando datos...");
       setTimeout(() => location.reload(), 500);
@@ -3595,6 +3637,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     }
 
     if (target.dataset.keyId) {
+      if (state.activeSession?.role !== "admin") return;
       const id = target.dataset.keyId;
       const key = state.keys.find((row) => keyId(row) === id);
       if (key) {

@@ -291,3 +291,9 @@ El `service-worker.js` usa estrategia de red primero para archivos JSON, para ev
 
 ## v79
 - Admin > Apariencia permite escoger un unico valor en px para las esquinas de cuadros, contenedores, modales, tarjetas, tablas y botones.
+
+
+## v80
+- Vista docente web: componentes y competencias se muestran simultaneamente en dos columnas.
+- Coordinadores: se oculta Editar examen en Estudiantes.
+- Claves: pestañas por grado y asignatura; coordinadores solo consultan; admin conserva edicion; tabla sin columna Grado.

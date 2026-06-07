@@ -1,8 +1,8 @@
 {
-  "version": "v79",
-  "cache": "resultados-pwa-v79",
+  "version": "v80",
+  "cache": "resultados-pwa-v80",
   "updatedAt": "2026-06-07",
-  "note": "Admin > Apariencia ahora controla un unico radio de esquinas para cuadros, contenedores, modales, tarjetas, tablas y botones.",
-  "builtAt": "2026-06-07T21:25:00Z",
+  "note": "Vista docente web muestra componentes y competencias simultaneamente; coordinadores no editan examenes ni claves; claves usan pestañas por grado/asignatura y tabla sin columna grado.",
+  "builtAt": "2026-06-07T21:45:00Z",
   "date": "2026-06-07"
 }
