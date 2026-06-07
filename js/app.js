@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v56";
+  const APP_VERSION = "v57";
 
   const app = document.getElementById("app");
   const toastEl = document.getElementById("toast");
@@ -126,8 +126,10 @@
 
   document.addEventListener("DOMContentLoaded", init);
   document.addEventListener("submit", handleSubmit);
+  document.addEventListener("click", handleCriticalStatsClick, true);
   document.addEventListener("click", handleClick);
   document.addEventListener("input", handleInput);
+  document.addEventListener("change", handleCriticalStatsChange, true);
   document.addEventListener("change", handleChange);
   document.addEventListener("dragstart", handleDragStart);
   document.addEventListener("dragover", handleDragOver);
@@ -619,6 +621,44 @@
         });
       }
     });
+  }
+
+  function openAdminStatsView(event = null) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+    }
+    state.adminTab = "estadisticas";
+    renderAdminContext();
+  }
+
+  function updateAdminStatsFromElement(event = null, element = null) {
+    const target = element || event?.target;
+    if (!target?.dataset?.adminStatsField) return;
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+    }
+    setAdminStatsField(target.dataset.adminStatsField, target.value);
+    state.adminTab = "estadisticas";
+    renderAdminContext();
+  }
+
+  window.__poOpenAdminStats = openAdminStatsView;
+  window.__poAdminStatsFieldFromElement = updateAdminStatsFromElement;
+
+  function handleCriticalStatsClick(event) {
+    const target = event.target.closest?.('[data-force-admin-stats="true"], [data-tab="estadisticas"]');
+    if (!target) return;
+    openAdminStatsView(event);
+  }
+
+  function handleCriticalStatsChange(event) {
+    const target = event.target.closest?.('[data-admin-stats-field]');
+    if (!target) return;
+    updateAdminStatsFromElement(event, target);
   }
 
   function renderBySession() {
@@ -1119,7 +1159,7 @@
       content = adminResultsHtml();
     } else if (mode === "coord-estadisticas") {
       title = "Estadísticas";
-      content = adminStatsHtml();
+      content = safeAdminStatsHtml();
     } else if (mode === "coord-claves") {
       title = "Claves";
       content = adminKeysHtml();
@@ -1399,7 +1439,7 @@
 
     const nav = `
       <nav class="app-nav admin-top-tabs">
-        ${tabs.map(([id, label]) => `<button type="button" class="nav-chip ${state.adminTab === id ? "active" : ""}" data-action="admin-tab" data-tab="${id}">${label}</button>`).join("")}
+        ${tabs.map(([id, label]) => `<button type="button" class="nav-chip ${state.adminTab === id ? "active" : ""}" data-action="admin-tab" data-tab="${id}" ${id === "estadisticas" ? 'data-force-admin-stats="true" onclick="window.__poOpenAdminStats&&window.__poOpenAdminStats(event)"' : ''}>${label}</button>`).join("")}
         <button class="nav-chip logout" data-action="logout">Salir</button>
       </nav>
     `;
@@ -1420,7 +1460,7 @@
     switch (state.adminTab) {
       case "estudiantes": return adminStudentsHtml();
       case "resultados": return adminResultsHtml();
-      case "estadisticas": return adminStatsHtml();
+      case "estadisticas": return safeAdminStatsHtml();
       case "docentes": return adminDocentesHtml();
       case "asignaturas-areas": return adminSubjectAreasHtml();
       case "apariencia": return adminAppearanceHtml();
@@ -1433,6 +1473,28 @@
     }
   }
 
+
+  function safeAdminStatsHtml() {
+    try {
+      return adminStatsHtml();
+    } catch (error) {
+      console.error("Error en Estadísticas", error);
+      return `
+        <section class="toolbar">
+          <div>
+            <span class="section-eyebrow">Panel administrativo</span>
+            <h2 style="margin:8px 0 0;font-size:clamp(1.4rem,4vw,2.2rem);font-weight:900;letter-spacing:-.04em;">Estadísticas</h2>
+            <p class="teacher-active-label">No se pudo construir esta vista con los datos actuales.</p>
+          </div>
+        </section>
+        <section class="card card-pad">
+          <div class="empty-state">
+            Hubo un error al calcular las estadísticas. Revisa que existan estudiantes, claves y resultados cargados. Detalle técnico: ${esc(error?.message || String(error))}
+          </div>
+        </section>
+      `;
+    }
+  }
 
   function setAdminStatsField(field, value) {
     const clean = cleanText(value || "all") || "all";
@@ -1498,20 +1560,20 @@
       </section>
       <section class="card card-pad stats-filter-card">
         <div class="form-grid compact stats-filter-grid">
-          <div class="field"><label>Modo de lectura</label><select class="select-pill" data-admin-stats-field="mode">
+          <div class="field"><label>Modo de lectura</label><select class="select-pill" data-admin-stats-field="mode" onchange="window.__poAdminStatsFieldFromElement&&window.__poAdminStatsFieldFromElement(event,this)">
             <option value="estructura" ${mode === "estructura" ? "selected" : ""}>Ubicación académica</option>
             <option value="area" ${mode === "area" ? "selected" : ""}>Área / asignatura</option>
           </select></div>
           ${mode === "area" ? `
-            <div class="field"><label>Área/asignatura</label><select class="select-pill" data-admin-stats-field="subject">${subjects.map((value) => `<option value="${escAttr(value)}" ${state.adminStatsSubject === value ? "selected" : ""}>${value === "all" ? "Todas las áreas" : esc(shortSubjectName(value))}</option>`).join("")}</select></div>
-            <div class="field"><label>Sede</label><select class="select-pill" data-admin-stats-field="sede">${sedes.map((value) => `<option value="${escAttr(value)}" ${state.adminStatsSede === value ? "selected" : ""}>${value === "all" ? "Todas las sedes" : esc(value)}</option>`).join("")}</select></div>
-            <div class="field"><label>Grado</label><select class="select-pill" data-admin-stats-field="grade">${grades.map((value) => `<option value="${escAttr(value)}" ${String(state.adminStatsGrade) === String(value) ? "selected" : ""}>${value === "all" ? "Todos los grados" : `${esc(value)}°`}</option>`).join("")}</select></div>
-            <div class="field"><label>Curso</label><select class="select-pill" data-admin-stats-field="group">${groups.map((value) => `<option value="${escAttr(value)}" ${state.adminStatsGroup === value ? "selected" : ""}>${value === "all" ? "Todos los cursos" : esc(value)}</option>`).join("")}</select></div>
+            <div class="field"><label>Área/asignatura</label><select class="select-pill" data-admin-stats-field="subject" onchange="window.__poAdminStatsFieldFromElement&&window.__poAdminStatsFieldFromElement(event,this)">${subjects.map((value) => `<option value="${escAttr(value)}" ${state.adminStatsSubject === value ? "selected" : ""}>${value === "all" ? "Todas las áreas" : esc(shortSubjectName(value))}</option>`).join("")}</select></div>
+            <div class="field"><label>Sede</label><select class="select-pill" data-admin-stats-field="sede" onchange="window.__poAdminStatsFieldFromElement&&window.__poAdminStatsFieldFromElement(event,this)">${sedes.map((value) => `<option value="${escAttr(value)}" ${state.adminStatsSede === value ? "selected" : ""}>${value === "all" ? "Todas las sedes" : esc(value)}</option>`).join("")}</select></div>
+            <div class="field"><label>Grado</label><select class="select-pill" data-admin-stats-field="grade" onchange="window.__poAdminStatsFieldFromElement&&window.__poAdminStatsFieldFromElement(event,this)">${grades.map((value) => `<option value="${escAttr(value)}" ${String(state.adminStatsGrade) === String(value) ? "selected" : ""}>${value === "all" ? "Todos los grados" : `${esc(value)}°`}</option>`).join("")}</select></div>
+            <div class="field"><label>Curso</label><select class="select-pill" data-admin-stats-field="group" onchange="window.__poAdminStatsFieldFromElement&&window.__poAdminStatsFieldFromElement(event,this)">${groups.map((value) => `<option value="${escAttr(value)}" ${state.adminStatsGroup === value ? "selected" : ""}>${value === "all" ? "Todos los cursos" : esc(value)}</option>`).join("")}</select></div>
           ` : `
-            <div class="field"><label>Sede</label><select class="select-pill" data-admin-stats-field="sede">${sedes.map((value) => `<option value="${escAttr(value)}" ${state.adminStatsSede === value ? "selected" : ""}>${value === "all" ? "Todas las sedes" : esc(value)}</option>`).join("")}</select></div>
-            <div class="field"><label>Grado</label><select class="select-pill" data-admin-stats-field="grade">${grades.map((value) => `<option value="${escAttr(value)}" ${String(state.adminStatsGrade) === String(value) ? "selected" : ""}>${value === "all" ? "Todos los grados" : `${esc(value)}°`}</option>`).join("")}</select></div>
-            <div class="field"><label>Curso</label><select class="select-pill" data-admin-stats-field="group">${groups.map((value) => `<option value="${escAttr(value)}" ${state.adminStatsGroup === value ? "selected" : ""}>${value === "all" ? "Todos los cursos" : esc(value)}</option>`).join("")}</select></div>
-            <div class="field"><label>Área/asignatura</label><select class="select-pill" data-admin-stats-field="subject">${subjects.map((value) => `<option value="${escAttr(value)}" ${state.adminStatsSubject === value ? "selected" : ""}>${value === "all" ? "Todas las áreas" : esc(shortSubjectName(value))}</option>`).join("")}</select></div>
+            <div class="field"><label>Sede</label><select class="select-pill" data-admin-stats-field="sede" onchange="window.__poAdminStatsFieldFromElement&&window.__poAdminStatsFieldFromElement(event,this)">${sedes.map((value) => `<option value="${escAttr(value)}" ${state.adminStatsSede === value ? "selected" : ""}>${value === "all" ? "Todas las sedes" : esc(value)}</option>`).join("")}</select></div>
+            <div class="field"><label>Grado</label><select class="select-pill" data-admin-stats-field="grade" onchange="window.__poAdminStatsFieldFromElement&&window.__poAdminStatsFieldFromElement(event,this)">${grades.map((value) => `<option value="${escAttr(value)}" ${String(state.adminStatsGrade) === String(value) ? "selected" : ""}>${value === "all" ? "Todos los grados" : `${esc(value)}°`}</option>`).join("")}</select></div>
+            <div class="field"><label>Curso</label><select class="select-pill" data-admin-stats-field="group" onchange="window.__poAdminStatsFieldFromElement&&window.__poAdminStatsFieldFromElement(event,this)">${groups.map((value) => `<option value="${escAttr(value)}" ${state.adminStatsGroup === value ? "selected" : ""}>${value === "all" ? "Todos los cursos" : esc(value)}</option>`).join("")}</select></div>
+            <div class="field"><label>Área/asignatura</label><select class="select-pill" data-admin-stats-field="subject" onchange="window.__poAdminStatsFieldFromElement&&window.__poAdminStatsFieldFromElement(event,this)">${subjects.map((value) => `<option value="${escAttr(value)}" ${state.adminStatsSubject === value ? "selected" : ""}>${value === "all" ? "Todas las áreas" : esc(shortSubjectName(value))}</option>`).join("")}</select></div>
           `}
         </div>
       </section>
@@ -2830,6 +2892,11 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
 
     if (action === "answer-info") {
       openAnswerInfo(target.dataset.roll, target.dataset.subject, toInt(target.dataset.item));
+    }
+
+    if (action === "force-admin-stats") {
+      openAdminStatsView(event);
+      return;
     }
 
     if (action === "admin-tab") {
