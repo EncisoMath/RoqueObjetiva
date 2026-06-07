@@ -5609,3 +5609,59 @@ body {
     width: calc(100vw - 28px) !important;
   }
 }
+
+/* Ajustes v42: admin estudiantes, docentes unificados, analisis y edicion de examenes */
+.sort-head {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+  text-align: inherit;
+}
+.sort-head:hover { color: var(--primary); }
+
+.admin-analysis-grid { align-items: stretch; }
+.analysis-bars { display: grid; gap: 12px; }
+.analysis-bar-item { display: grid; gap: 7px; }
+.analysis-bar-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: .92rem; }
+.analysis-bar-head span { color: #737783; font-weight: 650; white-space: nowrap; }
+.analysis-progress { height: 12px; background: #edf1f5; overflow: hidden; border-radius: var(--btn-radius); }
+.analysis-progress i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--primary), var(--primary-soft)); border-radius: inherit; }
+
+.carga-section-title { margin: 18px 0 10px; font-size: 1rem; font-weight: 850; color: #222630; }
+.carga-chip-list { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 14px; }
+.carga-chip-list span { display: inline-flex; align-items: center; min-height: 30px; padding: 6px 10px; background: color-mix(in srgb, var(--subject-color, var(--primary)) 10%, #fff); color: #303746; border-left: 4px solid var(--subject-color, var(--primary)); font-weight: 750; font-size: .82rem; border-radius: var(--btn-radius); }
+.carga-card-actions { justify-content: flex-start; gap: 8px; }
+.carga-assignment-card { border-radius: var(--btn-radius); }
+.teacher-manage-modal .modal-body { padding-top: 16px; }
+.teacher-manage-modal .carga-teacher-head { margin-bottom: 8px; }
+
+.exam-edit-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.exam-edit-tab { border: 1px solid #e2e7ef; background: #fff; padding: 9px 12px; border-radius: var(--btn-radius); font-weight: 800; cursor: pointer; }
+.exam-edit-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+.exam-edit-panel { display: none; }
+.exam-edit-panel.active { display: grid; gap: 10px; }
+.exam-edit-item { display: grid; grid-template-columns: 56px 1fr; align-items: center; gap: 10px; padding: 10px; border: 1px solid #e7ebf1; border-radius: var(--btn-radius); background: #fff; }
+.exam-option-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.exam-option { display: inline-flex; align-items: center; gap: 6px; font-weight: 800; cursor: pointer; }
+.exam-option input { accent-color: var(--primary); }
+.exam-option span { display: inline-grid; place-items: center; min-width: 34px; height: 34px; padding: 0 8px; border: 1px solid #dce2ea; border-radius: 999px; background: #f8fafc; }
+.exam-option input:checked + span { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+.admin-student-report-modal .subject-row-grid-card { border-radius: var(--btn-radius); }
+
+@media (max-width: 760px) {
+  .carga-manager { grid-template-columns: 1fr; }
+  .carga-detail { display: none; }
+  .carga-teacher-list { max-height: none; }
+  .carga-teacher-card { padding: 14px; }
+  .teacher-manage-modal { width: min(94vw, 720px); }
+  .teacher-manage-modal .carga-teacher-head { grid-template-columns: 1fr; }
+  .exam-edit-item { grid-template-columns: 42px 1fr; }
+  .exam-option span { min-width: 30px; height: 30px; }
+  .analysis-bar-head { align-items: flex-start; flex-direction: column; gap: 3px; }
+}

@@ -14,7 +14,9 @@
     directores: "po_directores_grupo_override_v1",
     session: "po_session_v1",
     github: "po_github_publish_v1",
-    students: "po_students_override_v1"
+    students: "po_students_override_v1",
+    resultEdits: "po_result_edits_v1",
+    subjectAreaMap: "po_subject_area_map_v1"
   };
 
   const SUBJECTS = [
@@ -95,8 +97,14 @@
     adminResultGroup: "all",
     adminResultSubject: "all",
     adminResultStudent: "all",
+    adminAnalysisScope: "grado",
+    adminAnalysisSede: "all",
+    adminAnalysisGrade: "all",
+    adminAnalysisSubject: "all",
     adminCargaTeacherId: "",
     adminDirectorTeacherId: "",
+    subjectAreaMap: {},
+    tableSorts: {},
     activeSession: null
   };
 
@@ -137,6 +145,7 @@
   function loadLocalState() {
     state.config = { ...DEFAULT_CONFIG, ...readJSON(STORAGE.config, {}) };
     state.logos = readJSON(STORAGE.logos, {});
+    state.subjectAreaMap = readJSON(STORAGE.subjectAreaMap, {});
     document.documentElement.removeAttribute("data-theme");
     applyAppMeta();
     const storedCarga = readJSON(STORAGE.carga, null);
@@ -163,6 +172,7 @@
     }
     state.config = { ...DEFAULT_CONFIG, ...fileConfig, ...(savedConfig || {}) };
     state.config.subjectLogos = { ...(fileConfig.subjectLogos || {}), ...(savedConfig?.subjectLogos || {}) };
+    state.subjectAreaMap = { ...(fileConfig.subjectAreaMap || {}), ...readJSON(STORAGE.subjectAreaMap, {}) };
     state.logos = { ...state.config.subjectLogos, ...localLogos };
     applyAppMeta();
 
@@ -217,6 +227,7 @@
       }
       parseResultFile(text, resultFile);
     }
+    applyResultEdits();
   }
 
   async function fetchText(path, required = true) {
@@ -358,7 +369,7 @@
       grade: toInt(row.GRADO || row.Grado),
       group: cleanText(row.CURSO || row.Curso || row.GRUPO || row.Grupo),
       coordinator: isTruthy(row.COORDINADOR || row.Coordinador || row.coordinador || row.COORD || row.coord)
-    })).filter((r) => r.id && r.subjectRaw && r.grade);
+    })).filter((r) => r.id && ((r.subjectRaw && r.grade) || r.coordinator));
   }
 
   function parseDirectoresGrupo(text) {
@@ -418,12 +429,55 @@
     }
   }
 
+
+  function applyResultEdits() {
+    const edits = readJSON(STORAGE.resultEdits, {});
+    Object.entries(edits || {}).forEach(([roll, answers]) => {
+      const cleanRoll = cleanId(roll);
+      const record = state.responsesByRoll.get(cleanRoll);
+      if (!record || !answers) return;
+      Object.entries(answers).forEach(([item, value]) => {
+        const itemNo = toInt(item);
+        if (itemNo) record.answers[itemNo] = cleanMarked(value);
+      });
+    });
+  }
+
+  function saveResultEdit(roll, item, value) {
+    const cleanRoll = cleanId(roll);
+    const itemNo = toInt(item);
+    if (!cleanRoll || !itemNo) return;
+    const edits = readJSON(STORAGE.resultEdits, {});
+    if (!edits[cleanRoll]) edits[cleanRoll] = {};
+    edits[cleanRoll][itemNo] = cleanMarked(value);
+    writeJSON(STORAGE.resultEdits, edits);
+    const record = state.responsesByRoll.get(cleanRoll);
+    if (record) record.answers[itemNo] = cleanMarked(value);
+  }
+
   function applyAnswerOverrides() {
     const overrides = readJSON(STORAGE.answers, {});
     state.keys = state.keys.map((row) => {
       const id = keyId(row);
       return overrides[id] ? { ...row, correct: cleanOption(overrides[id]) } : row;
     });
+  }
+
+
+  function mappedAreaForSubject(subjectRaw) {
+    const raw = cleanText(subjectRaw);
+    if (!raw) return "";
+    const direct = cleanText(state.subjectAreaMap?.[raw] || state.subjectAreaMap?.[canonicalSubject(raw)] || "");
+    if (direct) return canonicalSubject(direct);
+    return canonicalSubject(raw);
+  }
+
+  function availableCargaSubjects() {
+    return uniqueValues(state.cargaRows.map((row) => row.subjectRaw || row.subject));
+  }
+
+  function availableKeyAreas() {
+    return uniqueValues(state.keys.map((key) => key.areaRaw || key.area));
   }
 
   function buildRepository() {
@@ -442,12 +496,13 @@
       const teacher = state.teachers.get(row.id);
       if (!teacher.name && row.name) teacher.name = row.name;
       if (row.coordinator) teacher.coordinator = true;
+      if (!row.subjectRaw && !row.subject) continue;
       const assignmentKey = assignmentKeyFor(row);
       if (!teacher.assignments.some((a) => a.key === assignmentKey)) {
         teacher.assignments.push({
           key: assignmentKey,
           grade: row.grade,
-          subject: canonicalSubject(row.subjectRaw),
+          subject: mappedAreaForSubject(row.subjectRaw || row.subject),
           subjectRaw: row.subjectRaw,
           sede: row.sede || "",
           group: row.group || ""
@@ -985,21 +1040,29 @@
           return info.total ? `<div class="item-value-note"><span>Valor de cada ítem</span><strong>${esc(info.label)} puntos</strong><small>La nota se calcula desde 20 hasta 100; las respuestas sin marcar o dobles no suman.</small></div>` : "";
         })()}
 
-        <div class="metric-tabs" role="tablist" aria-label="Análisis por componente y competencia">
-          <button class="metric-tab ${activeMetric === "components" ? "active" : ""}" data-action="select-metric-tab" data-tab="components">Componentes</button>
-          <button class="metric-tab ${activeMetric === "competences" ? "active" : ""}" data-action="select-metric-tab" data-tab="competences">Competencias</button>
-        </div>
+        ${subjectMetricsHtml(stat.details || [], activeMetric)}
+      </div>
+    `;
+  }
 
-        <div class="metric-grid" data-active="${escAttr(activeMetric)}">
-          <section class="metric-panel components">
-            <h4>Componentes evaluados</h4>
-            ${buildMetricBars(stat.details || [], "component")}
-          </section>
-          <section class="metric-panel competences">
-            <h4>Competencias evaluadas</h4>
-            ${buildMetricBars(stat.details || [], "competence")}
-          </section>
-        </div>
+
+  function hasMetricData(details, field) {
+    return (details || []).some((detail) => cleanText(detail[field]));
+  }
+
+  function subjectMetricsHtml(details, activeMetric) {
+    const hasComponents = hasMetricData(details, "component");
+    const hasCompetences = hasMetricData(details, "competence");
+    if (!hasComponents && !hasCompetences) return "";
+    const active = hasComponents ? (activeMetric === "competences" && hasCompetences ? "competences" : "components") : "competences";
+    return `
+      <div class="metric-tabs" role="tablist" aria-label="Análisis por componente y competencia">
+        ${hasComponents ? `<button class="metric-tab ${active === "components" ? "active" : ""}" data-action="select-metric-tab" data-tab="components">Componentes</button>` : ""}
+        ${hasCompetences ? `<button class="metric-tab ${active === "competences" ? "active" : ""}" data-action="select-metric-tab" data-tab="competences">Competencias</button>` : ""}
+      </div>
+      <div class="metric-grid" data-active="${escAttr(active)}">
+        ${hasComponents ? `<section class="metric-panel components"><h4>Componentes evaluados</h4>${buildMetricBars(details, "component")}</section>` : ""}
+        ${hasCompetences ? `<section class="metric-panel competences"><h4>Competencias evaluadas</h4>${buildMetricBars(details, "competence")}</section>` : ""}
       </div>
     `;
   }
@@ -1059,6 +1122,36 @@
     return "";
   }
 
+
+  function sortKeyForStudentName(student, director = false) {
+    return director ? apellidoNombre(student.name || "") : (student.name || "");
+  }
+
+  function apellidoNombre(name) {
+    const parts = cleanText(name).split(/\s+/).filter(Boolean);
+    if (parts.length >= 4) return `${parts.slice(-2).join(" ")} ${parts.slice(0, -2).join(" ")}`;
+    if (parts.length === 3) return `${parts[2]} ${parts[0]} ${parts[1]}`;
+    return cleanText(name);
+  }
+
+  function sortableHeader(context, field, label) {
+    const sort = state.tableSorts?.[context] || {};
+    const mark = sort.field === field ? (sort.dir === "desc" ? " ↓" : " ↑") : "";
+    return `<button class="sort-head" data-action="sort-table" data-context="${escAttr(context)}" data-field="${escAttr(field)}">${esc(label)}${mark}</button>`;
+  }
+
+  function applyStudentSort(list, context, subject = null, director = false) {
+    const sort = state.tableSorts?.[context] || { field: "name", dir: "asc" };
+    const dir = sort.dir === "desc" ? -1 : 1;
+    return list.slice().sort((a, b) => {
+      let av; let bv;
+      if (sort.field === "score" && subject) { av = a.subjectStats?.[subject]?.score ?? -1; bv = b.subjectStats?.[subject]?.score ?? -1; return (Number(av) - Number(bv)) * dir; }
+      if (sort.field === "correct" && subject) { av = a.subjectStats?.[subject]?.correct ?? -1; bv = b.subjectStats?.[subject]?.correct ?? -1; return (Number(av) - Number(bv)) * dir; }
+      av = sortKeyForStudentName(a, director); bv = sortKeyForStudentName(b, director);
+      return String(av).localeCompare(String(bv), "es", { sensitivity: "base", numeric: true }) * dir;
+    });
+  }
+
   function renderTeacherAssignments(teacher) {
     const assignments = teacher.assignments || [];
     if (!state.teacherActive || !assignments.some((a) => a.key === state.teacherActive.key)) {
@@ -1085,8 +1178,7 @@
       ? state.computedStudents.filter((student) => teacherAssignmentMatches(student, active))
       : [];
 
-    const filtered = students
-      .sort((a, b) => a.name.localeCompare(b.name, "es", { sensitivity: "base" }));
+    const filtered = applyStudentSort(students, "teacher", active?.subject, false);
 
     const activeStatForValue = filtered.find((student) => student.subjectStats[active?.subject])?.subjectStats?.[active?.subject] || null;
     const itemValueInfo = active ? subjectItemValue(active.grade, active.subject, activeStatForValue) : { total: 0, value: null, label: "—" };
@@ -1140,7 +1232,7 @@
       <section class="card table-card teacher-table-card">
         <div class="table-wrap">
           <table class="teacher-table">
-            <thead><tr><th>#</th><th>Estudiante</th><th>Nota</th><th>Correctas</th></tr></thead>
+            <thead><tr><th>#</th><th>${sortableHeader("teacher", "name", "Estudiante")}</th><th>${sortableHeader("teacher", "score", "Nota")}</th><th>${sortableHeader("teacher", "correct", "Correctas")}</th></tr></thead>
             <tbody>${rows || `<tr><td colspan="4" class="empty-state">No hay estudiantes para esta asignación con los archivos cargados.</td></tr>`}</tbody>
           </table>
         </div>
@@ -1161,7 +1253,7 @@
     }
     const active = groups.find((group) => group.key === state.teacherDirectorActiveKey) || groups[0] || null;
     const students = active
-      ? state.computedStudents.filter((student) => directorGroupMatches(student, active)).sort((a, b) => a.name.localeCompare(b.name, "es", { sensitivity: "base" }))
+      ? applyStudentSort(state.computedStudents.filter((student) => directorGroupMatches(student, active)), "directorGroup", null, true)
       : [];
     const subjects = SUBJECTS.filter((subject) => students.some((student) => student.subjectStats[subject.name]?.total));
     const scorePool = students.flatMap((student) => subjects.map((subject) => student.subjectStats[subject.name]?.score).filter((value) => Number.isFinite(value)));
@@ -1190,7 +1282,7 @@
     const tableRows = students.map((student, index) => `
       <tr>
         <td class="teacher-index">${index + 1}</td>
-        <td><strong>${esc(student.name)}</strong><br><span class="student-subid">ID Prueba ${esc(student.roll)}</span></td>
+        <td><strong>${esc(apellidoNombre(student.name))}</strong><br><span class="student-subid">ID Prueba ${esc(student.roll)}</span></td>
         ${subjects.map((subject) => `<td><span class="teacher-score teacher-score-plain">${student.subjectStats[subject.name]?.score ?? "—"}</span></td>`).join("")}
       </tr>
     `).join("");
@@ -1217,7 +1309,7 @@
         <section class="card table-card teacher-table-card director-table-card">
           <div class="table-wrap">
             <table class="teacher-table director-table">
-              <thead><tr><th>#</th><th>Estudiante</th>${subjects.map((subject) => `<th>${esc(subject.short || subject.name)}</th>`).join("")}</tr></thead>
+              <thead><tr><th>#</th><th>${sortableHeader("directorGroup", "name", "Estudiante")}</th>${subjects.map((subject) => `<th>${esc(subject.short || subject.name)}</th>`).join("")}</tr></thead>
               <tbody>${tableRows || `<tr><td colspan="${2 + subjects.length}" class="empty-state">No hay estudiantes con resultados en este grupo.</td></tr>`}</tbody>
             </table>
           </div>
@@ -1231,16 +1323,16 @@
     const directorGroup = (teacher?.directorGroups || []).find((group) => group.key === key);
     if (!directorGroup || !subject) return;
     const students = state.computedStudents
-      .filter((student) => directorGroupMatches(student, directorGroup) && student.subjectStats[subject]?.total)
-      .sort((a, b) => a.name.localeCompare(b.name, "es", { sensitivity: "base" }));
-    const details = aggregateDetails(students, subject);
-    const scores = students.map((student) => student.subjectStats[subject]?.score).filter((value) => Number.isFinite(value));
-    const rows = students.map((student, index) => {
+      .filter((student) => directorGroupMatches(student, directorGroup) && student.subjectStats[subject]?.total);
+    const sortedStudents = applyStudentSort(students, "directorDetail", subject, true);
+    const details = aggregateDetails(sortedStudents, subject);
+    const scores = sortedStudents.map((student) => student.subjectStats[subject]?.score).filter((value) => Number.isFinite(value));
+    const rows = sortedStudents.map((student, index) => {
       const stat = student.subjectStats[subject];
       return `
         <tr class="table-row-click" data-action="open-detail" data-roll="${escAttr(student.roll)}" data-subject="${escAttr(subject)}">
           <td class="teacher-index">${index + 1}</td>
-          <td><strong>${esc(student.name)}</strong><br><span class="student-subid">ID Prueba ${esc(student.roll)}</span></td>
+          <td><strong>${esc(apellidoNombre(student.name))}</strong><br><span class="student-subid">ID Prueba ${esc(student.roll)}</span></td>
           <td><span class="teacher-score teacher-score-plain">${stat.score ?? "—"}</span></td>
           <td><strong>${stat.correct}/${stat.total}</strong></td>
         </tr>
@@ -1249,7 +1341,7 @@
     document.body.classList.add("modal-open");
     modalRoot.innerHTML = `
       <div class="modal-backdrop director-detail-backdrop" data-action="close-modal">
-        <section class="modal director-detail-modal" style="max-width:980px;">
+        <section class="modal director-detail-modal" data-group-key="${escAttr(key)}" data-subject="${escAttr(subject)}" style="max-width:980px;">
           <div class="modal-head">
             <div>
               <h2>${esc(subject)}</h2>
@@ -1271,7 +1363,7 @@
             <section class="card table-card teacher-table-card">
               <div class="table-wrap">
                 <table class="teacher-table">
-                  <thead><tr><th>#</th><th>Estudiante</th><th>Nota</th><th>Correctas</th></tr></thead>
+                  <thead><tr><th>#</th><th>${sortableHeader("directorDetail", "name", "Estudiante")}</th><th>${sortableHeader("directorDetail", "score", "Nota")}</th><th>${sortableHeader("directorDetail", "correct", "Correctas")}</th></tr></thead>
                   <tbody>${rows || `<tr><td colspan="4" class="empty-state">No hay estudiantes para esta selección.</td></tr>`}</tbody>
                 </table>
               </div>
@@ -1284,28 +1376,19 @@
 
   function teacherAggregateMetricsHtml(students, subject) {
     const details = students.flatMap((student) => student.subjectStats[subject]?.details || []);
-    return `
-      <article class="teacher-metric-card">
-        <h3>Promedio por componentes</h3>
-        ${buildMetricBars(details, "component")}
-      </article>
-      <article class="teacher-metric-card">
-        <h3>Promedio por competencias</h3>
-        ${buildMetricBars(details, "competence")}
-      </article>
-    `;
+    return teacherAggregateMetricsHtmlForDetails(details);
   }
 
   function renderAdmin() {
-    if (state.adminTab === "analisis") state.adminTab = "resumen";
     const tabs = [
       ["resumen", "Resumen"],
       ["estudiantes", "Estudiantes"],
       ["resultados", "Resultados"],
+      ["analisis", "Análisis / ranking"],
       ["apariencia", "Apariencia"],
       ["logos", "Logos"],
-      ["cargas", "Cargas"],
-      ["directores", "Directores de grupo"],
+      ["cargas", "Docentes"],
+      ["areas", "Asignaturas y áreas"],
       ["claves", "Claves"],
       ["github", "GitHub"]
     ];
@@ -1333,10 +1416,11 @@
     switch (state.adminTab) {
       case "estudiantes": return adminStudentsHtml();
       case "resultados": return adminResultsHtml();
+      case "analisis": return adminAnalysisHtml();
       case "apariencia": return adminAppearanceHtml();
       case "logos": return adminLogosHtml();
       case "cargas": return adminCargaHtml();
-      case "directores": return adminDirectoresHtml();
+      case "areas": return adminSubjectAreasHtml();
       case "claves": return adminKeysHtml();
       case "github": return adminGithubHtml();
       default: return adminSummaryHtml();
@@ -1426,7 +1510,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       <section class="card table-card admin-edit-table">
         <div class="table-wrap">
           <table>
-            <thead><tr><th>#</th><th>ID prueba</th><th>ID estudiante</th><th>Nombre completo</th><th>Sede</th><th>Grado</th><th>Curso</th><th>Examen</th><th></th></tr></thead>
+            <thead><tr><th>#</th><th>ID prueba</th><th>ID estudiante</th><th>Nombre completo</th><th>Sede</th><th>Grado</th><th>Curso</th><th>Examen</th><th>Editar examen</th><th></th></tr></thead>
             <tbody>
               ${rows.map((student, viewIndex) => {
                 const index = state.studentsRegistry.indexOf(student);
@@ -1440,10 +1524,11 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
                     <td><select class="select-pill compact-select" data-student-row="${index}" data-field="grade">${cargaSelectOptions("grade", student.grade)}</select></td>
                     <td><select class="select-pill compact-select" data-student-row="${index}" data-field="group">${cargaSelectOptions("group", student.group)}</select></td>
                     <td><button class="secondary-btn" data-action="admin-view-student" data-roll="${escAttr(student.examId)}" ${state.computedByRoll.has(student.examId) ? "" : "disabled"}>Ver examen</button></td>
+                    <td><button class="secondary-btn" data-action="admin-edit-exam" data-roll="${escAttr(student.examId)}" ${state.computedByRoll.has(student.examId) ? "" : "disabled"}>Editar examen</button></td>
                     <td><button class="danger-btn" data-action="delete-student" data-index="${index}">Eliminar</button></td>
                   </tr>
                 `;
-              }).join("") || `<tr><td colspan="9" class="empty-state">No hay estudiantes con los filtros actuales.</td></tr>`}
+              }).join("") || `<tr><td colspan="10" class="empty-state">No hay estudiantes con los filtros actuales.</td></tr>`}
             </tbody>
           </table>
         </div>
@@ -1476,12 +1561,13 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       const okGroup = student.group === state.adminResultGroup;
       const okSubject = student.subjectStats[subject]?.total;
       return okSede && okGrade && okGroup && okSubject;
-    }).sort((a, b) => a.name.localeCompare(b.name, "es", { sensitivity: "base" })) : [];
+    }) : [];
+    const sortedFiltered = applyStudentSort(filtered, "adminResults", subject, false);
 
-    const details = aggregateDetails(filtered, subject);
-    const scoreValues = filtered.map((student) => adminStudentSubjectStat(student, subject).score).filter((value) => Number.isFinite(value));
+    const details = aggregateDetails(sortedFiltered, subject);
+    const scoreValues = sortedFiltered.map((student) => adminStudentSubjectStat(student, subject).score).filter((value) => Number.isFinite(value));
 
-    const rows = filtered.map((student, index) => {
+    const rows = sortedFiltered.map((student, index) => {
       const stat = adminStudentSubjectStat(student, subject);
       return `
         <tr class="table-row-click" data-action="open-detail" data-roll="${escAttr(student.roll)}" data-subject="${escAttr(subject)}">
@@ -1500,7 +1586,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     const readyContent = isReady ? `
       <div class="teacher-active-label admin-results-scope">${esc(scopeText)}</div>
       <section class="teacher-stat-strip teacher-stat-strip-two admin-results-stats">
-        <article class="card card-pad teacher-stat"><span>Estudiantes</span><strong>${filtered.length}</strong></article>
+        <article class="card card-pad teacher-stat"><span>Estudiantes</span><strong>${sortedFiltered.length}</strong></article>
         <article class="card card-pad teacher-stat"><span>Promedio</span><strong>${avg(scoreValues)}<small>/100</small></strong></article>
       </section>
       <section class="teacher-metrics-row admin-results-metrics">
@@ -1512,7 +1598,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       <section class="card table-card teacher-table-card admin-results-table">
         <div class="table-wrap">
           <table class="teacher-table">
-            <thead><tr><th>#</th><th>Estudiante</th><th>Nota</th><th>Correctas</th></tr></thead>
+            <thead><tr><th>#</th><th>${sortableHeader("adminResults", "name", "Estudiante")}</th><th>${sortableHeader("adminResults", "score", "Nota")}</th><th>${sortableHeader("adminResults", "correct", "Correctas")}</th></tr></thead>
             <tbody>${rows || `<tr><td colspan="4" class="empty-state">No hay estudiantes con los filtros actuales.</td></tr>`}</tbody>
           </table>
         </div>
@@ -1555,15 +1641,12 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
   }
 
   function teacherAggregateMetricsHtmlForDetails(details) {
+    const hasComponents = hasMetricData(details, "component");
+    const hasCompetences = hasMetricData(details, "competence");
+    if (!hasComponents && !hasCompetences) return "";
     return `
-      <article class="teacher-metric-card">
-        <h3>Promedio por componentes</h3>
-        ${buildMetricBars(details, "component")}
-      </article>
-      <article class="teacher-metric-card">
-        <h3>Promedio por competencias</h3>
-        ${buildMetricBars(details, "competence")}
-      </article>
+      ${hasComponents ? `<article class="teacher-metric-card"><h3>Promedio por componentes</h3>${buildMetricBars(details, "component")}</article>` : ""}
+      ${hasCompetences ? `<article class="teacher-metric-card"><h3>Promedio por competencias</h3>${buildMetricBars(details, "competence")}</article>` : ""}
     `;
   }
 
@@ -1590,6 +1673,64 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     const base = SUBJECTS.map((subject) => subject.name);
     return [...new Set([...base, ...fromKeys].map(canonicalSubject).filter(Boolean))]
       .sort((a, b) => a.localeCompare(b, "es", { sensitivity: "base" }));
+  }
+
+
+  function adminAnalysisHtml() {
+    const sedes = ["all", ...uniqueValues(state.computedStudents.map((s) => s.sede))];
+    const grades = ["all", ...uniqueValues(state.computedStudents.map((s) => s.grade).filter(Boolean)).sort((a,b)=>Number(a)-Number(b))];
+    const subjects = ["all", ...availableKeyAreas().map(canonicalSubject).filter(Boolean)];
+    let students = state.computedStudents.filter((s) => state.adminAnalysisSede === "all" || s.sede === state.adminAnalysisSede)
+      .filter((s) => state.adminAnalysisGrade === "all" || String(s.grade) === String(state.adminAnalysisGrade));
+    const subject = state.adminAnalysisSubject || "all";
+    const groupKey = state.adminAnalysisScope === "curso" ? (s) => `${s.grade}° ${s.group || "Sin curso"}` : (s) => `${s.grade}°`;
+    const grouped = groupBy(students, groupKey);
+    const bars = [...grouped.entries()].map(([label, list]) => {
+      const values = subject === "all"
+        ? list.flatMap((student) => Object.values(student.subjectStats || {}).map((stat) => stat?.score).filter(Number.isFinite))
+        : list.map((student) => student.subjectStats?.[subject]?.score).filter(Number.isFinite);
+      const value = Number(avg(values));
+      const percent = Number.isFinite(value) ? clamp(value, 0, 100) : 0;
+      return { label, value, percent, count: list.length };
+    }).filter((x) => Number.isFinite(x.value)).sort((a,b)=>b.value-a.value);
+    const details = subject === "all" ? [] : aggregateDetails(students.filter((s)=>s.subjectStats?.[subject]?.total), subject);
+    const subjectBars = subject === "all" ? availableKeyAreas().map(canonicalSubject).filter(Boolean).map((area) => {
+      const values = students.map((student) => student.subjectStats?.[area]?.score).filter(Number.isFinite);
+      const value = Number(avg(values));
+      return { area, value, percent: Number.isFinite(value) ? clamp(value,0,100) : 0 };
+    }).filter((x)=>Number.isFinite(x.value)).sort((a,b)=>b.value-a.value) : [];
+    return `
+      <section class="toolbar">
+        <div><span class="section-eyebrow">Análisis / ranking</span><h2 style="margin:8px 0 0;font-weight:900;">Desempeño general</h2><p class="muted-copy">Compara grados, cursos y áreas sin entrar al detalle individual de cada estudiante.</p></div>
+      </section>
+      <section class="card card-pad admin-analysis-filters">
+        <div class="form-grid compact">
+          <div class="field"><label>Comparar por</label><select class="select-pill" data-admin-analysis-field="scope"><option value="grado" ${state.adminAnalysisScope === "grado" ? "selected" : ""}>Grados</option><option value="curso" ${state.adminAnalysisScope === "curso" ? "selected" : ""}>Cursos</option></select></div>
+          <div class="field"><label>Sede</label><select class="select-pill" data-admin-analysis-field="sede">${sedes.map(v=>`<option value="${escAttr(v)}" ${state.adminAnalysisSede===v?"selected":""}>${v==="all"?"Todas":esc(v)}</option>`).join("")}</select></div>
+          <div class="field"><label>Grado</label><select class="select-pill" data-admin-analysis-field="grade">${grades.map(v=>`<option value="${escAttr(v)}" ${String(state.adminAnalysisGrade)===String(v)?"selected":""}>${v==="all"?"Todos":`${esc(v)}°`}</option>`).join("")}</select></div>
+          <div class="field"><label>Área</label><select class="select-pill" data-admin-analysis-field="subject"><option value="all">Todas las áreas</option>${subjects.filter((v,i,a)=>a.indexOf(v)===i && v!=="all").map(v=>`<option value="${escAttr(v)}" ${subject===v?"selected":""}>${esc(v)}</option>`).join("")}</select></div>
+        </div>
+      </section>
+      <section class="grid grid-2 admin-analysis-grid">
+        <article class="card card-pad"><h3>Ranking de desempeño</h3>${analysisBarsHtml(bars)}</article>
+        <article class="card card-pad"><h3>${subject === "all" ? "Desempeño por área" : `Componentes y competencias de ${esc(subject)}`}</h3>${subject === "all" ? analysisBarsHtml(subjectBars.map(x=>({label:x.area,value:x.value,percent:x.percent,count:null}))) : teacherAggregateMetricsHtmlForDetails(details) || `<p class="metric-empty">Esta clave no tiene componentes ni competencias.</p>`}</article>
+      </section>
+    `;
+  }
+
+  function analysisBarsHtml(items) {
+    if (!items.length) return `<div class="empty-state">No hay datos con los filtros seleccionados.</div>`;
+    return `<div class="analysis-bars">${items.map((item, index)=>`<div class="analysis-bar-item"><div class="analysis-bar-head"><strong>${index+1}. ${esc(item.label)}</strong><span>${esc(item.value)} /100${item.count ? ` · ${item.count} est.` : ""}</span></div><div class="analysis-progress"><i style="width:${escAttr(item.percent)}%"></i></div></div>`).join("")}</div>`;
+  }
+
+  function adminSubjectAreasHtml() {
+    const subjects = availableCargaSubjects();
+    const areas = availableKeyAreas().map(canonicalSubject).filter(Boolean);
+    return `
+      <section class="toolbar"><div><span class="section-eyebrow">Asignaturas y áreas</span><h2 style="margin:8px 0 0;font-weight:900;">Cruzar carga docente con áreas del examen</h2><p class="muted-copy">Usa esto cuando la carga del docente tiene nombres como Estadística, Biología o Lectura, pero el examen calcula áreas como Matemáticas, Naturales o Lenguaje.</p></div></section>
+      <section class="card table-card"><div class="table-wrap"><table><thead><tr><th>Asignatura en carga</th><th>Área del examen</th></tr></thead><tbody>${subjects.map((subject)=>`<tr><td><strong>${esc(subject)}</strong></td><td><select class="select-pill" data-subject-area-map="${escAttr(subject)}"><option value="">Automático</option>${areas.map((area)=>`<option value="${escAttr(area)}" ${(state.subjectAreaMap?.[subject]||"")===area?"selected":""}>${esc(area)}</option>`).join("")}</select></td></tr>`).join("") || `<tr><td colspan="2" class="empty-state">No hay asignaturas en la carga.</td></tr>`}</tbody></table></div></section>
+      <div class="inline-actions" style="margin-top:14px;"><button class="secondary-btn" data-action="save-subject-area-map">Guardar cruces</button><button class="secondary-btn" data-action="publish-github">Publicar en GitHub</button></div>
+    `;
   }
 
   function adminAppearanceHtml() {
@@ -1733,7 +1874,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
   }
 
   function adminCargaHtml() {
-    const teachers = buildCargaTeachers();
+    const teachers = mergeTeacherLists(buildCargaTeachers(), buildDirectorTeachers());
     if (!state.adminCargaTeacherId || !teachers.some((t) => t.id === state.adminCargaTeacherId)) {
       state.adminCargaTeacherId = teachers[0]?.id || "";
     }
@@ -1741,9 +1882,9 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     return `
       <section class="toolbar">
         <div>
-          <span class="section-eyebrow">Carga docente</span>
-          <h2 style="margin:8px 0 0;font-weight:900;">Docentes y asignaciones</h2>
-          <p class="muted-copy">Selecciona un docente, edita sus datos y administra sus asignaturas por sede, grado y curso.</p>
+          <span class="section-eyebrow">Docentes</span>
+          <h2 style="margin:8px 0 0;font-weight:900;">Cargas, dirección de grupo y coordinación</h2>
+          <p class="muted-copy">Selecciona un docente para administrar en un solo lugar sus cargas, dirección de grupo y permiso de coordinación.</p>
         </div>
         <div class="inline-actions">
           <button class="primary-btn" data-action="add-carga-teacher">Agregar docente</button>
@@ -1863,6 +2004,21 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     }).sort((a, b) => String(a.label).localeCompare(String(b.label), "es", { numeric: true, sensitivity: "base" }));
   }
 
+
+  function mergeTeacherLists(a = [], b = []) {
+    const map = new Map();
+    [...a, ...b].forEach((teacher) => {
+      if (!teacher?.id) return;
+      if (!map.has(teacher.id)) map.set(teacher.id, { id: teacher.id, name: teacher.name || "", assignments: [], directorGroups: [], coordinator: !!teacher.coordinator });
+      const current = map.get(teacher.id);
+      if (!current.name && teacher.name) current.name = teacher.name;
+      if (teacher.assignments && teacher.assignments.length) current.assignments = teacher.assignments;
+      if (teacher.directorGroups && teacher.directorGroups.length) current.directorGroups = teacher.directorGroups;
+      current.coordinator = current.coordinator || !!teacher.coordinator;
+    });
+    return [...map.values()].sort((x,y)=>String(x.name||x.id).localeCompare(String(y.name||y.id), "es", { sensitivity: "base" }));
+  }
+
   function buildCargaTeachers() {
     const map = new Map();
     state.cargaRows.forEach((row, index) => {
@@ -1871,7 +2027,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       const teacher = map.get(id);
       if (!teacher.name && row.name) teacher.name = row.name;
       if (row.coordinator) teacher.coordinator = true;
-      teacher.assignments.push({ ...row, index });
+      if (row.subjectRaw || row.subject) teacher.assignments.push({ ...row, index });
     });
     return [...map.values()].sort((a, b) => String(a.name || a.id).localeCompare(String(b.name || b.id), "es", { sensitivity: "base" }));
   }
@@ -1879,7 +2035,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
   function cargaTeacherDetailHtml(teacher) {
     const firstIndex = teacher.assignments[0]?.index;
     const baseRow = firstIndex !== undefined ? state.cargaRows[firstIndex] : { id: teacher.id, name: teacher.name };
-    const isCoordinator = teacher.assignments.some((row) => row.coordinator);
+    const isCoordinator = !!teacher.coordinator || state.cargaRows.some((row) => row.id === teacher.id && row.coordinator);
     return `
       <div class="carga-teacher-head">
         <div class="form-grid compact">
@@ -1895,10 +2051,20 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
           <button class="danger-btn" data-action="delete-carga-teacher" data-id="${escAttr(teacher.id)}">Eliminar docente</button>
         </div>
       </div>
+      <h4 class="carga-section-title">Cargas académicas</h4>
       <div class="carga-assignment-grid">
         ${teacher.assignments.map((row) => cargaAssignmentCard(row)).join("") || `<div class="empty-state">Este docente no tiene cargas todavía.</div>`}
       </div>
+      <h4 class="carga-section-title">Dirección de grupo</h4>
+      <div class="inline-actions" style="margin-bottom:10px;"><button class="primary-btn" data-action="add-director-assignment" data-id="${escAttr(teacher.id)}">Agregar dirección</button></div>
+      <div class="carga-assignment-grid director-assignment-grid">
+        ${teacherDirectorRows(teacher.id).map((row) => directorAssignmentCard(row)).join("") || `<div class="empty-state">Este docente no tiene dirección de grupo.</div>`}
+      </div>
     `;
+  }
+
+  function teacherDirectorRows(id) {
+    return (state.directorRows || []).map((row, index) => ({ ...row, index, key: directorKeyFor(row) })).filter((row) => row.id === id);
   }
 
   function cargaAssignmentCard(row) {
@@ -1912,13 +2078,16 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
           ${subjectIcon(subjectName || "Matemáticas")}
           <div><strong>${esc(row.subjectRaw || row.subject || "Carga sin asignatura")}</strong><span>${row.grade ? `${esc(row.grade)}°` : "Sin grado"} ${esc(row.group || "")} · ${esc(row.sede || "Sin sede")}</span></div>
         </div>
-        <div class="form-grid compact">
-          <div class="field"><label>Asignatura</label><select class="select-pill" data-carga-row="${row.index}" data-field="subjectRaw">${cargaSelectOptions("subject", row.subjectRaw || row.subject)}</select></div>
-          <div class="field"><label>Sede</label><select class="select-pill" data-carga-row="${row.index}" data-field="sede">${cargaSelectOptions("sede", row.sede)}</select></div>
-          <div class="field"><label>Grado</label><select class="select-pill" data-carga-row="${row.index}" data-field="grade">${cargaSelectOptions("grade", row.grade)}</select></div>
-          <div class="field"><label>Curso</label><select class="select-pill" data-carga-row="${row.index}" data-field="group">${cargaSelectOptions("group", row.group)}</select></div>
+        <div class="carga-chip-list">
+          <span>Sede: ${esc(row.sede || "Sin sede")}</span>
+          <span>Grado: ${row.grade ? `${esc(row.grade)}°` : "Sin grado"}</span>
+          <span>Curso: ${esc(row.group || "Sin curso")}</span>
+          <span>Área: ${esc(mappedAreaForSubject(row.subjectRaw || row.subject) || "—")}</span>
         </div>
-        <button class="danger-btn" data-action="delete-carga" data-index="${row.index}">Quitar carga</button>
+        <div class="inline-actions carga-card-actions">
+          <button class="secondary-btn" data-action="edit-carga" data-index="${row.index}">Editar</button>
+          <button class="danger-btn" data-action="delete-carga" data-index="${row.index}">Eliminar</button>
+        </div>
       </article>
     `;
   }
@@ -2035,12 +2204,15 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
           <span class="director-card-icon">DG</span>
           <div><strong>Dirección de grupo</strong><span>${row.grade ? `${esc(row.grade)}°` : "Sin grado"} ${esc(row.group || "")} · ${esc(row.sede || "Sin sede")}</span></div>
         </div>
-        <div class="form-grid compact">
-          <div class="field"><label>Sede</label><select class="select-pill" data-director-row="${row.index}" data-field="sede">${cargaSelectOptions("sede", row.sede)}</select></div>
-          <div class="field"><label>Grado</label><select class="select-pill" data-director-row="${row.index}" data-field="grade">${cargaSelectOptions("grade", row.grade)}</select></div>
-          <div class="field"><label>Curso</label><select class="select-pill" data-director-row="${row.index}" data-field="group">${cargaSelectOptions("group", row.group)}</select></div>
+        <div class="carga-chip-list">
+          <span>Sede: ${esc(row.sede || "Sin sede")}</span>
+          <span>Grado: ${row.grade ? `${esc(row.grade)}°` : "Sin grado"}</span>
+          <span>Curso: ${esc(row.group || "Sin curso")}</span>
         </div>
-        <button class="danger-btn" data-action="delete-director" data-index="${row.index}">Quitar dirección</button>
+        <div class="inline-actions carga-card-actions">
+          <button class="secondary-btn" data-action="edit-director" data-index="${row.index}">Editar</button>
+          <button class="danger-btn" data-action="delete-director" data-index="${row.index}">Eliminar</button>
+        </div>
       </article>
     `;
   }
@@ -2288,6 +2460,11 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       return;
     }
 
+    if (action === "admin-edit-exam") {
+      openEditStudentExamModal(target.dataset.roll);
+      return;
+    }
+
     if (action === "admin-view-student") {
       openAdminStudentReportModal(target.dataset.roll);
       return;
@@ -2322,6 +2499,20 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
 
     if (action === "answer-info") {
       openAnswerInfo(target.dataset.roll, target.dataset.subject, toInt(target.dataset.item));
+    }
+
+    if (action === "sort-table") {
+      const context = target.dataset.context || "default";
+      const field = target.dataset.field || "name";
+      const current = state.tableSorts[context] || { field: "name", dir: "asc" };
+      state.tableSorts[context] = { field, dir: current.field === field && current.dir === "asc" ? "desc" : "asc" };
+      if (context === "directorDetail") {
+        const modal = modalRoot.querySelector(".director-detail-modal");
+        const subject = modal?.dataset.subject;
+        const key = modal?.dataset.groupKey;
+        if (key && subject) openDirectorSubjectDetail(key, subject); else renderBySession();
+      } else if (state.activeSession?.role === "teacher") renderBySession(); else renderAdminContext();
+      return;
     }
 
     if (action === "admin-tab") {
@@ -2370,6 +2561,13 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
 
     if (action === "delete-student") {
       const index = Number(target.dataset.index);
+      const row = state.studentsRegistry[index];
+      if (row?.examId) {
+        state.responsesByRoll.delete(cleanId(row.examId));
+        const edits = readJSON(STORAGE.resultEdits, {});
+        delete edits[cleanId(row.examId)];
+        writeJSON(STORAGE.resultEdits, edits);
+      }
       state.studentsRegistry.splice(index, 1);
       buildRepository();
       renderAdmin();
@@ -2392,7 +2590,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
 
     if (action === "select-carga-teacher") {
       state.adminCargaTeacherId = target.dataset.id || "";
-      renderAdminContext();
+      openTeacherManagementModal(state.adminCargaTeacherId);
       return;
     }
 
@@ -2428,6 +2626,21 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       return;
     }
 
+    if (action === "confirm-edit-carga-assignment") {
+      const index = Number(target.dataset.index);
+      if (!state.cargaRows[index]) return;
+      const subjectRaw = document.getElementById("newCargaSubject")?.value || "";
+      const sede = document.getElementById("newCargaSede")?.value || "";
+      const grade = toInt(document.getElementById("newCargaGrade")?.value || "");
+      const group = document.getElementById("newCargaGroup")?.value || "";
+      if (!subjectRaw || !sede || !grade || !group) { toast("Selecciona asignatura, sede, grado y curso."); return; }
+      state.cargaRows[index] = { ...state.cargaRows[index], subjectRaw, subject: mappedAreaForSubject(subjectRaw), sede, grade, group };
+      buildRepository();
+      closeModal();
+      openTeacherManagementModal(state.cargaRows[index].id);
+      return;
+    }
+
     if (action === "confirm-add-carga-assignment") {
       const id = target.dataset.id || state.adminCargaTeacherId || "";
       const existing = state.cargaRows.find((row) => row.id === id) || { id, name: "" };
@@ -2443,7 +2656,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       state.cargaRows.push({ id: existing.id, name: existing.name, subjectRaw, subject: canonicalSubject(subjectRaw), sede, grade, group });
       state.adminCargaTeacherId = existing.id;
       closeModal();
-      renderAdminContext();
+      openTeacherManagementModal(existing.id);
       return;
     }
 
@@ -2452,10 +2665,18 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       renderAdminContext();
     }
 
+    if (action === "edit-carga") {
+      openEditCargaAssignmentModal(Number(target.dataset.index));
+      return;
+    }
+
     if (action === "delete-carga") {
       const index = Number(target.dataset.index);
+      const id = state.cargaRows[index]?.id || state.adminCargaTeacherId;
       state.cargaRows.splice(index, 1);
-      renderAdminContext();
+      buildRepository();
+      if (modalRoot.querySelector(".teacher-manage-modal")) openTeacherManagementModal(id); else renderAdminContext();
+      return;
     }
 
     if (action === "save-carga") {
@@ -2482,6 +2703,20 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       return;
     }
 
+    if (action === "confirm-edit-director-assignment") {
+      const index = Number(target.dataset.index);
+      if (!state.directorRows[index]) return;
+      const sede = document.getElementById("newDirectorSede")?.value || "";
+      const grade = toInt(document.getElementById("newDirectorGrade")?.value || "");
+      const group = document.getElementById("newDirectorGroup")?.value || "";
+      if (!sede || !grade || !group) { toast("Selecciona sede, grado y curso."); return; }
+      state.directorRows[index] = normalizeDirectorRow({ ...state.directorRows[index], sede, grade, group });
+      buildRepository();
+      closeModal();
+      openTeacherManagementModal(state.directorRows[index].id);
+      return;
+    }
+
     if (action === "confirm-add-director-assignment") {
       const id = cleanId(document.getElementById("newDirectorTeacher")?.value || "");
       const sede = document.getElementById("newDirectorSede")?.value || "";
@@ -2502,16 +2737,22 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       state.adminDirectorTeacherId = id;
       buildRepository();
       closeModal();
-      renderAdmin();
+      if (state.adminTab === "cargas") openTeacherManagementModal(id); else renderAdmin();
+      return;
+    }
+
+    if (action === "edit-director") {
+      openEditDirectorAssignmentModal(Number(target.dataset.index));
       return;
     }
 
     if (action === "delete-director") {
       const index = Number(target.dataset.index);
+      const id = state.directorRows[index]?.id || state.adminCargaTeacherId || state.adminDirectorTeacherId;
       state.directorRows.splice(index, 1);
       normalizeDirectorRows();
       buildRepository();
-      renderAdmin();
+      if (modalRoot.querySelector(".teacher-manage-modal")) openTeacherManagementModal(id); else renderAdminContext();
       return;
     }
 
@@ -2526,6 +2767,34 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
 
     if (action === "export-directores") {
       exportDirectores();
+      return;
+    }
+
+    if (action === "save-subject-area-map") {
+      writeJSON(STORAGE.subjectAreaMap, state.subjectAreaMap || {});
+      buildRepository();
+      toast("Cruce de asignaturas y áreas guardado.");
+      renderAdminContext();
+      return;
+    }
+
+    if (action === "exam-edit-tab") {
+      const subject = target.dataset.subject;
+      const modal = target.closest(".edit-exam-modal");
+      if (modal) {
+        modal.querySelectorAll(".exam-edit-tab").forEach((b)=>b.classList.toggle("active", b.dataset.subject === subject));
+        modal.querySelectorAll(".exam-edit-panel").forEach((p)=>p.classList.toggle("active", p.dataset.subject === subject));
+      }
+      return;
+    }
+
+    if (action === "save-edited-exam") {
+      const roll = target.dataset.roll;
+      modalRoot.querySelectorAll("input[data-exam-edit-item]:checked").forEach((input)=>saveResultEdit(roll, input.dataset.examEditItem, input.value));
+      buildRepository();
+      toast("Examen editado localmente.");
+      closeModal();
+      renderAdminContext();
       return;
     }
 
@@ -2564,7 +2833,8 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
 
     if (target.dataset.action === "admin-student-search") {
       state.adminStudentSearch = target.value;
-      renderAdminContext();
+      clearTimeout(state._studentSearchTimer);
+      state._studentSearchTimer = setTimeout(() => { renderAdminContext(); setTimeout(() => { const input = document.querySelector('[data-action="admin-student-search"]'); if (input) { input.focus(); input.setSelectionRange(input.value.length, input.value.length); } }, 0); }, 220);
     }
 
     if (target.dataset.configField) {
@@ -2602,9 +2872,11 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
 
     if (target.dataset.cargaCoordinator) {
       const id = target.dataset.cargaCoordinator;
+      let touched = false;
       state.cargaRows.forEach((row) => {
-        if (row.id === id) row.coordinator = !!target.checked;
+        if (row.id === id) { row.coordinator = !!target.checked; touched = true; }
       });
+      if (!touched) { const name = teacherNameById(id); state.cargaRows.push({ id, name, subjectRaw: "", subject: "", sede: "", grade: "", group: "", coordinator: !!target.checked }); }
       buildRepository();
       renderAdminContext();
       return;
@@ -2616,6 +2888,16 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       saveGithubSettings(settings);
     }
 
+
+    if (target.dataset.cargaCoordinator) {
+      const id = target.dataset.cargaCoordinator;
+      let touched = false;
+      state.cargaRows.forEach((row) => { if (row.id === id) { row.coordinator = !!target.checked; touched = true; } });
+      if (!touched) { const name = teacherNameById(id); state.cargaRows.push({ id, name, subjectRaw: "", subject: "", sede: "", grade: "", group: "", coordinator: !!target.checked }); }
+      buildRepository();
+      return;
+    }
+
     if (target.dataset.cargaRow) {
       updateCargaRowField(target);
     }
@@ -2623,6 +2905,16 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
 
   function handleChange(event) {
     const target = event.target;
+
+
+    if (target.dataset.cargaCoordinator) {
+      const id = target.dataset.cargaCoordinator;
+      let touched = false;
+      state.cargaRows.forEach((row) => { if (row.id === id) { row.coordinator = !!target.checked; touched = true; } });
+      if (!touched) { const name = teacherNameById(id); state.cargaRows.push({ id, name, subjectRaw: "", subject: "", sede: "", grade: "", group: "", coordinator: !!target.checked }); }
+      buildRepository();
+      return;
+    }
 
     if (target.dataset.cargaRow) {
       updateCargaRowField(target);
@@ -2634,6 +2926,23 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       updateDirectorRowField(target);
       buildRepository();
       renderAdmin();
+      return;
+    }
+
+    if (target.dataset.adminAnalysisField) {
+      const field = target.dataset.adminAnalysisField;
+      const map = { scope: "adminAnalysisScope", sede: "adminAnalysisSede", grade: "adminAnalysisGrade", subject: "adminAnalysisSubject" };
+      if (map[field]) state[map[field]] = target.value;
+      renderAdminContext();
+      return;
+    }
+
+    if (target.dataset.subjectAreaMap !== undefined) {
+      const key = target.dataset.subjectAreaMap;
+      if (!state.subjectAreaMap) state.subjectAreaMap = {};
+      if (target.value) state.subjectAreaMap[key] = target.value; else delete state.subjectAreaMap[key];
+      writeJSON(STORAGE.subjectAreaMap, state.subjectAreaMap);
+      buildRepository();
       return;
     }
 
@@ -2720,13 +3029,13 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
         id: cleanId(row.id),
         name: cleanText(row.name),
         subjectRaw: cleanText(row.subjectRaw || row.subject),
-        subject: canonicalSubject(row.subjectRaw || row.subject),
+        subject: mappedAreaForSubject(row.subjectRaw || row.subject),
         sede: cleanText(row.sede),
         grade: toInt(row.grade),
         group: cleanText(row.group),
         coordinator: !!row.coordinator
       }))
-      .filter((row) => row.id && row.subjectRaw && row.grade);
+      .filter((row) => row.id && ((row.subjectRaw && row.grade) || row.coordinator));
   }
 
   function saveKeys() {
@@ -2811,7 +3120,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     showRouteLoader("Publicando cambios en GitHub...");
     try {
       const files = [];
-      const repoConfig = { ...state.config, subjectLogos: {} };
+      const repoConfig = { ...state.config, subjectLogos: {}, subjectAreaMap: state.subjectAreaMap || {} };
       delete repoConfig.github;
 
       if (isDataUrl(repoConfig.logoImage)) {
@@ -2865,6 +3174,10 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
         files.push({ path, content: JSON.stringify(exportKeyRows(rows), null, 2) });
       }
 
+      for (const resultFile of exportResultFilesForRepo()) {
+        files.push(resultFile);
+      }
+
       for (const file of files) {
         await githubPutFile(gh, file.path, file.contentBase64 || textToBase64(file.content), file.contentBase64 ? "Actualizar imagen del reporte" : "Actualizar datos del reporte");
       }
@@ -2877,6 +3190,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       writeJSON(STORAGE.logos, state.logos);
       writeJSON(STORAGE.students, { rows: state.studentsRegistry });
       writeJSON(STORAGE.carga, { rows: state.cargaRows });
+      writeJSON(STORAGE.subjectAreaMap, state.subjectAreaMap || {});
       toast("Cambios publicados en GitHub. GitHub Pages puede tardar un momento en reflejarlos.");
       hideRouteLoader();
       state.adminTab = "github";
@@ -2886,6 +3200,31 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       hideRouteLoader();
       toast(error.message || "No fue posible publicar en GitHub.");
     }
+  }
+
+
+  function exportResultFilesForRepo() {
+    const map = new Map();
+    state.responsesByRoll.forEach((record) => {
+      const grade = toInt(record.grade) || toInt(state.registryByExamId.get(record.roll)?.grade);
+      const sessions = Array.isArray(record.sessions) && record.sessions.length ? record.sessions : (state.manifest.sessions || []).map((s) => ({ session: s.session, path: templatePath(state.manifest.resultTemplate || "RESULTADOS/{grade}S{session}.json", { grade, session: s.session }) }));
+      sessions.forEach((sessionInfo) => {
+        const session = toInt(sessionInfo.session) || inferSessionFromPath(sessionInfo.path);
+        if (!session || !grade) return;
+        const path = sessionInfo.path || templatePath(state.manifest.resultTemplate || "RESULTADOS/{grade}S{session}.json", { grade, session });
+        const start = toInt((state.manifest.sessions || []).find((x) => Number(x.session) === session)?.startItem) || (session === 2 ? 71 : 1);
+        const end = session === 1 ? 70 : Math.max(...Object.keys(record.answers || {}).map(Number).filter(Boolean), start);
+        if (!map.has(path)) map.set(path, []);
+        const out = { "Roll No": record.roll };
+        for (let global = start; global <= end; global += 1) {
+          const local = global - start + 1;
+          const val = record.answers?.[global];
+          if (val !== undefined) out[`Q ${local} Options`] = val || "";
+        }
+        map.get(path).push(out);
+      });
+    });
+    return [...map.entries()].map(([path, rows]) => ({ path, content: JSON.stringify(rows, null, 2) }));
   }
 
   function exportManifestForRepo() {
@@ -3203,14 +3542,81 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
               <div class="card card-pad">
                 <div class="meta-row"><span>Marcó</span><strong>${esc(displayMarked(detail.marked))}</strong></div>
                 <div class="meta-row"><span>Estado</span><strong>${esc(statusLabel(detail.status))}</strong></div>
-                <div class="meta-row"><span>Componente</span><strong>${esc(detail.component || "Sin registro")}</strong></div>
-                <div class="meta-row"><span>Competencia</span><strong>${esc(detail.competence || "Sin registro")}</strong></div>
+                ${detail.component ? `<div class="meta-row"><span>Componente</span><strong>${esc(detail.component)}</strong></div>` : ""}
+                ${detail.competence ? `<div class="meta-row"><span>Competencia</span><strong>${esc(detail.competence)}</strong></div>` : ""}
               </div>
             </div>
           </div>
         </section>
       </div>
     `;
+  }
+
+
+  function openTeacherManagementModal(teacherId) {
+    const teacher = buildCargaTeachers().find((item) => item.id === teacherId) || buildDirectorTeachers().find((item) => item.id === teacherId);
+    if (!teacher) return;
+    document.body.classList.add("modal-open");
+    modalRoot.innerHTML = `
+      <div class="modal-backdrop teacher-manage-backdrop" data-action="close-modal">
+        <section class="modal teacher-manage-modal" style="max-width:980px;">
+          <div class="modal-head"><div><h2>${esc(teacher.name || "Docente")}</h2><span style="color:#7d8089;font-weight:600;">ID ${esc(teacher.id)}</span></div><button type="button" class="icon-btn" data-action="close-modal">×</button></div>
+          <div class="modal-body">${cargaTeacherDetailHtml(teacher)}</div>
+        </section>
+      </div>
+    `;
+  }
+
+  function openEditCargaAssignmentModal(index) {
+    const row = state.cargaRows[index];
+    if (!row) return;
+    modalRoot.innerHTML = `
+      <div class="modal-backdrop" data-action="close-modal"><section class="modal" style="max-width:660px;">
+        <div class="modal-head"><div><h2>Editar carga</h2><span style="color:#7d8089;font-weight:600;">${esc(row.name || row.id)}</span></div><button type="button" class="icon-btn" data-action="close-modal">×</button></div>
+        <div class="modal-body"><div class="form-grid compact">
+          <div class="field"><label>Asignatura</label><select id="newCargaSubject" class="select-pill">${cargaSelectOptions("subject", row.subjectRaw || row.subject)}</select></div>
+          <div class="field"><label>Sede</label><select id="newCargaSede" class="select-pill">${cargaSelectOptions("sede", row.sede)}</select></div>
+          <div class="field"><label>Grado</label><select id="newCargaGrade" class="select-pill">${cargaSelectOptions("grade", row.grade)}</select></div>
+          <div class="field"><label>Curso</label><select id="newCargaGroup" class="select-pill">${cargaSelectOptions("group", row.group)}</select></div>
+        </div><div class="inline-actions" style="margin-top:16px;"><button class="primary-btn" data-action="confirm-edit-carga-assignment" data-index="${escAttr(index)}">Guardar carga</button><button class="ghost-btn" data-action="close-modal">Cancelar</button></div></div>
+      </section></div>`;
+  }
+
+  function openEditDirectorAssignmentModal(index) {
+    const row = state.directorRows[index];
+    if (!row) return;
+    modalRoot.innerHTML = `
+      <div class="modal-backdrop" data-action="close-modal"><section class="modal" style="max-width:620px;">
+        <div class="modal-head"><div><h2>Editar dirección de grupo</h2><span style="color:#7d8089;font-weight:600;">ID ${esc(row.id)}</span></div><button type="button" class="icon-btn" data-action="close-modal">×</button></div>
+        <div class="modal-body"><div class="form-grid compact">
+          <div class="field"><label>Sede</label><select id="newDirectorSede" class="select-pill">${cargaSelectOptions("sede", row.sede)}</select></div>
+          <div class="field"><label>Grado</label><select id="newDirectorGrade" class="select-pill">${cargaSelectOptions("grade", row.grade)}</select></div>
+          <div class="field"><label>Curso</label><select id="newDirectorGroup" class="select-pill">${cargaSelectOptions("group", row.group)}</select></div>
+        </div><div class="inline-actions" style="margin-top:16px;"><button class="primary-btn" data-action="confirm-edit-director-assignment" data-index="${escAttr(index)}">Guardar dirección</button><button class="ghost-btn" data-action="close-modal">Cancelar</button></div></div>
+      </section></div>`;
+  }
+
+  function openEditStudentExamModal(roll) {
+    const student = state.computedByRoll.get(cleanId(roll));
+    if (!student) return toast("Este estudiante no tiene resultados cargados.");
+    const subjects = SUBJECTS.filter((subject) => student.subjectStats?.[subject.name]?.total);
+    const first = subjects[0]?.name || "";
+    const panels = subjects.map((subject, idx) => {
+      const stat = student.subjectStats[subject.name];
+      const items = (stat.details || []).map((detail) => {
+        const options = optionListForDetail(detail, subject.name);
+        return `<div class="exam-edit-item"><strong>${esc(detail.item)}.</strong><div class="exam-option-row">${options.map((op)=>`<label class="exam-option"><input type="radio" name="edit-${escAttr(student.roll)}-${escAttr(detail.item)}" data-exam-edit-item="${escAttr(detail.item)}" value="${escAttr(op)}" ${cleanMarked(detail.marked)===op?"checked":""}><span>${esc(op || "Sin marcar")}</span></label>`).join("")}</div></div>`;
+      }).join("");
+      return `<section class="exam-edit-panel ${idx===0?"active":""}" data-subject="${escAttr(subject.name)}">${items}</section>`;
+    }).join("");
+    modalRoot.innerHTML = `<div class="modal-backdrop" data-action="close-modal"><section class="modal edit-exam-modal" style="max-width:980px;"><div class="modal-head"><div><h2>Editar examen</h2><span style="color:#7d8089;font-weight:600;">${esc(student.name)} · ID ${esc(student.roll)}</span></div><button type="button" class="icon-btn" data-action="close-modal">×</button></div><div class="modal-body"><nav class="exam-edit-tabs">${subjects.map((subject,idx)=>`<button class="exam-edit-tab ${idx===0?"active":""}" data-action="exam-edit-tab" data-subject="${escAttr(subject.name)}">${esc(subject.short || subject.name)}</button>`).join("")}</nav><div class="exam-edit-panels">${panels}</div><div class="inline-actions" style="margin-top:16px;"><button class="primary-btn" data-action="save-edited-exam" data-roll="${escAttr(student.roll)}">Guardar respuestas</button><button class="ghost-btn" data-action="close-modal">Cancelar</button></div></div></section></div>`;
+  }
+
+  function optionListForDetail(detail, subject) {
+    const base = sameSubject(subject, "Inglés") ? ["", "A","B","C","D","E","F","G","H"] : ["", "A","B","C","D"];
+    const marked = cleanMarked(detail.marked);
+    if (marked && !base.includes(marked)) base.push(marked);
+    return base;
   }
 
   function openAddCargaTeacherModal() {
@@ -3361,10 +3767,11 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
   }
 
   function buildMetricBars(details, field) {
-    if (!details.length) return `<p class="metric-empty">No hay datos para graficar.</p>`;
+    if (!details.length || !hasMetricData(details, field)) return ``;
     const grouped = new Map();
     details.forEach((detail) => {
-      const name = cleanText(detail[field]) || (field === "component" ? "Componente sin registrar" : "Competencia sin registrar");
+      const name = cleanText(detail[field]);
+      if (!name) return;
       if (!grouped.has(name)) grouped.set(name, { name, total: 0, correct: 0 });
       const item = grouped.get(name);
       item.total += 1;

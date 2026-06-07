@@ -1,4 +1,4 @@
-const CACHE_VERSION = "resultados-pwa-v41";
+const CACHE_VERSION = "resultados-pwa-v42";
 const APP_SHELL = [
   "./",
   "index.html",
