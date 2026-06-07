@@ -3811,77 +3811,76 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     const path = state.adminAnalysisPath || {};
     const base = state.computedStudents
       .filter((s) => state.adminAnalysisSede === "all" || s.sede === state.adminAnalysisSede)
-      .filter((s) => state.adminAnalysisGrade === "all" || String(s.grade) === String(state.adminAnalysisGrade))
-      .filter((s) => !path.sede || s.sede === path.sede)
-      .filter((s) => !path.grade || String(s.grade) === String(path.grade))
-      .filter((s) => !path.course || `${s.grade}|${s.group}|${s.sede}` === path.course);
+      .filter((s) => state.adminAnalysisGrade === "all" || String(s.grade) === String(state.adminAnalysisGrade));
 
     const content = mode === "area" ? analysisByAreaHtml(base, path) : analysisByStructureHtml(base, path);
+    const modeHelp = mode === "area"
+      ? "Primero compara áreas/asignaturas. Al abrir una asignatura verás sedes, grados, cursos y luego componentes/competencias si existen."
+      : "Primero compara sedes. Al abrir una sede verás grados, cursos, áreas/asignaturas y luego componentes/competencias si existen.";
 
-    return `<section class="toolbar"><div><span class="section-eyebrow">Análisis / ranking</span><h2 style="margin:8px 0 0;font-weight:900;">Desempeño institucional</h2><p class="muted-copy">Explora los resultados por jerarquía. Toca una barra para abrir el siguiente nivel justo debajo.</p></div></section>
-      <section class="card card-pad admin-results-filters"><div class="form-grid compact admin-results-required-grid"><div class="field"><label>Ver ranking por</label><select class="select-pill" data-admin-analysis-field="mode"><option value="estructura" ${mode === "estructura" ? "selected" : ""}>Sede / grado / curso</option><option value="area" ${mode === "area" ? "selected" : ""}>Área / asignatura</option></select></div><div class="field"><label>Limitar sede</label><select class="select-pill" data-admin-analysis-field="sede">${sedes.map((v)=>`<option value="${escAttr(v)}" ${state.adminAnalysisSede===v?"selected":""}>${v==="all"?"Todas":esc(v)}</option>`).join("")}</select></div><div class="field"><label>Limitar grado</label><select class="select-pill" data-admin-analysis-field="grade">${grades.map((v)=>`<option value="${escAttr(v)}" ${String(state.adminAnalysisGrade)===String(v)?"selected":""}>${v==="all"?"Todos":`${esc(v)}°`}</option>`).join("")}</select></div><div class="field"><label>Área rápida</label><select class="select-pill" data-admin-analysis-field="subject">${subjects.map((v)=>`<option value="${escAttr(v)}" ${state.adminAnalysisSubject===v?"selected":""}>${v==="all"?"Todas":esc(v)}</option>`).join("")}</select></div></div></section>
+    return `<section class="toolbar"><div><span class="section-eyebrow">Análisis / ranking</span><h2 style="margin:8px 0 0;font-weight:900;">Desempeño institucional</h2><p class="muted-copy">${modeHelp} Cada barra muestra el <strong>promedio de nota</strong> en escala de 20 a 100.</p></div></section>
+      <section class="card card-pad admin-results-filters"><div class="form-grid compact admin-results-required-grid"><div class="field"><label>Ver ranking por</label><select class="select-pill" data-admin-analysis-field="mode"><option value="estructura" ${mode === "estructura" ? "selected" : ""}>Sede / grado / curso</option><option value="area" ${mode === "area" ? "selected" : ""}>Área / asignatura</option></select></div><div class="field"><label>Limitar sede</label><select class="select-pill" data-admin-analysis-field="sede">${sedes.map((v)=>`<option value="${escAttr(v)}" ${state.adminAnalysisSede===v?"selected":""}>${v==="all"?"Todas":esc(v)}</option>`).join("")}</select></div><div class="field"><label>Limitar grado</label><select class="select-pill" data-admin-analysis-field="grade">${grades.map((v)=>`<option value="${escAttr(v)}" ${String(state.adminAnalysisGrade)===String(v)?"selected":""}>${v==="all"?"Todos":`${esc(v)}°`}</option>`).join("")}</select></div><div class="field"><label>Área rápida</label><select class="select-pill" data-admin-analysis-field="subject">${subjects.map((v)=>`<option value="${escAttr(v)}" ${state.adminAnalysisSubject===v?"selected":""}>${v==="all"?"Todas":esc(shortSubjectName(v))}</option>`).join("")}</select></div></div></section>
       <section class="analysis-tree card card-pad">${content || `<div class="empty-state">No hay datos para estos filtros.</div>`}</section>`;
   }
 
   function analysisByStructureHtml(students, path) {
-    const html = [];
-    const sedes = groupMetric(students, (s) => s.sede, (s) => s.sede, "all", "sede");
-    html.push(analysisLevelHtml("Sedes", sedes, "sede", path.sede));
-    if (path.sede) {
-      const gradeRows = groupMetric(students, (s) => String(s.grade), (s) => `${s.grade}°`, state.adminAnalysisSubject, "grade");
-      html.push(analysisLevelHtml(`Grados en ${esc(path.sede)}`, gradeRows, "grade", path.grade, 1));
-    }
-    if (path.sede && path.grade) {
-      const courseRows = groupMetric(students, (s) => `${s.grade}|${s.group}|${s.sede}`, (s) => `${s.grade}° ${s.group}`, state.adminAnalysisSubject, "course");
-      html.push(analysisLevelHtml(`Cursos de ${esc(path.grade)}°`, courseRows, "course", path.course, 2));
-    }
-    if (path.sede && path.grade && path.course) {
-      const subjectRows = subjectMetric(students);
-      html.push(analysisLevelHtml("Áreas / asignaturas", subjectRows, "subject", path.subject, 3, true));
-    }
-    if (path.subject) {
-      html.push(analysisMetricsFor(students, path.subject, 4));
-    }
-    return html.join("");
+    const subjectFilter = state.adminAnalysisSubject || "all";
+    const sedes = groupMetric(students, (s) => s.sede, (s) => s.sede, subjectFilter, "sede");
+    return analysisLevelHtml("Sedes", sedes, "sede", path.sede, 0, false, (sedeRow) => {
+      const sedeStudents = students.filter((s) => s.sede === sedeRow.key);
+      const gradeRows = groupMetric(sedeStudents, (s) => String(s.grade), (s) => `${s.grade}°`, subjectFilter, "grade");
+      return analysisLevelHtml(`Grados en ${esc(sedeRow.label)}`, gradeRows, "grade", path.grade, 1, false, (gradeRow) => {
+        const gradeStudents = sedeStudents.filter((s) => String(s.grade) === String(gradeRow.key));
+        const courseRows = groupMetric(gradeStudents, (s) => `${s.grade}|${s.group}|${s.sede}`, (s) => `${s.grade}° ${s.group}`, subjectFilter, "course");
+        return analysisLevelHtml(`Cursos de ${esc(gradeRow.label)}`, courseRows, "course", path.course, 2, false, (courseRow) => {
+          const courseStudents = gradeStudents.filter((s) => `${s.grade}|${s.group}|${s.sede}` === courseRow.key);
+          const subjectRows = subjectMetric(courseStudents);
+          return analysisLevelHtml("Áreas / asignaturas", subjectRows, "subject", path.subject, 3, true, (subjectRow) => analysisMetricsFor(courseStudents, subjectRow.key, 4));
+        });
+      });
+    });
   }
 
   function analysisByAreaHtml(students, path) {
-    const html = [];
     const subjectRows = subjectMetric(students);
-    html.push(analysisLevelHtml("Áreas / asignaturas", subjectRows, "subject", path.subject, 0, true));
-    if (path.subject) {
-      const sedes = groupMetric(students, (s) => s.sede, (s) => s.sede, path.subject, "sede");
-      html.push(analysisLevelHtml(`Sedes en ${esc(shortSubjectName(path.subject))}`, sedes, "sede", path.sede, 1));
-    }
-    if (path.subject && path.sede) {
-      const gradeRows = groupMetric(students, (s) => String(s.grade), (s) => `${s.grade}°`, path.subject, "grade");
-      html.push(analysisLevelHtml("Grados", gradeRows, "grade", path.grade, 2));
-    }
-    if (path.subject && path.sede && path.grade) {
-      const courseRows = groupMetric(students, (s) => `${s.grade}|${s.group}|${s.sede}`, (s) => `${s.grade}° ${s.group}`, path.subject, "course");
-      html.push(analysisLevelHtml("Cursos", courseRows, "course", path.course, 3));
-    }
-    if (path.subject && path.sede && path.grade && path.course) {
-      html.push(analysisMetricsFor(students, path.subject, 4));
-    }
-    return html.join("");
+    return analysisLevelHtml("Áreas / asignaturas", subjectRows, "subject", path.subject, 0, true, (subjectRow) => {
+      const subject = subjectRow.key;
+      const sedes = groupMetric(students, (s) => s.sede, (s) => s.sede, subject, "sede");
+      return analysisLevelHtml(`Sedes en ${esc(shortSubjectName(subject))}`, sedes, "sede", path.sede, 1, false, (sedeRow) => {
+        const sedeStudents = students.filter((s) => s.sede === sedeRow.key);
+        const gradeRows = groupMetric(sedeStudents, (s) => String(s.grade), (s) => `${s.grade}°`, subject, "grade");
+        return analysisLevelHtml(`Grados en ${esc(sedeRow.label)}`, gradeRows, "grade", path.grade, 2, false, (gradeRow) => {
+          const gradeStudents = sedeStudents.filter((s) => String(s.grade) === String(gradeRow.key));
+          const courseRows = groupMetric(gradeStudents, (s) => `${s.grade}|${s.group}|${s.sede}`, (s) => `${s.grade}° ${s.group}`, subject, "course");
+          return analysisLevelHtml(`Cursos de ${esc(gradeRow.label)}`, courseRows, "course", path.course, 3, false, (courseRow) => {
+            const courseStudents = gradeStudents.filter((s) => `${s.grade}|${s.group}|${s.sede}` === courseRow.key);
+            return analysisMetricsFor(courseStudents, subject, 4);
+          });
+        });
+      });
+    });
   }
 
-  function analysisLevelHtml(title, rows, level, activeValue = "", depth = 0, withIcon = false) {
+  function analysisLevelHtml(title, rows, level, activeValue = "", depth = 0, withIcon = false, childRenderer = null) {
     const max = Math.max(100, ...rows.map((r) => Number(r.avg) || 0));
-    return `<div class="analysis-level analysis-depth-${depth}"><div class="analysis-level-head"><h3>${title}</h3>${activeValue ? `<button class="mini-btn" data-action="analysis-clear" data-level="${escAttr(level)}">Limpiar desde aquí</button>` : ""}</div><div class="analysis-bars-list">${rows.map((row, idx) => analysisBarHtml(row, level, activeValue, max, idx, withIcon)).join("") || `<div class="empty-state">No hay datos en este nivel.</div>`}</div></div>`;
+    const renderedRows = rows.map((row, idx) => {
+      const active = activeValue && String(activeValue) === String(row.key);
+      const child = active && typeof childRenderer === "function" ? `<div class="analysis-child smooth-reveal">${childRenderer(row) || ""}</div>` : "";
+      return `<div class="analysis-row-wrap">${analysisBarHtml(row, level, activeValue, max, idx, withIcon)}${child}</div>`;
+    }).join("");
+    return `<div class="analysis-level analysis-depth-${depth}"><div class="analysis-level-head"><h3>${title}</h3>${activeValue ? `<button class="mini-btn" data-action="analysis-clear" data-level="${escAttr(level)}">Limpiar desde aquí</button>` : ""}</div><div class="analysis-bars-list">${renderedRows || `<div class="empty-state">No hay datos en este nivel.</div>`}</div></div>`;
   }
 
   function analysisBarHtml(row, level, activeValue, max, index, withIcon = false) {
     const avgValue = Number(row.avg) || 0;
-    const width = clamp(avgValue / max * 100, 0, 100);
+    const width = clamp(avgValue / 100 * 100, 0, 100);
     const active = activeValue && String(activeValue) === String(row.key);
-    return `<button class="analysis-drill-row ${active ? "active" : ""}" data-action="analysis-drill" data-level="${escAttr(level)}" data-value="${escAttr(row.key)}">
+    return `<button class="analysis-drill-row ${active ? "active" : ""}" data-action="analysis-drill" data-level="${escAttr(level)}" data-value="${escAttr(row.key)}" title="Promedio de nota: ${escAttr(row.avg)}/100">
       <span class="analysis-rank">${index + 1}</span>
       ${withIcon ? subjectIcon(row.subject || row.label) : ""}
-      <span class="analysis-label"><strong>${esc(row.label)}</strong><small>${row.count} estudiante${row.count === 1 ? "" : "s"}</small></span>
-      <span class="analysis-track"><i style="width:${width}%"></i></span>
-      <strong class="analysis-score">${esc(row.avg)}<small>/100</small></strong>
+      <span class="analysis-label"><strong>${esc(row.label)}</strong><small>Promedio de nota · ${row.count} estudiante${row.count === 1 ? "" : "s"}</small></span>
+      <span class="analysis-track" aria-label="Promedio ${escAttr(row.avg)} de 100"><i style="width:${width}%"></i></span>
+      <strong class="analysis-score"><span>Promedio</span>${esc(row.avg)}<small>/100</small></strong>
     </button>`;
   }
 
@@ -3917,7 +3916,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
 
   function analysisMetricsFor(students, subject, depth = 0) {
     const details = aggregateDetails(students, subject);
-    if (!hasMetricData(details)) return `<div class="analysis-level analysis-depth-${depth}"><div class="empty-state">Esta área no tiene componentes ni competencias registrados en las claves.</div></div>`;
+    if (!hasMetricData(details)) return `<div class="analysis-level analysis-depth-${depth}"><div class="empty-state">${esc(shortSubjectName(subject))} no tiene componentes ni competencias registrados en las claves.</div></div>`;
     return `<div class="analysis-level analysis-depth-${depth} analysis-metrics"><div class="analysis-level-head"><h3>Componentes y competencias de ${esc(shortSubjectName(subject))}</h3></div><div class="teacher-metrics-row admin-results-metrics">${teacherAggregateMetricsHtmlForDetails(details)}</div></div>`;
   }
 

@@ -6031,3 +6031,38 @@ body {
   color: var(--muted);
   font-size: .9rem;
 }
+
+
+/* v47: análisis/ranking jerárquico sin ocultar niveles hermanos */
+.analysis-row-wrap { display: block; }
+.analysis-child {
+  margin-top: 12px;
+  margin-left: clamp(14px, 2.5vw, 34px);
+  padding-left: clamp(10px, 1.8vw, 18px);
+  border-left: 3px solid color-mix(in srgb, var(--accent) 45%, transparent);
+}
+.smooth-reveal { animation: smoothReveal .28s ease both; }
+@keyframes smoothReveal {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.analysis-score span {
+  display:block;
+  color:#6e7784;
+  font-size:.62rem;
+  font-weight:800;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+  line-height:1;
+  margin-bottom:2px;
+}
+.analysis-drill-row.active + .analysis-child,
+.analysis-row-wrap:has(.analysis-drill-row.active) > .analysis-child {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 5%, transparent), transparent);
+  border-radius: var(--radius-sm);
+}
+.analysis-tree .empty-state { padding: 14px; }
+@media (max-width: 720px) {
+  .analysis-child { margin-left: 0; padding-left: 10px; }
+  .analysis-score span { display:none; }
+}
