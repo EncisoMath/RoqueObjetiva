@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v54";
+  const APP_VERSION = "v55";
 
   const app = document.getElementById("app");
   const toastEl = document.getElementById("toast");
@@ -640,7 +640,7 @@
   }
 
   function adminTabIds() {
-    return new Set(["resumen", "estudiantes", "resultados", "graficas", "docentes", "asignaturas-areas", "apariencia", "logos", "claves", "github"]);
+    return new Set(["resumen", "estudiantes", "resultados", "docentes", "asignaturas-areas", "apariencia", "logos", "claves", "github"]);
   }
 
   function handleHashRoute() {
@@ -1091,6 +1091,7 @@
     const hasDirector = directorGroups.length > 0;
     const isCoordinator = !!teacher.coordinator;
 
+    if (state.teacherMode === "coord-graficas") state.teacherMode = "coord-estudiantes";
     if (isCoordinator && String(state.teacherMode || "").startsWith("coord-")) {
       return renderCoordinatorPanel(teacher);
     }
@@ -1111,9 +1112,6 @@
     if (mode === "coord-resultados") {
       title = "Resultados";
       content = adminResultsHtml();
-    } else if (mode === "coord-graficas") {
-      title = "Gráficas";
-      content = adminGraphicsHtml();
     } else if (mode === "coord-claves") {
       title = "Claves";
       content = adminKeysHtml();
@@ -1377,11 +1375,11 @@
   }
 
   function renderAdmin() {
+    if (state.adminTab === "graficas") state.adminTab = "resumen";
     const tabs = [
       ["resumen", "Resumen"],
       ["estudiantes", "Estudiantes"],
       ["resultados", "Resultados"],
-      ["graficas", "Gráficas"],
       ["docentes", "Docentes"],
       ["asignaturas-areas", "Asignaturas y áreas"],
       ["apariencia", "Apariencia"],
@@ -1413,7 +1411,6 @@
     switch (state.adminTab) {
       case "estudiantes": return adminStudentsHtml();
       case "resultados": return adminResultsHtml();
-      case "graficas": return adminGraphicsHtml();
       case "docentes": return adminDocentesHtml();
       case "asignaturas-areas": return adminSubjectAreasHtml();
       case "apariencia": return adminAppearanceHtml();
@@ -2238,7 +2235,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
         <nav class="app-nav teacher-top-nav">
           <button class="nav-chip ${activeMode === "asignaturas" ? "active" : ""}" onclick="window.__poTeacherModeFromElement&&window.__poTeacherModeFromElement(event,this)" data-action="teacher-mode" data-mode="asignaturas" ${hasAssignments ? "" : "disabled"}>Panel docente</button>
           ${hasDirector ? `<button class="nav-chip ${activeMode === "director" ? "active" : ""}" onclick="window.__poTeacherModeFromElement&&window.__poTeacherModeFromElement(event,this)" data-action="teacher-mode" data-mode="director">Panel director de grupo</button>` : ""}
-          ${isCoordinator ? `<button class="nav-chip ${activeMode === "coord-estudiantes" ? "active" : ""}" onclick="window.__poTeacherModeFromElement&&window.__poTeacherModeFromElement(event,this)" data-action="teacher-mode" data-mode="coord-estudiantes">Estudiantes</button><button class="nav-chip ${activeMode === "coord-resultados" ? "active" : ""}" onclick="window.__poTeacherModeFromElement&&window.__poTeacherModeFromElement(event,this)" data-action="teacher-mode" data-mode="coord-resultados">Resultados</button><button class="nav-chip ${activeMode === "coord-graficas" ? "active" : ""}" onclick="window.__poTeacherModeFromElement&&window.__poTeacherModeFromElement(event,this)" data-action="teacher-mode" data-mode="coord-graficas">Gráficas</button><button class="nav-chip ${activeMode === "coord-claves" ? "active" : ""}" onclick="window.__poTeacherModeFromElement&&window.__poTeacherModeFromElement(event,this)" data-action="teacher-mode" data-mode="coord-claves">Claves</button>` : ""}
+          ${isCoordinator ? `<button class="nav-chip ${activeMode === "coord-estudiantes" ? "active" : ""}" onclick="window.__poTeacherModeFromElement&&window.__poTeacherModeFromElement(event,this)" data-action="teacher-mode" data-mode="coord-estudiantes">Estudiantes</button><button class="nav-chip ${activeMode === "coord-resultados" ? "active" : ""}" onclick="window.__poTeacherModeFromElement&&window.__poTeacherModeFromElement(event,this)" data-action="teacher-mode" data-mode="coord-resultados">Resultados</button><button class="nav-chip ${activeMode === "coord-claves" ? "active" : ""}" onclick="window.__poTeacherModeFromElement&&window.__poTeacherModeFromElement(event,this)" data-action="teacher-mode" data-mode="coord-claves">Claves</button>` : ""}
           <button class="nav-chip logout" data-action="logout">Salir</button>
         </nav>
       `;
@@ -2302,7 +2299,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
   window.__poTeacherModeFromElement = function(event, element) {
     if (event) { event.preventDefault(); event.stopPropagation(); }
     const mode = element?.dataset?.mode || "asignaturas";
-    state.teacherMode = ["director", "asignaturas", "coord-estudiantes", "coord-resultados", "coord-graficas", "coord-claves"].includes(mode) ? mode : "asignaturas";
+    state.teacherMode = ["director", "asignaturas", "coord-estudiantes", "coord-resultados", "coord-claves"].includes(mode) ? mode : "asignaturas";
     renderBySession();
   };
 
@@ -2471,7 +2468,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
 
     if (action === "teacher-mode") {
       const mode = target.dataset.mode || "asignaturas";
-      state.teacherMode = ["director", "asignaturas", "coord-estudiantes", "coord-resultados", "coord-graficas", "coord-claves"].includes(mode) ? mode : "asignaturas";
+      state.teacherMode = ["director", "asignaturas", "coord-estudiantes", "coord-resultados", "coord-claves"].includes(mode) ? mode : "asignaturas";
       renderBySession();
       return;
     }
