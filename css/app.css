@@ -7880,3 +7880,80 @@ body {
     text-shadow: 0 1px 5px rgba(0, 0, 0, .38);
   }
 }
+
+
+/* Ajustes v70: gold y cobre mas metalicos, menos oscuros, con contraste de texto */
+.top-banner.banner-rank-gold {
+  background:
+    radial-gradient(circle at 18% 18%, rgba(255, 236, 125, .72), transparent 23rem),
+    radial-gradient(circle at 56% 82%, rgba(255, 247, 184, .34), transparent 25rem),
+    linear-gradient(105deg, #b98000 0%, #e8aa00 28%, #ffd76a 50%, #edae16 68%, #ad7600 86%, #8a6000 100%) !important;
+  background-image:
+    radial-gradient(circle at 18% 18%, rgba(255, 236, 125, .72), transparent 23rem),
+    radial-gradient(circle at 56% 82%, rgba(255, 247, 184, .34), transparent 25rem),
+    linear-gradient(105deg, #b98000 0%, #e8aa00 28%, #ffd76a 50%, #edae16 68%, #ad7600 86%, #8a6000 100%) !important;
+  box-shadow: 0 18px 46px rgba(214, 156, 18, .34);
+}
+
+.top-banner.banner-rank-bronze {
+  background:
+    radial-gradient(circle at 18% 18%, rgba(255, 194, 119, .58), transparent 23rem),
+    radial-gradient(circle at 55% 84%, rgba(255, 226, 188, .30), transparent 25rem),
+    linear-gradient(105deg, #9a4616 0%, #c76522 31%, #e3974c 52%, #c45d1c 70%, #a24714 88%, #813914 100%) !important;
+  background-image:
+    radial-gradient(circle at 18% 18%, rgba(255, 194, 119, .58), transparent 23rem),
+    radial-gradient(circle at 55% 84%, rgba(255, 226, 188, .30), transparent 25rem),
+    linear-gradient(105deg, #9a4616 0%, #c76522 31%, #e3974c 52%, #c45d1c 70%, #a24714 88%, #813914 100%) !important;
+  box-shadow: 0 18px 46px rgba(195, 98, 34, .33);
+}
+
+.top-banner.banner-rank-gold .banner-copy h1,
+.top-banner.banner-rank-gold .banner-copy p,
+.top-banner.banner-rank-bronze .banner-copy h1,
+.top-banner.banner-rank-bronze .banner-copy p {
+  text-shadow:
+    0 2px 5px rgba(0, 0, 0, .54),
+    0 8px 18px rgba(0, 0, 0, .30);
+}
+
+.top-banner.banner-rank-gold .banner-shapes.banner-stars .shape {
+  color: rgba(255, 241, 164, .86);
+  text-shadow: 0 0 18px rgba(255, 216, 76, .58);
+}
+
+.top-banner.banner-rank-bronze .banner-shapes.banner-stars .shape {
+  color: rgba(255, 207, 158, .84);
+  text-shadow: 0 0 18px rgba(226, 126, 52, .50);
+}
+
+.ranking-box.rank-gold {
+  background:
+    radial-gradient(circle at 18% 18%, rgba(255, 232, 111, .76), transparent 32%),
+    radial-gradient(circle at 84% 22%, rgba(255, 250, 198, .52), transparent 26%),
+    linear-gradient(135deg, rgba(255, 247, 190, .98), rgba(255, 196, 22, .62));
+}
+
+.ranking-box.rank-bronze {
+  background:
+    radial-gradient(circle at 18% 18%, rgba(255, 190, 126, .70), transparent 32%),
+    radial-gradient(circle at 84% 22%, rgba(255, 229, 203, .50), transparent 26%),
+    linear-gradient(135deg, rgba(255, 224, 190, .98), rgba(206, 91, 26, .58));
+}
+
+.ranking-box.rank-gold strong {
+  background: linear-gradient(110deg, #9b6a00, #f0ad00 28%, #ffe17a 48%, #e0a100 68%, #a77500 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-stroke: .7px rgba(96, 59, 0, .34);
+  filter: drop-shadow(0 2px 2px rgba(72, 43, 0, .25)) drop-shadow(0 0 12px rgba(255, 203, 42, .56));
+}
+
+.ranking-box.rank-bronze strong {
+  background: linear-gradient(110deg, #914014, #c96522 30%, #f0a05a 50%, #c2581a 70%, #8b3a12 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-stroke: .7px rgba(92, 39, 11, .32);
+  filter: drop-shadow(0 2px 2px rgba(80, 31, 8, .24)) drop-shadow(0 0 12px rgba(216, 104, 34, .48));
+}
