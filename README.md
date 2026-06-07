@@ -281,3 +281,9 @@ El `service-worker.js` usa estrategia de red primero para archivos JSON, para ev
 - Bordes consistentes: cuadros, contenedores y modales con 4px; tarjetas con 2px.
 - Bloqueo de zoom táctil/pellizco en móviles mediante viewport, CSS y eventos táctiles.
 - Iconos PNG por defecto para asignaturas desde la carpeta `ICONOS/` y agregados al paquete/cache PWA.
+
+
+## v78
+- Corrige el ajuste de v77: no se fuerzan grosores de borde ni estilos de borde.
+- Aplica esquinas redondeadas de 4px a cuadros/contenedores/cuadros emergentes y de 2px a tarjetas.
+- Mantiene bloqueo de zoom táctil e iconos PNG por defecto de asignaturas.
