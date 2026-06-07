@@ -1,8 +1,8 @@
 {
-  "version": "v76",
-  "cache": "resultados-pwa-v76",
+  "version": "v77",
+  "cache": "resultados-pwa-v77",
   "updatedAt": "2026-06-07",
-  "note": "Ajusta los numeros 1 y 3 con color base gold #df9a00 y cobre #c85a23, manteniendo textura metalizada y glow.",
-  "builtAt": "2026-06-07T20:35:00Z",
+  "note": "Ajusta bordes: contenedores/cuadros emergentes 4px y tarjetas 2px; bloquea zoom tactil; usa PNG de ICONOS como iconos por defecto de asignaturas.",
+  "builtAt": "2026-06-07T20:45:00Z",
   "date": "2026-06-07"
 }

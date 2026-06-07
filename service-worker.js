@@ -1,23 +1,33 @@
-const APP_VERSION = "v76";
-const CACHE_VERSION = "resultados-pwa-v76";
+const APP_VERSION = "v77";
+const CACHE_VERSION = "resultados-pwa-v77";
 const CACHE_PREFIXES = ["resultados-pwa-", "resultados-pruebas-"];
 
 const APP_SHELL = [
   "./",
   "index.html",
-  "css/app.css?v=76",
-  "js/app.js?v=76",
+  "css/app.css?v=77",
+  "js/app.js?v=77",
   "version.json",
   "config/data-manifest.json",
   "config/site-config.json",
   "INTERNO/DIRECTORESGRUPO.json",
-  "manifest.webmanifest?v=76",
+  "manifest.webmanifest?v=77",
   "icons/icon-192.png",
   "icons/icon-512.png",
   "icons/maskable-512.png",
   "icons/apple-touch-icon.png",
   "assets/default-logo.svg",
-  "assets/ZERO.png"
+  "assets/ZERO.png",
+  "ICONOS/artistica.png",
+  "ICONOS/ciencias-naturales.png",
+  "ICONOS/ciencias-sociales-y-ciudadania.png",
+  "ICONOS/educacion-fisica.png",
+  "ICONOS/etica-y-valores.png",
+  "ICONOS/informatica.png",
+  "ICONOS/ingles.png",
+  "ICONOS/lenguaje.png",
+  "ICONOS/matematicas.png",
+  "ICONOS/religion.png"
 ];
 
 self.addEventListener("install", (event) => {

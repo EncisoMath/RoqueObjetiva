@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v76";
+  const APP_VERSION = "v77";
 
   const app = document.getElementById("app");
   const toastEl = document.getElementById("toast");
@@ -4896,16 +4896,16 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
   function defaultIconPath(subjectName) {
     const slug = normalizeText(subjectName).replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
     const map = {
-      "matematicas": "matematicas.svg",
-      "lenguaje": "lenguaje.svg",
-      "ciencias-naturales": "ciencias-naturales.svg",
-      "ingles": "ingles.svg",
-      "ciencias-sociales-y-ciudadania": "ciencias-sociales.svg",
-      "etica-y-valores": "etica.svg",
-      "artistica": "artistica.svg",
-      "educacion-fisica": "educacion-fisica.svg",
-      "informatica": "informatica.svg",
-      "religion": "religion.svg"
+      "matematicas": "matematicas.png",
+      "lenguaje": "lenguaje.png",
+      "ciencias-naturales": "ciencias-naturales.png",
+      "ingles": "ingles.png",
+      "ciencias-sociales-y-ciudadania": "ciencias-sociales-y-ciudadania.png",
+      "etica-y-valores": "etica-y-valores.png",
+      "artistica": "artistica.png",
+      "educacion-fisica": "educacion-fisica.png",
+      "informatica": "informatica.png",
+      "religion": "religion.png"
     };
     return map[slug] ? `ICONOS/${map[slug]}` : "";
   }
@@ -5696,5 +5696,35 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     state.adminGraphOpen[key] = !state.adminGraphOpen[key];
     renderAdminContext();
   }
+
+  function lockMobileZoom() {
+    const viewport = document.querySelector('meta[name="viewport"]');
+    if (viewport) {
+      viewport.setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover");
+    }
+
+    let lastTouchEnd = 0;
+    const preventMultiTouch = (event) => {
+      if (event.touches && event.touches.length > 1) {
+        event.preventDefault();
+      }
+    };
+    const preventGesture = (event) => event.preventDefault();
+
+    document.addEventListener("touchstart", preventMultiTouch, { passive: false });
+    document.addEventListener("touchmove", preventMultiTouch, { passive: false });
+    document.addEventListener("gesturestart", preventGesture, { passive: false });
+    document.addEventListener("gesturechange", preventGesture, { passive: false });
+    document.addEventListener("gestureend", preventGesture, { passive: false });
+    document.addEventListener("touchend", (event) => {
+      const now = Date.now();
+      if (now - lastTouchEnd <= 300) {
+        event.preventDefault();
+      }
+      lastTouchEnd = now;
+    }, { passive: false });
+  }
+
+  lockMobileZoom();
 
 })();

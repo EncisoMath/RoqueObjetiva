@@ -8288,7 +8288,7 @@ body {
     0 1px 0 rgba(255, 255, 255, .42),
     0 2px 4px rgba(0, 0, 0, .18),
     0 0 10px var(--rank-glow),
-    0 0 18px color-mix(in srgb, var(--rank-glow) 72%, transparent) !important;
+    0 0 18px rgba(255, 255, 255, .10) !important;
 }
 
 .ranking-box.rank-medal strong::after {
@@ -8362,4 +8362,138 @@ body {
     #ffb187 71%,
     #ab4819 84%,
     #742b0e 100%) !important;
+}
+
+
+/* Ajustes v77: bordes consistentes y bloqueo de zoom tactil */
+html,
+body {
+  touch-action: pan-x pan-y;
+  -ms-touch-action: pan-x pan-y;
+}
+
+body,
+#app {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+img,
+svg,
+canvas {
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+/* Tarjetas: bordes de 2px */
+.card,
+.subject-card,
+.subject-row-grid-card,
+.director-subject-card,
+.teacher-stat,
+.teacher-stat-action,
+.teacher-score-info-card,
+.score-explain-hero,
+.saber-area-card,
+.carga-teacher-card,
+.carga-assignment-card,
+.carga-tag-card,
+.director-mini-card,
+.student-summary,
+.ranking-box,
+.item-value-note,
+.exam-option-row,
+.coordinator-check,
+.logo-item,
+.stats-big-number,
+.stats-bar-row,
+.analysis-bar-row,
+.analysis-drill-row,
+.graphics-drill-row,
+.recent-login-main,
+.subject-list-item.active,
+.student-workspace .subject-row-grid-card,
+.student-workspace .subject-mobile-detail .subject-detail,
+.director-card,
+.teacher-metric-card,
+.teacher-score-info-card,
+.formula-line,
+.global-step-list li {
+  border-width: 2px !important;
+}
+
+/* Cuadros, contenedores y cuadros emergentes: bordes de 4px */
+.modal,
+.student-subject-modal,
+.zero-tolerance-modal,
+.login-card-dark,
+.github-publish-box,
+.admin-note,
+.graphics-help,
+.zt-rules,
+.subject-drop-zone,
+.subject-map-mobile,
+.global-score-hero.clean,
+.admin-results-wait,
+.formula-box,
+.teacher-formula-steps,
+.admin-results-filters,
+.stats-filter-panel,
+.subject-source,
+.subject-drop-grid,
+.detail-card,
+.student-detail-panel,
+.metric-panel {
+  border-width: 4px !important;
+}
+
+.modal,
+.student-subject-modal {
+  border-style: solid !important;
+  border-color: rgba(255,255,255,.92) !important;
+}
+
+.zero-tolerance-modal,
+.github-publish-box,
+.admin-note,
+.graphics-help,
+.zt-rules,
+.subject-drop-zone,
+.subject-map-mobile,
+.global-score-hero.clean,
+.admin-results-wait,
+.formula-box,
+.teacher-formula-steps,
+.admin-results-filters,
+.stats-filter-panel,
+.subject-source,
+.subject-drop-grid,
+.detail-card,
+.student-detail-panel,
+.metric-panel {
+  border-style: solid !important;
+  border-color: var(--line, #e3e7ef) !important;
+}
+
+.login-card-dark {
+  border-style: solid !important;
+  border-color: rgba(255,255,255,.24) !important;
+}
+
+/* Mantener las barras/indicadores decorativos sin engrosarlos accidentalmente */
+.assigned-chip,
+.analysis-level-head,
+.graphics-level-head,
+.carga-assignment-card,
+.carga-tag-card {
+  border-left-width: 4px !important;
+}
+
+.subject-card-progress,
+.director-mini-bar,
+.graphics-track,
+.stats-track,
+.metric-progress,
+.progress-bar {
+  border-width: 0 !important;
 }

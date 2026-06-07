@@ -275,3 +275,9 @@ El `service-worker.js` usa estrategia de red primero para archivos JSON, para ev
 
 ## v76
 - Ajusta los números del ranking 1 y 3 usando como color base gold `#df9a00` y cobre `#c85a23`, manteniendo textura metalizada y glow.
+
+
+## v77
+- Bordes consistentes: cuadros, contenedores y modales con 4px; tarjetas con 2px.
+- Bloqueo de zoom táctil/pellizco en móviles mediante viewport, CSS y eventos táctiles.
+- Iconos PNG por defecto para asignaturas desde la carpeta `ICONOS/` y agregados al paquete/cache PWA.
