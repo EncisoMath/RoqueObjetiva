@@ -266,3 +266,8 @@ El `service-worker.js` usa estrategia de red primero para archivos JSON, para ev
 ## v71
 - Corrige los artefactos triangulares internos que aparecían en los números de Ranking 1 y Ranking 3.
 - Mantiene el estilo dorado y cobre, pero usa relleno sólido con sombra metálica para evitar fallos visuales por background-clip/text-stroke.
+
+
+## v73
+- Mejora los numeros 1, 2 y 3 del ranking con una base legible y un degradado interior metalizado mas visible.
+- Agrega glow suave para que el oro, la plata y el cobre se vean mas reflejantes sin volver a generar triangulos internos.

@@ -8046,3 +8046,104 @@ body {
     #964116 100%) !important;
   filter: drop-shadow(0 1px 0 rgba(87, 33, 10, .24)) drop-shadow(0 0 9px rgba(214, 105, 42, .32)) !important;
 }
+
+
+/* Ajustes v73: numeros de ranking con base legible, degradado interior leve y glow metalico reflejante */
+.ranking-box.rank-medal strong {
+  position: relative !important;
+  display: inline-block !important;
+  isolation: isolate;
+  background: none !important;
+  background-image: none !important;
+  -webkit-background-clip: border-box !important;
+  background-clip: border-box !important;
+  -webkit-text-fill-color: currentColor !important;
+  -webkit-text-stroke: 0 !important;
+  filter: none !important;
+  transform: translateZ(0);
+  overflow: visible;
+}
+
+.ranking-box.rank-medal strong::after {
+  content: attr(data-rank-number);
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  -webkit-background-clip: text;
+  background-repeat: no-repeat;
+  background-size: 100% 112%;
+  background-position: center;
+  opacity: .92;
+  filter: drop-shadow(0 0 5px var(--rank-glow-soft)) drop-shadow(0 0 13px var(--rank-glow));
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+}
+
+.ranking-box.rank-gold strong {
+  color: #c98b00 !important;
+  --rank-glow-soft: rgba(255, 239, 156, .40);
+  --rank-glow: rgba(255, 200, 30, .44);
+  text-shadow:
+    0 1px 0 rgba(255, 246, 184, .68),
+    0 2px 3px rgba(103, 67, 0, .18),
+    0 0 10px rgba(255, 204, 36, .24) !important;
+}
+
+.ranking-box.rank-gold strong::after {
+  background-image: linear-gradient(180deg,
+    #fff4ab 0%,
+    #ffe073 15%,
+    #d99a00 34%,
+    #a87300 49%,
+    #f2b711 58%,
+    #ffe892 72%,
+    #bd8000 100%) !important;
+}
+
+.ranking-box.rank-silver strong {
+  color: #667180 !important;
+  --rank-glow-soft: rgba(238, 246, 255, .36);
+  --rank-glow: rgba(166, 184, 203, .38);
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, .56),
+    0 2px 3px rgba(42, 50, 60, .18),
+    0 0 10px rgba(172, 188, 205, .22) !important;
+}
+
+.ranking-box.rank-silver strong::after {
+  background-image: linear-gradient(180deg,
+    #f6fbff 0%,
+    #cfd9e4 16%,
+    #8995a4 35%,
+    #52606f 50%,
+    #a8b5c4 60%,
+    #eef4f9 74%,
+    #6e7a88 100%) !important;
+}
+
+.ranking-box.rank-bronze strong {
+  color: #b7622a !important;
+  --rank-glow-soft: rgba(255, 207, 168, .36);
+  --rank-glow: rgba(222, 112, 42, .40);
+  text-shadow:
+    0 1px 0 rgba(255, 219, 183, .54),
+    0 2px 3px rgba(82, 34, 11, .18),
+    0 0 10px rgba(217, 103, 35, .22) !important;
+}
+
+.ranking-box.rank-bronze strong::after {
+  background-image: linear-gradient(180deg,
+    #ffd7ac 0%,
+    #e59654 16%,
+    #bc6228 35%,
+    #854018 50%,
+    #d47a38 60%,
+    #ffc38d 74%,
+    #9b4819 100%) !important;
+}

@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v72";
+  const APP_VERSION = "v73";
 
   const app = document.getElementById("app");
   const toastEl = document.getElementById("toast");
@@ -4984,7 +4984,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     const title = cleanRank === 1 ? "Primer puesto" : cleanRank === 2 ? "Segundo puesto" : cleanRank === 3 ? "Tercer puesto" : "Ranking";
     return `
       <div class="ranking-box rank-${medal} ${medal !== "plain" ? "rank-medal" : ""}" title="${escAttr(title)}">
-        <strong>${Number.isFinite(cleanRank) && cleanRank > 0 ? cleanRank : "—"}</strong>
+        <strong data-rank-number="${escAttr(Number.isFinite(cleanRank) && cleanRank > 0 ? cleanRank : "—")}">${Number.isFinite(cleanRank) && cleanRank > 0 ? cleanRank : "—"}</strong>
         <small>${esc(label)}</small>
       </div>
     `;

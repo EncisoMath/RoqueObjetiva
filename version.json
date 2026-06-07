@@ -1,8 +1,8 @@
 {
-  "version": "v72",
-  "cache": "resultados-pwa-v72",
+  "version": "v73",
+  "cache": "resultados-pwa-v73",
   "updatedAt": "2026-06-07",
-  "note": "Restaura textura metalizada vertical en numeros de ranking 1, 2 y 3 sin artefactos triangulares.",
-  "builtAt": "2026-06-07T20:12:00Z",
+  "note": "Mejora los numeros de ranking 1, 2 y 3 con relleno base legible, degradado interior suave y glow metalico reflejante.",
+  "builtAt": "2026-06-07T20:18:00Z",
   "date": "2026-06-07"
 }
