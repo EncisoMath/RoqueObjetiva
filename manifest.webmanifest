@@ -1,16 +1,24 @@
 {
-  "name": "Consulta de Resultados",
-  "short_name": "Resultados",
+  "name": "Roque Objetiva",
+  "short_name": "Roque Objetiva",
   "description": "Consulta institucional de resultados de pruebas objetivas.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "display_override": ["window-controls-overlay", "standalone", "minimal-ui", "browser"],
+  "display_override": [
+    "window-controls-overlay",
+    "standalone",
+    "minimal-ui",
+    "browser"
+  ],
   "orientation": "portrait-primary",
-  "background_color": "#1975ae",
-  "theme_color": "#1975ae",
+  "background_color": "#162b40",
+  "theme_color": "#162b40",
   "lang": "es-CO",
-  "categories": ["education", "productivity"],
+  "categories": [
+    "education",
+    "productivity"
+  ],
   "icons": [
     {
       "src": "icons/icon-192.png",
@@ -30,5 +38,6 @@
       "type": "image/png",
       "purpose": "maskable"
     }
-  ]
+  ],
+  "id": "./"
 }

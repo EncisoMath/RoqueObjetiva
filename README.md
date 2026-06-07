@@ -301,3 +301,8 @@ El `service-worker.js` usa estrategia de red primero para archivos JSON, para ev
 
 ## v81
 - Corrige el orden de visualización de claves en Admin y Coordinador para respetar el orden original de los ítems según los archivos `KEYS`.
+
+
+## v82
+- Cambia nombre de la PWA a Roque Objetiva.
+- Reemplaza iconos Android, iOS, favicon y maskable usando ICON.png a fondo completo, sin recuadro interno.

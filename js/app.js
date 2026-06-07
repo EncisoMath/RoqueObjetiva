@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v81";
+  const APP_VERSION = "v82";
 
   const app = document.getElementById("app");
   const toastEl = document.getElementById("toast");
@@ -36,7 +36,7 @@
   ];
 
   const DEFAULT_CONFIG = {
-    title: "Resultados de Pruebas Objetivas",
+    title: "Roque Objetiva",
     subtitle: "Este reporte no se pasa ni se pierde. Es una herramienta para identificar fortalezas, habilidades y oportunidades de mejora.",
     logoImage: "assets/logo-principal.png",
     appIcon: "icons/icon-512.png",
@@ -48,7 +48,7 @@
     logoZoom: 1,
     subjectLogos: {},
     github: { owner: "", repo: "", branch: "main" },
-    appName: "Consulta de Resultados"
+    appName: "Roque Objetiva"
   };
 
   const DEFAULT_GRADES = [6, 7, 8, 9, 10];
@@ -2232,7 +2232,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
           </div>
           <div class="field span-2">
             <label>Nombre de la app en Android / PWA</label>
-            <input value="${escAttr(cfg.appName || cfg.title || "Consulta de Resultados")}" data-config-field="appName">
+            <input value="${escAttr(cfg.appName || cfg.title || "Roque Objetiva")}" data-config-field="appName">
             <small style="color:#7d8089;">Este nombre se usa en el manifiesto de la app instalable.</small>
           </div>
           <div class="field span-2">
@@ -5226,7 +5226,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
 
   function shortAppName(name) {
     const clean = cleanText(name || "Resultados");
-    return clean.length > 12 ? clean.slice(0, 12).trim() : clean;
+    return clean.length > 24 ? clean.slice(0, 24).trim() : clean;
   }
 
   function hasMetricData(details, field = null) {
@@ -5485,8 +5485,8 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
   function buildWebManifest(cfg = state.config) {
     const primary = normalizeColor(cfg.primaryColor || "#1975ae");
     return {
-      name: cfg.appName || cfg.title || "Consulta de Resultados",
-      short_name: shortAppName(cfg.appName || cfg.title || "Resultados"),
+      name: cfg.appName || cfg.title || "Roque Objetiva",
+      short_name: shortAppName(cfg.appName || cfg.title || "Roque Objetiva"),
       description: "Consulta institucional de resultados de pruebas objetivas.",
       start_url: "./",
       scope: "./",

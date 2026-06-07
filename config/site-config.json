@@ -1,5 +1,5 @@
 {
-  "title": "Resultados de Pruebas Objetivas",
+  "title": "Roque Objetiva",
   "subtitle": "Consulta tu desempeño académico por áreas, componentes y competencias.",
   "logoImage": "assets/logo-principal.png",
   "bannerImage": "",
@@ -14,5 +14,11 @@
   },
   "logoZoom": 1,
   "appIcon": "icons/icon-512.png",
-  "cornerRadius": 4
+  "cornerRadius": 4,
+  "appName": "Roque Objetiva",
+  "appIcon192": "icons/icon-192.png",
+  "appIconMaskable": "icons/maskable-512.png",
+  "appleTouchIcon": "icons/apple-touch-icon.png",
+  "favicon32": "icons/favicon-32.png",
+  "favicon16": "icons/favicon-16.png"
 }
