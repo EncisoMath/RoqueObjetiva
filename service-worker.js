@@ -1,17 +1,17 @@
-const APP_VERSION = "v80";
-const CACHE_VERSION = "resultados-pwa-v80";
+const APP_VERSION = "v81";
+const CACHE_VERSION = "resultados-pwa-v81";
 const CACHE_PREFIXES = ["resultados-pwa-", "resultados-pruebas-"];
 
 const APP_SHELL = [
   "./",
   "index.html",
-  "css/app.css?v=80",
-  "js/app.js?v=80",
+  "css/app.css?v=81",
+  "js/app.js?v=81",
   "version.json",
   "config/data-manifest.json",
   "config/site-config.json",
   "INTERNO/DIRECTORESGRUPO.json",
-  "manifest.webmanifest?v=80",
+  "manifest.webmanifest?v=81",
   "icons/icon-192.png",
   "icons/icon-512.png",
   "icons/maskable-512.png",

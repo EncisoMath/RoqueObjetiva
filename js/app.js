@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v80";
+  const APP_VERSION = "v81";
 
   const app = document.getElementById("app");
   const toastEl = document.getElementById("toast");
@@ -2697,23 +2697,54 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       .filter((row) => row.id && row.sede && row.grade && row.group);
   }
 
+
+  function keySourceOrder(row) {
+    const idx = Number(row?.idx);
+    if (Number.isFinite(idx)) return idx;
+    const item = Number(row?.item);
+    return Number.isFinite(item) ? item : 999999;
+  }
+
+  function compareKeysByOriginalOrder(a, b) {
+    const gradeCompare = Number(a?.grade || 0) - Number(b?.grade || 0);
+    if (gradeCompare) return gradeCompare;
+    const pathCompare = String(a?.sourcePath || "").localeCompare(String(b?.sourcePath || ""), "es", { numeric: true, sensitivity: "base" });
+    if (pathCompare) return pathCompare;
+    const orderCompare = keySourceOrder(a) - keySourceOrder(b);
+    if (orderCompare) return orderCompare;
+    return Number(a?.item || 0) - Number(b?.item || 0);
+  }
+
+  function orderedSubjectsFromKeys(rows) {
+    const seen = new Set();
+    const ordered = [];
+    rows.slice().sort(compareKeysByOriginalOrder).forEach((key) => {
+      const subject = canonicalSubject(key.area || key.areaRaw);
+      if (!subject) return;
+      const id = normalizeText(subject);
+      if (seen.has(id)) return;
+      seen.add(id);
+      ordered.push(subject);
+    });
+    return ordered;
+  }
+
   function adminKeysHtml() {
     const canEditKeys = state.activeSession?.role === "admin";
     const grades = [...new Set(state.keys.map((k) => k.grade).filter(Boolean))].sort((a, b) => a - b);
     let grade = state.adminGradeFilter === "all" ? (grades[0] || "all") : state.adminGradeFilter;
     if (!grades.some((g) => String(g) === String(grade))) grade = grades[0] || "all";
 
-    const gradeRows = state.keys.filter((key) => String(key.grade) === String(grade));
-    const availableSubjects = uniqueValues(gradeRows.map((key) => canonicalSubject(key.area || key.areaRaw)).filter(Boolean));
+    const gradeRows = state.keys
+      .filter((key) => String(key.grade) === String(grade))
+      .sort(compareKeysByOriginalOrder);
+    const availableSubjects = orderedSubjectsFromKeys(gradeRows);
     let subject = state.adminSubjectFilter || "all";
     if (subject !== "all" && !availableSubjects.some((item) => sameSubject(item, subject))) subject = "all";
 
     let rows = gradeRows;
     if (subject !== "all") rows = rows.filter((key) => sameSubject(key.area, subject));
-    rows = [...rows].sort((a, b) => {
-      const areaCompare = String(a.areaRaw || a.area || "").localeCompare(String(b.areaRaw || b.area || ""), "es");
-      return areaCompare || Number(a.item || 0) - Number(b.item || 0);
-    });
+    rows = [...rows].sort(compareKeysByOriginalOrder);
 
     const title = canEditKeys ? "Claves de respuesta" : "Consulta de claves";
     const subtitle = canEditKeys
@@ -3092,16 +3123,19 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     }
 
     if (action === "edit-student-exam") {
+      if (state.activeSession?.role !== "admin") { toast("Solo el administrador puede editar exámenes."); return; }
       openEditStudentExamModal(target.dataset.roll);
       return;
     }
 
     if (action === "exam-edit-tab") {
+      if (state.activeSession?.role !== "admin") { toast("Solo el administrador puede editar exámenes."); return; }
       openEditStudentExamModal(target.dataset.roll, target.dataset.subject);
       return;
     }
 
     if (action === "set-student-answer") {
+      if (state.activeSession?.role !== "admin") { toast("Solo el administrador puede editar exámenes."); return; }
       setStudentAnswer(target.dataset.roll, Number(target.dataset.item), target.dataset.option);
       target.closest(".exam-option-row")?.querySelectorAll(".exam-option-btn").forEach((btn) => btn.classList.remove("active"));
       target.classList.add("active");
@@ -3109,12 +3143,14 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     }
 
     if (action === "clear-student-answer") {
+      if (state.activeSession?.role !== "admin") { toast("Solo el administrador puede editar exámenes."); return; }
       setStudentAnswer(target.dataset.roll, Number(target.dataset.item), "");
       target.closest(".exam-option-row")?.querySelectorAll(".exam-option-btn").forEach((btn) => btn.classList.remove("active"));
       return;
     }
 
     if (action === "save-student-exam") {
+      if (state.activeSession?.role !== "admin") { toast("Solo el administrador puede guardar exámenes."); return; }
       persistResultOverrides();
       buildRepository();
       toast("Examen actualizado localmente.");
@@ -3887,7 +3923,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
   function exportKeyRows(rows = state.keys) {
     return rows
       .slice()
-      .sort((a, b) => (a.grade - b.grade) || (a.item - b.item))
+      .sort(compareKeysByOriginalOrder)
       .map((row) => ({
         "Área": row.areaRaw || row.area,
         "Número de ítem": String(row.item),
@@ -4076,7 +4112,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
   function openAnswerKeyModal(grade, subject) {
     const rows = state.keys
       .filter((key) => (!grade || key.grade === grade) && sameSubject(key.area, subject))
-      .sort((a, b) => a.item - b.item);
+      .sort(compareKeysByOriginalOrder);
     modalRoot.innerHTML = `
       <div class="modal-backdrop" data-action="close-modal">
         <section class="modal answer-key-modal">

@@ -1,8 +1,8 @@
 {
-  "version": "v80",
-  "cache": "resultados-pwa-v80",
+  "version": "v81",
+  "cache": "resultados-pwa-v81",
   "updatedAt": "2026-06-07",
-  "note": "Vista docente web muestra componentes y competencias simultaneamente; coordinadores no editan examenes ni claves; claves usan pestañas por grado/asignatura y tabla sin columna grado.",
-  "builtAt": "2026-06-07T21:45:00Z",
+  "note": "Corrige el orden de las claves para que Admin y Coordinador respeten el orden original de los items segun los archivos KEYS.",
+  "builtAt": "2026-06-07T22:00:00Z",
   "date": "2026-06-07"
 }
