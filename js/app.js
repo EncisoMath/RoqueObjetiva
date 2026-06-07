@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v57";
+  const APP_VERSION = "v58";
 
   const app = document.getElementById("app");
   const toastEl = document.getElementById("toast");
@@ -2003,6 +2003,16 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     const base = SUBJECTS.map((subject) => subject.name);
     return [...new Set([...base, ...fromKeys].map(canonicalSubject).filter(Boolean))]
       .sort((a, b) => a.localeCompare(b, "es", { sensitivity: "base" }));
+  }
+
+
+  function shortSubjectName(value) {
+    const canonical = canonicalSubject(value);
+    const match = SUBJECTS.find((subject) => sameSubject(subject.name, canonical) || normalizeText(subject.name) === normalizeText(canonical));
+    if (match) return match.short || match.name;
+    const clean = cleanText(canonical || value);
+    if (!clean) return "Área";
+    return clean;
   }
 
   function adminAppearanceHtml() {
