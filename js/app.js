@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v63";
+  const APP_VERSION = "v64";
 
   const app = document.getElementById("app");
   const toastEl = document.getElementById("toast");
@@ -18,7 +18,8 @@
     github: "po_github_publish_v1",
     students: "po_students_override_v1",
     resultOverrides: "po_result_overrides_v1",
-    subjectAreas: "po_subject_area_map_v1"
+    subjectAreas: "po_subject_area_map_v1",
+    recentLogins: "po_recent_logins_v1"
   };
 
   const SUBJECTS = [
@@ -692,6 +693,168 @@
     // Las pestañas ya no modifican la URL.
   }
 
+  function getRecentLogins() {
+    const list = readJSON(STORAGE.recentLogins, []);
+    if (!Array.isArray(list)) return [];
+    return list
+      .filter((item) => item && item.key && item.session && item.session.role)
+      .slice(0, 4);
+  }
+
+  function recentLoginKey(session) {
+    if (!session || !session.role) return "";
+    if (session.role === "admin") return "admin:admin";
+    if (session.role === "teacher") return `teacher:${cleanId(session.id)}`;
+    if (session.role === "student") return `student:${cleanId(session.roll)}`;
+    return "";
+  }
+
+  function initialsFor(name, fallback = "U") {
+    const parts = cleanText(name).split(/\s+/).filter(Boolean);
+    if (!parts.length) return fallback.slice(0, 2).toUpperCase();
+    const first = parts[0]?.[0] || "";
+    const last = parts.length > 1 ? parts[parts.length - 1]?.[0] || "" : "";
+    return `${first}${last || (parts[0]?.[1] || "")}`.toUpperCase();
+  }
+
+  function describeRecentSession(session, stored = {}) {
+    if (!session || !session.role) return null;
+
+    if (session.role === "admin") {
+      return {
+        title: "Administrador",
+        detail: "Panel de administración",
+        initials: "AD"
+      };
+    }
+
+    if (session.role === "teacher") {
+      const id = cleanId(session.id);
+      const teacher = state.teachers.get(id);
+      const title = cleanText(teacher?.name) || cleanText(stored.title) || `Docente ${id}`;
+      const hasGroups = (teacher?.directorGroups || []).length;
+      const hasAssignments = (teacher?.assignments || []).length;
+      const detail = teacher?.coordinator
+        ? "Coordinación"
+        : hasGroups && !hasAssignments
+          ? "Dirección de grupo"
+          : "Vista docente";
+      return { title, detail, initials: initialsFor(title, "DO") };
+    }
+
+    if (session.role === "student") {
+      const roll = cleanId(session.roll);
+      const student = state.computedByRoll.get(roll);
+      const title = cleanText(student?.name) || cleanText(stored.title) || `Estudiante ${roll}`;
+      const details = [];
+      if (student?.grade) details.push(`${student.grade}°`);
+      if (student?.group) details.push(student.group);
+      if (student?.sede) details.push(student.sede);
+      return {
+        title,
+        detail: details.join(" · ") || "Vista estudiante",
+        initials: initialsFor(title, "ES")
+      };
+    }
+
+    return null;
+  }
+
+  function rememberRecentLogin(session) {
+    const key = recentLoginKey(session);
+    if (!key) return;
+    const info = describeRecentSession(session);
+    if (!info) return;
+    const record = {
+      key,
+      session: { ...session },
+      title: info.title,
+      detail: info.detail,
+      initials: info.initials,
+      savedAt: new Date().toISOString()
+    };
+    const next = [record, ...getRecentLogins().filter((item) => item.key !== key)].slice(0, 4);
+    writeJSON(STORAGE.recentLogins, next);
+  }
+
+  function removeRecentLogin(key) {
+    const next = getRecentLogins().filter((item) => item.key !== key);
+    writeJSON(STORAGE.recentLogins, next);
+    renderLogin();
+  }
+
+  function renderRecentLoginsHtml() {
+    const items = getRecentLogins();
+    if (!items.length) return "";
+    return `
+      <div class="recent-login-box" aria-label="Ingresos recientes">
+        <div class="recent-login-head">
+          <strong>Ingresar rápidamente</strong>
+          <span>Últimos 4 en este dispositivo</span>
+        </div>
+        <div class="recent-login-grid">
+          ${items.map((item) => {
+            const info = describeRecentSession(item.session, item) || item;
+            return `
+              <div class="recent-login-card">
+                <button type="button" class="recent-login-main" data-action="quick-login" data-login-key="${escAttr(item.key)}" title="Ingresar como ${escAttr(info.title)}">
+                  <span class="recent-login-avatar">${esc(info.initials || "U")}</span>
+                  <span class="recent-login-text">
+                    <strong>${esc(info.title || item.title || "Usuario")}</strong>
+                    <small>${esc(info.detail || item.detail || "Ingreso reciente")}</small>
+                  </span>
+                </button>
+                <button type="button" class="recent-login-remove" data-action="remove-recent-login" data-login-key="${escAttr(item.key)}" aria-label="Quitar ${escAttr(info.title || item.title || "usuario")}">×</button>
+              </div>
+            `;
+          }).join("")}
+        </div>
+      </div>
+    `;
+  }
+
+  function startRecentLogin(key) {
+    const item = getRecentLogins().find((entry) => entry.key === key);
+    if (!item || !item.session) return renderLogin("No se encontró ese ingreso reciente.");
+    const session = item.session;
+
+    if (session.role === "admin") {
+      state.adminTab = "resumen";
+      state.zeroToleranceShown = false;
+      return enterSessionWithLoader({ role: "admin", id: "admin" }, () => renderAdmin(), "Abriendo panel de administración...");
+    }
+
+    if (session.role === "teacher") {
+      const id = cleanId(session.id);
+      const teacher = state.teachers.get(id);
+      if (!teacher) {
+        removeRecentLogin(key);
+        return renderLogin("Ese docente ya no aparece en la carga actual.");
+      }
+      state.teacherActive = null;
+      state.teacherMode = "asignaturas";
+      state.teacherDirectorActiveKey = "";
+      if (!(teacher?.assignments || []).length && (teacher?.directorGroups || []).length) state.teacherMode = "director";
+      if (!(teacher?.assignments || []).length && !(teacher?.directorGroups || []).length && teacher?.coordinator) state.teacherMode = "coord-estudiantes";
+      state.zeroToleranceShown = false;
+      return enterSessionWithLoader({ role: "teacher", id }, () => renderTeacher(teacher), "Preparando vista docente...");
+    }
+
+    if (session.role === "student") {
+      const roll = cleanId(session.roll);
+      if (!state.computedByRoll.has(roll) && !state.responsesByRoll.has(roll)) {
+        removeRecentLogin(key);
+        return renderLogin("Ese estudiante ya no aparece en los resultados actuales.");
+      }
+      state.selectedSubject = null;
+      state.metricTab = "components";
+      state.zeroToleranceShown = false;
+      return enterSessionWithLoader({ role: "student", roll }, () => renderStudent(roll), "Preparando tus resultados...");
+    }
+
+    renderLogin("No se pudo abrir ese ingreso reciente.");
+  }
+
   function renderLogin(error = "") {
     const primary = normalizeColor(state.config.primaryColor || "#1975ae");
     const primaryDark = shadeColor(primary, -26);
@@ -710,6 +873,7 @@
     document.querySelector('meta[name="theme-color"]')?.setAttribute("content", primaryDark);
     applyAppMeta(primaryDark);
     const logo = state.config.logoImage || "assets/logo-principal.png";
+    const recentLoginsHtml = renderRecentLoginsHtml();
     app.innerHTML = `
       <section class="login-shell login-shell-dark" style="--login-primary:${primary};--login-dark:${primaryDark};--login-deep:${primaryDeep};">
         <div class="login-bg-shapes" aria-hidden="true">
@@ -722,6 +886,7 @@
             <h1>Bienvenido</h1>
             <p>Ingresa con el ID del examen, el documento del estudiante o el ID docente.</p>
             ${error ? `<div class="admin-note login-error">${esc(error)}</div>` : ""}
+            ${recentLoginsHtml}
             <form class="login-form" id="loginForm">
               <div class="field">
                 <label for="loginUser">Usuario o ID</label>
@@ -2754,6 +2919,18 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       init();
     }
 
+    if (action === "quick-login") {
+      startRecentLogin(target.dataset.loginKey || "");
+      return;
+    }
+
+    if (action === "remove-recent-login") {
+      event.preventDefault();
+      event.stopPropagation();
+      removeRecentLogin(target.dataset.loginKey || "");
+      return;
+    }
+
     if (action === "logout") {
       clearSession();
       renderLogin();
@@ -4630,6 +4807,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
   function enterSessionWithLoader(session, renderFn, message = "Preparando resultados...") {
     state.activeSession = session;
     writeJSON(STORAGE.session, state.activeSession);
+    rememberRecentLogin(session);
     showRouteLoader(message);
     window.setTimeout(() => {
       renderFn();
