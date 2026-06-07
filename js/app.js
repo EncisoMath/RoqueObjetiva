@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v59";
+  const APP_VERSION = "v60";
 
   const app = document.getElementById("app");
   const toastEl = document.getElementById("toast");
@@ -1711,7 +1711,6 @@
     const width = clamp(Number(row.avg) || 0, 0, 100);
     return `
       <article class="stats-bar-row">
-        <span class="stats-rank">${index + 1}</span>
         ${withIcon ? subjectIcon(row.key) : ""}
         <span class="stats-label"><strong>${esc(row.label)}</strong><small>Promedio de nota · ${row.count || 0} estudiante${row.count === 1 ? "" : "s"}${row.evaluations ? ` · ${row.evaluations} evaluación${row.evaluations === 1 ? "" : "es"}` : ""}</small></span>
         <span class="stats-track"><i style="width:${width}%"></i></span>
