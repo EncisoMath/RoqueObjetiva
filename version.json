@@ -1,7 +1,8 @@
 {
-  "version": "v70",
-  "cache": "resultados-pwa-v70",
+  "version": "v71",
+  "cache": "resultados-pwa-v71",
   "updatedAt": "2026-06-07",
-  "note": "Mejora los tonos gold y cobre del banner de ranking y ubica la version movil como texto pequeño en la esquina inferior.",
-  "builtAt": "2026-06-07T20:05:00Z"
+  "note": "Corrige artefactos triangulares en los numeros de ranking 1 y 3 usando relleno solido metalico sin background-clip ni text-stroke.",
+  "builtAt": "2026-06-07T20:05:00Z",
+  "date": "2026-06-07"
 }

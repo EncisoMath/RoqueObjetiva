@@ -261,3 +261,8 @@ El `service-worker.js` usa estrategia de red primero para archivos JSON, para ev
 ## v63
 - Vista docente compacta: resumen superior en 3 columnas también en móvil.
 - Componentes y competencias en pestañas para ahorrar espacio vertical.
+
+
+## v71
+- Corrige los artefactos triangulares internos que aparecían en los números de Ranking 1 y Ranking 3.
+- Mantiene el estilo dorado y cobre, pero usa relleno sólido con sombra metálica para evitar fallos visuales por background-clip/text-stroke.
