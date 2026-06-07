@@ -8233,3 +8233,50 @@ body {
     #a64a1b 85%,
     #743014 100%) !important;
 }
+
+/* Ajustes v75: ranking 1 mas amarillo/anaranjado y ranking 3 mas rojizo; plateado intacto */
+.ranking-box.rank-gold strong {
+  color: #f2aa00 !important;
+  --rank-glow-soft: rgba(255, 232, 94, .56);
+  --rank-glow: rgba(255, 172, 0, .52);
+  text-shadow:
+    0 1px 0 rgba(255, 238, 130, .58),
+    0 2px 4px rgba(123, 64, 0, .24),
+    0 0 11px rgba(255, 170, 0, .42),
+    0 0 20px rgba(255, 199, 36, .28) !important;
+}
+
+.ranking-box.rank-gold strong::after {
+  background-image: linear-gradient(180deg,
+    #ffe46a 0%,
+    #ffc21f 12%,
+    #f2a000 28%,
+    #d77a00 44%,
+    #ffad00 58%,
+    #ffd348 70%,
+    #ee9100 85%,
+    #c66b00 100%) !important;
+}
+
+.ranking-box.rank-bronze strong {
+  color: #d75a2b !important;
+  --rank-glow-soft: rgba(255, 154, 112, .50);
+  --rank-glow: rgba(220, 70, 30, .50);
+  text-shadow:
+    0 1px 0 rgba(255, 190, 146, .50),
+    0 2px 4px rgba(95, 24, 11, .26),
+    0 0 11px rgba(214, 72, 28, .38),
+    0 0 20px rgba(255, 111, 54, .24) !important;
+}
+
+.ranking-box.rank-bronze strong::after {
+  background-image: linear-gradient(180deg,
+    #ffb07a 0%,
+    #ef7138 13%,
+    #cf4f25 30%,
+    #a63417 46%,
+    #df5b2c 58%,
+    #ff8a50 70%,
+    #bd3d1b 85%,
+    #852410 100%) !important;
+}
