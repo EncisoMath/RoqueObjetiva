@@ -102,6 +102,7 @@
     adminAnalysisSede: "all",
     adminAnalysisGrade: "all",
     adminAnalysisSubject: "all",
+    adminAnalysisPath: {},
     adminTableSort: {},
     subjectAreaMap: {},
     adminCargaTeacherId: "",
@@ -1041,6 +1042,9 @@
     if (mode === "coord-resultados") {
       title = "Resultados";
       content = adminResultsHtml();
+    } else if (mode === "coord-analisis") {
+      title = "Análisis / ranking";
+      content = adminAnalysisHtml();
     } else if (mode === "coord-claves") {
       title = "Claves";
       content = adminKeysHtml();
@@ -2165,7 +2169,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
         <nav class="app-nav teacher-top-nav">
           <button class="nav-chip ${activeMode === "asignaturas" ? "active" : ""}" data-action="teacher-mode" data-mode="asignaturas" ${hasAssignments ? "" : "disabled"}>Panel docente</button>
           ${hasDirector ? `<button class="nav-chip ${activeMode === "director" ? "active" : ""}" data-action="teacher-mode" data-mode="director">Panel director de grupo</button>` : ""}
-          ${isCoordinator ? `<button class="nav-chip ${activeMode === "coord-estudiantes" ? "active" : ""}" data-action="teacher-mode" data-mode="coord-estudiantes">Estudiantes</button><button class="nav-chip ${activeMode === "coord-resultados" ? "active" : ""}" data-action="teacher-mode" data-mode="coord-resultados">Resultados</button><button class="nav-chip ${activeMode === "coord-claves" ? "active" : ""}" data-action="teacher-mode" data-mode="coord-claves">Claves</button>` : ""}
+          ${isCoordinator ? `<button class="nav-chip ${activeMode === "coord-estudiantes" ? "active" : ""}" data-action="teacher-mode" data-mode="coord-estudiantes">Estudiantes</button><button class="nav-chip ${activeMode === "coord-resultados" ? "active" : ""}" data-action="teacher-mode" data-mode="coord-resultados">Resultados</button><button class="nav-chip ${activeMode === "coord-analisis" ? "active" : ""}" data-action="teacher-mode" data-mode="coord-analisis">Análisis / ranking</button><button class="nav-chip ${activeMode === "coord-claves" ? "active" : ""}" data-action="teacher-mode" data-mode="coord-claves">Claves</button>` : ""}
           <button class="nav-chip logout" data-action="logout">Salir</button>
         </nav>
       `;
@@ -2286,6 +2290,32 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       return;
     }
 
+    if (action === "analysis-drill") {
+      const level = target.dataset.level || "";
+      const value = target.dataset.value || "";
+      if (!state.adminAnalysisPath) state.adminAnalysisPath = {};
+      const order = ["subject", "sede", "grade", "course"];
+      const structureOrder = ["sede", "grade", "course", "subject"];
+      const activeOrder = state.adminAnalysisMode === "area" ? order : structureOrder;
+      const idx = activeOrder.indexOf(level);
+      if (idx >= 0) activeOrder.slice(idx + 1).forEach((key) => delete state.adminAnalysisPath[key]);
+      state.adminAnalysisPath[level] = value;
+      renderAdminContext();
+      return;
+    }
+
+    if (action === "analysis-clear") {
+      const level = target.dataset.level || "all";
+      if (level === "all") state.adminAnalysisPath = {};
+      else {
+        const order = state.adminAnalysisMode === "area" ? ["subject", "sede", "grade", "course"] : ["sede", "grade", "course", "subject"];
+        const idx = order.indexOf(level);
+        if (idx >= 0) order.slice(idx).forEach((key) => delete state.adminAnalysisPath[key]);
+      }
+      renderAdminContext();
+      return;
+    }
+
     if (action === "teacher-assignment") {
       state.teacherActive = {
         key: target.dataset.key || assignmentKeyFor({ grade: target.dataset.grade, subjectRaw: target.dataset.subject, group: target.dataset.group, sede: target.dataset.sede }),
@@ -2301,7 +2331,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
 
     if (action === "teacher-mode") {
       const mode = target.dataset.mode || "asignaturas";
-      state.teacherMode = ["director", "asignaturas", "coord-estudiantes", "coord-resultados", "coord-claves"].includes(mode) ? mode : "asignaturas";
+      state.teacherMode = ["director", "asignaturas", "coord-estudiantes", "coord-resultados", "coord-analisis", "coord-claves"].includes(mode) ? mode : "asignaturas";
       renderBySession();
       return;
     }
@@ -2810,6 +2840,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       if (field === "sede") { state.adminAnalysisSede = target.value; state.adminAnalysisGrade = "all"; }
       if (field === "grade") state.adminAnalysisGrade = target.value;
       if (field === "subject") state.adminAnalysisSubject = target.value;
+      state.adminAnalysisPath = {};
       renderAdminContext();
       return;
     }
@@ -3766,44 +3797,128 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
   }
 
   function adminAnalysisHtml() {
+    const mode = state.adminAnalysisMode === "area" ? "area" : "estructura";
+    state.adminAnalysisMode = mode;
     const sedes = ["all", ...uniqueValues(state.computedStudents.map((s) => s.sede))];
-    const grades = ["all", ...uniqueValues(state.computedStudents.filter((s)=>state.adminAnalysisSede === "all" || s.sede === state.adminAnalysisSede).map((s) => s.grade)).sort((a,b)=>Number(a)-Number(b))];
+    const grades = ["all", ...uniqueValues(state.computedStudents
+      .filter((s) => state.adminAnalysisSede === "all" || s.sede === state.adminAnalysisSede)
+      .map((s) => s.grade)).sort((a,b)=>Number(a)-Number(b))];
     const subjects = ["all", ...availableSubjects()];
+    const path = state.adminAnalysisPath || {};
     const base = state.computedStudents
       .filter((s) => state.adminAnalysisSede === "all" || s.sede === state.adminAnalysisSede)
-      .filter((s) => state.adminAnalysisGrade === "all" || String(s.grade) === String(state.adminAnalysisGrade));
-    const groups = buildAnalysisGroups(base, state.adminAnalysisMode, state.adminAnalysisSubject);
-    const max = Math.max(...groups.map((g) => Number(g.avg) || 0), 100);
-    const selectedSubject = state.adminAnalysisSubject;
-    const details = selectedSubject !== "all" ? aggregateDetails(base, selectedSubject) : [];
-    return `<section class="toolbar"><div><span class="section-eyebrow">Análisis / ranking</span><h2 style="margin:8px 0 0;font-weight:900;">Desempeño general</h2><p class="muted-copy">Compara grados, cursos o áreas sin entrar al detalle individual de cada estudiante.</p></div></section>
-      <section class="card card-pad admin-results-filters"><div class="form-grid compact admin-results-required-grid"><div class="field"><label>Ver ranking por</label><select class="select-pill" data-admin-analysis-field="mode"><option value="grado" ${state.adminAnalysisMode === "grado" ? "selected" : ""}>Grado</option><option value="curso" ${state.adminAnalysisMode === "curso" ? "selected" : ""}>Curso</option><option value="area" ${state.adminAnalysisMode === "area" ? "selected" : ""}>Área/asignatura</option></select></div><div class="field"><label>Sede</label><select class="select-pill" data-admin-analysis-field="sede">${sedes.map((v)=>`<option value="${escAttr(v)}" ${state.adminAnalysisSede===v?"selected":""}>${v==="all"?"Todas":esc(v)}</option>`).join("")}</select></div><div class="field"><label>Grado</label><select class="select-pill" data-admin-analysis-field="grade">${grades.map((v)=>`<option value="${escAttr(v)}" ${String(state.adminAnalysisGrade)===String(v)?"selected":""}>${v==="all"?"Todos":`${esc(v)}°`}</option>`).join("")}</select></div><div class="field"><label>Área</label><select class="select-pill" data-admin-analysis-field="subject">${subjects.map((v)=>`<option value="${escAttr(v)}" ${selectedSubject===v?"selected":""}>${v==="all"?"Todas las áreas":esc(v)}</option>`).join("")}</select></div></div></section>
-      <section class="analysis-bars card card-pad">${groups.map((g, i) => `<article class="analysis-bar-row"><div class="analysis-rank">${i+1}</div><div class="analysis-label"><strong>${esc(g.label)}</strong><span>${g.count} estudiante${g.count===1?"":"s"}</span></div><div class="analysis-track"><i style="width:${clamp((Number(g.avg)||0)/max*100,0,100)}%"></i></div><strong class="analysis-score">${g.avg}<small>/100</small></strong></article>`).join("") || `<div class="empty-state">No hay datos para estos filtros.</div>`}</section>
-      ${selectedSubject !== "all" && hasMetricData(details) ? `<section class="teacher-metrics-row admin-results-metrics" style="margin-top:18px;">${teacherAggregateMetricsHtmlForDetails(details)}</section>` : ""}`;
+      .filter((s) => state.adminAnalysisGrade === "all" || String(s.grade) === String(state.adminAnalysisGrade))
+      .filter((s) => !path.sede || s.sede === path.sede)
+      .filter((s) => !path.grade || String(s.grade) === String(path.grade))
+      .filter((s) => !path.course || `${s.grade}|${s.group}|${s.sede}` === path.course);
+
+    const content = mode === "area" ? analysisByAreaHtml(base, path) : analysisByStructureHtml(base, path);
+
+    return `<section class="toolbar"><div><span class="section-eyebrow">Análisis / ranking</span><h2 style="margin:8px 0 0;font-weight:900;">Desempeño institucional</h2><p class="muted-copy">Explora los resultados por jerarquía. Toca una barra para abrir el siguiente nivel justo debajo.</p></div></section>
+      <section class="card card-pad admin-results-filters"><div class="form-grid compact admin-results-required-grid"><div class="field"><label>Ver ranking por</label><select class="select-pill" data-admin-analysis-field="mode"><option value="estructura" ${mode === "estructura" ? "selected" : ""}>Sede / grado / curso</option><option value="area" ${mode === "area" ? "selected" : ""}>Área / asignatura</option></select></div><div class="field"><label>Limitar sede</label><select class="select-pill" data-admin-analysis-field="sede">${sedes.map((v)=>`<option value="${escAttr(v)}" ${state.adminAnalysisSede===v?"selected":""}>${v==="all"?"Todas":esc(v)}</option>`).join("")}</select></div><div class="field"><label>Limitar grado</label><select class="select-pill" data-admin-analysis-field="grade">${grades.map((v)=>`<option value="${escAttr(v)}" ${String(state.adminAnalysisGrade)===String(v)?"selected":""}>${v==="all"?"Todos":`${esc(v)}°`}</option>`).join("")}</select></div><div class="field"><label>Área rápida</label><select class="select-pill" data-admin-analysis-field="subject">${subjects.map((v)=>`<option value="${escAttr(v)}" ${state.adminAnalysisSubject===v?"selected":""}>${v==="all"?"Todas":esc(v)}</option>`).join("")}</select></div></div></section>
+      <section class="analysis-tree card card-pad">${content || `<div class="empty-state">No hay datos para estos filtros.</div>`}</section>`;
+  }
+
+  function analysisByStructureHtml(students, path) {
+    const html = [];
+    const sedes = groupMetric(students, (s) => s.sede, (s) => s.sede, "all", "sede");
+    html.push(analysisLevelHtml("Sedes", sedes, "sede", path.sede));
+    if (path.sede) {
+      const gradeRows = groupMetric(students, (s) => String(s.grade), (s) => `${s.grade}°`, state.adminAnalysisSubject, "grade");
+      html.push(analysisLevelHtml(`Grados en ${esc(path.sede)}`, gradeRows, "grade", path.grade, 1));
+    }
+    if (path.sede && path.grade) {
+      const courseRows = groupMetric(students, (s) => `${s.grade}|${s.group}|${s.sede}`, (s) => `${s.grade}° ${s.group}`, state.adminAnalysisSubject, "course");
+      html.push(analysisLevelHtml(`Cursos de ${esc(path.grade)}°`, courseRows, "course", path.course, 2));
+    }
+    if (path.sede && path.grade && path.course) {
+      const subjectRows = subjectMetric(students);
+      html.push(analysisLevelHtml("Áreas / asignaturas", subjectRows, "subject", path.subject, 3, true));
+    }
+    if (path.subject) {
+      html.push(analysisMetricsFor(students, path.subject, 4));
+    }
+    return html.join("");
+  }
+
+  function analysisByAreaHtml(students, path) {
+    const html = [];
+    const subjectRows = subjectMetric(students);
+    html.push(analysisLevelHtml("Áreas / asignaturas", subjectRows, "subject", path.subject, 0, true));
+    if (path.subject) {
+      const sedes = groupMetric(students, (s) => s.sede, (s) => s.sede, path.subject, "sede");
+      html.push(analysisLevelHtml(`Sedes en ${esc(shortSubjectName(path.subject))}`, sedes, "sede", path.sede, 1));
+    }
+    if (path.subject && path.sede) {
+      const gradeRows = groupMetric(students, (s) => String(s.grade), (s) => `${s.grade}°`, path.subject, "grade");
+      html.push(analysisLevelHtml("Grados", gradeRows, "grade", path.grade, 2));
+    }
+    if (path.subject && path.sede && path.grade) {
+      const courseRows = groupMetric(students, (s) => `${s.grade}|${s.group}|${s.sede}`, (s) => `${s.grade}° ${s.group}`, path.subject, "course");
+      html.push(analysisLevelHtml("Cursos", courseRows, "course", path.course, 3));
+    }
+    if (path.subject && path.sede && path.grade && path.course) {
+      html.push(analysisMetricsFor(students, path.subject, 4));
+    }
+    return html.join("");
+  }
+
+  function analysisLevelHtml(title, rows, level, activeValue = "", depth = 0, withIcon = false) {
+    const max = Math.max(100, ...rows.map((r) => Number(r.avg) || 0));
+    return `<div class="analysis-level analysis-depth-${depth}"><div class="analysis-level-head"><h3>${title}</h3>${activeValue ? `<button class="mini-btn" data-action="analysis-clear" data-level="${escAttr(level)}">Limpiar desde aquí</button>` : ""}</div><div class="analysis-bars-list">${rows.map((row, idx) => analysisBarHtml(row, level, activeValue, max, idx, withIcon)).join("") || `<div class="empty-state">No hay datos en este nivel.</div>`}</div></div>`;
+  }
+
+  function analysisBarHtml(row, level, activeValue, max, index, withIcon = false) {
+    const avgValue = Number(row.avg) || 0;
+    const width = clamp(avgValue / max * 100, 0, 100);
+    const active = activeValue && String(activeValue) === String(row.key);
+    return `<button class="analysis-drill-row ${active ? "active" : ""}" data-action="analysis-drill" data-level="${escAttr(level)}" data-value="${escAttr(row.key)}">
+      <span class="analysis-rank">${index + 1}</span>
+      ${withIcon ? subjectIcon(row.subject || row.label) : ""}
+      <span class="analysis-label"><strong>${esc(row.label)}</strong><small>${row.count} estudiante${row.count === 1 ? "" : "s"}</small></span>
+      <span class="analysis-track"><i style="width:${width}%"></i></span>
+      <strong class="analysis-score">${esc(row.avg)}<small>/100</small></strong>
+    </button>`;
+  }
+
+  function groupMetric(students, keyFn, labelFn, subject = "all") {
+    const map = new Map();
+    students.forEach((student) => {
+      const key = keyFn(student);
+      if (!key) return;
+      if (!map.has(key)) map.set(key, { key, label: labelFn(student), scores: [], students: new Set() });
+      const item = map.get(key);
+      scoresForStudent(student, subject).forEach((score) => item.scores.push(score));
+      item.students.add(student.roll);
+    });
+    return Array.from(map.values()).map((item) => ({ key: item.key, label: item.label, count: item.students.size, avg: avg(item.scores) })).filter((item) => item.avg !== "—").sort((a,b)=>(Number(b.avg)||0)-(Number(a.avg)||0));
+  }
+
+  function subjectMetric(students) {
+    const selected = state.adminAnalysisSubject !== "all" ? [state.adminAnalysisSubject] : availableSubjects();
+    return selected.map((subject) => {
+      const scores = students.map((student) => student.subjectStats[subject]?.score).filter((value) => Number.isFinite(Number(value)));
+      const count = students.filter((student) => student.subjectStats[subject]?.total).length;
+      return { key: subject, subject, label: shortSubjectName(subject), count, avg: avg(scores) };
+    }).filter((item) => item.count && item.avg !== "—").sort((a,b)=>(Number(b.avg)||0)-(Number(a.avg)||0));
+  }
+
+  function scoresForStudent(student, subject = "all") {
+    if (subject && subject !== "all") {
+      const value = student.subjectStats[subject]?.score;
+      return Number.isFinite(Number(value)) ? [Number(value)] : [];
+    }
+    return availableSubjects().map((subject) => student.subjectStats[subject]?.score).filter((value) => Number.isFinite(Number(value))).map(Number);
+  }
+
+  function analysisMetricsFor(students, subject, depth = 0) {
+    const details = aggregateDetails(students, subject);
+    if (!hasMetricData(details)) return `<div class="analysis-level analysis-depth-${depth}"><div class="empty-state">Esta área no tiene componentes ni competencias registrados en las claves.</div></div>`;
+    return `<div class="analysis-level analysis-depth-${depth} analysis-metrics"><div class="analysis-level-head"><h3>Componentes y competencias de ${esc(shortSubjectName(subject))}</h3></div><div class="teacher-metrics-row admin-results-metrics">${teacherAggregateMetricsHtmlForDetails(details)}</div></div>`;
   }
 
   function buildAnalysisGroups(students, mode, subject) {
-    const map = new Map();
-    const addScore = (key, label, student, score) => {
-      if (!Number.isFinite(Number(score))) return;
-      if (!map.has(key)) map.set(key, { label, scores: [], students: new Set() });
-      map.get(key).scores.push(Number(score));
-      map.get(key).students.add(student.roll);
-    };
-    students.forEach((student) => {
-      if (mode === "area") {
-        SUBJECTS.forEach((sub) => {
-          const score = student.subjectStats[sub.name]?.score;
-          addScore(sub.name, sub.short || sub.name, student, score);
-        });
-        return;
-      }
-      const key = mode === "curso" ? `${student.sede}|${student.grade}|${student.group}` : String(student.grade);
-      const label = mode === "curso" ? `${student.grade}° ${student.group} · ${student.sede}` : `${student.grade}°`;
-      if (subject !== "all") addScore(key, label, student, student.subjectStats[subject]?.score);
-      else SUBJECTS.forEach((sub) => addScore(key, label, student, student.subjectStats[sub.name]?.score));
-    });
-    return Array.from(map.values()).map((item) => ({ label: item.label, count: item.students.size, avg: avg(item.scores) })).sort((a,b)=>(Number(b.avg)||0)-(Number(a.avg)||0));
+    return groupMetric(students, mode === "curso" ? (s) => `${s.sede}|${s.grade}|${s.group}` : (s) => String(s.grade), mode === "curso" ? (s) => `${s.grade}° ${s.group} · ${s.sede}` : (s) => `${s.grade}°`, subject);
   }
 
 
