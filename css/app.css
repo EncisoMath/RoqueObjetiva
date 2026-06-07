@@ -6409,9 +6409,6 @@ body {
   .top-banner .app-nav {
     padding-top: 7px !important;
   }
-  .banner-logo {
-    height: 58px !important;
-  }
   .banner-copy h1 {
     font-size: clamp(1.25rem, 2.5vw, 1.75rem) !important;
   }
@@ -6474,5 +6471,216 @@ body {
     flex-basis: 52px;
     width: 52px;
     height: 52px;
+  }
+}
+
+
+/* v53: Gráficas rebuilt from zero */
+.graphics-filters .field label {
+  font-weight: 800;
+}
+
+.graphics-tree {
+  display: grid;
+  gap: 18px;
+}
+
+.graphics-help {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  background: #f8fafc;
+  border-radius: 8px;
+  color: #535a67;
+}
+
+.graphics-help strong {
+  color: var(--ink);
+  font-weight: 900;
+}
+
+.graphics-help span {
+  flex: 1 1 360px;
+  line-height: 1.45;
+}
+
+.graphics-level {
+  display: grid;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.graphics-depth-1 { margin-left: 22px; }
+.graphics-depth-2 { margin-left: 44px; }
+.graphics-depth-3 { margin-left: 66px; }
+.graphics-depth-4 { margin-left: 88px; }
+
+.graphics-level-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: space-between;
+  border-left: 4px solid var(--primary);
+  padding-left: 10px;
+}
+
+.graphics-level-head h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 850;
+  letter-spacing: -.02em;
+}
+
+.graphics-bars-list,
+.graphics-row-wrap,
+.graphics-child {
+  display: grid;
+  gap: 8px;
+}
+
+.graphics-child {
+  margin-top: 8px;
+  animation: fadeSlide .22s ease both;
+}
+
+.graphics-drill-row {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 38px auto minmax(150px, 1fr) minmax(160px, 2.2fr) 118px;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid #d9e6f2;
+  background: #fff;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background .18s ease, border .18s ease, transform .18s ease, box-shadow .18s ease;
+}
+
+.graphics-drill-row:hover,
+.graphics-drill-row.active {
+  border-color: rgba(var(--primary-rgb), .42);
+  background: rgba(var(--primary-rgb), .035);
+  box-shadow: 0 10px 28px rgba(31, 41, 55, .07);
+}
+
+.graphics-drill-row:hover {
+  transform: translateY(-1px);
+}
+
+.graphics-rank {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  display: grid;
+  place-items: center;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 900;
+}
+
+.graphics-drill-row .subject-icon {
+  width: 42px;
+  height: 42px;
+  margin: 0;
+}
+
+.graphics-label {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.graphics-label strong {
+  font-weight: 900;
+  line-height: 1.08;
+}
+
+.graphics-label small {
+  color: #7a8290;
+  font-weight: 700;
+}
+
+.graphics-track {
+  height: 12px;
+  border-radius: 999px;
+  background: #e8eef4;
+  overflow: hidden;
+}
+
+.graphics-track i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--primary), var(--primary-soft));
+}
+
+.graphics-score {
+  justify-self: end;
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  font-size: 1.3rem;
+  font-weight: 900;
+  letter-spacing: -.04em;
+}
+
+.graphics-score span {
+  font-size: .68rem;
+  color: #6c7380;
+  letter-spacing: .01em;
+  text-transform: uppercase;
+  margin-right: 4px;
+}
+
+.graphics-score small {
+  color: #7b8493;
+  font-size: .78rem;
+}
+
+@keyframes fadeSlide {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 760px) {
+  .graphics-depth-1,
+  .graphics-depth-2,
+  .graphics-depth-3,
+  .graphics-depth-4 { margin-left: 10px; }
+
+  .graphics-drill-row {
+    grid-template-columns: 30px auto 1fr 76px;
+    gap: 8px;
+    padding: 9px;
+  }
+
+  .graphics-drill-row .subject-icon {
+    width: 34px;
+    height: 34px;
+  }
+
+  .graphics-track {
+    grid-column: 1 / -1;
+    height: 9px;
+  }
+
+  .graphics-score {
+    font-size: 1.05rem;
+  }
+
+  .graphics-score span {
+    display: none;
+  }
+
+  .graphics-rank {
+    width: 28px;
+    height: 28px;
   }
 }

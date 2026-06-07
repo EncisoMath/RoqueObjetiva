@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v52";
+  const APP_VERSION = "v53";
 
   const app = document.getElementById("app");
   const toastEl = document.getElementById("toast");
@@ -105,6 +105,11 @@
     adminAnalysisGrade: "all",
     adminAnalysisSubject: "all",
     adminAnalysisPath: {},
+    adminGraphMode: "estructura",
+    adminGraphSede: "all",
+    adminGraphGrade: "all",
+    adminGraphSubject: "all",
+    adminGraphOpen: {},
     adminTableSort: {},
     subjectAreaMap: {},
     adminCargaTeacherId: "",
@@ -636,7 +641,7 @@
   }
 
   function adminTabIds() {
-    return new Set(["resumen", "estudiantes", "resultados", "analisis", "docentes", "asignaturas-areas", "apariencia", "logos", "claves", "github"]);
+    return new Set(["resumen", "estudiantes", "resultados", "graficas", "docentes", "asignaturas-areas", "apariencia", "logos", "claves", "github"]);
   }
 
   function handleHashRoute() {
@@ -1116,9 +1121,9 @@
     if (mode === "coord-resultados") {
       title = "Resultados";
       content = adminResultsHtml();
-    } else if (mode === "coord-analisis") {
-      title = "Análisis / ranking";
-      content = adminAnalysisHtml();
+    } else if (mode === "coord-graficas") {
+      title = "Gráficas";
+      content = adminGraphicsHtml();
     } else if (mode === "coord-claves") {
       title = "Claves";
       content = adminKeysHtml();
@@ -1386,7 +1391,7 @@
       ["resumen", "Resumen"],
       ["estudiantes", "Estudiantes"],
       ["resultados", "Resultados"],
-      ["analisis", "Análisis / ranking"],
+      ["graficas", "Gráficas"],
       ["docentes", "Docentes"],
       ["asignaturas-areas", "Asignaturas y áreas"],
       ["apariencia", "Apariencia"],
@@ -1397,7 +1402,7 @@
 
     const nav = `
       <nav class="app-nav admin-top-tabs">
-        ${tabs.map(([id, label]) => `<a class="nav-chip ${state.adminTab === id ? "active" : ""}" href="#admin-${id}" data-action="admin-tab" data-tab="${id}">${label}</a>`).join("")}
+        ${tabs.map(([id, label]) => `<a class="nav-chip ${state.adminTab === id ? "active" : ""}" href="#admin-${id}" onclick="window.__poAdminTabFromElement&&window.__poAdminTabFromElement(event,this)" data-action="admin-tab" data-tab="${id}">${label}</a>`).join("")}
         <button class="nav-chip logout" data-action="logout">Salir</button>
       </nav>
     `;
@@ -1418,7 +1423,7 @@
     switch (state.adminTab) {
       case "estudiantes": return adminStudentsHtml();
       case "resultados": return adminResultsHtml();
-      case "analisis": return adminAnalysisHtml();
+      case "graficas": return adminGraphicsHtml();
       case "docentes": return adminDocentesHtml();
       case "asignaturas-areas": return adminSubjectAreasHtml();
       case "apariencia": return adminAppearanceHtml();
@@ -2243,7 +2248,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
         <nav class="app-nav teacher-top-nav">
           <button class="nav-chip ${activeMode === "asignaturas" ? "active" : ""}" onclick="window.__poTeacherModeFromElement&&window.__poTeacherModeFromElement(event,this)" data-action="teacher-mode" data-mode="asignaturas" ${hasAssignments ? "" : "disabled"}>Panel docente</button>
           ${hasDirector ? `<button class="nav-chip ${activeMode === "director" ? "active" : ""}" onclick="window.__poTeacherModeFromElement&&window.__poTeacherModeFromElement(event,this)" data-action="teacher-mode" data-mode="director">Panel director de grupo</button>` : ""}
-          ${isCoordinator ? `<button class="nav-chip ${activeMode === "coord-estudiantes" ? "active" : ""}" onclick="window.__poTeacherModeFromElement&&window.__poTeacherModeFromElement(event,this)" data-action="teacher-mode" data-mode="coord-estudiantes">Estudiantes</button><button class="nav-chip ${activeMode === "coord-resultados" ? "active" : ""}" onclick="window.__poTeacherModeFromElement&&window.__poTeacherModeFromElement(event,this)" data-action="teacher-mode" data-mode="coord-resultados">Resultados</button><button class="nav-chip ${activeMode === "coord-analisis" ? "active" : ""}" onclick="window.__poTeacherModeFromElement&&window.__poTeacherModeFromElement(event,this)" data-action="teacher-mode" data-mode="coord-analisis">Análisis / ranking</button><button class="nav-chip ${activeMode === "coord-claves" ? "active" : ""}" onclick="window.__poTeacherModeFromElement&&window.__poTeacherModeFromElement(event,this)" data-action="teacher-mode" data-mode="coord-claves">Claves</button>` : ""}
+          ${isCoordinator ? `<button class="nav-chip ${activeMode === "coord-estudiantes" ? "active" : ""}" onclick="window.__poTeacherModeFromElement&&window.__poTeacherModeFromElement(event,this)" data-action="teacher-mode" data-mode="coord-estudiantes">Estudiantes</button><button class="nav-chip ${activeMode === "coord-resultados" ? "active" : ""}" onclick="window.__poTeacherModeFromElement&&window.__poTeacherModeFromElement(event,this)" data-action="teacher-mode" data-mode="coord-resultados">Resultados</button><button class="nav-chip ${activeMode === "coord-graficas" ? "active" : ""}" onclick="window.__poTeacherModeFromElement&&window.__poTeacherModeFromElement(event,this)" data-action="teacher-mode" data-mode="coord-graficas">Gráficas</button><button class="nav-chip ${activeMode === "coord-claves" ? "active" : ""}" onclick="window.__poTeacherModeFromElement&&window.__poTeacherModeFromElement(event,this)" data-action="teacher-mode" data-mode="coord-claves">Claves</button>` : ""}
           <button class="nav-chip logout" data-action="logout">Salir</button>
         </nav>
       `;
@@ -2310,7 +2315,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
   window.__poTeacherModeFromElement = function(event, element) {
     if (event) { event.preventDefault(); event.stopPropagation(); }
     const mode = element?.dataset?.mode || "asignaturas";
-    state.teacherMode = ["director", "asignaturas", "coord-estudiantes", "coord-resultados", "coord-analisis", "coord-claves"].includes(mode) ? mode : "asignaturas";
+    state.teacherMode = ["director", "asignaturas", "coord-estudiantes", "coord-resultados", "coord-graficas", "coord-claves"].includes(mode) ? mode : "asignaturas";
     renderBySession();
   };
 
@@ -2431,6 +2436,19 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       return;
     }
 
+    if (action === "graph-toggle") {
+      event.preventDefault();
+      toggleGraphNode(target.dataset.graphKey || "");
+      return;
+    }
+
+    if (action === "graph-clear") {
+      event.preventDefault();
+      state.adminGraphOpen = {};
+      renderAdminContext();
+      return;
+    }
+
     if (action === "analysis-drill") {
       drillAnalysis(target.dataset.level || "", target.dataset.value || "");
       return;
@@ -2456,7 +2474,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
 
     if (action === "teacher-mode") {
       const mode = target.dataset.mode || "asignaturas";
-      state.teacherMode = ["director", "asignaturas", "coord-estudiantes", "coord-resultados", "coord-analisis", "coord-claves"].includes(mode) ? mode : "asignaturas";
+      state.teacherMode = ["director", "asignaturas", "coord-estudiantes", "coord-resultados", "coord-graficas", "coord-claves"].includes(mode) ? mode : "asignaturas";
       renderBySession();
       return;
     }
@@ -3926,6 +3944,171 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     normalizeCargaRows();
     buildRepository();
     renderAdminContext();
+  }
+
+  function setGraphField(field, value) {
+    const safe = cleanText(value) || "all";
+    if (field === "mode") state.adminGraphMode = safe === "area" ? "area" : "estructura";
+    if (field === "sede") { state.adminGraphSede = safe; state.adminGraphGrade = "all"; }
+    if (field === "grade") state.adminGraphGrade = safe;
+    if (field === "subject") state.adminGraphSubject = safe;
+    state.adminGraphOpen = {};
+    renderAdminContext();
+  }
+
+  function toggleGraphNode(key) {
+    if (!key) return;
+    if (!state.adminGraphOpen) state.adminGraphOpen = {};
+    state.adminGraphOpen[key] = !state.adminGraphOpen[key];
+    renderAdminContext();
+  }
+
+  function adminGraphicsHtml() {
+    const mode = state.adminGraphMode === "area" ? "area" : "estructura";
+    state.adminGraphMode = mode;
+    const sedes = ["all", ...uniqueValues(state.computedStudents.map((s) => s.sede || "Sin sede"))];
+    const grades = ["all", ...uniqueValues(state.computedStudents
+      .filter((s) => state.adminGraphSede === "all" || (s.sede || "Sin sede") === state.adminGraphSede)
+      .map((s) => s.grade).filter(Boolean)).sort((a, b) => Number(a) - Number(b))];
+    const subjects = ["all", ...availableSubjects()];
+    const base = state.computedStudents
+      .filter((s) => state.adminGraphSede === "all" || (s.sede || "Sin sede") === state.adminGraphSede)
+      .filter((s) => state.adminGraphGrade === "all" || String(s.grade) === String(state.adminGraphGrade));
+    const content = mode === "area" ? graphByAreaHtml(base) : graphByStructureHtml(base);
+    const modeText = mode === "area"
+      ? "Primero ves las áreas/asignaturas. Al abrir una, aparecen sedes, grados, cursos y luego componentes/competencias."
+      : "Primero ves las sedes. Al abrir una, aparecen grados, cursos, áreas/asignaturas y luego componentes/competencias.";
+    return `
+      <section class="toolbar">
+        <div>
+          <span class="section-eyebrow">Gráficas</span>
+          <h2 style="margin:8px 0 0;font-weight:900;">Desempeño institucional</h2>
+          <p class="muted-copy">${esc(modeText)} Cada barra muestra el <strong>promedio de nota</strong> en escala de 20 a 100.</p>
+        </div>
+      </section>
+      <section class="card card-pad admin-results-filters graphics-filters">
+        <div class="form-grid compact admin-results-required-grid">
+          <div class="field"><label>Ver gráficas por</label><select class="select-pill" onchange="window.__poGraphChangeFromElement&&window.__poGraphChangeFromElement(this)" data-admin-graph-field="mode"><option value="estructura" ${mode === "estructura" ? "selected" : ""}>Sede / grado / curso</option><option value="area" ${mode === "area" ? "selected" : ""}>Área / asignatura</option></select></div>
+          <div class="field"><label>Limitar sede</label><select class="select-pill" onchange="window.__poGraphChangeFromElement&&window.__poGraphChangeFromElement(this)" data-admin-graph-field="sede">${sedes.map((v)=>`<option value="${escAttr(v)}" ${state.adminGraphSede===v?"selected":""}>${v==="all"?"Todas":esc(v)}</option>`).join("")}</select></div>
+          <div class="field"><label>Limitar grado</label><select class="select-pill" onchange="window.__poGraphChangeFromElement&&window.__poGraphChangeFromElement(this)" data-admin-graph-field="grade">${grades.map((v)=>`<option value="${escAttr(v)}" ${String(state.adminGraphGrade)===String(v)?"selected":""}>${v==="all"?"Todos":`${esc(v)}°`}</option>`).join("")}</select></div>
+          <div class="field"><label>Área rápida</label><select class="select-pill" onchange="window.__poGraphChangeFromElement&&window.__poGraphChangeFromElement(this)" data-admin-graph-field="subject">${subjects.map((v)=>`<option value="${escAttr(v)}" ${state.adminGraphSubject===v?"selected":""}>${v==="all"?"Todas":esc(shortSubjectName(v))}</option>`).join("")}</select></div>
+        </div>
+      </section>
+      <section class="graphics-tree card card-pad">
+        <div class="graphics-help"><strong>Promedio de nota</strong><span>La barra combina las notas de los estudiantes dentro del grupo seleccionado. Toca una barra para desplegar el siguiente nivel debajo, sin ocultar los demás.</span><button class="mini-btn" data-action="graph-clear">Cerrar niveles</button></div>
+        ${content || `<div class="empty-state">No hay datos para estos filtros.</div>`}
+      </section>`;
+  }
+
+  function graphByStructureHtml(students) {
+    const subject = state.adminGraphSubject || "all";
+    const sedeRows = graphGroupRows(students, (s) => s.sede || "Sin sede", (key) => key, subject);
+    return graphLevelHtml("Sedes", sedeRows, 0, (sedeRow) => {
+      const sedeStudents = students.filter((s) => (s.sede || "Sin sede") === sedeRow.key);
+      const gradeRows = graphGroupRows(sedeStudents, (s) => String(s.grade || "Sin grado"), (key) => key === "Sin grado" ? key : `${key}°`, subject);
+      return graphLevelHtml(`Grados en ${sedeRow.label}`, gradeRows, 1, (gradeRow) => {
+        const gradeStudents = sedeStudents.filter((s) => String(s.grade || "Sin grado") === String(gradeRow.key));
+        const courseRows = graphGroupRows(gradeStudents, (s) => s.group || "Sin curso", (key) => `${gradeRow.label} ${key}`, subject);
+        return graphLevelHtml(`Cursos de ${gradeRow.label}`, courseRows, 2, (courseRow) => {
+          const courseStudents = gradeStudents.filter((s) => (s.group || "Sin curso") === courseRow.key);
+          const subjectRows = graphSubjectRows(courseStudents, subject);
+          return graphLevelHtml("Áreas / asignaturas", subjectRows, 3, (subjectRow) => graphMetricsFor(courseStudents, subjectRow.subject, 4), true, `estructura|sede:${sedeRow.key}|grade:${gradeRow.key}|course:${courseRow.key}`);
+        }, false, `estructura|sede:${sedeRow.key}|grade:${gradeRow.key}`);
+      }, false, `estructura|sede:${sedeRow.key}`);
+    }, false, "estructura");
+  }
+
+  function graphByAreaHtml(students) {
+    const subjectRows = graphSubjectRows(students, state.adminGraphSubject || "all");
+    return graphLevelHtml("Áreas / asignaturas", subjectRows, 0, (subjectRow) => {
+      const subject = subjectRow.subject;
+      const subjectStudents = students.filter((s) => s.subjectStats[subject]?.total);
+      const sedeRows = graphGroupRows(subjectStudents, (s) => s.sede || "Sin sede", (key) => key, subject);
+      return graphLevelHtml(`Sedes en ${shortSubjectName(subject)}`, sedeRows, 1, (sedeRow) => {
+        const sedeStudents = subjectStudents.filter((s) => (s.sede || "Sin sede") === sedeRow.key);
+        const gradeRows = graphGroupRows(sedeStudents, (s) => String(s.grade || "Sin grado"), (key) => key === "Sin grado" ? key : `${key}°`, subject);
+        return graphLevelHtml(`Grados en ${sedeRow.label}`, gradeRows, 2, (gradeRow) => {
+          const gradeStudents = sedeStudents.filter((s) => String(s.grade || "Sin grado") === String(gradeRow.key));
+          const courseRows = graphGroupRows(gradeStudents, (s) => s.group || "Sin curso", (key) => `${gradeRow.label} ${key}`, subject);
+          return graphLevelHtml(`Cursos de ${gradeRow.label}`, courseRows, 3, (courseRow) => {
+            const courseStudents = gradeStudents.filter((s) => (s.group || "Sin curso") === courseRow.key);
+            return graphMetricsFor(courseStudents, subject, 4);
+          }, false, `area|subject:${subject}|sede:${sedeRow.key}|grade:${gradeRow.key}`);
+        }, false, `area|subject:${subject}|sede:${sedeRow.key}`);
+      }, false, `area|subject:${subject}`);
+    }, true, "area");
+  }
+
+  function graphLevelHtml(title, rows, depth, childRenderer, withIcon = false, parentKey = "") {
+    const sorted = [...rows].sort((a, b) => b.avg - a.avg || a.label.localeCompare(b.label, "es"));
+    const max = Math.max(100, ...sorted.map((r) => r.avg || 0));
+    return `<div class="graphics-level graphics-depth-${depth}"><div class="graphics-level-head"><h3>${esc(title)}</h3></div><div class="graphics-bars-list">${sorted.map((row, index) => {
+      const key = `${parentKey || title}|d:${depth}|k:${row.key}|s:${row.subject || ""}`;
+      const open = !!state.adminGraphOpen?.[key];
+      const child = open && typeof childRenderer === "function" ? `<div class="graphics-child smooth-reveal">${childRenderer(row) || ""}</div>` : "";
+      return `<div class="graphics-row-wrap">${graphBarHtml(row, key, index, max, withIcon, open)}${child}</div>`;
+    }).join("") || `<div class="empty-state">No hay datos en este nivel.</div>`}</div></div>`;
+  }
+
+  function graphBarHtml(row, key, index, max, withIcon = false, open = false) {
+    const width = clamp(row.avg || 0, 0, 100);
+    return `<button type="button" class="graphics-drill-row ${open ? "active" : ""}" onclick="window.__poGraphToggleFromElement&&window.__poGraphToggleFromElement(event,this)" data-action="graph-toggle" data-graph-key="${escAttr(key)}" title="Promedio de nota: ${escAttr(row.avg)}/100">
+      <span class="graphics-rank">${index + 1}</span>
+      ${withIcon ? subjectIcon(row.subject || row.label) : ""}
+      <span class="graphics-label"><strong>${esc(row.label)}</strong><small>${esc(row.caption || "Promedio de nota")} · ${row.count} estudiante${row.count === 1 ? "" : "s"}</small></span>
+      <span class="graphics-track" aria-label="Promedio ${escAttr(row.avg)} de 100"><i style="width:${width}%"></i></span>
+      <strong class="graphics-score"><span>Promedio</span>${esc(row.avg)}<small>/100</small></strong>
+    </button>`;
+  }
+
+  function graphGroupRows(students, keyFn, labelFn, subject = "all") {
+    const map = new Map();
+    students.forEach((student) => {
+      const key = cleanText(keyFn(student)) || "Sin dato";
+      if (!map.has(key)) map.set(key, { key, label: cleanText(labelFn(key)) || key, scores: [], studentIds: new Set(), subject });
+      const item = map.get(key);
+      const scores = graphScoresForStudent(student, subject);
+      scores.forEach((score) => item.scores.push(score));
+      if (scores.length) item.studentIds.add(student.roll);
+    });
+    return [...map.values()].filter((item) => item.scores.length).map((item) => ({
+      key: item.key,
+      graphKey: `group|${subject}|${item.label}|${item.key}`,
+      label: item.label,
+      avg: Math.round(avg(item.scores)),
+      count: item.studentIds.size,
+      caption: subject === "all" ? "Promedio general de áreas" : `Promedio de ${shortSubjectName(subject)}`
+    }));
+  }
+
+  function graphSubjectRows(students, subjectFilter = "all") {
+    const selected = subjectFilter !== "all" ? [subjectFilter] : availableSubjects();
+    return selected.map((subject) => {
+      const scores = [];
+      const ids = new Set();
+      students.forEach((student) => {
+        const stat = student.subjectStats?.[subject];
+        if (stat?.total && Number.isFinite(stat.score)) {
+          scores.push(stat.score);
+          ids.add(student.roll);
+        }
+      });
+      return { key: subject, graphKey: `subject|${subject}`, label: shortSubjectName(subject), subject, avg: scores.length ? Math.round(avg(scores)) : 0, count: ids.size, caption: `Promedio de ${shortSubjectName(subject)}` };
+    }).filter((item) => item.count > 0);
+  }
+
+  function graphScoresForStudent(student, subject = "all") {
+    if (subject && subject !== "all") {
+      const stat = student.subjectStats?.[subject];
+      return stat?.total && Number.isFinite(stat.score) ? [stat.score] : [];
+    }
+    return Object.values(student.subjectStats || {}).filter((stat) => stat?.total && Number.isFinite(stat.score)).map((stat) => stat.score);
+  }
+
+  function graphMetricsFor(students, subject, depth = 0) {
+    const details = aggregateDetails(students.filter((s) => s.subjectStats?.[subject]?.total), subject);
+    if (!hasMetricData(details)) return `<div class="graphics-level graphics-depth-${depth}"><div class="empty-state">${esc(shortSubjectName(subject))} no tiene componentes ni competencias registrados en las claves.</div></div>`;
+    return `<div class="graphics-level graphics-depth-${depth} graphics-metrics"><div class="graphics-level-head"><h3>Componentes y competencias de ${esc(shortSubjectName(subject))}</h3></div><div class="teacher-metrics-row admin-results-metrics">${teacherAggregateMetricsHtmlForDetails(details)}</div></div>`;
   }
 
   function adminAnalysisHtml() {
