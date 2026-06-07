@@ -1,6 +1,6 @@
 {
-  "version": "v64",
-  "cache": "resultados-pwa-v64",
+  "version": "v65",
+  "cache": "resultados-pwa-v65",
   "updatedAt": "2026-06-07",
-  "note": "Ingresos recientes: ultimos 4 usuarios en este dispositivo con acceso rapido. Sin cambios en iconos por area/asignatura."
+  "note": "Reordenamiento de login movil y accesos recientes compactos debajo del boton de ingreso."
 }

@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v64";
+  const APP_VERSION = "v65";
 
   const app = document.getElementById("app");
   const toastEl = document.getElementById("toast");
@@ -787,28 +787,22 @@
     const items = getRecentLogins();
     if (!items.length) return "";
     return `
-      <div class="recent-login-box" aria-label="Ingresos recientes">
-        <div class="recent-login-head">
-          <strong>Ingresar rápidamente</strong>
-          <span>Últimos 4 en este dispositivo</span>
-        </div>
-        <div class="recent-login-grid">
-          ${items.map((item) => {
-            const info = describeRecentSession(item.session, item) || item;
-            return `
-              <div class="recent-login-card">
-                <button type="button" class="recent-login-main" data-action="quick-login" data-login-key="${escAttr(item.key)}" title="Ingresar como ${escAttr(info.title)}">
-                  <span class="recent-login-avatar">${esc(info.initials || "U")}</span>
-                  <span class="recent-login-text">
-                    <strong>${esc(info.title || item.title || "Usuario")}</strong>
-                    <small>${esc(info.detail || item.detail || "Ingreso reciente")}</small>
-                  </span>
-                </button>
-                <button type="button" class="recent-login-remove" data-action="remove-recent-login" data-login-key="${escAttr(item.key)}" aria-label="Quitar ${escAttr(info.title || item.title || "usuario")}">×</button>
-              </div>
-            `;
-          }).join("")}
-        </div>
+      <div class="recent-login-grid" aria-label="Últimas cuentas">
+        ${items.map((item) => {
+          const info = describeRecentSession(item.session, item) || item;
+          return `
+            <div class="recent-login-card">
+              <button type="button" class="recent-login-main" data-action="quick-login" data-login-key="${escAttr(item.key)}" title="Ingresar como ${escAttr(info.title)}">
+                <span class="recent-login-avatar">${esc(info.initials || "U")}</span>
+                <span class="recent-login-text">
+                  <strong>${esc(info.title || item.title || "Usuario")}</strong>
+                  <small>${esc(info.detail || item.detail || "Ingreso reciente")}</small>
+                </span>
+              </button>
+              <button type="button" class="recent-login-remove" data-action="remove-recent-login" data-login-key="${escAttr(item.key)}" aria-label="Quitar ${escAttr(info.title || item.title || "usuario")}">×</button>
+            </div>
+          `;
+        }).join("")}
       </div>
     `;
   }
@@ -886,7 +880,6 @@
             <h1>Bienvenido</h1>
             <p>Ingresa con el ID del examen, el documento del estudiante o el ID docente.</p>
             ${error ? `<div class="admin-note login-error">${esc(error)}</div>` : ""}
-            ${recentLoginsHtml}
             <form class="login-form" id="loginForm">
               <div class="field">
                 <label for="loginUser">Usuario o ID</label>
@@ -898,15 +891,17 @@
               </div>
               <div class="login-actions">
                 <button class="primary-btn" type="submit">Ingresar</button>
-                <span class="login-hint">Estudiantes y docentes ingresan solo con su ID.</span>
-                <span class="login-version">Versión ${esc(APP_VERSION)}</span>
               </div>
             </form>
+            ${recentLoginsHtml}
+            <span class="login-version">Versión ${esc(APP_VERSION)}</span>
           </div>
         </div>
       </section>
     `;
-    setTimeout(() => document.getElementById("loginUser")?.focus(), 50);
+    if (!window.matchMedia || !window.matchMedia("(max-width: 680px)").matches) {
+      setTimeout(() => document.getElementById("loginUser")?.focus(), 50);
+    }
   }
 
   function zeroToleranceLogoHtml() {
