@@ -2,6 +2,8 @@
 (() => {
   "use strict";
 
+  const APP_VERSION = "v48";
+
   const app = document.getElementById("app");
   const toastEl = document.getElementById("toast");
   const modalRoot = document.getElementById("modal-root");
@@ -108,7 +110,8 @@
     adminCargaTeacherId: "",
     adminDirectorTeacherId: "",
     modalStack: [],
-    activeSession: null
+    activeSession: null,
+    zeroToleranceShown: false
   };
 
   document.addEventListener("DOMContentLoaded", init);
@@ -672,6 +675,7 @@
               <div class="login-actions">
                 <button class="primary-btn" type="submit">Ingresar</button>
                 <span class="login-hint">Estudiantes y docentes ingresan solo con su ID.</span>
+                <span class="login-version">Versión ${esc(APP_VERSION)}</span>
               </div>
             </form>
           </div>
@@ -679,6 +683,57 @@
       </section>
     `;
     setTimeout(() => document.getElementById("loginUser")?.focus(), 50);
+  }
+
+  function zeroToleranceLogoHtml() {
+    return `
+      <div class="zt-logo" aria-label="Zero Tolerance">
+        <div class="zt-logo-top">
+          <span class="zt-word">ZERO</span>
+          <span class="zt-sign" aria-hidden="true"></span>
+        </div>
+        <div class="zt-logo-bottom">TOLERANCE</div>
+      </div>
+    `;
+  }
+
+  function openZeroToleranceModal() {
+    const copy = [
+      "Las respuestas con doble marca se anulan.",
+      "Los tachones, enmendaduras o correcciones mal hechas no se tienen en cuenta.",
+      "Las marcas fuera del espacio indicado no son válidas.",
+      "Los ítems sin responder no se califican.",
+      "Solo se califican respuestas limpias, claras y correctamente marcadas."
+    ];
+    modalRoot.innerHTML = `
+      <div class="modal-backdrop zero-tolerance-backdrop" data-action="close-modal">
+        <section class="modal zero-tolerance-modal">
+          <div class="modal-head zero-tolerance-head">
+            <div>
+              <h2>Advertencia de calificación</h2>
+              <span class="zt-subhead">Lee esto antes de revisar tus resultados.</span>
+            </div>
+            <button type="button" class="icon-btn" data-action="close-modal" aria-label="Cerrar">×</button>
+          </div>
+          <div class="modal-body zero-tolerance-body">
+            ${zeroToleranceLogoHtml()}
+            <p class="zt-lead">Para prepararte frente a estándares exigentes como ICFES, Saber y Misión Saber, esta evaluación fue revisada con un sistema <strong>automatizado y riguroso</strong>. Por eso, cualquier marca dudosa, ambigua o fuera del formato se invalida.</p>
+            <div class="zt-rules">
+              <div class="zt-rule zt-bad">✘ <span>${copy[0]}</span></div>
+              <div class="zt-rule zt-bad">✘ <span>${copy[1]}</span></div>
+              <div class="zt-rule zt-bad">✘ <span>${copy[2]}</span></div>
+              <div class="zt-rule zt-bad">✘ <span>${copy[3]}</span></div>
+              <div class="zt-rule zt-good">✔ <span>${copy[4]}</span></div>
+            </div>
+            <p class="zt-footer-note">La precisión también se entrena. Responder con orden y cuidado mejora tus resultados.</p>
+            <div class="zero-tolerance-actions">
+              <button class="primary-btn" data-action="close-modal">ACEPTAR</button>
+            </div>
+          </div>
+        </section>
+      </div>
+    `;
+    document.body.classList.add("modal-open");
   }
 
   function renderPlayShapes(prefix = "banner") {
@@ -824,6 +879,10 @@
         </section>
       </section>
     `, navFor("student"));
+    if (!state.zeroToleranceShown) {
+      state.zeroToleranceShown = true;
+      window.setTimeout(() => openZeroToleranceModal(), 260);
+    }
   }
 
   function transitionStudentSubject(nextSubject, trigger) {
@@ -2188,7 +2247,8 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       if (normalizeText(user) === "admin") {
         if (pass === "admin") {
           state.adminTab = "resumen";
-          enterSessionWithLoader({ role: "admin", id: "admin" }, () => renderAdmin(), "Abriendo panel de administración...");
+          state.zeroToleranceShown = false;
+        enterSessionWithLoader({ role: "admin", id: "admin" }, () => renderAdmin(), "Abriendo panel de administración...");
         } else {
           renderLogin("Contraseña de administrador incorrecta.");
         }
@@ -2202,6 +2262,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
         const teacher = state.teachers.get(user);
         if (!(teacher?.assignments || []).length && (teacher?.directorGroups || []).length) state.teacherMode = "director";
         if (!(teacher?.assignments || []).length && !(teacher?.directorGroups || []).length && teacher?.coordinator) state.teacherMode = "coord-estudiantes";
+        state.zeroToleranceShown = false;
         enterSessionWithLoader({ role: "teacher", id: user }, () => renderTeacher(teacher), "Preparando vista docente...");
         return;
       }
@@ -2210,6 +2271,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
         const roll = state.studentLogin.get(user);
         state.selectedSubject = null;
         state.metricTab = "components";
+        state.zeroToleranceShown = false;
         enterSessionWithLoader({ role: "student", roll }, () => renderStudent(roll), "Preparando tus resultados...");
         return;
       }
@@ -2217,6 +2279,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       if (state.responsesByRoll.has(user)) {
         state.selectedSubject = null;
         state.metricTab = "components";
+        state.zeroToleranceShown = false;
         enterSessionWithLoader({ role: "student", roll: user }, () => renderStudent(user), "Preparando tus resultados...");
         return;
       }
@@ -3947,6 +4010,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
 
   function clearSession() {
     state.activeSession = null;
+    state.zeroToleranceShown = false;
     localStorage.removeItem(STORAGE.session);
   }
 
