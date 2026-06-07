@@ -8280,3 +8280,86 @@ body {
     #bd3d1b 85%,
     #852410 100%) !important;
 }
+
+
+/* Ajustes v76: numeros de ranking metalizados con base principal definida por usuario */
+.ranking-box.rank-medal strong {
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, .42),
+    0 2px 4px rgba(0, 0, 0, .18),
+    0 0 10px var(--rank-glow),
+    0 0 18px color-mix(in srgb, var(--rank-glow) 72%, transparent) !important;
+}
+
+.ranking-box.rank-medal strong::after {
+  opacity: .99;
+  background-size: 100% 116%;
+  filter:
+    drop-shadow(0 0 4px var(--rank-glow-soft))
+    drop-shadow(0 0 10px var(--rank-glow-soft))
+    drop-shadow(0 0 18px var(--rank-glow));
+}
+
+.ranking-box.rank-gold strong {
+  color: #df9a00 !important;
+  --rank-glow-soft: rgba(255, 222, 102, .58);
+  --rank-glow: rgba(223, 154, 0, .55);
+  text-shadow:
+    0 1px 0 rgba(255, 243, 185, .62),
+    0 2px 4px rgba(97, 62, 0, .24),
+    0 0 10px rgba(255, 199, 64, .36),
+    0 0 18px rgba(223, 154, 0, .30) !important;
+}
+
+.ranking-box.rank-gold strong::after {
+  background-image: linear-gradient(180deg,
+    #fff2b2 0%,
+    #ffd869 12%,
+    #df9a00 30%,
+    #a96f00 45%,
+    #efb22b 58%,
+    #ffe38e 71%,
+    #c88600 84%,
+    #8b5700 100%) !important;
+}
+
+.ranking-box.rank-silver strong {
+  color: #7f8b98 !important;
+  --rank-glow-soft: rgba(230, 238, 247, .42);
+  --rank-glow: rgba(126, 142, 159, .42);
+}
+
+.ranking-box.rank-silver strong::after {
+  background-image: linear-gradient(180deg,
+    #dfe8f1 0%,
+    #b8c4cf 14%,
+    #8793a0 31%,
+    #566371 47%,
+    #94a1af 59%,
+    #cbd5df 71%,
+    #788492 86%,
+    #4b5663 100%) !important;
+}
+
+.ranking-box.rank-bronze strong {
+  color: #c85a23 !important;
+  --rank-glow-soft: rgba(255, 181, 138, .52);
+  --rank-glow: rgba(200, 90, 35, .52);
+  text-shadow:
+    0 1px 0 rgba(255, 216, 188, .56),
+    0 2px 4px rgba(85, 31, 14, .24),
+    0 0 10px rgba(227, 108, 54, .34),
+    0 0 18px rgba(200, 90, 35, .28) !important;
+}
+
+.ranking-box.rank-bronze strong::after {
+  background-image: linear-gradient(180deg,
+    #ffd7bc 0%,
+    #ef9561 12%,
+    #c85a23 30%,
+    #923914 45%,
+    #df7540 58%,
+    #ffb187 71%,
+    #ab4819 84%,
+    #742b0e 100%) !important;
+}

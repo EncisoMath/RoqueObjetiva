@@ -271,3 +271,7 @@ El `service-worker.js` usa estrategia de red primero para archivos JSON, para ev
 ## v73
 - Mejora los numeros 1, 2 y 3 del ranking con una base legible y un degradado interior metalizado mas visible.
 - Agrega glow suave para que el oro, la plata y el cobre se vean mas reflejantes sin volver a generar triangulos internos.
+
+
+## v76
+- Ajusta los números del ranking 1 y 3 usando como color base gold `#df9a00` y cobre `#c85a23`, manteniendo textura metalizada y glow.
