@@ -12,8 +12,8 @@
     "browser"
   ],
   "orientation": "portrait-primary",
-  "background_color": "#162b40",
-  "theme_color": "#162b40",
+  "background_color": "#1975ae",
+  "theme_color": "#1975ae",
   "lang": "es-CO",
   "categories": [
     "education",
@@ -38,6 +38,5 @@
       "type": "image/png",
       "purpose": "maskable"
     }
-  ],
-  "id": "./"
+  ]
 }
