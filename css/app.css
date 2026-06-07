@@ -6313,3 +6313,166 @@ body {
     font-size: .78rem;
   }
 }
+
+
+/* Ajustes v51: detalle móvil más ancho y respuestas en 5 columnas */
+@media (max-width: 940px) {
+  .student-subject-modal-backdrop {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+
+  .student-subject-modal {
+    width: calc(100vw - 16px) !important;
+    max-width: calc(100vw - 16px) !important;
+  }
+
+  .student-subject-modal .modal-head {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+
+  .student-subject-modal .modal-body {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+
+  .student-subject-modal .subject-detail {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  .student-subject-modal .answers-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    gap: 7px !important;
+    padding: 2px !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .student-subject-modal .answer-pill {
+    min-height: 55px !important;
+    border-radius: 5px !important;
+    padding: 8px 6px !important;
+  }
+
+  .student-subject-modal .answer-pill strong {
+    font-size: .8rem !important;
+  }
+
+  .student-subject-modal .answer-pill span {
+    font-size: .82rem !important;
+  }
+
+  .student-subject-modal .subject-stats-row {
+    gap: 8px !important;
+  }
+
+  .student-subject-modal .item-value-note,
+  .student-subject-modal .metric-grid,
+  .student-subject-modal .metric-tabs {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .student-subject-modal .answers-grid {
+    gap: 5px !important;
+  }
+  .student-subject-modal .answer-pill {
+    min-height: 50px !important;
+    padding: 7px 4px !important;
+  }
+  .student-subject-modal .answer-pill strong {
+    font-size: .74rem !important;
+  }
+  .student-subject-modal .answer-pill span {
+    font-size: .76rem !important;
+  }
+}
+
+
+/* v52 fixes: admin analysis routing, shorter desktop banner, empty subject hint, ranking centering */
+.nav-chip {
+  text-decoration: none;
+}
+
+@media (min-width: 941px) {
+  .top-banner {
+    min-height: 108px !important;
+  }
+  .top-banner .banner-inner {
+    padding-top: 14px !important;
+    padding-bottom: 10px !important;
+  }
+  .top-banner .app-nav {
+    padding-top: 7px !important;
+  }
+  .banner-logo {
+    height: 58px !important;
+  }
+  .banner-copy h1 {
+    font-size: clamp(1.25rem, 2.5vw, 1.75rem) !important;
+  }
+  .banner-copy p {
+    font-size: clamp(.82rem, 1.15vw, .96rem) !important;
+  }
+}
+
+.ranking-box {
+  place-content: center !important;
+  align-content: center !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
+
+.ranking-box strong,
+.ranking-box small,
+.ranking-box span {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.empty-subject-detail {
+  min-height: 165px !important;
+  padding: 18px 28px !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 24px !important;
+  text-align: left !important;
+  margin-top: -8px !important;
+}
+
+.empty-subject-detail h3 {
+  margin-bottom: 6px !important;
+}
+
+.empty-subject-detail p {
+  max-width: 560px !important;
+}
+
+.empty-subject-icon {
+  flex: 0 0 62px;
+  animation: emptyArrowBounce 1.35s ease-in-out infinite;
+}
+
+@keyframes emptyArrowBounce {
+  0%, 100% { transform: translateY(4px); }
+  50% { transform: translateY(-6px); }
+}
+
+@media (max-width: 760px) {
+  .empty-subject-detail {
+    min-height: 140px !important;
+    padding: 16px !important;
+    gap: 16px !important;
+  }
+  .empty-subject-icon {
+    flex-basis: 52px;
+    width: 52px;
+    height: 52px;
+  }
+}

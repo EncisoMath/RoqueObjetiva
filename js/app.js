@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v50";
+  const APP_VERSION = "v52";
 
   const app = document.getElementById("app");
   const toastEl = document.getElementById("toast");
@@ -125,6 +125,7 @@
   window.addEventListener("keydown", (event) => {
     if (event.key === "Escape") closeModal();
   });
+  window.addEventListener("hashchange", handleHashRoute);
 
   async function init() {
     try {
@@ -135,6 +136,7 @@
       if (saved && saved.role) {
         state.activeSession = saved;
         renderBySession();
+        window.setTimeout(handleHashRoute, 0);
       } else {
         renderLogin();
       }
@@ -633,6 +635,23 @@
     renderLogin();
   }
 
+  function adminTabIds() {
+    return new Set(["resumen", "estudiantes", "resultados", "analisis", "docentes", "asignaturas-areas", "apariencia", "logos", "claves", "github"]);
+  }
+
+  function handleHashRoute() {
+    const hash = String(window.location.hash || "").replace(/^#/, "");
+    if (!hash) return;
+    if (state.activeSession?.role === "admin" && hash.startsWith("admin-")) {
+      const tab = hash.replace(/^admin-/, "");
+      if (adminTabIds().has(tab) && state.adminTab !== tab) {
+        state.adminTab = tab;
+        if (state.adminTab !== "claves") state.adminSubjectFilter = "all";
+        renderAdmin();
+      }
+    }
+  }
+
   function renderLogin(error = "") {
     const primary = normalizeColor(state.config.primaryColor || "#1975ae");
     const primaryDark = shadeColor(primary, -26);
@@ -1009,7 +1028,7 @@
   function buildEmptySubjectDetailHtml() {
     return `
       <div class="empty-subject-detail">
-        <div class="empty-subject-icon">↙</div>
+        <div class="empty-subject-icon">↑</div>
         <h3>Selecciona una asignatura</h3>
         <p>Al tocar una prueba se abrirá aquí su detalle, con las opciones marcadas y el análisis por componentes y competencias.</p>
       </div>
@@ -1378,7 +1397,7 @@
 
     const nav = `
       <nav class="app-nav admin-top-tabs">
-        ${tabs.map(([id, label]) => `<button class="nav-chip ${state.adminTab === id ? "active" : ""}" onclick="window.__poAdminTabFromElement&&window.__poAdminTabFromElement(event,this)" data-action="admin-tab" data-tab="${id}">${label}</button>`).join("")}
+        ${tabs.map(([id, label]) => `<a class="nav-chip ${state.adminTab === id ? "active" : ""}" href="#admin-${id}" data-action="admin-tab" data-tab="${id}">${label}</a>`).join("")}
         <button class="nav-chip logout" data-action="logout">Salir</button>
       </nav>
     `;
@@ -2278,8 +2297,13 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
 
   window.__poAdminTabFromElement = function(event, element) {
     if (event) { event.preventDefault(); event.stopPropagation(); }
-    state.adminTab = element?.dataset?.tab || "resumen";
+    const tab = element?.dataset?.tab || "resumen";
+    if (!adminTabIds().has(tab)) return;
+    state.adminTab = tab;
     if (state.adminTab !== "claves") state.adminSubjectFilter = "all";
+    if (state.activeSession?.role === "admin" && window.location.hash !== `#admin-${tab}`) {
+      history.replaceState(null, "", `#admin-${tab}`);
+    }
     renderAdminContext();
   };
 
@@ -2532,11 +2556,19 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     }
 
     if (action === "admin-tab") {
-      state.adminTab = target.dataset.tab;
-      if (state.adminTab !== "claves") {
-        state.adminSubjectFilter = "all";
+      event.preventDefault();
+      const tab = target.dataset.tab || "resumen";
+      if (adminTabIds().has(tab)) {
+        state.adminTab = tab;
+        if (state.adminTab !== "claves") {
+          state.adminSubjectFilter = "all";
+        }
+        if (state.activeSession?.role === "admin" && window.location.hash !== `#admin-${tab}`) {
+          history.replaceState(null, "", `#admin-${tab}`);
+        }
+        renderAdminContext();
       }
-      renderAdminContext();
+      return;
     }
 
     if (action === "clear-banner") {
@@ -3971,7 +4003,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     const avgValue = Number(row.avg) || 0;
     const width = clamp(avgValue / 100 * 100, 0, 100);
     const active = activeValue && String(activeValue) === String(row.key);
-    return `<button class="analysis-drill-row ${active ? "active" : ""}" onclick="window.__poAnalysisDrillFromElement&&window.__poAnalysisDrillFromElement(event,this)" data-action="analysis-drill" data-level="${escAttr(level)}" data-value="${escAttr(row.key)}" title="Promedio de nota: ${escAttr(row.avg)}/100">
+    return `<button type="button" class="analysis-drill-row ${active ? "active" : ""}" onclick="window.__poAnalysisDrillFromElement&&window.__poAnalysisDrillFromElement(event,this)" data-action="analysis-drill" data-level="${escAttr(level)}" data-value="${escAttr(row.key)}" title="Promedio de nota: ${escAttr(row.avg)}/100">
       <span class="analysis-rank">${index + 1}</span>
       ${withIcon ? subjectIcon(row.subject || row.label) : ""}
       <span class="analysis-label"><strong>${esc(row.label)}</strong><small>Promedio de nota · ${row.count} estudiante${row.count === 1 ? "" : "s"}</small></span>
