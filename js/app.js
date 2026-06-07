@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v55";
+  const APP_VERSION = "v56";
 
   const app = document.getElementById("app");
   const toastEl = document.getElementById("toast");
@@ -94,6 +94,11 @@
     adminStudentSearch: "",
     adminGradeFilter: "all",
     adminSubjectFilter: "all",
+    adminStatsMode: "estructura",
+    adminStatsSede: "all",
+    adminStatsGrade: "all",
+    adminStatsGroup: "all",
+    adminStatsSubject: "all",
     adminResultScope: "sede",
     adminResultSede: "all",
     adminResultGrade: "all",
@@ -640,7 +645,7 @@
   }
 
   function adminTabIds() {
-    return new Set(["resumen", "estudiantes", "resultados", "docentes", "asignaturas-areas", "apariencia", "logos", "claves", "github"]);
+    return new Set(["resumen", "estudiantes", "resultados", "estadisticas", "docentes", "asignaturas-areas", "apariencia", "logos", "claves", "github"]);
   }
 
   function handleHashRoute() {
@@ -1112,6 +1117,9 @@
     if (mode === "coord-resultados") {
       title = "Resultados";
       content = adminResultsHtml();
+    } else if (mode === "coord-estadisticas") {
+      title = "Estadísticas";
+      content = adminStatsHtml();
     } else if (mode === "coord-claves") {
       title = "Claves";
       content = adminKeysHtml();
@@ -1380,6 +1388,7 @@
       ["resumen", "Resumen"],
       ["estudiantes", "Estudiantes"],
       ["resultados", "Resultados"],
+      ["estadisticas", "Estadísticas"],
       ["docentes", "Docentes"],
       ["asignaturas-areas", "Asignaturas y áreas"],
       ["apariencia", "Apariencia"],
@@ -1411,6 +1420,7 @@
     switch (state.adminTab) {
       case "estudiantes": return adminStudentsHtml();
       case "resultados": return adminResultsHtml();
+      case "estadisticas": return adminStatsHtml();
       case "docentes": return adminDocentesHtml();
       case "asignaturas-areas": return adminSubjectAreasHtml();
       case "apariencia": return adminAppearanceHtml();
@@ -1421,6 +1431,261 @@
       case "github": return adminGithubHtml();
       default: return adminSummaryHtml();
     }
+  }
+
+
+  function setAdminStatsField(field, value) {
+    const clean = cleanText(value || "all") || "all";
+    if (field === "mode") {
+      state.adminStatsMode = clean === "area" ? "area" : "estructura";
+      state.adminStatsSede = "all";
+      state.adminStatsGrade = "all";
+      state.adminStatsGroup = "all";
+      state.adminStatsSubject = "all";
+      return;
+    }
+    if (field === "sede") {
+      state.adminStatsSede = clean;
+      state.adminStatsGrade = "all";
+      state.adminStatsGroup = "all";
+      return;
+    }
+    if (field === "grade") {
+      state.adminStatsGrade = clean;
+      state.adminStatsGroup = "all";
+      return;
+    }
+    if (field === "group") {
+      state.adminStatsGroup = clean;
+      return;
+    }
+    if (field === "subject") {
+      state.adminStatsSubject = clean;
+      return;
+    }
+  }
+
+  function adminStatsHtml() {
+    const mode = state.adminStatsMode === "area" ? "area" : "estructura";
+    const allStudents = state.computedStudents.slice();
+    const sedes = ["all", ...uniqueValues(allStudents.map((student) => student.sede || "Sin sede"))];
+    const gradeBase = allStudents.filter((student) => state.adminStatsSede === "all" || (student.sede || "Sin sede") === state.adminStatsSede);
+    const grades = ["all", ...uniqueValues(gradeBase.map((student) => student.grade).filter(Boolean))];
+    const groupBase = gradeBase.filter((student) => state.adminStatsGrade === "all" || String(student.grade) === String(state.adminStatsGrade));
+    const groups = ["all", ...uniqueValues(groupBase.map((student) => student.group).filter(Boolean))];
+    const subjectBase = groupBase.filter((student) => state.adminStatsGroup === "all" || student.group === state.adminStatsGroup);
+    const subjects = ["all", ...statsSubjectsFor(subjectBase.length ? subjectBase : allStudents)];
+
+    if (!sedes.includes(state.adminStatsSede)) state.adminStatsSede = "all";
+    if (!grades.some((value) => String(value) === String(state.adminStatsGrade))) state.adminStatsGrade = "all";
+    if (!groups.includes(state.adminStatsGroup)) state.adminStatsGroup = "all";
+    if (!subjects.includes(state.adminStatsSubject)) state.adminStatsSubject = "all";
+
+    const title = mode === "area" ? "Estadísticas por área/asignatura" : "Estadísticas por ubicación académica";
+    const description = mode === "area"
+      ? "Selecciona un área y luego filtra por sede, grado o curso para ver el desempeño sin depender de gráficas clicables."
+      : "Selecciona sede, grado y curso para bajar de lo general a lo específico; al elegir un área se muestran componentes y competencias si existen.";
+
+    const chart = mode === "area" ? adminStatsAreaView(allStudents) : adminStatsStructureView(allStudents);
+
+    return `
+      <section class="toolbar">
+        <div>
+          <span class="section-eyebrow">Panel administrativo</span>
+          <h2 style="margin:8px 0 0;font-size:clamp(1.4rem,4vw,2.2rem);font-weight:900;letter-spacing:-.04em;">${title}</h2>
+          <p class="teacher-active-label">${description}</p>
+        </div>
+      </section>
+      <section class="card card-pad stats-filter-card">
+        <div class="form-grid compact stats-filter-grid">
+          <div class="field"><label>Modo de lectura</label><select class="select-pill" data-admin-stats-field="mode">
+            <option value="estructura" ${mode === "estructura" ? "selected" : ""}>Ubicación académica</option>
+            <option value="area" ${mode === "area" ? "selected" : ""}>Área / asignatura</option>
+          </select></div>
+          ${mode === "area" ? `
+            <div class="field"><label>Área/asignatura</label><select class="select-pill" data-admin-stats-field="subject">${subjects.map((value) => `<option value="${escAttr(value)}" ${state.adminStatsSubject === value ? "selected" : ""}>${value === "all" ? "Todas las áreas" : esc(shortSubjectName(value))}</option>`).join("")}</select></div>
+            <div class="field"><label>Sede</label><select class="select-pill" data-admin-stats-field="sede">${sedes.map((value) => `<option value="${escAttr(value)}" ${state.adminStatsSede === value ? "selected" : ""}>${value === "all" ? "Todas las sedes" : esc(value)}</option>`).join("")}</select></div>
+            <div class="field"><label>Grado</label><select class="select-pill" data-admin-stats-field="grade">${grades.map((value) => `<option value="${escAttr(value)}" ${String(state.adminStatsGrade) === String(value) ? "selected" : ""}>${value === "all" ? "Todos los grados" : `${esc(value)}°`}</option>`).join("")}</select></div>
+            <div class="field"><label>Curso</label><select class="select-pill" data-admin-stats-field="group">${groups.map((value) => `<option value="${escAttr(value)}" ${state.adminStatsGroup === value ? "selected" : ""}>${value === "all" ? "Todos los cursos" : esc(value)}</option>`).join("")}</select></div>
+          ` : `
+            <div class="field"><label>Sede</label><select class="select-pill" data-admin-stats-field="sede">${sedes.map((value) => `<option value="${escAttr(value)}" ${state.adminStatsSede === value ? "selected" : ""}>${value === "all" ? "Todas las sedes" : esc(value)}</option>`).join("")}</select></div>
+            <div class="field"><label>Grado</label><select class="select-pill" data-admin-stats-field="grade">${grades.map((value) => `<option value="${escAttr(value)}" ${String(state.adminStatsGrade) === String(value) ? "selected" : ""}>${value === "all" ? "Todos los grados" : `${esc(value)}°`}</option>`).join("")}</select></div>
+            <div class="field"><label>Curso</label><select class="select-pill" data-admin-stats-field="group">${groups.map((value) => `<option value="${escAttr(value)}" ${state.adminStatsGroup === value ? "selected" : ""}>${value === "all" ? "Todos los cursos" : esc(value)}</option>`).join("")}</select></div>
+            <div class="field"><label>Área/asignatura</label><select class="select-pill" data-admin-stats-field="subject">${subjects.map((value) => `<option value="${escAttr(value)}" ${state.adminStatsSubject === value ? "selected" : ""}>${value === "all" ? "Todas las áreas" : esc(shortSubjectName(value))}</option>`).join("")}</select></div>
+          `}
+        </div>
+      </section>
+      ${chart}
+    `;
+  }
+
+  function adminStatsStructureView(students) {
+    const filtered = filterStudentsByStats(students, { subject: false });
+    const subject = state.adminStatsSubject === "all" ? "" : state.adminStatsSubject;
+    if (subject) {
+      const subjectStudents = filtered.filter((student) => student.subjectStats?.[subject]?.total);
+      return statsMetricsPanel(subjectStudents, subject, statsContextText("estructura", true));
+    }
+    if (state.adminStatsGroup !== "all") {
+      const rows = statsSubjectRows(filtered);
+      return statsPanelHtml("Promedio por área/asignatura", statsContextText("estructura"), rows, true, "Selecciona un área/asignatura arriba para ver componentes y competencias.");
+    }
+    if (state.adminStatsGrade !== "all") {
+      const rows = groupStatsRows(filtered, (student) => student.group || "Sin curso", (key) => key);
+      return statsPanelHtml("Promedio por curso", statsContextText("estructura"), rows, false, "Selecciona un curso arriba para ver sus áreas/asignaturas.");
+    }
+    if (state.adminStatsSede !== "all") {
+      const rows = groupStatsRows(filtered, (student) => String(student.grade || "Sin grado"), (key) => key === "Sin grado" ? key : `${key}°`);
+      return statsPanelHtml("Promedio por grado", statsContextText("estructura"), rows, false, "Selecciona un grado arriba para ver sus cursos.");
+    }
+    const rows = groupStatsRows(filtered, (student) => student.sede || "Sin sede", (key) => key);
+    return statsPanelHtml("Promedio por sede", "Todas las sedes · todas las áreas", rows, false, "Selecciona una sede arriba para ver sus grados.");
+  }
+
+  function adminStatsAreaView(students) {
+    const subject = state.adminStatsSubject === "all" ? "" : state.adminStatsSubject;
+    const filtered = filterStudentsByStats(students, { subject: false });
+    if (!subject) {
+      return statsPanelHtml("Promedio general por área/asignatura", statsContextText("area"), statsSubjectRows(filtered), true, "Selecciona un área arriba para comparar sedes, grados y cursos.");
+    }
+    const subjectStudents = filtered.filter((student) => student.subjectStats?.[subject]?.total);
+    if (state.adminStatsGroup !== "all") {
+      return statsMetricsPanel(subjectStudents, subject, statsContextText("area", true));
+    }
+    if (state.adminStatsGrade !== "all") {
+      const rows = subjectGroupRows(subjectStudents, subject, (student) => student.group || "Sin curso", (key) => key);
+      return statsPanelHtml(`${esc(shortSubjectName(subject))} por curso`, statsContextText("area"), rows, false, "Selecciona un curso arriba para ver componentes y competencias.");
+    }
+    if (state.adminStatsSede !== "all") {
+      const rows = subjectGroupRows(subjectStudents, subject, (student) => String(student.grade || "Sin grado"), (key) => key === "Sin grado" ? key : `${key}°`);
+      return statsPanelHtml(`${esc(shortSubjectName(subject))} por grado`, statsContextText("area"), rows, false, "Selecciona un grado arriba para ver sus cursos.");
+    }
+    const rows = subjectGroupRows(subjectStudents, subject, (student) => student.sede || "Sin sede", (key) => key);
+    return statsPanelHtml(`${esc(shortSubjectName(subject))} por sede`, statsContextText("area"), rows, false, "Selecciona una sede arriba para ver sus grados.");
+  }
+
+  function filterStudentsByStats(students, options = {}) {
+    const includeSubject = options.subject !== false;
+    const subject = state.adminStatsSubject === "all" ? "" : state.adminStatsSubject;
+    return students.filter((student) => {
+      if (state.adminStatsSede !== "all" && (student.sede || "Sin sede") !== state.adminStatsSede) return false;
+      if (state.adminStatsGrade !== "all" && String(student.grade) !== String(state.adminStatsGrade)) return false;
+      if (state.adminStatsGroup !== "all" && student.group !== state.adminStatsGroup) return false;
+      if (includeSubject && subject && !student.subjectStats?.[subject]?.total) return false;
+      return true;
+    });
+  }
+
+  function statsSubjectsFor(students) {
+    const set = new Set();
+    students.forEach((student) => {
+      Object.entries(student.subjectStats || {}).forEach(([subject, stat]) => {
+        if (stat?.total) set.add(canonicalSubject(subject));
+      });
+    });
+    return [...set].filter(Boolean).sort((a, b) => a.localeCompare(b, "es", { sensitivity: "base" }));
+  }
+
+  function statsSubjectRows(students) {
+    return statsSubjectsFor(students).map((subject) => {
+      const values = students.map((student) => student.subjectStats?.[subject]?.score).filter((value) => Number.isFinite(value));
+      const evaluated = students.filter((student) => student.subjectStats?.[subject]?.total).length;
+      return { key: subject, label: shortSubjectName(subject), avg: values.length ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length) : null, count: evaluated, evaluations: values.length };
+    }).filter((row) => row.avg !== null).sort((a, b) => b.avg - a.avg || a.label.localeCompare(b.label, "es"));
+  }
+
+  function groupStatsRows(students, getKey, getLabel) {
+    const map = new Map();
+    students.forEach((student) => {
+      const key = cleanText(getKey(student)) || "Sin dato";
+      if (!map.has(key)) map.set(key, { key, label: getLabel(key), scores: [], students: new Set() });
+      const row = map.get(key);
+      row.students.add(student.roll || student.name || key);
+      Object.values(student.subjectStats || {}).forEach((stat) => {
+        if (stat?.total && Number.isFinite(stat.score)) row.scores.push(stat.score);
+      });
+    });
+    return [...map.values()].map((row) => ({ key: row.key, label: row.label, avg: row.scores.length ? Math.round(row.scores.reduce((sum, value) => sum + value, 0) / row.scores.length) : null, count: row.students.size, evaluations: row.scores.length }))
+      .filter((row) => row.avg !== null).sort((a, b) => b.avg - a.avg || String(a.label).localeCompare(String(b.label), "es", { numeric: true }));
+  }
+
+  function subjectGroupRows(students, subject, getKey, getLabel) {
+    const map = new Map();
+    students.forEach((student) => {
+      const stat = student.subjectStats?.[subject];
+      if (!stat?.total || !Number.isFinite(stat.score)) return;
+      const key = cleanText(getKey(student)) || "Sin dato";
+      if (!map.has(key)) map.set(key, { key, label: getLabel(key), scores: [], students: new Set() });
+      const row = map.get(key);
+      row.students.add(student.roll || student.name || key);
+      row.scores.push(stat.score);
+    });
+    return [...map.values()].map((row) => ({ key: row.key, label: row.label, avg: row.scores.length ? Math.round(row.scores.reduce((sum, value) => sum + value, 0) / row.scores.length) : null, count: row.students.size, evaluations: row.scores.length }))
+      .filter((row) => row.avg !== null).sort((a, b) => b.avg - a.avg || String(a.label).localeCompare(String(b.label), "es", { numeric: true }));
+  }
+
+  function statsPanelHtml(title, context, rows, withIcon = false, hint = "") {
+    const values = rows.map((row) => row.avg).filter((value) => Number.isFinite(value));
+    const general = values.length ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length) : "—";
+    const totalStudents = rows.reduce((sum, row) => sum + (row.count || 0), 0);
+    return `
+      <section class="stats-main-card card card-pad">
+        <div class="stats-main-head">
+          <div>
+            <span class="section-eyebrow">Promedio de nota</span>
+            <h3>${title}</h3>
+            <p>${esc(context)}${hint ? ` · ${esc(hint)}` : ""}</p>
+          </div>
+          <div class="stats-big-number"><span>Promedio</span><strong>${esc(general)}<small>/100</small></strong></div>
+        </div>
+        <div class="stats-bars-list">
+          ${rows.length ? rows.map((row, index) => statsBarHtml(row, index, withIcon)).join("") : `<div class="empty-state">No hay datos suficientes para esta selección.</div>`}
+        </div>
+      </section>
+    `;
+  }
+
+  function statsBarHtml(row, index, withIcon = false) {
+    const width = clamp(Number(row.avg) || 0, 0, 100);
+    return `
+      <article class="stats-bar-row">
+        <span class="stats-rank">${index + 1}</span>
+        ${withIcon ? subjectIcon(row.key) : ""}
+        <span class="stats-label"><strong>${esc(row.label)}</strong><small>Promedio de nota · ${row.count || 0} estudiante${row.count === 1 ? "" : "s"}${row.evaluations ? ` · ${row.evaluations} evaluación${row.evaluations === 1 ? "" : "es"}` : ""}</small></span>
+        <span class="stats-track"><i style="width:${width}%"></i></span>
+        <strong class="stats-score">${esc(row.avg ?? "—")}<small>/100</small></strong>
+      </article>
+    `;
+  }
+
+  function statsMetricsPanel(students, subject, context) {
+    const values = students.map((student) => student.subjectStats?.[subject]?.score).filter((value) => Number.isFinite(value));
+    const score = values.length ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length) : "—";
+    const details = aggregateDetails(students, subject);
+    const metricHtml = teacherAggregateMetricsHtmlForDetails(details);
+    return `
+      <section class="stats-main-card card card-pad">
+        <div class="stats-main-head">
+          <div>
+            <span class="section-eyebrow">Componentes y competencias</span>
+            <h3>${subjectIcon(subject)} ${esc(shortSubjectName(subject))}</h3>
+            <p>${esc(context)} · Promedio de nota del área seleccionada.</p>
+          </div>
+          <div class="stats-big-number"><span>Promedio</span><strong>${esc(score)}<small>/100</small></strong></div>
+        </div>
+        ${metricHtml ? `<div class="teacher-metrics-row admin-results-metrics stats-metrics-row">${metricHtml}</div>` : `<div class="empty-state">Esta área no tiene componentes ni competencias registrados en las claves.</div>`}
+      </section>
+    `;
+  }
+
+  function statsContextText(mode, includeSubject = false) {
+    const parts = [];
+    if (state.adminStatsSede !== "all") parts.push(state.adminStatsSede);
+    if (state.adminStatsGrade !== "all") parts.push(`${state.adminStatsGrade}°`);
+    if (state.adminStatsGroup !== "all") parts.push(state.adminStatsGroup);
+    if (includeSubject && state.adminStatsSubject !== "all") parts.push(shortSubjectName(state.adminStatsSubject));
+    if (!parts.length) return mode === "area" ? "Todas las áreas · todos los estudiantes evaluados" : "Todas las sedes · todos los estudiantes evaluados";
+    return parts.join(" · ");
   }
 
   function adminSummaryHtml() {
@@ -2235,7 +2500,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
         <nav class="app-nav teacher-top-nav">
           <button class="nav-chip ${activeMode === "asignaturas" ? "active" : ""}" onclick="window.__poTeacherModeFromElement&&window.__poTeacherModeFromElement(event,this)" data-action="teacher-mode" data-mode="asignaturas" ${hasAssignments ? "" : "disabled"}>Panel docente</button>
           ${hasDirector ? `<button class="nav-chip ${activeMode === "director" ? "active" : ""}" onclick="window.__poTeacherModeFromElement&&window.__poTeacherModeFromElement(event,this)" data-action="teacher-mode" data-mode="director">Panel director de grupo</button>` : ""}
-          ${isCoordinator ? `<button class="nav-chip ${activeMode === "coord-estudiantes" ? "active" : ""}" onclick="window.__poTeacherModeFromElement&&window.__poTeacherModeFromElement(event,this)" data-action="teacher-mode" data-mode="coord-estudiantes">Estudiantes</button><button class="nav-chip ${activeMode === "coord-resultados" ? "active" : ""}" onclick="window.__poTeacherModeFromElement&&window.__poTeacherModeFromElement(event,this)" data-action="teacher-mode" data-mode="coord-resultados">Resultados</button><button class="nav-chip ${activeMode === "coord-claves" ? "active" : ""}" onclick="window.__poTeacherModeFromElement&&window.__poTeacherModeFromElement(event,this)" data-action="teacher-mode" data-mode="coord-claves">Claves</button>` : ""}
+          ${isCoordinator ? `<button class="nav-chip ${activeMode === "coord-estudiantes" ? "active" : ""}" onclick="window.__poTeacherModeFromElement&&window.__poTeacherModeFromElement(event,this)" data-action="teacher-mode" data-mode="coord-estudiantes">Estudiantes</button><button class="nav-chip ${activeMode === "coord-resultados" ? "active" : ""}" onclick="window.__poTeacherModeFromElement&&window.__poTeacherModeFromElement(event,this)" data-action="teacher-mode" data-mode="coord-resultados">Resultados</button><button class="nav-chip ${activeMode === "coord-estadisticas" ? "active" : ""}" onclick="window.__poTeacherModeFromElement&&window.__poTeacherModeFromElement(event,this)" data-action="teacher-mode" data-mode="coord-estadisticas">Estadísticas</button><button class="nav-chip ${activeMode === "coord-claves" ? "active" : ""}" onclick="window.__poTeacherModeFromElement&&window.__poTeacherModeFromElement(event,this)" data-action="teacher-mode" data-mode="coord-claves">Claves</button>` : ""}
           <button class="nav-chip logout" data-action="logout">Salir</button>
         </nav>
       `;
@@ -2299,7 +2564,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
   window.__poTeacherModeFromElement = function(event, element) {
     if (event) { event.preventDefault(); event.stopPropagation(); }
     const mode = element?.dataset?.mode || "asignaturas";
-    state.teacherMode = ["director", "asignaturas", "coord-estudiantes", "coord-resultados", "coord-claves"].includes(mode) ? mode : "asignaturas";
+    state.teacherMode = ["director", "asignaturas", "coord-estudiantes", "coord-resultados", "coord-estadisticas", "coord-claves"].includes(mode) ? mode : "asignaturas";
     renderBySession();
   };
 
@@ -2468,7 +2733,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
 
     if (action === "teacher-mode") {
       const mode = target.dataset.mode || "asignaturas";
-      state.teacherMode = ["director", "asignaturas", "coord-estudiantes", "coord-resultados", "coord-claves"].includes(mode) ? mode : "asignaturas";
+      state.teacherMode = ["director", "asignaturas", "coord-estudiantes", "coord-resultados", "coord-estadisticas", "coord-claves"].includes(mode) ? mode : "asignaturas";
       renderBySession();
       return;
     }
@@ -2972,6 +3237,12 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       if (field === "grade") { state.adminResultGroup = "all"; state.adminResultSubject = "all"; }
       if (field === "group") { state.adminResultSubject = "all"; }
       state.adminResultStudent = "all";
+      renderAdminContext();
+      return;
+    }
+
+    if (target.dataset.adminStatsField) {
+      setAdminStatsField(target.dataset.adminStatsField, target.value);
       renderAdminContext();
       return;
     }
