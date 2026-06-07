@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v53";
+  const APP_VERSION = "v54";
 
   const app = document.getElementById("app");
   const toastEl = document.getElementById("toast");
@@ -130,10 +130,10 @@
   window.addEventListener("keydown", (event) => {
     if (event.key === "Escape") closeModal();
   });
-  window.addEventListener("hashchange", handleHashRoute);
 
   async function init() {
     try {
+      if (window.location.hash) history.replaceState(null, "", window.location.pathname + window.location.search);
       loadLocalState();
       await loadAllData();
       buildRepository();
@@ -141,7 +141,6 @@
       if (saved && saved.role) {
         state.activeSession = saved;
         renderBySession();
-        window.setTimeout(handleHashRoute, 0);
       } else {
         renderLogin();
       }
@@ -645,16 +644,7 @@
   }
 
   function handleHashRoute() {
-    const hash = String(window.location.hash || "").replace(/^#/, "");
-    if (!hash) return;
-    if (state.activeSession?.role === "admin" && hash.startsWith("admin-")) {
-      const tab = hash.replace(/^admin-/, "");
-      if (adminTabIds().has(tab) && state.adminTab !== tab) {
-        state.adminTab = tab;
-        if (state.adminTab !== "claves") state.adminSubjectFilter = "all";
-        renderAdmin();
-      }
-    }
+    // Las pestañas ya no modifican la URL.
   }
 
   function renderLogin(error = "") {
@@ -1402,7 +1392,7 @@
 
     const nav = `
       <nav class="app-nav admin-top-tabs">
-        ${tabs.map(([id, label]) => `<a class="nav-chip ${state.adminTab === id ? "active" : ""}" href="#admin-${id}" onclick="window.__poAdminTabFromElement&&window.__poAdminTabFromElement(event,this)" data-action="admin-tab" data-tab="${id}">${label}</a>`).join("")}
+        ${tabs.map(([id, label]) => `<button type="button" class="nav-chip ${state.adminTab === id ? "active" : ""}" data-action="admin-tab" data-tab="${id}">${label}</button>`).join("")}
         <button class="nav-chip logout" data-action="logout">Salir</button>
       </nav>
     `;
@@ -2306,9 +2296,6 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     if (!adminTabIds().has(tab)) return;
     state.adminTab = tab;
     if (state.adminTab !== "claves") state.adminSubjectFilter = "all";
-    if (state.activeSession?.role === "admin" && window.location.hash !== `#admin-${tab}`) {
-      history.replaceState(null, "", `#admin-${tab}`);
-    }
     renderAdminContext();
   };
 
@@ -2317,6 +2304,16 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     const mode = element?.dataset?.mode || "asignaturas";
     state.teacherMode = ["director", "asignaturas", "coord-estudiantes", "coord-resultados", "coord-graficas", "coord-claves"].includes(mode) ? mode : "asignaturas";
     renderBySession();
+  };
+
+
+  window.__poGraphToggleFromElement = function(event, element) {
+    if (event) { event.preventDefault(); event.stopPropagation(); }
+    toggleGraphNode(element?.dataset?.graphKey || "");
+  };
+
+  window.__poGraphChangeFromElement = function(element) {
+    setGraphField(element?.dataset?.adminGraphField || "", element?.value || "all");
   };
 
   function handleSubmit(event) {
@@ -2580,9 +2577,6 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
         state.adminTab = tab;
         if (state.adminTab !== "claves") {
           state.adminSubjectFilter = "all";
-        }
-        if (state.activeSession?.role === "admin" && window.location.hash !== `#admin-${tab}`) {
-          history.replaceState(null, "", `#admin-${tab}`);
         }
         renderAdminContext();
       }
@@ -2982,6 +2976,11 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       if (field === "group") { state.adminResultSubject = "all"; }
       state.adminResultStudent = "all";
       renderAdminContext();
+      return;
+    }
+
+    if (target.dataset.adminGraphField) {
+      setGraphField(target.dataset.adminGraphField, target.value);
       return;
     }
 
@@ -3988,10 +3987,10 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       </section>
       <section class="card card-pad admin-results-filters graphics-filters">
         <div class="form-grid compact admin-results-required-grid">
-          <div class="field"><label>Ver gráficas por</label><select class="select-pill" onchange="window.__poGraphChangeFromElement&&window.__poGraphChangeFromElement(this)" data-admin-graph-field="mode"><option value="estructura" ${mode === "estructura" ? "selected" : ""}>Sede / grado / curso</option><option value="area" ${mode === "area" ? "selected" : ""}>Área / asignatura</option></select></div>
-          <div class="field"><label>Limitar sede</label><select class="select-pill" onchange="window.__poGraphChangeFromElement&&window.__poGraphChangeFromElement(this)" data-admin-graph-field="sede">${sedes.map((v)=>`<option value="${escAttr(v)}" ${state.adminGraphSede===v?"selected":""}>${v==="all"?"Todas":esc(v)}</option>`).join("")}</select></div>
-          <div class="field"><label>Limitar grado</label><select class="select-pill" onchange="window.__poGraphChangeFromElement&&window.__poGraphChangeFromElement(this)" data-admin-graph-field="grade">${grades.map((v)=>`<option value="${escAttr(v)}" ${String(state.adminGraphGrade)===String(v)?"selected":""}>${v==="all"?"Todos":`${esc(v)}°`}</option>`).join("")}</select></div>
-          <div class="field"><label>Área rápida</label><select class="select-pill" onchange="window.__poGraphChangeFromElement&&window.__poGraphChangeFromElement(this)" data-admin-graph-field="subject">${subjects.map((v)=>`<option value="${escAttr(v)}" ${state.adminGraphSubject===v?"selected":""}>${v==="all"?"Todas":esc(shortSubjectName(v))}</option>`).join("")}</select></div>
+          <div class="field"><label>Ver gráficas por</label><select class="select-pill" data-admin-graph-field="mode"><option value="estructura" ${mode === "estructura" ? "selected" : ""}>Sede / grado / curso</option><option value="area" ${mode === "area" ? "selected" : ""}>Área / asignatura</option></select></div>
+          <div class="field"><label>Limitar sede</label><select class="select-pill" data-admin-graph-field="sede">${sedes.map((v)=>`<option value="${escAttr(v)}" ${state.adminGraphSede===v?"selected":""}>${v==="all"?"Todas":esc(v)}</option>`).join("")}</select></div>
+          <div class="field"><label>Limitar grado</label><select class="select-pill" data-admin-graph-field="grade">${grades.map((v)=>`<option value="${escAttr(v)}" ${String(state.adminGraphGrade)===String(v)?"selected":""}>${v==="all"?"Todos":`${esc(v)}°`}</option>`).join("")}</select></div>
+          <div class="field"><label>Área rápida</label><select class="select-pill" data-admin-graph-field="subject">${subjects.map((v)=>`<option value="${escAttr(v)}" ${state.adminGraphSubject===v?"selected":""}>${v==="all"?"Todas":esc(shortSubjectName(v))}</option>`).join("")}</select></div>
         </div>
       </section>
       <section class="graphics-tree card card-pad">
@@ -4052,7 +4051,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
 
   function graphBarHtml(row, key, index, max, withIcon = false, open = false) {
     const width = clamp(row.avg || 0, 0, 100);
-    return `<button type="button" class="graphics-drill-row ${open ? "active" : ""}" onclick="window.__poGraphToggleFromElement&&window.__poGraphToggleFromElement(event,this)" data-action="graph-toggle" data-graph-key="${escAttr(key)}" title="Promedio de nota: ${escAttr(row.avg)}/100">
+    return `<button type="button" class="graphics-drill-row ${open ? "active" : ""}" data-action="graph-toggle" data-graph-key="${escAttr(key)}" title="Promedio de nota: ${escAttr(row.avg)}/100">
       <span class="graphics-rank">${index + 1}</span>
       ${withIcon ? subjectIcon(row.subject || row.label) : ""}
       <span class="graphics-label"><strong>${esc(row.label)}</strong><small>${esc(row.caption || "Promedio de nota")} · ${row.count} estudiante${row.count === 1 ? "" : "s"}</small></span>
@@ -4979,4 +4978,131 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
   }
 
   registerPWA();
+
+  /* Gráficas v54: implementación simple, sin hash y sin rutas externas */
+  function adminGraphicsHtml() {
+    const mode = state.adminGraphMode === "area" ? "area" : "estructura";
+    state.adminGraphMode = mode;
+    state.adminGraphSede = state.adminGraphSede || "all";
+    state.adminGraphGrade = state.adminGraphGrade || "all";
+    state.adminGraphSubject = state.adminGraphSubject || "all";
+    if (!state.adminGraphOpen) state.adminGraphOpen = {};
+
+    const allStudents = state.computedStudents || [];
+    const sedes = ["all", ...uniqueValues(allStudents.map((s) => s.sede || "Sin sede"))];
+    const gradeBase = allStudents.filter((s) => state.adminGraphSede === "all" || (s.sede || "Sin sede") === state.adminGraphSede);
+    const grades = ["all", ...uniqueValues(gradeBase.map((s) => s.grade).filter(Boolean)).sort((a, b) => Number(a) - Number(b))];
+    const subjects = ["all", ...availableSubjects()];
+    const base = allStudents
+      .filter((s) => state.adminGraphSede === "all" || (s.sede || "Sin sede") === state.adminGraphSede)
+      .filter((s) => state.adminGraphGrade === "all" || String(s.grade) === String(state.adminGraphGrade));
+
+    const content = mode === "area" ? graphByAreaHtml(base) : graphByStructureHtml(base);
+    const help = mode === "area"
+      ? "Primero aparecen las áreas/asignaturas. Toca una barra para desplegar sedes, grados, cursos y componentes/competencias debajo."
+      : "Primero aparecen las sedes. Toca una barra para desplegar grados, cursos, áreas/asignaturas y componentes/competencias debajo.";
+
+    return `
+      <section class="toolbar">
+        <div>
+          <span class="section-eyebrow">Gráficas</span>
+          <h2 style="margin:8px 0 0;font-weight:900;">Desempeño institucional</h2>
+          <p class="muted-copy">${esc(help)} Cada valor mostrado es el <strong>promedio de nota</strong> en escala de 20 a 100.</p>
+        </div>
+      </section>
+      <section class="card card-pad admin-results-filters graphics-filters">
+        <div class="form-grid compact admin-results-required-grid">
+          <div class="field"><label>Ver gráficas por</label><select class="select-pill" data-admin-graph-field="mode"><option value="estructura" ${mode === "estructura" ? "selected" : ""}>Sede / grado / curso</option><option value="area" ${mode === "area" ? "selected" : ""}>Área / asignatura</option></select></div>
+          <div class="field"><label>Limitar sede</label><select class="select-pill" data-admin-graph-field="sede">${sedes.map((v)=>`<option value="${escAttr(v)}" ${state.adminGraphSede===v?"selected":""}>${v==="all"?"Todas":esc(v)}</option>`).join("")}</select></div>
+          <div class="field"><label>Limitar grado</label><select class="select-pill" data-admin-graph-field="grade">${grades.map((v)=>`<option value="${escAttr(v)}" ${String(state.adminGraphGrade)===String(v)?"selected":""}>${v==="all"?"Todos":`${esc(v)}°`}</option>`).join("")}</select></div>
+          <div class="field"><label>Área rápida</label><select class="select-pill" data-admin-graph-field="subject">${subjects.map((v)=>`<option value="${escAttr(v)}" ${state.adminGraphSubject===v?"selected":""}>${v==="all"?"Todas":esc(shortSubjectName(v))}</option>`).join("")}</select></div>
+        </div>
+      </section>
+      <section class="graphics-tree card card-pad">
+        <div class="graphics-help"><strong>Promedio de nota</strong><span>El número de cada barra corresponde al promedio de los estudiantes incluidos en ese grupo.</span><button type="button" class="mini-btn" data-action="graph-clear">Cerrar niveles</button></div>
+        ${content || `<div class="empty-state">No hay datos para estos filtros.</div>`}
+      </section>`;
+  }
+
+  function graphByStructureHtml(students) {
+    const subject = state.adminGraphSubject || "all";
+    const sedes = graphGroupRows(students, (s) => s.sede || "Sin sede", (key) => key, subject);
+    return graphLevelHtml("Sedes", sedes, 0, (sedeRow) => {
+      const sedeStudents = students.filter((s) => (s.sede || "Sin sede") === sedeRow.key);
+      const grades = graphGroupRows(sedeStudents, (s) => String(s.grade || "Sin grado"), (key) => key === "Sin grado" ? key : `${key}°`, subject);
+      return graphLevelHtml(`Grados en ${sedeRow.label}`, grades, 1, (gradeRow) => {
+        const gradeStudents = sedeStudents.filter((s) => String(s.grade || "Sin grado") === String(gradeRow.key));
+        const courses = graphGroupRows(gradeStudents, (s) => s.group || "Sin curso", (key) => `${gradeRow.label} ${key}`, subject);
+        return graphLevelHtml(`Cursos de ${gradeRow.label}`, courses, 2, (courseRow) => {
+          const courseStudents = gradeStudents.filter((s) => (s.group || "Sin curso") === courseRow.key);
+          const subjects = graphSubjectRows(courseStudents, subject);
+          return graphLevelHtml("Áreas / asignaturas", subjects, 3, (subjectRow) => graphMetricsFor(courseStudents, subjectRow.subject, 4), true, `estructura|${sedeRow.key}|${gradeRow.key}|${courseRow.key}`);
+        }, false, `estructura|${sedeRow.key}|${gradeRow.key}`);
+      }, false, `estructura|${sedeRow.key}`);
+    }, false, "estructura");
+  }
+
+  function graphByAreaHtml(students) {
+    const subjects = graphSubjectRows(students, state.adminGraphSubject || "all");
+    return graphLevelHtml("Áreas / asignaturas", subjects, 0, (subjectRow) => {
+      const subject = subjectRow.subject;
+      const subjectStudents = students.filter((s) => s.subjectStats?.[subject]?.total);
+      const sedes = graphGroupRows(subjectStudents, (s) => s.sede || "Sin sede", (key) => key, subject);
+      return graphLevelHtml(`Sedes en ${shortSubjectName(subject)}`, sedes, 1, (sedeRow) => {
+        const sedeStudents = subjectStudents.filter((s) => (s.sede || "Sin sede") === sedeRow.key);
+        const grades = graphGroupRows(sedeStudents, (s) => String(s.grade || "Sin grado"), (key) => key === "Sin grado" ? key : `${key}°`, subject);
+        return graphLevelHtml(`Grados en ${sedeRow.label}`, grades, 2, (gradeRow) => {
+          const gradeStudents = sedeStudents.filter((s) => String(s.grade || "Sin grado") === String(gradeRow.key));
+          const courses = graphGroupRows(gradeStudents, (s) => s.group || "Sin curso", (key) => `${gradeRow.label} ${key}`, subject);
+          return graphLevelHtml(`Cursos de ${gradeRow.label}`, courses, 3, (courseRow) => {
+            const courseStudents = gradeStudents.filter((s) => (s.group || "Sin curso") === courseRow.key);
+            return graphMetricsFor(courseStudents, subject, 4);
+          }, false, `area|${subject}|${sedeRow.key}|${gradeRow.key}`);
+        }, false, `area|${subject}|${sedeRow.key}`);
+      }, false, `area|${subject}`);
+    }, true, "area");
+  }
+
+  function graphLevelHtml(title, rows, depth, childRenderer, withIcon = false, parentKey = "") {
+    const sorted = [...rows].sort((a, b) => (b.avg || 0) - (a.avg || 0) || a.label.localeCompare(b.label, "es", { numeric: true }));
+    return `<div class="graphics-level graphics-depth-${depth}"><div class="graphics-level-head"><h3>${esc(title)}</h3></div><div class="graphics-bars-list">${sorted.map((row, index) => {
+      const key = graphNodeKey(parentKey || title, depth, row.key, row.subject || "");
+      const open = !!state.adminGraphOpen?.[key];
+      const child = open && typeof childRenderer === "function" ? `<div class="graphics-child smooth-reveal">${childRenderer(row) || ""}</div>` : "";
+      return `<div class="graphics-row-wrap">${graphBarHtml(row, key, index, withIcon, open)}${child}</div>`;
+    }).join("") || `<div class="empty-state">No hay datos en este nivel.</div>`}</div></div>`;
+  }
+
+  function graphNodeKey(parent, depth, key, subject) {
+    return [parent, `d${depth}`, key, subject].map((part) => String(part || "").replace(/\|/g, "/")).join("|");
+  }
+
+  function graphBarHtml(row, key, index, withIcon = false, open = false) {
+    const width = clamp(row.avg || 0, 0, 100);
+    return `<button type="button" class="graphics-drill-row ${open ? "active" : ""}" data-action="graph-toggle" data-graph-key="${escAttr(key)}" title="Promedio de nota: ${escAttr(row.avg)}/100">
+      <span class="graphics-rank">${index + 1}</span>
+      ${withIcon ? subjectIcon(row.subject || row.label) : ""}
+      <span class="graphics-label"><strong>${esc(row.label)}</strong><small>${esc(row.caption || "Promedio de nota")} · ${row.count} estudiante${row.count === 1 ? "" : "s"}</small></span>
+      <span class="graphics-track" aria-label="Promedio ${escAttr(row.avg)} de 100"><i style="width:${width}%"></i></span>
+      <strong class="graphics-score"><span>Promedio</span>${esc(row.avg)}<small>/100</small></strong>
+    </button>`;
+  }
+
+  function setGraphField(field, value) {
+    const safe = cleanText(value) || "all";
+    if (field === "mode") state.adminGraphMode = safe === "area" ? "area" : "estructura";
+    if (field === "sede") { state.adminGraphSede = safe; state.adminGraphGrade = "all"; }
+    if (field === "grade") state.adminGraphGrade = safe;
+    if (field === "subject") state.adminGraphSubject = safe;
+    state.adminGraphOpen = {};
+    renderAdminContext();
+  }
+
+  function toggleGraphNode(key) {
+    if (!key) return;
+    if (!state.adminGraphOpen) state.adminGraphOpen = {};
+    state.adminGraphOpen[key] = !state.adminGraphOpen[key];
+    renderAdminContext();
+  }
+
 })();

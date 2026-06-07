@@ -6684,3 +6684,9 @@ body {
     height: 28px;
   }
 }
+
+
+/* v54: pestañas sin enlaces y gráficas robustas */
+.admin-top-tabs .nav-chip { text-decoration: none; }
+.graphics-drill-row { cursor: pointer; }
+.graphics-drill-row:focus-visible { outline: 3px solid rgba(var(--primary-rgb), .25); outline-offset: 2px; }
