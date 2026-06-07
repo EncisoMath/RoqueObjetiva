@@ -1,7 +1,7 @@
 {
-  "version": "v67",
-  "cache": "resultados-pwa-v67",
+  "version": "v68",
+  "cache": "resultados-pwa-v68",
   "updatedAt": "2026-06-07",
-  "note": "Banner estudiante con estilo dorado, plateado o cobre cuando el ranking por curso o grado es 1, 2 o 3.",
-  "builtAt": "2026-06-07T19:50:00Z"
+  "note": "Oscurece los banners gold, silver y bronze y mejora el contraste de los numeros de ranking 1, 2 y 3.",
+  "builtAt": "2026-06-07T19:55:00Z"
 }

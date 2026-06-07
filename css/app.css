@@ -7693,3 +7693,97 @@ body {
     height: 70px;
   }
 }
+
+/* Ajustes v68: tonos de medalla mas oscuros para mejorar legibilidad */
+.top-banner.banner-rank-gold {
+  background:
+    radial-gradient(circle at 18% 18%, rgba(255, 202, 58, .28), transparent 21rem),
+    radial-gradient(circle at 49% 82%, rgba(169, 105, 8, .22), transparent 24rem),
+    linear-gradient(105deg, #2c1900 0%, #6b4102 30%, #9a6407 52%, #4d2d02 73%, #120a01 100%) !important;
+  background-image:
+    radial-gradient(circle at 18% 18%, rgba(255, 202, 58, .28), transparent 21rem),
+    radial-gradient(circle at 49% 82%, rgba(169, 105, 8, .22), transparent 24rem),
+    linear-gradient(105deg, #2c1900 0%, #6b4102 30%, #9a6407 52%, #4d2d02 73%, #120a01 100%) !important;
+  box-shadow: 0 18px 46px rgba(120, 76, 4, .38);
+}
+
+.top-banner.banner-rank-silver {
+  background:
+    radial-gradient(circle at 18% 18%, rgba(173, 188, 204, .30), transparent 21rem),
+    radial-gradient(circle at 51% 84%, rgba(72, 86, 100, .30), transparent 24rem),
+    linear-gradient(105deg, #202933 0%, #485563 32%, #6f7b87 54%, #35414d 75%, #10161d 100%) !important;
+  background-image:
+    radial-gradient(circle at 18% 18%, rgba(173, 188, 204, .30), transparent 21rem),
+    radial-gradient(circle at 51% 84%, rgba(72, 86, 100, .30), transparent 24rem),
+    linear-gradient(105deg, #202933 0%, #485563 32%, #6f7b87 54%, #35414d 75%, #10161d 100%) !important;
+  box-shadow: 0 18px 46px rgba(40, 51, 64, .38);
+}
+
+.top-banner.banner-rank-bronze {
+  background:
+    radial-gradient(circle at 18% 18%, rgba(211, 112, 46, .28), transparent 21rem),
+    radial-gradient(circle at 52% 84%, rgba(124, 59, 25, .25), transparent 24rem),
+    linear-gradient(105deg, #2a1207 0%, #633018 31%, #965126 53%, #47200d 75%, #110805 100%) !important;
+  background-image:
+    radial-gradient(circle at 18% 18%, rgba(211, 112, 46, .28), transparent 21rem),
+    radial-gradient(circle at 52% 84%, rgba(124, 59, 25, .25), transparent 24rem),
+    linear-gradient(105deg, #2a1207 0%, #633018 31%, #965126 53%, #47200d 75%, #110805 100%) !important;
+  box-shadow: 0 18px 46px rgba(92, 41, 15, .38);
+}
+
+.top-banner.banner-rank-gold .banner-copy h1,
+.top-banner.banner-rank-silver .banner-copy h1,
+.top-banner.banner-rank-bronze .banner-copy h1,
+.top-banner.banner-rank-gold .banner-copy p,
+.top-banner.banner-rank-silver .banner-copy p,
+.top-banner.banner-rank-bronze .banner-copy p {
+  color: #fffaf2 !important;
+  text-shadow: 0 3px 18px rgba(0, 0, 0, .68), 0 1px 2px rgba(0, 0, 0, .55);
+}
+
+.top-banner.banner-rank-gold .banner-shapes.banner-stars .shape {
+  color: rgba(255, 219, 99, .64);
+  text-shadow: 0 0 16px rgba(255, 193, 39, .35);
+}
+
+.top-banner.banner-rank-silver .banner-shapes.banner-stars .shape {
+  color: rgba(196, 210, 224, .62);
+  text-shadow: 0 0 16px rgba(173, 190, 208, .34);
+}
+
+.top-banner.banner-rank-bronze .banner-shapes.banner-stars .shape {
+  color: rgba(219, 144, 88, .62);
+  text-shadow: 0 0 16px rgba(198, 91, 30, .34);
+}
+
+.ranking-box.rank-gold strong {
+  background: linear-gradient(110deg, #3a2600 0%, #7f5600 36%, #b77900 58%, #6a4500 78%, #2c1a00 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+  filter: drop-shadow(0 1px 0 rgba(255, 237, 160, .38)) drop-shadow(0 0 6px rgba(129, 82, 0, .22)) !important;
+}
+
+.ranking-box.rank-silver strong {
+  background: linear-gradient(110deg, #26313c 0%, #4b5968 36%, #6d7a88 58%, #3d4a56 78%, #18202a 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+  filter: drop-shadow(0 1px 0 rgba(255, 255, 255, .34)) drop-shadow(0 0 6px rgba(65, 78, 92, .22)) !important;
+}
+
+.ranking-box.rank-bronze strong {
+  background: linear-gradient(110deg, #341507 0%, #753618 36%, #a85625 58%, #5f2810 78%, #240d04 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+  filter: drop-shadow(0 1px 0 rgba(255, 215, 183, .34)) drop-shadow(0 0 6px rgba(103, 43, 15, .22)) !important;
+}
+
+@keyframes bannerMedalBreath {
+  0%, 100% { background-position: 0% 50%; filter: saturate(1.02) brightness(.94); }
+  50% { background-position: 100% 50%; filter: saturate(1.13) brightness(1.00); }
+}
