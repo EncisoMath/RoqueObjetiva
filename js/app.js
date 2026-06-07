@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v83";
+  const APP_VERSION = "v84";
 
   const app = document.getElementById("app");
   const toastEl = document.getElementById("toast");
@@ -38,7 +38,7 @@
   const DEFAULT_CONFIG = {
     title: "Roque Objetiva",
     subtitle: "Este reporte no se pasa ni se pierde. Es una herramienta para identificar fortalezas, habilidades y oportunidades de mejora.",
-    logoImage: "assets/logo-principal.png?v=83",
+    logoImage: "assets/logo-principal.png?v=84",
     appIcon: "icons/icon-512.png",
     bannerImage: "",
     footerText: "Consulta institucional de resultados",
@@ -49,8 +49,8 @@
     subjectLogos: {},
     github: { owner: "", repo: "", branch: "main" },
     appName: "Roque Objetiva",
-    identityVersion: "v83",
-    logoAssetVersion: "v83"
+    identityVersion: "v84",
+    logoAssetVersion: "v84"
   };
 
   const DEFAULT_GRADES = [6, 7, 8, 9, 10];
@@ -98,6 +98,7 @@
     adminStudentSearch: "",
     adminGradeFilter: "all",
     adminSubjectFilter: "all",
+    adminMapGrade: 6,
     adminStatsMode: "estructura",
     adminStatsSede: "all",
     adminStatsGrade: "all",
@@ -724,7 +725,7 @@
   }
 
   function adminTabIds() {
-    return new Set(["resumen", "estudiantes", "resultados", "estadisticas", "docentes", "asignaturas-areas", "apariencia", "logos", "claves", "github"]);
+    return new Set(["resumen", "estudiantes", "resultados", "estadisticas", "docentes", "mapa-grado", "asignaturas-areas", "apariencia", "logos", "claves", "github"]);
   }
 
   function handleHashRoute() {
@@ -1644,6 +1645,7 @@
       ["resultados", "Resultados"],
       ["estadisticas", "Estadísticas"],
       ["docentes", "Docentes"],
+      ["mapa-grado", "Mapa por grado"],
       ["asignaturas-areas", "Asignaturas y áreas"],
       ["apariencia", "Apariencia"],
       ["logos", "Logos"],
@@ -1676,6 +1678,7 @@
       case "resultados": return adminResultsHtml();
       case "estadisticas": return safeAdminStatsHtml();
       case "docentes": return adminDocentesHtml();
+      case "mapa-grado": return adminGradeMapHtml();
       case "asignaturas-areas": return adminSubjectAreasHtml();
       case "apariencia": return adminAppearanceHtml();
       case "logos": return adminLogosHtml();
@@ -3015,6 +3018,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       "answer-info",
       "edit-carga-assignment",
       "add-carga-to-teacher",
+      "open-grade-subject-map",
       "edit-director-assignment",
       "add-director-assignment"
     ]);
@@ -3054,6 +3058,23 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       } else {
         transitionStudentSubject(nextSubject, target);
       }
+      return;
+    }
+
+
+    if (action === "map-grade-tab") {
+      state.adminMapGrade = toInt(target.dataset.grade) || state.adminMapGrade || 6;
+      renderAdminContext();
+      return;
+    }
+
+    if (action === "open-grade-subject-map") {
+      openGradeSubjectMapModal(toInt(target.dataset.grade), target.dataset.subject || "");
+      return;
+    }
+
+    if (action === "confirm-grade-subject-map") {
+      confirmGradeSubjectMapAssignment();
       return;
     }
 
@@ -4581,6 +4602,226 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     normalizeDirectorRows();
     buildRepository();
     closeModal();
+    renderAdminContext();
+  }
+
+  function adminGradeMapHtml() {
+    const grades = adminGradeMapGrades();
+    if (!grades.length) grades.push(6, 7, 8, 9, 10, 11);
+    if (!grades.includes(Number(state.adminMapGrade))) state.adminMapGrade = grades[0] || 6;
+    const grade = Number(state.adminMapGrade || grades[0] || 6);
+    const cards = adminGradeSubjectCards(grade);
+    const warningCount = cards.filter((card) => card.needsAttention).length;
+    return `
+      <section class="toolbar">
+        <div>
+          <span class="section-eyebrow">Mapa por grado</span>
+          <h2 style="margin:8px 0 0;font-weight:900;">Asignaturas, áreas y docentes por grado</h2>
+          <p class="muted-copy">Revisa rápidamente qué áreas tienen docente asignado. Las tarjetas con <strong>!</strong> rojo indican que falta asignación total o parcial.</p>
+        </div>
+        <div class="inline-actions">
+          <button class="secondary-btn" data-action="save-carga">Guardar cargas</button>
+          <button class="ghost-btn" data-action="export-carga">Exportar CARGA</button>
+          <button class="secondary-btn" data-action="publish-github">Publicar en GitHub</button>
+        </div>
+      </section>
+      <nav class="grade-map-tabs">
+        ${grades.map((g) => `<button type="button" class="nav-chip ${Number(g) === grade ? "active" : ""}" data-action="map-grade-tab" data-grade="${escAttr(g)}">${esc(g)}°</button>`).join("")}
+      </nav>
+      <div class="admin-note grade-map-note">
+        Grado ${esc(grade)}° · ${cards.length} áreas/asignaturas revisadas · ${warningCount ? `${warningCount} con alerta` : "sin alertas visibles"}.
+      </div>
+      <section class="grade-subject-map-grid">
+        ${cards.map((card) => gradeSubjectMapCardHtml(card)).join("") || `<div class="empty-state">No hay áreas para este grado.</div>`}
+      </section>
+    `;
+  }
+
+  function adminGradeMapGrades() {
+    const values = [];
+    values.push(...(state.manifest.grades || []));
+    values.push(...(state.studentsRegistry || []).map((s) => s.grade));
+    values.push(...(state.computedStudents || []).map((s) => s.grade));
+    values.push(...(state.cargaRows || []).map((r) => r.grade));
+    values.push(...(state.keys || []).map((k) => k.grade));
+    const unique = [...new Set(values.map((v) => Number(v)).filter((v) => v >= 6 && v <= 11))].sort((a, b) => a - b);
+    return unique.length ? unique : [6, 7, 8, 9, 10, 11];
+  }
+
+  function adminGradeCourses(grade) {
+    const map = new Map();
+    const add = (sede, group) => {
+      const cleanGroup = cleanText(group);
+      if (!cleanGroup) return;
+      const cleanSede = cleanText(sede) || "Municipal";
+      const key = `${normalizeText(cleanSede)}|${normalizeText(cleanGroup)}`;
+      if (!map.has(key)) map.set(key, { sede: cleanSede, group: cleanGroup });
+    };
+    (state.studentsRegistry || []).filter((s) => Number(s.grade) === Number(grade)).forEach((s) => add(s.sede, s.group));
+    (state.computedStudents || []).filter((s) => Number(s.grade) === Number(grade)).forEach((s) => add(s.sede, s.group));
+    (state.cargaRows || []).filter((r) => Number(r.grade) === Number(grade)).forEach((r) => add(r.sede, r.group));
+    return [...map.values()].sort((a, b) => {
+      const sedeDiff = String(a.sede).localeCompare(String(b.sede), "es", { sensitivity: "base", numeric: true });
+      if (sedeDiff) return sedeDiff;
+      return String(a.group).localeCompare(String(b.group), "es", { sensitivity: "base", numeric: true });
+    });
+  }
+
+  function adminExpectedSubjectsForGrade(grade) {
+    const fromKeys = uniqueValues((state.keys || []).filter((k) => Number(k.grade) === Number(grade)).map((k) => k.area));
+    const fromCarga = uniqueValues((state.cargaRows || []).filter((r) => Number(r.grade) === Number(grade)).map((r) => mappedSubject(r.subjectRaw || r.subject)));
+    const base = SUBJECTS.map((subject) => subject.name);
+    return [...new Set([...base, ...fromKeys, ...fromCarga].map(canonicalSubject).filter(Boolean))]
+      .sort((a, b) => {
+        const ai = SUBJECTS.findIndex((subject) => sameSubject(subject.name, a));
+        const bi = SUBJECTS.findIndex((subject) => sameSubject(subject.name, b));
+        if (ai >= 0 && bi >= 0) return ai - bi;
+        if (ai >= 0) return -1;
+        if (bi >= 0) return 1;
+        return String(a).localeCompare(String(b), "es", { sensitivity: "base" });
+      });
+  }
+
+  function adminGradeSubjectCards(grade) {
+    const courses = adminGradeCourses(grade);
+    const subjects = adminExpectedSubjectsForGrade(grade);
+    return subjects.map((subject) => {
+      const rows = (state.cargaRows || [])
+        .map((row, index) => ({ ...row, index }))
+        .filter((row) => Number(row.grade) === Number(grade) && sameSubject(mappedSubject(row.subjectRaw || row.subject), subject));
+      const covered = new Set(rows.map((row) => `${normalizeText(row.sede || "Municipal")}|${normalizeText(row.group || "")}`));
+      const missingCourses = courses.filter((course) => !covered.has(`${normalizeText(course.sede)}|${normalizeText(course.group)}`));
+      const needsAttention = !rows.length || missingCourses.length > 0;
+      return { grade, subject, rows, courses, missingCourses, needsAttention };
+    });
+  }
+
+  function gradeSubjectMapCardHtml(card) {
+    const teacherMap = new Map();
+    card.rows.forEach((row) => {
+      const id = cleanId(row.id);
+      const name = cleanText(row.name || teacherNameById(id));
+      const key = id || name || `docente-${teacherMap.size}`;
+      if (!teacherMap.has(key)) teacherMap.set(key, { id, name, courses: [] });
+      teacherMap.get(key).courses.push(`${row.sede || "Municipal"} · ${row.group || "Sin curso"}`);
+    });
+    const teachers = [...teacherMap.values()];
+    const status = !card.rows.length
+      ? "Sin docente asignado"
+      : card.missingCourses.length
+        ? `Faltan ${card.missingCourses.length} curso${card.missingCourses.length === 1 ? "" : "s"}`
+        : "Asignación completa";
+    const statusClass = card.needsAttention ? "warning" : "ok";
+    return `
+      <button type="button" class="grade-subject-card ${card.needsAttention ? "needs-attention" : "is-complete"}" data-action="open-grade-subject-map" data-grade="${escAttr(card.grade)}" data-subject="${escAttr(card.subject)}" style="--subject-color:${escAttr(subjectAccent(card.subject))};">
+        ${card.needsAttention ? `<span class="grade-subject-alert">!</span>` : ""}
+        <div class="grade-subject-head">
+          ${subjectIcon(card.subject)}
+          <div>
+            <strong>${esc(shortSubjectName(card.subject))}</strong>
+            <span class="grade-subject-status ${statusClass}">${esc(status)}</span>
+          </div>
+        </div>
+        <div class="grade-subject-teachers">
+          ${teachers.length ? teachers.map((teacher) => `<div class="grade-map-teacher"><strong>${esc(teacher.name || `Docente ${teacher.id}`)}</strong><span>${esc(uniqueValues(teacher.courses).join(" · "))}</span></div>`).join("") : `<span class="muted-copy">Toca para asignar docente.</span>`}
+        </div>
+        ${card.missingCourses.length ? `<div class="grade-map-missing"><strong>Sin cubrir:</strong> ${esc(card.missingCourses.slice(0, 4).map((c) => `${c.sede} ${c.group}`).join(", "))}${card.missingCourses.length > 4 ? "…" : ""}</div>` : ""}
+      </button>
+    `;
+  }
+
+  function openGradeSubjectMapModal(grade, subject) {
+    grade = Number(grade || state.adminMapGrade || 6);
+    subject = canonicalSubject(subject);
+    if (!grade || !subject) return;
+    const card = adminGradeSubjectCards(grade).find((item) => sameSubject(item.subject, subject)) || { grade, subject, rows: [], courses: adminGradeCourses(grade), missingCourses: adminGradeCourses(grade) };
+    const teachers = buildUnifiedTeachers().filter((teacher) => cleanId(teacher.id) && !String(teacher.id).startsWith("sin-id-"));
+    const missing = card.missingCourses || [];
+    const allCourses = card.courses || [];
+    const courseOptions = [
+      `<option value="__missing__">Todos los cursos sin docente (${missing.length || 0})</option>`,
+      `<option value="__all__">Todos los cursos del grado</option>`,
+      ...allCourses.map((course) => `<option value="${escAttr(`${course.sede}|${course.group}`)}">${esc(course.sede)} · ${esc(course.group)}</option>`)
+    ].join("");
+    const teacherOptions = teachers.map((teacher) => `<option value="${escAttr(teacher.id)}">${esc(teacher.name || `Docente ${teacher.id}`)} · ID ${esc(teacher.id)}</option>`).join("");
+    document.body.classList.add("modal-open");
+    modalRoot.innerHTML = `
+      <div class="modal-backdrop" data-action="close-modal">
+        <section class="modal grade-map-modal" style="max-width:760px;">
+          <div class="modal-head">
+            <div>
+              <h2>Asignar docente</h2>
+              <span style="color:#7d8089;font-weight:600;">${esc(subject)} · ${esc(grade)}°</span>
+            </div>
+            <button type="button" class="icon-btn" data-action="close-modal">×</button>
+          </div>
+          <div class="modal-body">
+            <div class="admin-note">Selecciona un docente y el alcance de la asignación. Después usa <strong>Guardar cargas</strong> y, si quieres hacerlo global, <strong>Publicar en GitHub</strong>.</div>
+            <div class="form-grid compact">
+              <div class="field span-2"><label>Docente</label><select id="gradeMapTeacher" class="select-pill">${teacherOptions || `<option value="">No hay docentes registrados</option>`}</select></div>
+              <div class="field"><label>Asignatura / área</label><input id="gradeMapSubject" value="${escAttr(subject)}"></div>
+              <div class="field"><label>Alcance</label><select id="gradeMapScope" class="select-pill">${courseOptions}</select></div>
+            </div>
+            ${card.rows.length ? `<section class="grade-map-current"><h3>Asignación actual</h3>${card.rows.map((row) => `<div><strong>${esc(row.name || teacherNameById(row.id))}</strong><span>${esc(row.sede || "Municipal")} · ${esc(row.group || "Sin curso")}</span></div>`).join("")}</section>` : `<div class="empty-state">Esta área no tiene docentes asignados todavía en ${esc(grade)}°.</div>`}
+            <div class="inline-actions" style="margin-top:16px;">
+              <button class="primary-btn" data-action="confirm-grade-subject-map" data-grade="${escAttr(grade)}" data-subject="${escAttr(subject)}">Asignar docente</button>
+              <button class="ghost-btn" data-action="close-modal">Cancelar</button>
+            </div>
+          </div>
+        </section>
+      </div>`;
+  }
+
+  function confirmGradeSubjectMapAssignment() {
+    const button = modalRoot.querySelector('[data-action="confirm-grade-subject-map"]');
+    const grade = Number(button?.dataset.grade || state.adminMapGrade || 0);
+    const baseSubject = document.getElementById("gradeMapSubject")?.value || button?.dataset.subject || "";
+    const subjectRaw = cleanText(baseSubject);
+    const subject = mappedSubject(subjectRaw);
+    const teacherId = cleanId(document.getElementById("gradeMapTeacher")?.value || "");
+    const scope = document.getElementById("gradeMapScope")?.value || "__missing__";
+    const teacher = buildUnifiedTeachers().find((item) => cleanId(item.id) === teacherId);
+    if (!grade || !subjectRaw || !teacherId || !teacher) {
+      toast("Selecciona docente y asignatura.");
+      return;
+    }
+    const courses = adminGradeCourses(grade);
+    const currentRows = (state.cargaRows || []).filter((row) => Number(row.grade) === grade && sameSubject(mappedSubject(row.subjectRaw || row.subject), subject));
+    const covered = new Set(currentRows.map((row) => `${normalizeText(row.sede || "Municipal")}|${normalizeText(row.group || "")}`));
+    let selectedCourses = [];
+    if (scope === "__all__") {
+      selectedCourses = courses;
+    } else if (scope === "__missing__") {
+      selectedCourses = courses.filter((course) => !covered.has(`${normalizeText(course.sede)}|${normalizeText(course.group)}`));
+    } else {
+      const [sede, group] = scope.split("|");
+      selectedCourses = courses.filter((course) => normalizeText(course.sede) === normalizeText(sede) && normalizeText(course.group) === normalizeText(group));
+    }
+    if (!selectedCourses.length) {
+      toast("No hay cursos pendientes para asignar con ese alcance.");
+      return;
+    }
+    let created = 0;
+    selectedCourses.forEach((course) => {
+      const duplicate = state.cargaRows.some((row) => cleanId(row.id) === teacherId && Number(row.grade) === grade && sameSubject(mappedSubject(row.subjectRaw || row.subject), subject) && normalizeText(row.sede || "Municipal") === normalizeText(course.sede) && normalizeText(row.group || "") === normalizeText(course.group));
+      if (duplicate) return;
+      state.cargaRows.push({
+        id: teacherId,
+        name: teacher.name || teacherNameById(teacherId),
+        subjectRaw,
+        subject,
+        sede: course.sede || "Municipal",
+        grade,
+        group: course.group || "",
+        coordinator: false
+      });
+      created += 1;
+    });
+    normalizeCargaRows();
+    writeJSON(STORAGE.carga, { rows: state.cargaRows });
+    buildRepository();
+    closeModal();
+    toast(created ? `Asignación creada en ${created} curso${created === 1 ? "" : "s"}.` : "Ese docente ya tenía esa asignación.");
     renderAdminContext();
   }
 

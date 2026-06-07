@@ -1,22 +1,22 @@
-const APP_VERSION = "v83";
-const CACHE_VERSION = "resultados-pwa-v83";
+const APP_VERSION = "v84";
+const CACHE_VERSION = "resultados-pwa-v84";
 const CACHE_PREFIXES = ["resultados-pwa-", "resultados-pruebas-"];
 
 const APP_SHELL = [
   "./",
   "index.html",
-  "css/app.css?v=83",
-  "js/app.js?v=83",
+  "css/app.css?v=84",
+  "js/app.js?v=84",
   "version.json",
   "config/data-manifest.json",
   "config/site-config.json",
   "INTERNO/DIRECTORESGRUPO.json",
-  "manifest.webmanifest?v=83",
+  "manifest.webmanifest?v=84",
   "icons/icon-192.png",
   "icons/icon-512.png",
   "icons/maskable-512.png",
   "icons/apple-touch-icon.png",
-  "assets/logo-principal.png?v=83",
+  "assets/logo-principal.png?v=84",
   "icons/favicon-16.png",
   "icons/favicon-32.png",
   "assets/default-logo.svg",
