@@ -6013,3 +6013,21 @@ body {
     height: 32px;
   }
 }
+
+/* v46 - Estado organizado para Asignaturas y áreas */
+.subject-map-happy {
+  display: grid;
+  gap: 4px;
+  text-align: center;
+  padding: 18px 12px;
+}
+
+.subject-map-happy strong {
+  color: var(--text);
+  font-weight: 800;
+}
+
+.subject-map-happy span {
+  color: var(--muted);
+  font-size: .9rem;
+}
