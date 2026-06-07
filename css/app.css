@@ -7039,3 +7039,118 @@ body {
     font-size: .98rem;
   }
 }
+
+/* v61: tarjetas de Estadísticas en dos filas limpias */
+.stats-bar-row.stats-bar-row-subject,
+.stats-bar-row.stats-bar-row-group,
+.stats-bar-row.stats-bar-row-subject:has(.subject-icon),
+.stats-bar-row.stats-bar-row-group:not(:has(.subject-icon)) {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px 12px;
+}
+
+.stats-card-body {
+  min-width: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.stats-title-line {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 0;
+}
+
+.stats-title,
+.stats-title-line strong {
+  display: block;
+  min-width: 0;
+  color: var(--ink);
+  font-weight: 850;
+  line-height: 1.12;
+  overflow-wrap: anywhere;
+}
+
+.stats-count {
+  flex: 0 0 auto;
+  color: #737986;
+  font-size: .78rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.stats-progress-line {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.stats-progress-line .stats-track,
+.stats-bar-row.stats-bar-row-subject:has(.subject-icon) .stats-progress-line .stats-track {
+  grid-column: auto;
+  margin-top: 0;
+}
+
+.stats-progress-line .stats-score {
+  justify-self: end;
+  white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+  .stats-bar-row.stats-bar-row-subject,
+  .stats-bar-row.stats-bar-row-group,
+  .stats-bar-row.stats-bar-row-subject:has(.subject-icon),
+  .stats-bar-row.stats-bar-row-group:not(:has(.subject-icon)) {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 7px 9px;
+  }
+
+  .stats-bar-row.stats-bar-row-group:not(:has(.subject-icon)) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .stats-card-body {
+    gap: 7px;
+  }
+
+  .stats-title-line {
+    gap: 8px;
+  }
+
+  .stats-count {
+    font-size: .7rem;
+  }
+
+  .stats-progress-line {
+    gap: 8px;
+  }
+
+  .stats-progress-line .stats-track,
+  .stats-bar-row.stats-bar-row-subject:has(.subject-icon) .stats-progress-line .stats-track {
+    grid-column: auto;
+    height: 9px;
+  }
+}
+
+@media (max-width: 420px) {
+  .stats-count {
+    font-size: .66rem;
+  }
+}
+
+/* v61 ajuste final: las filas de grupos sin ícono ocupan todo el ancho */
+.stats-bar-row.stats-bar-row-subject {
+  grid-template-columns: auto minmax(0, 1fr) !important;
+}
+
+.stats-bar-row.stats-bar-row-group {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+.stats-bar-row.stats-bar-row-group .stats-card-body {
+  grid-column: 1 / -1;
+}

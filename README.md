@@ -1,6 +1,6 @@
-# Resultados Pruebas Objetivas - v44 PWA multigrado
+# Resultados Pruebas Objetivas - v61 PWA multigrado
 
-Versión v44 basada en v43. Incluye ajustes en Análisis / Ranking, cruce móvil Asignaturas y áreas, corrección de salto por scroll y retorno correcto entre modales anidados.
+Versión v61 basada en v60. Ajusta las tarjetas de Admin > Estadísticas: elimina la línea secundaria de promedio/evaluaciones, ubica la nota al lado derecho de la barra y muestra la cantidad de estudiantes en las tarjetas de sede, grado y curso.
 
 # Resultados de Pruebas Objetivas
 

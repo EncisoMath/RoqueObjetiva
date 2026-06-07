@@ -1709,12 +1709,21 @@
 
   function statsBarHtml(row, withIcon = false) {
     const width = clamp(Number(row.avg) || 0, 0, 100);
+    const count = row.count || 0;
+    const countText = `${count} estudiante${count === 1 ? "" : "s"}`;
     return `
-      <article class="stats-bar-row">
+      <article class="stats-bar-row ${withIcon ? "stats-bar-row-subject" : "stats-bar-row-group"}">
         ${withIcon ? subjectIcon(row.key) : ""}
-        <span class="stats-label"><strong>${esc(row.label)}</strong><small>Promedio de nota · ${row.count || 0} estudiante${row.count === 1 ? "" : "s"}${row.evaluations ? ` · ${row.evaluations} evaluación${row.evaluations === 1 ? "" : "es"}` : ""}</small></span>
-        <span class="stats-track"><i style="width:${width}%"></i></span>
-        <strong class="stats-score">${esc(row.avg ?? "—")}<small>/100</small></strong>
+        <span class="stats-card-body">
+          <span class="stats-title-line">
+            <strong class="stats-title">${esc(row.label)}</strong>
+            ${withIcon ? "" : `<small class="stats-count">${esc(countText)}</small>`}
+          </span>
+          <span class="stats-progress-line">
+            <span class="stats-track"><i style="width:${width}%"></i></span>
+            <strong class="stats-score">${esc(row.avg ?? "—")}<small>/100</small></strong>
+          </span>
+        </span>
       </article>
     `;
   }
