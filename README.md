@@ -256,3 +256,8 @@ El `service-worker.js` usa estrategia de red primero para archivos JSON, para ev
 - El director de grupo puede ver todas las asignaturas del curso: promedios por área, tabla de estudiantes y detalle por asignatura.
 - En admin se agrega la pestaña **Directores de grupo** para asignar, editar, quitar, guardar, exportar y publicar direcciones de grupo.
 - El panel de directores no crea docentes nuevos; usa docentes existentes y permite asignarles sede, grado y curso desde listas basadas en `ESTUDIANTES.json`.
+
+
+## v62
+- Vista docente compacta: resumen superior en 3 columnas también en móvil.
+- Componentes y competencias en pestañas para ahorrar espacio vertical.

@@ -1981,10 +1981,23 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
   }
 
   function teacherAggregateMetricsHtmlForDetails(details) {
-    if (!hasMetricData(details)) return "";
+    const hasComponents = hasMetricData(details, "component");
+    const hasCompetences = hasMetricData(details, "competence");
+    if (!hasComponents && !hasCompetences) return "";
+    const active = hasComponents ? (state.metricTab === "competences" && hasCompetences ? "competences" : "components") : "competences";
     return `
-      ${hasMetricData(details, "component") ? `<article class="teacher-metric-card"><h3>Promedio por componentes</h3>${buildMetricBars(details, "component")}</article>` : ""}
-      ${hasMetricData(details, "competence") ? `<article class="teacher-metric-card"><h3>Promedio por competencias</h3>${buildMetricBars(details, "competence")}</article>` : ""}
+      <div class="teacher-metric-tabbed ${hasComponents && hasCompetences ? "" : "single"}">
+        ${hasComponents && hasCompetences ? `
+          <div class="metric-tabs teacher-metric-tabs" role="tablist" aria-label="Promedio por componentes y competencias">
+            <button class="metric-tab ${active === "components" ? "active" : ""}" data-action="select-metric-tab" data-tab="components">Componentes</button>
+            <button class="metric-tab ${active === "competences" ? "active" : ""}" data-action="select-metric-tab" data-tab="competences">Competencias</button>
+          </div>
+        ` : ""}
+        <div class="metric-grid teacher-metric-grid" data-active="${escAttr(active)}">
+          ${hasComponents ? `<section class="metric-panel components"><h4>Promedio por componentes</h4>${buildMetricBars(details, "component")}</section>` : ""}
+          ${hasCompetences ? `<section class="metric-panel competences"><h4>Promedio por competencias</h4>${buildMetricBars(details, "competence")}</section>` : ""}
+        </div>
+      </div>
     `;
   }
 

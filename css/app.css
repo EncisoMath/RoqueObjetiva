@@ -7154,3 +7154,112 @@ body {
 .stats-bar-row.stats-bar-row-group .stats-card-body {
   grid-column: 1 / -1;
 }
+
+/* Ajustes v62: vista docente compacta en móvil */
+.teacher-stat-strip.teacher-stat-strip-three {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+.teacher-stat-strip-three .teacher-stat {
+  min-width: 0;
+}
+
+.teacher-stat-strip-three .teacher-stat strong small {
+  font-size: .62em;
+}
+
+.teacher-metric-tabbed {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
+.teacher-metric-tabbed .metric-tabs.teacher-metric-tabs {
+  display: flex;
+  gap: 8px;
+  margin: 0 0 10px;
+}
+
+.teacher-metric-tabbed .metric-grid.teacher-metric-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  margin-top: 0;
+}
+
+.teacher-metric-tabbed .metric-panel {
+  display: none;
+  background: transparent;
+  border-radius: 0;
+  padding: 0;
+}
+
+.teacher-metric-tabbed .metric-grid[data-active="components"] .metric-panel.components,
+.teacher-metric-tabbed .metric-grid[data-active="competences"] .metric-panel.competences {
+  display: block;
+}
+
+.teacher-metric-tabbed.single .metric-panel {
+  display: block;
+}
+
+.teacher-metric-tabbed .metric-panel h4 {
+  display: none;
+}
+
+.teacher-metric-tabbed.single .metric-panel h4 {
+  display: block;
+  margin: 0 0 10px;
+  font-size: .98rem;
+  font-weight: 800;
+}
+
+.teacher-metric-tabbed .metric-bar-item {
+  margin-bottom: 12px;
+}
+
+@media (max-width: 680px) {
+  .teacher-stat-strip.teacher-stat-strip-three {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 7px !important;
+  }
+  .teacher-stat-strip-three .teacher-stat {
+    min-height: 76px !important;
+    padding: 10px 7px !important;
+  }
+  .teacher-stat-strip-three .teacher-stat span,
+  .teacher-stat-strip-three .teacher-stat-action span {
+    font-size: .56rem !important;
+    letter-spacing: .025em !important;
+    line-height: 1.1;
+  }
+  .teacher-stat-strip-three .teacher-stat strong {
+    font-size: 1.05rem !important;
+    line-height: .95 !important;
+  }
+  .teacher-stat-strip-three .teacher-stat-action em {
+    display: none !important;
+  }
+  .teacher-metric-tabbed .metric-tabs.teacher-metric-tabs {
+    margin-bottom: 8px;
+  }
+  .teacher-metric-tabbed .metric-tab {
+    min-height: 38px;
+    font-size: .78rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .teacher-stat-strip.teacher-stat-strip-three {
+    gap: 5px !important;
+  }
+  .teacher-stat-strip-three .teacher-stat {
+    padding: 9px 5px !important;
+  }
+  .teacher-stat-strip-three .teacher-stat span,
+  .teacher-stat-strip-three .teacher-stat-action span {
+    font-size: .5rem !important;
+  }
+  .teacher-stat-strip-three .teacher-stat strong {
+    font-size: .96rem !important;
+  }
+}
