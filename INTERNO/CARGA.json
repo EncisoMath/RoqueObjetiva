@@ -5,7 +5,8 @@
     "ASIGNATURA": "Química",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "51654137",
@@ -13,7 +14,8 @@
     "ASIGNATURA": "Física",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082869969",
@@ -21,7 +23,8 @@
     "ASIGNATURA": "Biología",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280833",
@@ -29,7 +32,8 @@
     "ASIGNATURA": "Geografía",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1047381539",
@@ -37,7 +41,8 @@
     "ASIGNATURA": "Historia",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280584",
@@ -45,7 +50,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19561554",
@@ -53,7 +59,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280046",
@@ -61,7 +68,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1065622537",
@@ -69,7 +77,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57421870",
@@ -77,7 +86,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19563034",
@@ -85,15 +95,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "1PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "HORAS EXTRAS",
-    "ASIGNATURA": "Educación Religiosa",
-    "SEDE": "Municipal",
-    "GRADO": "6",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19562005",
@@ -101,7 +104,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "72287633",
@@ -109,7 +113,8 @@
     "ASIGNATURA": "Educación Artística",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1081808285",
@@ -117,7 +122,8 @@
     "ASIGNATURA": "Educación ética Y valores",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19562005",
@@ -125,7 +131,8 @@
     "ASIGNATURA": "Educación Física",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1044431393",
@@ -133,7 +140,8 @@
     "ASIGNATURA": "Química",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "51654137",
@@ -141,7 +149,8 @@
     "ASIGNATURA": "Física",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082869969",
@@ -149,7 +158,8 @@
     "ASIGNATURA": "Biología",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280833",
@@ -157,7 +167,8 @@
     "ASIGNATURA": "Geografía",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1047381539",
@@ -165,7 +176,8 @@
     "ASIGNATURA": "Historia",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280584",
@@ -173,7 +185,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19561554",
@@ -181,7 +194,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280368",
@@ -189,7 +203,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1065622537",
@@ -197,7 +212,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57421870",
@@ -205,7 +221,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19563034",
@@ -213,15 +230,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "2PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "HORAS EXTRAS",
-    "ASIGNATURA": "Educación Religiosa",
-    "SEDE": "Municipal",
-    "GRADO": "6",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19562005",
@@ -229,7 +239,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "72287633",
@@ -237,7 +248,8 @@
     "ASIGNATURA": "Educación Artística",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1081808285",
@@ -245,7 +257,8 @@
     "ASIGNATURA": "Educación ética Y valores",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19562005",
@@ -253,7 +266,8 @@
     "ASIGNATURA": "Educación Física",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1044431393",
@@ -261,7 +275,8 @@
     "ASIGNATURA": "Química",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "51654137",
@@ -269,7 +284,8 @@
     "ASIGNATURA": "Física",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082869969",
@@ -277,7 +293,8 @@
     "ASIGNATURA": "Biología",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280833",
@@ -285,7 +302,8 @@
     "ASIGNATURA": "Geografía",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1047381539",
@@ -293,7 +311,8 @@
     "ASIGNATURA": "Historia",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280584",
@@ -301,7 +320,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280368",
@@ -309,7 +329,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280368",
@@ -317,7 +338,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1065622537",
@@ -325,7 +347,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57421870",
@@ -333,7 +356,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1081800046",
@@ -341,15 +365,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "3PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "HORAS EXTRAS",
-    "ASIGNATURA": "Educación Religiosa",
-    "SEDE": "Municipal",
-    "GRADO": "6",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19562005",
@@ -357,7 +374,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "72287633",
@@ -365,7 +383,8 @@
     "ASIGNATURA": "Educación Artística",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1081808285",
@@ -373,7 +392,8 @@
     "ASIGNATURA": "Educación ética Y valores",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19562005",
@@ -381,7 +401,8 @@
     "ASIGNATURA": "Educación Física",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1044431393",
@@ -389,7 +410,8 @@
     "ASIGNATURA": "Química",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "72302591",
@@ -397,7 +419,8 @@
     "ASIGNATURA": "Física",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082869969",
@@ -405,7 +428,8 @@
     "ASIGNATURA": "Biología",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280833",
@@ -413,7 +437,8 @@
     "ASIGNATURA": "Geografía",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1047381539",
@@ -421,7 +446,8 @@
     "ASIGNATURA": "Historia",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280584",
@@ -429,7 +455,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280368",
@@ -437,7 +464,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280368",
@@ -445,7 +473,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1065622537",
@@ -453,7 +482,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57421870",
@@ -461,7 +491,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1081800046",
@@ -469,15 +500,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "4PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "HORAS EXTRAS",
-    "ASIGNATURA": "Educación Religiosa",
-    "SEDE": "Municipal",
-    "GRADO": "6",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19562005",
@@ -485,7 +509,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "72287633",
@@ -493,7 +518,8 @@
     "ASIGNATURA": "Educación Artística",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1081808285",
@@ -501,15 +527,8 @@
     "ASIGNATURA": "Educación ética Y valores",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "4PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "HORAS EXTRAS",
-    "ASIGNATURA": "Educación Física",
-    "SEDE": "Municipal",
-    "GRADO": "6",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1044431393",
@@ -517,7 +536,8 @@
     "ASIGNATURA": "Química",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19562066",
@@ -525,7 +545,8 @@
     "ASIGNATURA": "Física",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082869969",
@@ -533,7 +554,8 @@
     "ASIGNATURA": "Biología",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280833",
@@ -541,7 +563,8 @@
     "ASIGNATURA": "Geografía",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1047381539",
@@ -549,7 +572,8 @@
     "ASIGNATURA": "Historia",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280584",
@@ -557,7 +581,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19561554",
@@ -565,7 +590,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280442",
@@ -573,7 +599,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1065622537",
@@ -581,7 +608,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57421870",
@@ -589,7 +617,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1081800046",
@@ -597,15 +626,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "5PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "HORAS EXTRAS",
-    "ASIGNATURA": "Educación Religiosa",
-    "SEDE": "Municipal",
-    "GRADO": "6",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19562005",
@@ -613,7 +635,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "72287633",
@@ -621,7 +644,8 @@
     "ASIGNATURA": "Educación Artística",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1081808285",
@@ -629,15 +653,8 @@
     "ASIGNATURA": "Educación ética Y valores",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "5PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "HORAS EXTRAS",
-    "ASIGNATURA": "Educación Física",
-    "SEDE": "Municipal",
-    "GRADO": "6",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1044431393",
@@ -645,7 +662,8 @@
     "ASIGNATURA": "Química",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "6PPAL"
+    "CURSO": "6PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "85449095",
@@ -653,7 +671,8 @@
     "ASIGNATURA": "Física",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "6PPAL"
+    "CURSO": "6PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082869969",
@@ -661,7 +680,8 @@
     "ASIGNATURA": "Biología",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "6PPAL"
+    "CURSO": "6PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280833",
@@ -669,7 +689,8 @@
     "ASIGNATURA": "Geografía",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "6PPAL"
+    "CURSO": "6PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1047381539",
@@ -677,7 +698,8 @@
     "ASIGNATURA": "Historia",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "6PPAL"
+    "CURSO": "6PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280584",
@@ -685,7 +707,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "6PPAL"
+    "CURSO": "6PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19561554",
@@ -693,7 +716,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "6PPAL"
+    "CURSO": "6PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280368",
@@ -701,7 +725,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "6PPAL"
+    "CURSO": "6PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1065622537",
@@ -709,7 +734,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "6PPAL"
+    "CURSO": "6PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57421870",
@@ -717,7 +743,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "6PPAL"
+    "CURSO": "6PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "8693123",
@@ -725,15 +752,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "6PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "HORAS EXTRAS",
-    "ASIGNATURA": "Educación Religiosa",
-    "SEDE": "Municipal",
-    "GRADO": "6",
-    "CURSO": "6PPAL"
+    "CURSO": "6PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19562005",
@@ -741,7 +761,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "6PPAL"
+    "CURSO": "6PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "72287633",
@@ -749,7 +770,8 @@
     "ASIGNATURA": "Educación Artística",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "6PPAL"
+    "CURSO": "6PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1081808285",
@@ -757,15 +779,8 @@
     "ASIGNATURA": "Educación ética Y valores",
     "SEDE": "Municipal",
     "GRADO": "6",
-    "CURSO": "6PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "HORAS EXTRAS",
-    "ASIGNATURA": "Educación Física",
-    "SEDE": "Municipal",
-    "GRADO": "6",
-    "CURSO": "6PPAL"
+    "CURSO": "6PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1044431393",
@@ -773,7 +788,8 @@
     "ASIGNATURA": "Química",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "85449095",
@@ -781,7 +797,8 @@
     "ASIGNATURA": "Física",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082869969",
@@ -789,7 +806,8 @@
     "ASIGNATURA": "Biología",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280833",
@@ -797,7 +815,8 @@
     "ASIGNATURA": "Geografía",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1047381539",
@@ -805,7 +824,8 @@
     "ASIGNATURA": "Historia",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280584",
@@ -813,7 +833,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280046",
@@ -821,7 +842,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19561554",
@@ -829,7 +851,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "26761878",
@@ -837,7 +860,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19563034",
@@ -845,7 +869,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "8693123",
@@ -853,15 +878,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "1PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "HORAS EXTRAS",
-    "ASIGNATURA": "Educación Religiosa",
-    "SEDE": "Municipal",
-    "GRADO": "7",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1081800046",
@@ -869,7 +887,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "72287633",
@@ -877,7 +896,8 @@
     "ASIGNATURA": "Educación Artística",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1081808285",
@@ -885,7 +905,8 @@
     "ASIGNATURA": "Educación ética Y valores",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "36452539",
@@ -893,7 +914,8 @@
     "ASIGNATURA": "Educación Física",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1044431393",
@@ -901,7 +923,8 @@
     "ASIGNATURA": "Química",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "85449095",
@@ -909,7 +932,8 @@
     "ASIGNATURA": "Física",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082869969",
@@ -917,7 +941,8 @@
     "ASIGNATURA": "Biología",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280833",
@@ -925,7 +950,8 @@
     "ASIGNATURA": "Geografía",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1047381539",
@@ -933,7 +959,8 @@
     "ASIGNATURA": "Historia",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280584",
@@ -941,7 +968,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280046",
@@ -949,7 +977,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19561554",
@@ -957,7 +986,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "26761878",
@@ -965,7 +995,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19563034",
@@ -973,7 +1004,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "8693123",
@@ -981,15 +1013,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "2PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "HORAS EXTRAS",
-    "ASIGNATURA": "Educación Religiosa",
-    "SEDE": "Municipal",
-    "GRADO": "7",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1081800046",
@@ -997,7 +1022,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "72287633",
@@ -1005,7 +1031,8 @@
     "ASIGNATURA": "Educación Artística",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1081808285",
@@ -1013,7 +1040,8 @@
     "ASIGNATURA": "Educación ética Y valores",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "36452539",
@@ -1021,7 +1049,8 @@
     "ASIGNATURA": "Educación Física",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1044431393",
@@ -1029,7 +1058,8 @@
     "ASIGNATURA": "Química",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "85449095",
@@ -1037,7 +1067,8 @@
     "ASIGNATURA": "Física",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082869969",
@@ -1045,7 +1076,8 @@
     "ASIGNATURA": "Biología",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280833",
@@ -1053,7 +1085,8 @@
     "ASIGNATURA": "Geografía",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1047381539",
@@ -1061,7 +1094,8 @@
     "ASIGNATURA": "Historia",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280584",
@@ -1069,7 +1103,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280046",
@@ -1077,7 +1112,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19561554",
@@ -1085,7 +1121,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57281082",
@@ -1093,7 +1130,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19563034",
@@ -1101,7 +1139,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1081800046",
@@ -1109,15 +1148,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "3PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "HORAS EXTRAS",
-    "ASIGNATURA": "Educación Religiosa",
-    "SEDE": "Municipal",
-    "GRADO": "7",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1081800046",
@@ -1125,7 +1157,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "72287633",
@@ -1133,7 +1166,8 @@
     "ASIGNATURA": "Educación Artística",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1081808285",
@@ -1141,7 +1175,8 @@
     "ASIGNATURA": "Educación ética Y valores",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "36452539",
@@ -1149,7 +1184,8 @@
     "ASIGNATURA": "Educación Física",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1044431393",
@@ -1157,7 +1193,8 @@
     "ASIGNATURA": "Química",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "85449095",
@@ -1165,7 +1202,8 @@
     "ASIGNATURA": "Física",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082869969",
@@ -1173,7 +1211,8 @@
     "ASIGNATURA": "Biología",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280833",
@@ -1181,7 +1220,8 @@
     "ASIGNATURA": "Geografía",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1047381539",
@@ -1189,7 +1229,8 @@
     "ASIGNATURA": "Historia",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280584",
@@ -1197,7 +1238,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280046",
@@ -1205,7 +1247,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280442",
@@ -1213,7 +1256,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "36720104",
@@ -1221,7 +1265,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19563034",
@@ -1229,7 +1274,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1081800046",
@@ -1237,15 +1283,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "4PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "HORAS EXTRAS",
-    "ASIGNATURA": "Educación Religiosa",
-    "SEDE": "Municipal",
-    "GRADO": "7",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1081800046",
@@ -1253,7 +1292,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "72287633",
@@ -1261,7 +1301,8 @@
     "ASIGNATURA": "Educación Artística",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1081808285",
@@ -1269,7 +1310,8 @@
     "ASIGNATURA": "Educación ética Y valores",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "36452539",
@@ -1277,7 +1319,8 @@
     "ASIGNATURA": "Educación Física",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1044431393",
@@ -1285,7 +1328,8 @@
     "ASIGNATURA": "Química",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "85449095",
@@ -1293,7 +1337,8 @@
     "ASIGNATURA": "Física",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082869969",
@@ -1301,7 +1346,8 @@
     "ASIGNATURA": "Biología",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280833",
@@ -1309,7 +1355,8 @@
     "ASIGNATURA": "Geografía",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1047381539",
@@ -1317,7 +1364,8 @@
     "ASIGNATURA": "Historia",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280584",
@@ -1325,7 +1373,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280046",
@@ -1333,7 +1382,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280858",
@@ -1341,7 +1391,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "36720104",
@@ -1349,7 +1400,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19563034",
@@ -1357,7 +1409,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1081800046",
@@ -1365,15 +1418,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "5PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "HORAS EXTRAS",
-    "ASIGNATURA": "Educación Religiosa",
-    "SEDE": "Municipal",
-    "GRADO": "7",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1081800046",
@@ -1381,7 +1427,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "72287633",
@@ -1389,7 +1436,8 @@
     "ASIGNATURA": "Educación Artística",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1081808285",
@@ -1397,7 +1445,8 @@
     "ASIGNATURA": "Educación ética Y valores",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "36452539",
@@ -1405,7 +1454,8 @@
     "ASIGNATURA": "Educación Física",
     "SEDE": "Municipal",
     "GRADO": "7",
-    "CURSO": "5PPAL"
+    "CURSO": "5PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "51654137",
@@ -1413,7 +1463,8 @@
     "ASIGNATURA": "Química",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "85449095",
@@ -1421,7 +1472,8 @@
     "ASIGNATURA": "Física",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "85449095",
@@ -1429,7 +1481,8 @@
     "ASIGNATURA": "Biología",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1085110182",
@@ -1437,7 +1490,8 @@
     "ASIGNATURA": "Geografía",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1047381539",
@@ -1445,7 +1499,8 @@
     "ASIGNATURA": "Historia",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57448535",
@@ -1453,7 +1508,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280442",
@@ -1461,7 +1517,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "20795846",
@@ -1469,7 +1526,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "36720104",
@@ -1477,7 +1535,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "8693123",
@@ -1485,7 +1544,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1085108727",
@@ -1493,15 +1553,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "1PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "HORAS EXTRAS",
-    "ASIGNATURA": "Educación Religiosa",
-    "SEDE": "Municipal",
-    "GRADO": "8",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1084744566",
@@ -1509,7 +1562,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57448535",
@@ -1517,7 +1571,8 @@
     "ASIGNATURA": "Educación Artística",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1081808285",
@@ -1525,15 +1580,8 @@
     "ASIGNATURA": "Educación ética Y valores",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "1PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "HORAS EXTRAS",
-    "ASIGNATURA": "Educación Física",
-    "SEDE": "Municipal",
-    "GRADO": "8",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "51654137",
@@ -1541,7 +1589,8 @@
     "ASIGNATURA": "Química",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "85449095",
@@ -1549,7 +1598,8 @@
     "ASIGNATURA": "Física",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19562066",
@@ -1557,7 +1607,8 @@
     "ASIGNATURA": "Biología",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1085110182",
@@ -1565,7 +1616,8 @@
     "ASIGNATURA": "Geografía",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1047381539",
@@ -1573,7 +1625,8 @@
     "ASIGNATURA": "Historia",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57448535",
@@ -1581,7 +1634,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280442",
@@ -1589,7 +1643,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "20795846",
@@ -1597,7 +1652,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "36720104",
@@ -1605,7 +1661,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "8693123",
@@ -1613,7 +1670,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1085108727",
@@ -1621,15 +1679,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "2PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "HORAS EXTRAS",
-    "ASIGNATURA": "Educación Religiosa",
-    "SEDE": "Municipal",
-    "GRADO": "8",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1084744566",
@@ -1637,7 +1688,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57448535",
@@ -1645,7 +1697,8 @@
     "ASIGNATURA": "Educación Artística",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1081808285",
@@ -1653,15 +1706,8 @@
     "ASIGNATURA": "Educación ética Y valores",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "2PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "HORAS EXTRAS",
-    "ASIGNATURA": "Educación Física",
-    "SEDE": "Municipal",
-    "GRADO": "8",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "51654137",
@@ -1669,7 +1715,8 @@
     "ASIGNATURA": "Química",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "85449095",
@@ -1677,7 +1724,8 @@
     "ASIGNATURA": "Física",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19562066",
@@ -1685,7 +1733,8 @@
     "ASIGNATURA": "Biología",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1085110182",
@@ -1693,7 +1742,8 @@
     "ASIGNATURA": "Geografía",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1047381539",
@@ -1701,7 +1751,8 @@
     "ASIGNATURA": "Historia",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57448535",
@@ -1709,7 +1760,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280442",
@@ -1717,7 +1769,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "20795846",
@@ -1725,7 +1778,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "36720104",
@@ -1733,7 +1787,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "8693123",
@@ -1741,7 +1796,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1085108727",
@@ -1749,15 +1805,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "3PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "HORAS EXTRAS",
-    "ASIGNATURA": "Educación Religiosa",
-    "SEDE": "Municipal",
-    "GRADO": "8",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1084744566",
@@ -1765,7 +1814,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57448535",
@@ -1773,7 +1823,8 @@
     "ASIGNATURA": "Educación Artística",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57448535",
@@ -1781,15 +1832,8 @@
     "ASIGNATURA": "Educación ética Y valores",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "3PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "HORAS EXTRAS",
-    "ASIGNATURA": "Educación Física",
-    "SEDE": "Municipal",
-    "GRADO": "8",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "51654137",
@@ -1797,7 +1841,8 @@
     "ASIGNATURA": "Química",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "85449095",
@@ -1805,7 +1850,8 @@
     "ASIGNATURA": "Física",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19562066",
@@ -1813,7 +1859,8 @@
     "ASIGNATURA": "Biología",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1085110182",
@@ -1821,7 +1868,8 @@
     "ASIGNATURA": "Geografía",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1047381539",
@@ -1829,7 +1877,8 @@
     "ASIGNATURA": "Historia",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57448535",
@@ -1837,7 +1886,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280442",
@@ -1845,7 +1895,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "20795846",
@@ -1853,7 +1904,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "36720104",
@@ -1861,7 +1913,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "8693123",
@@ -1869,7 +1922,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1026594822",
@@ -1877,15 +1931,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "4PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "HORAS EXTRAS",
-    "ASIGNATURA": "Educación Religiosa",
-    "SEDE": "Municipal",
-    "GRADO": "8",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1084744566",
@@ -1893,7 +1940,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "20795846",
@@ -1901,15 +1949,8 @@
     "ASIGNATURA": "Educación Artística",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "4PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "MANUEL ESPAÑA",
-    "ASIGNATURA": "Educación Artística",
-    "SEDE": "Municipal",
-    "GRADO": "8",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57448535",
@@ -1917,15 +1958,8 @@
     "ASIGNATURA": "Educación ética Y valores",
     "SEDE": "Municipal",
     "GRADO": "8",
-    "CURSO": "4PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "HORAS EXTRAS",
-    "ASIGNATURA": "Educación Física",
-    "SEDE": "Municipal",
-    "GRADO": "8",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57449437",
@@ -1933,7 +1967,8 @@
     "ASIGNATURA": "Química",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19562066",
@@ -1941,7 +1976,8 @@
     "ASIGNATURA": "Física",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57449437",
@@ -1949,7 +1985,8 @@
     "ASIGNATURA": "Biología",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1085110182",
@@ -1957,7 +1994,8 @@
     "ASIGNATURA": "Geografía",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1047381539",
@@ -1965,7 +2003,8 @@
     "ASIGNATURA": "Historia",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57448535",
@@ -1973,7 +2012,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280858",
@@ -1981,7 +2021,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "20795846",
@@ -1989,7 +2030,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "26761878",
@@ -1997,7 +2039,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1085108727",
@@ -2005,7 +2048,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1026594822",
@@ -2013,15 +2057,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "1PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "HORAS EXTRAS",
-    "ASIGNATURA": "Educación Religiosa",
-    "SEDE": "Municipal",
-    "GRADO": "9",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1081800046",
@@ -2029,15 +2066,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "1PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "MANUEL ESPAÑA",
-    "ASIGNATURA": "Educación Artística",
-    "SEDE": "Municipal",
-    "GRADO": "9",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1081808285",
@@ -2045,15 +2075,8 @@
     "ASIGNATURA": "Educación ética Y valores",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "1PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "HORAS EXTRAS",
-    "ASIGNATURA": "Educación Física",
-    "SEDE": "Municipal",
-    "GRADO": "9",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57449437",
@@ -2061,7 +2084,8 @@
     "ASIGNATURA": "Química",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19562066",
@@ -2069,7 +2093,8 @@
     "ASIGNATURA": "Física",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19562066",
@@ -2077,7 +2102,8 @@
     "ASIGNATURA": "Biología",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1085110182",
@@ -2085,7 +2111,8 @@
     "ASIGNATURA": "Geografía",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1047381539",
@@ -2093,7 +2120,8 @@
     "ASIGNATURA": "Historia",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57448535",
@@ -2101,7 +2129,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280858",
@@ -2109,7 +2138,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280442",
@@ -2117,7 +2147,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "26761878",
@@ -2125,7 +2156,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1085108727",
@@ -2133,7 +2165,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1026594822",
@@ -2141,15 +2174,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "2PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "HORAS EXTRAS",
-    "ASIGNATURA": "Educación Religiosa",
-    "SEDE": "Municipal",
-    "GRADO": "9",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19562005",
@@ -2157,15 +2183,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "2PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "MANUEL ESPAÑA",
-    "ASIGNATURA": "Educación Artística",
-    "SEDE": "Municipal",
-    "GRADO": "9",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1081808285",
@@ -2173,15 +2192,8 @@
     "ASIGNATURA": "Educación ética Y valores",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "2PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "HORAS EXTRAS",
-    "ASIGNATURA": "Educación Física",
-    "SEDE": "Municipal",
-    "GRADO": "9",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57449437",
@@ -2189,7 +2201,8 @@
     "ASIGNATURA": "Química",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19562066",
@@ -2197,7 +2210,8 @@
     "ASIGNATURA": "Física",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19562066",
@@ -2205,7 +2219,8 @@
     "ASIGNATURA": "Biología",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1085110182",
@@ -2213,7 +2228,8 @@
     "ASIGNATURA": "Geografía",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1047381539",
@@ -2221,7 +2237,8 @@
     "ASIGNATURA": "Historia",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57448535",
@@ -2229,7 +2246,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280858",
@@ -2237,7 +2255,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "20795846",
@@ -2245,7 +2264,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "26761878",
@@ -2253,7 +2273,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1085108727",
@@ -2261,7 +2282,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1026594822",
@@ -2269,15 +2291,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "3PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "HORAS EXTRAS",
-    "ASIGNATURA": "Educación Religiosa",
-    "SEDE": "Municipal",
-    "GRADO": "9",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19562005",
@@ -2285,15 +2300,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "3PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "MANUEL ESPAÑA",
-    "ASIGNATURA": "Educación Artística",
-    "SEDE": "Municipal",
-    "GRADO": "9",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1081808285",
@@ -2301,15 +2309,8 @@
     "ASIGNATURA": "Educación ética Y valores",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "3PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "HORAS EXTRAS",
-    "ASIGNATURA": "Educación Física",
-    "SEDE": "Municipal",
-    "GRADO": "9",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57449437",
@@ -2317,7 +2318,8 @@
     "ASIGNATURA": "Química",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19562066",
@@ -2325,7 +2327,8 @@
     "ASIGNATURA": "Física",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19562066",
@@ -2333,7 +2336,8 @@
     "ASIGNATURA": "Biología",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1085110182",
@@ -2341,7 +2345,8 @@
     "ASIGNATURA": "Geografía",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1047381539",
@@ -2349,7 +2354,8 @@
     "ASIGNATURA": "Historia",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57448535",
@@ -2357,7 +2363,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280858",
@@ -2365,7 +2372,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "20795846",
@@ -2373,7 +2381,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "26761878",
@@ -2381,7 +2390,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1085108727",
@@ -2389,7 +2399,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1026594822",
@@ -2397,15 +2408,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "4PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "HORAS EXTRAS",
-    "ASIGNATURA": "Educación Religiosa",
-    "SEDE": "Municipal",
-    "GRADO": "9",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1084744566",
@@ -2413,15 +2417,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "4PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "MANUEL ESPAÑA",
-    "ASIGNATURA": "Educación Artística",
-    "SEDE": "Municipal",
-    "GRADO": "9",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1081808285",
@@ -2429,15 +2426,8 @@
     "ASIGNATURA": "Educación ética Y valores",
     "SEDE": "Municipal",
     "GRADO": "9",
-    "CURSO": "4PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "HORAS EXTRAS",
-    "ASIGNATURA": "Educación Física",
-    "SEDE": "Municipal",
-    "GRADO": "9",
-    "CURSO": "4PPAL"
+    "CURSO": "4PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57449437",
@@ -2445,7 +2435,8 @@
     "ASIGNATURA": "Química",
     "SEDE": "Municipal",
     "GRADO": "10",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "72302591",
@@ -2453,7 +2444,8 @@
     "ASIGNATURA": "Física",
     "SEDE": "Municipal",
     "GRADO": "10",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57449437",
@@ -2461,7 +2453,8 @@
     "ASIGNATURA": "Biología",
     "SEDE": "Municipal",
     "GRADO": "10",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1084738659",
@@ -2469,7 +2462,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Municipal",
     "GRADO": "10",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1084738659",
@@ -2477,7 +2471,8 @@
     "ASIGNATURA": "Filosofía",
     "SEDE": "Municipal",
     "GRADO": "10",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1047381539",
@@ -2485,7 +2480,8 @@
     "ASIGNATURA": "Economía",
     "SEDE": "Municipal",
     "GRADO": "10",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "49791255",
@@ -2493,7 +2489,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Municipal",
     "GRADO": "10",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "20795846",
@@ -2501,7 +2498,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Municipal",
     "GRADO": "10",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57281082",
@@ -2509,7 +2507,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Municipal",
     "GRADO": "10",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19617022",
@@ -2517,7 +2516,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Municipal",
     "GRADO": "10",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1026594822",
@@ -2525,7 +2525,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Municipal",
     "GRADO": "10",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "20795846",
@@ -2533,7 +2534,8 @@
     "ASIGNATURA": "Educación Religiosa",
     "SEDE": "Municipal",
     "GRADO": "10",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1084744566",
@@ -2541,15 +2543,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Municipal",
     "GRADO": "10",
-    "CURSO": "1PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "MANUEL ESPAÑA",
-    "ASIGNATURA": "Educación Artística",
-    "SEDE": "Municipal",
-    "GRADO": "10",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1081808285",
@@ -2557,7 +2552,8 @@
     "ASIGNATURA": "Educación ética Y valores",
     "SEDE": "Municipal",
     "GRADO": "10",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "36452539",
@@ -2565,7 +2561,8 @@
     "ASIGNATURA": "Educación Física",
     "SEDE": "Municipal",
     "GRADO": "10",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57449437",
@@ -2573,7 +2570,8 @@
     "ASIGNATURA": "Química",
     "SEDE": "Municipal",
     "GRADO": "10",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "72302591",
@@ -2581,7 +2579,8 @@
     "ASIGNATURA": "Física",
     "SEDE": "Municipal",
     "GRADO": "10",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57449437",
@@ -2589,7 +2588,8 @@
     "ASIGNATURA": "Biología",
     "SEDE": "Municipal",
     "GRADO": "10",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1084738659",
@@ -2597,7 +2597,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Municipal",
     "GRADO": "10",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1084738659",
@@ -2605,7 +2606,8 @@
     "ASIGNATURA": "Filosofía",
     "SEDE": "Municipal",
     "GRADO": "10",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1047381539",
@@ -2613,7 +2615,8 @@
     "ASIGNATURA": "Economía",
     "SEDE": "Municipal",
     "GRADO": "10",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "49791255",
@@ -2621,7 +2624,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Municipal",
     "GRADO": "10",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "20795846",
@@ -2629,7 +2633,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Municipal",
     "GRADO": "10",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57281082",
@@ -2637,7 +2642,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Municipal",
     "GRADO": "10",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19617022",
@@ -2645,7 +2651,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Municipal",
     "GRADO": "10",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1026594822",
@@ -2653,7 +2660,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Municipal",
     "GRADO": "10",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "20795846",
@@ -2661,7 +2669,8 @@
     "ASIGNATURA": "Educación Religiosa",
     "SEDE": "Municipal",
     "GRADO": "10",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1084744566",
@@ -2669,15 +2678,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Municipal",
     "GRADO": "10",
-    "CURSO": "2PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "MANUEL ESPAÑA",
-    "ASIGNATURA": "Educación Artística",
-    "SEDE": "Municipal",
-    "GRADO": "10",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1081808285",
@@ -2685,7 +2687,8 @@
     "ASIGNATURA": "Educación ética Y valores",
     "SEDE": "Municipal",
     "GRADO": "10",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "36452539",
@@ -2693,7 +2696,8 @@
     "ASIGNATURA": "Educación Física",
     "SEDE": "Municipal",
     "GRADO": "10",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57449437",
@@ -2701,7 +2705,8 @@
     "ASIGNATURA": "Química",
     "SEDE": "Municipal",
     "GRADO": "10",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "72302591",
@@ -2709,7 +2714,8 @@
     "ASIGNATURA": "Física",
     "SEDE": "Municipal",
     "GRADO": "10",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57449437",
@@ -2717,7 +2723,8 @@
     "ASIGNATURA": "Biología",
     "SEDE": "Municipal",
     "GRADO": "10",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1084738659",
@@ -2725,7 +2732,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Municipal",
     "GRADO": "10",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1084738659",
@@ -2733,7 +2741,8 @@
     "ASIGNATURA": "Filosofía",
     "SEDE": "Municipal",
     "GRADO": "10",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1047381539",
@@ -2741,7 +2750,8 @@
     "ASIGNATURA": "Economía",
     "SEDE": "Municipal",
     "GRADO": "10",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280858",
@@ -2749,7 +2759,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Municipal",
     "GRADO": "10",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "49791255",
@@ -2757,7 +2768,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Municipal",
     "GRADO": "10",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57281082",
@@ -2765,7 +2777,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Municipal",
     "GRADO": "10",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19617022",
@@ -2773,7 +2786,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Municipal",
     "GRADO": "10",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1026594822",
@@ -2781,7 +2795,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Municipal",
     "GRADO": "10",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "20795846",
@@ -2789,7 +2804,8 @@
     "ASIGNATURA": "Educación Religiosa",
     "SEDE": "Municipal",
     "GRADO": "10",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1084744566",
@@ -2797,15 +2813,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Municipal",
     "GRADO": "10",
-    "CURSO": "3PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "MANUEL ESPAÑA",
-    "ASIGNATURA": "Educación Artística",
-    "SEDE": "Municipal",
-    "GRADO": "10",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1081808285",
@@ -2813,7 +2822,8 @@
     "ASIGNATURA": "Educación ética Y valores",
     "SEDE": "Municipal",
     "GRADO": "10",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "36452539",
@@ -2821,7 +2831,8 @@
     "ASIGNATURA": "Educación Física",
     "SEDE": "Municipal",
     "GRADO": "10",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "51654137",
@@ -2829,7 +2840,8 @@
     "ASIGNATURA": "Química",
     "SEDE": "Municipal",
     "GRADO": "11",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "72302591",
@@ -2837,7 +2849,8 @@
     "ASIGNATURA": "Física",
     "SEDE": "Municipal",
     "GRADO": "11",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57449437",
@@ -2845,7 +2858,8 @@
     "ASIGNATURA": "Biología",
     "SEDE": "Municipal",
     "GRADO": "11",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1085110182",
@@ -2853,7 +2867,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Municipal",
     "GRADO": "11",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1084738659",
@@ -2861,7 +2876,8 @@
     "ASIGNATURA": "Filosofía",
     "SEDE": "Municipal",
     "GRADO": "11",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1085110182",
@@ -2869,7 +2885,8 @@
     "ASIGNATURA": "Economía",
     "SEDE": "Municipal",
     "GRADO": "11",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "49791255",
@@ -2877,7 +2894,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Municipal",
     "GRADO": "11",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280368",
@@ -2885,7 +2903,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Municipal",
     "GRADO": "11",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57281082",
@@ -2893,7 +2912,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Municipal",
     "GRADO": "11",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19617022",
@@ -2901,7 +2921,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Municipal",
     "GRADO": "11",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1026594822",
@@ -2909,15 +2930,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Municipal",
     "GRADO": "11",
-    "CURSO": "1PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "HORAS EXTRAS",
-    "ASIGNATURA": "Educación Religiosa",
-    "SEDE": "Municipal",
-    "GRADO": "11",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1084744566",
@@ -2925,15 +2939,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Municipal",
     "GRADO": "11",
-    "CURSO": "1PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "MANUEL ESPAÑA",
-    "ASIGNATURA": "Educación Artística",
-    "SEDE": "Municipal",
-    "GRADO": "11",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1081808285",
@@ -2941,7 +2948,8 @@
     "ASIGNATURA": "Educación ética Y valores",
     "SEDE": "Municipal",
     "GRADO": "11",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "36452539",
@@ -2949,7 +2957,8 @@
     "ASIGNATURA": "Educación Física",
     "SEDE": "Municipal",
     "GRADO": "11",
-    "CURSO": "1PPAL"
+    "CURSO": "1PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "51654137",
@@ -2957,7 +2966,8 @@
     "ASIGNATURA": "Química",
     "SEDE": "Municipal",
     "GRADO": "11",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "72302591",
@@ -2965,7 +2975,8 @@
     "ASIGNATURA": "Física",
     "SEDE": "Municipal",
     "GRADO": "11",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1084738659",
@@ -2973,7 +2984,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Municipal",
     "GRADO": "11",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1084738659",
@@ -2981,7 +2993,8 @@
     "ASIGNATURA": "Filosofía",
     "SEDE": "Municipal",
     "GRADO": "11",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1085110182",
@@ -2989,7 +3002,8 @@
     "ASIGNATURA": "Economía",
     "SEDE": "Municipal",
     "GRADO": "11",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "49791255",
@@ -2997,7 +3011,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Municipal",
     "GRADO": "11",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280368",
@@ -3005,7 +3020,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Municipal",
     "GRADO": "11",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57281082",
@@ -3013,7 +3029,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Municipal",
     "GRADO": "11",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19617022",
@@ -3021,7 +3038,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Municipal",
     "GRADO": "11",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1026594822",
@@ -3029,15 +3047,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Municipal",
     "GRADO": "11",
-    "CURSO": "2PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "HORAS EXTRAS",
-    "ASIGNATURA": "Educación Religiosa",
-    "SEDE": "Municipal",
-    "GRADO": "11",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1084744566",
@@ -3045,15 +3056,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Municipal",
     "GRADO": "11",
-    "CURSO": "2PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "MANUEL ESPAÑA",
-    "ASIGNATURA": "Educación Artística",
-    "SEDE": "Municipal",
-    "GRADO": "11",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1081808285",
@@ -3061,7 +3065,8 @@
     "ASIGNATURA": "Educación ética Y valores",
     "SEDE": "Municipal",
     "GRADO": "11",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "36452539",
@@ -3069,7 +3074,8 @@
     "ASIGNATURA": "Educación Física",
     "SEDE": "Municipal",
     "GRADO": "11",
-    "CURSO": "2PPAL"
+    "CURSO": "2PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "51654137",
@@ -3077,7 +3083,8 @@
     "ASIGNATURA": "Química",
     "SEDE": "Municipal",
     "GRADO": "11",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "72302591",
@@ -3085,7 +3092,8 @@
     "ASIGNATURA": "Física",
     "SEDE": "Municipal",
     "GRADO": "11",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57449437",
@@ -3093,7 +3101,8 @@
     "ASIGNATURA": "Biología",
     "SEDE": "Municipal",
     "GRADO": "11",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1084738659",
@@ -3101,7 +3110,8 @@
     "ASIGNATURA": "Constitución",
     "SEDE": "Municipal",
     "GRADO": "11",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1084738659",
@@ -3109,7 +3119,8 @@
     "ASIGNATURA": "Filosofía",
     "SEDE": "Municipal",
     "GRADO": "11",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1085110182",
@@ -3117,7 +3128,8 @@
     "ASIGNATURA": "Economía",
     "SEDE": "Municipal",
     "GRADO": "11",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "49791255",
@@ -3125,7 +3137,8 @@
     "ASIGNATURA": "Lengua castellana",
     "SEDE": "Municipal",
     "GRADO": "11",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57280368",
@@ -3133,7 +3146,8 @@
     "ASIGNATURA": "Lectura Critica",
     "SEDE": "Municipal",
     "GRADO": "11",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57281082",
@@ -3141,7 +3155,8 @@
     "ASIGNATURA": "Ingles",
     "SEDE": "Municipal",
     "GRADO": "11",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "19617022",
@@ -3149,7 +3164,8 @@
     "ASIGNATURA": "Aritmética",
     "SEDE": "Municipal",
     "GRADO": "11",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1026594822",
@@ -3157,15 +3173,8 @@
     "ASIGNATURA": "Estadística",
     "SEDE": "Municipal",
     "GRADO": "11",
-    "CURSO": "3PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "HORAS EXTRAS",
-    "ASIGNATURA": "Educación Religiosa",
-    "SEDE": "Municipal",
-    "GRADO": "11",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1084744566",
@@ -3173,15 +3182,8 @@
     "ASIGNATURA": "Informática",
     "SEDE": "Municipal",
     "GRADO": "11",
-    "CURSO": "3PPAL"
-  },
-  {
-    "ID": "",
-    "NOMBRE": "MANUEL ESPAÑA",
-    "ASIGNATURA": "Educación Artística",
-    "SEDE": "Municipal",
-    "GRADO": "11",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1081808285",
@@ -3189,7 +3191,8 @@
     "ASIGNATURA": "Educación ética Y valores",
     "SEDE": "Municipal",
     "GRADO": "11",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   },
   {
     "ID": "36452539",
@@ -3197,6 +3200,7 @@
     "ASIGNATURA": "Educación Física",
     "SEDE": "Municipal",
     "GRADO": "11",
-    "CURSO": "3PPAL"
+    "CURSO": "3PPAL",
+    "COORDINADOR": "NO"
   }
 ]
