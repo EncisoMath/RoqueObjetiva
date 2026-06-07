@@ -25,10 +25,13 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
 }
 
 body {
   margin: 0;
+  overflow-x: hidden;
   font-family: var(--font);
   color: var(--ink);
   background:
@@ -5811,6 +5814,24 @@ body {
   font-weight: 850;
   cursor: grab;
 }
+.subject-map-mobile {
+  display: none;
+  margin-bottom: 16px;
+  border-radius: 8px;
+  border-left: 5px solid var(--primary);
+}
+.subject-map-mobile h3 {
+  margin: 6px 0 4px;
+  font-weight: 900;
+}
+.subject-map-form {
+  align-items: end;
+  margin-top: 12px;
+}
+.subject-map-submit .primary-btn {
+  width: 100%;
+}
+
 .subject-drop-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -5900,7 +5921,9 @@ body {
   .row-actions { min-width: 260px; }
   .docentes-manager { grid-template-columns: 1fr; }
   .docentes-detail { display: none; }
+  .subject-map-mobile { display: block; }
   .subject-map-layout { grid-template-columns: 1fr; }
+  .subject-source { display: none; }
   .analysis-bar-row { grid-template-columns: 32px 1fr 70px; }
   .analysis-track { grid-column: 2 / 4; }
   .carga-tag-card { align-items: flex-start; flex-direction: column; }

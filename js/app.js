@@ -106,6 +106,7 @@
     subjectAreaMap: {},
     adminCargaTeacherId: "",
     adminDirectorTeacherId: "",
+    modalStack: [],
     activeSession: null
   };
 
@@ -2234,6 +2235,19 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
 
     const action = target.dataset.action;
 
+    const opensNestedModal = new Set([
+      "admin-student-subject",
+      "open-answer-key",
+      "answer-info",
+      "edit-carga-assignment",
+      "add-carga-to-teacher",
+      "edit-director-assignment",
+      "add-director-assignment"
+    ]);
+    if (opensNestedModal.has(action) && modalRoot.querySelector(".modal-backdrop")) {
+      state.modalStack.push(modalRoot.innerHTML);
+    }
+
     if (action === "retry") {
       init();
     }
@@ -2505,6 +2519,23 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
         buildRepository();
         renderAdminContext();
       }
+      return;
+    }
+
+    if (action === "assign-subject-area-manual") {
+      const subject = document.getElementById("subjectAreaMapSubject")?.value || "";
+      const area = document.getElementById("subjectAreaMapArea")?.value || "";
+      if (!subject || !area) {
+        toast("Selecciona asignatura y área.");
+        return;
+      }
+      state.subjectAreaMap[subject] = area;
+      state.subjectAreaMap[normalizeText(subject)] = area;
+      writeJSON(STORAGE.subjectAreas, state.subjectAreaMap);
+      normalizeCargaRows();
+      buildRepository();
+      toast(`${subject} asignada a ${area}.`);
+      renderAdminContext();
       return;
     }
 
@@ -3702,9 +3733,12 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
 
   function adminSubjectAreasHtml() {
     const areas = availableSubjects();
-    const rawSubjects = uniqueValues(state.cargaRows.map((row) => row.subjectRaw || row.subject)).filter(Boolean);
+    const rawSubjects = uniqueValues(state.cargaRows.map((row) => row.subjectRaw || row.subject)).filter(Boolean).sort((a, b) => a.localeCompare(b, "es"));
     const unassigned = rawSubjects.filter((subject) => !state.subjectAreaMap[subject] && !state.subjectAreaMap[normalizeText(subject)]);
-    return `<section class="toolbar"><div><span class="section-eyebrow">Asignaturas y áreas</span><h2 style="margin:8px 0 0;font-weight:900;">Cruce entre carga docente y áreas del examen</h2><p class="muted-copy">Arrastra una asignatura de la carga hacia el área correspondiente del examen. Ejemplo: Estadística o Aritmética dentro de Matemáticas.</p></div><div class="inline-actions"><button class="secondary-btn" data-action="save-carga">Guardar mapeos</button><button class="secondary-btn" data-action="publish-github">Publicar en GitHub</button></div></section>
+    const manualSubjectOptions = rawSubjects.map((subject) => `<option value="${escAttr(subject)}">${esc(subject)}</option>`).join("");
+    const manualAreaOptions = areas.map((area) => `<option value="${escAttr(area)}">${esc(area)}</option>`).join("");
+    return `<section class="toolbar"><div><span class="section-eyebrow">Asignaturas y áreas</span><h2 style="margin:8px 0 0;font-weight:900;">Cruce entre carga docente y áreas del examen</h2><p class="muted-copy">En PC puedes arrastrar una asignatura hacia su área. En celular usa los selectores de abajo para hacer el cruce sin arrastrar.</p></div><div class="inline-actions"><button class="secondary-btn" data-action="save-carga">Guardar mapeos</button><button class="secondary-btn" data-action="publish-github">Publicar en GitHub</button></div></section>
+    <section class="subject-map-mobile card card-pad"><span class="section-eyebrow">Asignar desde celular</span><h3>Asignatura → área del examen</h3><p class="muted-copy">Selecciona una asignatura de la carga docente y luego el área real del examen a la que debe sumarse.</p><div class="form-grid compact subject-map-form"><div class="field"><label>Asignatura de la carga</label><select id="subjectAreaMapSubject" class="select-pill">${manualSubjectOptions}</select></div><div class="field"><label>Área del examen</label><select id="subjectAreaMapArea" class="select-pill">${manualAreaOptions}</select></div><div class="field subject-map-submit"><label>&nbsp;</label><button class="primary-btn" data-action="assign-subject-area-manual">Asignar</button></div></div></section>
     <section class="subject-map-layout"><aside class="card card-pad subject-source"><h3>Asignaturas de carga</h3>${unassigned.map((subject) => `<button class="subject-chip" draggable="true" data-drag-subject="${escAttr(subject)}">${esc(subject)}</button>`).join("") || `<div class="empty-state">Todas las asignaturas de la carga ya tienen área asignada.</div>`}</aside><div class="subject-drop-grid">${areas.map((area) => { const assigned = rawSubjects.filter((subject) => (state.subjectAreaMap[subject] || state.subjectAreaMap[normalizeText(subject)] || mappedSubject(subject)) === area); return `<article class="subject-drop-zone" data-drop-area="${escAttr(area)}" style="--subject-color:${subjectAccent(area)};">${subjectIcon(area)}<h3>${esc(area)}</h3><div class="assigned-chip-list">${assigned.map((subject) => `<span class="assigned-chip">${esc(subject)} <button data-action="remove-subject-area-map" data-subject="${escAttr(subject)}">×</button></span>`).join("") || `<span class="muted-copy">Suelta aquí una asignatura</span>`}</div></article>`; }).join("")}</div></section>`;
   }
 
@@ -3777,14 +3811,20 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     const backdrop = modalRoot.querySelector(".modal-backdrop");
     if (!backdrop) {
       modalRoot.innerHTML = "";
+      state.modalStack = [];
       document.body.classList.remove("modal-open");
       return;
     }
     backdrop.classList.add("is-closing");
     window.setTimeout(() => {
+      if (state.modalStack.length) {
+        modalRoot.innerHTML = state.modalStack.pop();
+        document.body.classList.add("modal-open");
+        return;
+      }
       modalRoot.innerHTML = "";
       document.body.classList.remove("modal-open");
-    }, 180);
+    }, 160);
   }
 
   function clearSession() {

@@ -1,3 +1,7 @@
+# Resultados Pruebas Objetivas - v44 PWA multigrado
+
+Versión v44 basada en v43. Incluye ajustes en Análisis / Ranking, cruce móvil Asignaturas y áreas, corrección de salto por scroll y retorno correcto entre modales anidados.
+
 # Resultados de Pruebas Objetivas
 
 Aplicación web estática para consultar resultados de pruebas objetivas desde GitHub Pages.
