@@ -8147,3 +8147,89 @@ body {
     #ffc38d 74%,
     #9b4819 100%) !important;
 }
+
+/* Ajustes v74: numeros de ranking mas saturados en gold, silver y cobre, con brillo metalico controlado */
+.ranking-box.rank-medal strong {
+  --rank-glow-soft: rgba(255, 255, 255, .22);
+  --rank-glow: rgba(255, 255, 255, .20);
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, .34),
+    0 2px 4px rgba(0, 0, 0, .18),
+    0 0 10px var(--rank-glow) !important;
+}
+
+.ranking-box.rank-medal strong::after {
+  opacity: .98;
+  filter:
+    drop-shadow(0 0 4px var(--rank-glow-soft))
+    drop-shadow(0 0 12px var(--rank-glow));
+}
+
+.ranking-box.rank-gold strong {
+  color: #d79a00 !important;
+  --rank-glow-soft: rgba(255, 223, 94, .42);
+  --rank-glow: rgba(245, 176, 0, .46);
+  text-shadow:
+    0 1px 0 rgba(255, 234, 140, .55),
+    0 2px 4px rgba(88, 55, 0, .22),
+    0 0 10px rgba(235, 171, 0, .34),
+    0 0 18px rgba(255, 204, 45, .24) !important;
+}
+
+.ranking-box.rank-gold strong::after {
+  background-image: linear-gradient(180deg,
+    #ffe58a 0%,
+    #f4bf28 13%,
+    #d99a00 29%,
+    #a96e00 45%,
+    #e6a900 57%,
+    #ffcf3a 69%,
+    #c38300 84%,
+    #8e5b00 100%) !important;
+}
+
+.ranking-box.rank-silver strong {
+  color: #7f8b98 !important;
+  --rank-glow-soft: rgba(230, 238, 247, .42);
+  --rank-glow: rgba(126, 142, 159, .42);
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, .50),
+    0 2px 4px rgba(38, 47, 57, .22),
+    0 0 10px rgba(128, 145, 163, .30),
+    0 0 18px rgba(211, 224, 238, .18) !important;
+}
+
+.ranking-box.rank-silver strong::after {
+  background-image: linear-gradient(180deg,
+    #dfe8f1 0%,
+    #b8c4cf 14%,
+    #8793a0 31%,
+    #566371 47%,
+    #94a1af 59%,
+    #cbd5df 71%,
+    #788492 86%,
+    #4b5663 100%) !important;
+}
+
+.ranking-box.rank-bronze strong {
+  color: #c56d31 !important;
+  --rank-glow-soft: rgba(255, 189, 128, .42);
+  --rank-glow: rgba(211, 104, 42, .46);
+  text-shadow:
+    0 1px 0 rgba(255, 205, 160, .48),
+    0 2px 4px rgba(78, 32, 12, .24),
+    0 0 10px rgba(200, 91, 33, .34),
+    0 0 18px rgba(255, 145, 65, .22) !important;
+}
+
+.ranking-box.rank-bronze strong::after {
+  background-image: linear-gradient(180deg,
+    #ffc08a 0%,
+    #e48948 13%,
+    #c4652b 30%,
+    #8f3f17 46%,
+    #cf6f32 58%,
+    #f49a5a 70%,
+    #a64a1b 85%,
+    #743014 100%) !important;
+}
