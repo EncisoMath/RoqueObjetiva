@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v58";
+  const APP_VERSION = "v59";
 
   const app = document.getElementById("app");
   const toastEl = document.getElementById("toast");
@@ -1701,13 +1701,13 @@
           <div class="stats-big-number"><span>Promedio</span><strong>${esc(general)}<small>/100</small></strong></div>
         </div>
         <div class="stats-bars-list">
-          ${rows.length ? rows.map((row, index) => statsBarHtml(row, index, withIcon)).join("") : `<div class="empty-state">No hay datos suficientes para esta selección.</div>`}
+          ${rows.length ? rows.map((row) => statsBarHtml(row, withIcon)).join("") : `<div class="empty-state">No hay datos suficientes para esta selección.</div>`}
         </div>
       </section>
     `;
   }
 
-  function statsBarHtml(row, index, withIcon = false) {
+  function statsBarHtml(row, withIcon = false) {
     const width = clamp(Number(row.avg) || 0, 0, 100);
     return `
       <article class="stats-bar-row">
