@@ -1,8 +1,8 @@
 {
-  "version": "v71",
-  "cache": "resultados-pwa-v71",
+  "version": "v72",
+  "cache": "resultados-pwa-v72",
   "updatedAt": "2026-06-07",
-  "note": "Corrige artefactos triangulares en los numeros de ranking 1 y 3 usando relleno solido metalico sin background-clip ni text-stroke.",
-  "builtAt": "2026-06-07T20:05:00Z",
+  "note": "Restaura textura metalizada vertical en numeros de ranking 1, 2 y 3 sin artefactos triangulares.",
+  "builtAt": "2026-06-07T20:12:00Z",
   "date": "2026-06-07"
 }

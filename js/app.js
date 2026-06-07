@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v71";
+  const APP_VERSION = "v72";
 
   const app = document.getElementById("app");
   const toastEl = document.getElementById("toast");

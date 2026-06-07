@@ -7990,3 +7990,59 @@ body {
     0 2px 4px rgba(88, 34, 9, .20),
     0 0 13px rgba(219, 111, 42, .30) !important;
 }
+
+
+/* Ajustes v72: textura metalizada segura en numeros de ranking 1, 2 y 3 sin triangulos internos */
+.ranking-box.rank-gold strong,
+.ranking-box.rank-silver strong,
+.ranking-box.rank-bronze strong {
+  background-clip: text !important;
+  -webkit-background-clip: text !important;
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+  -webkit-text-stroke: 0 !important;
+  filter: none !important;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+  background-size: 100% 100% !important;
+  background-repeat: no-repeat !important;
+  text-shadow: none !important;
+}
+
+.ranking-box.rank-gold strong {
+  background-image: linear-gradient(180deg,
+    #fff2a8 0%,
+    #ffd54a 18%,
+    #e5a900 38%,
+    #9d6900 50%,
+    #f6bd22 64%,
+    #ffe486 80%,
+    #bf8000 100%) !important;
+  filter: drop-shadow(0 1px 0 rgba(92, 58, 0, .26)) drop-shadow(0 0 9px rgba(255, 206, 45, .36)) !important;
+}
+
+.ranking-box.rank-silver strong {
+  background-image: linear-gradient(180deg,
+    #f2f7fb 0%,
+    #c9d3df 17%,
+    #8d99a8 38%,
+    #465261 50%,
+    #aeb9c6 64%,
+    #eef3f7 80%,
+    #687482 100%) !important;
+  filter: drop-shadow(0 1px 0 rgba(45, 55, 66, .24)) drop-shadow(0 0 9px rgba(170, 185, 202, .30)) !important;
+}
+
+.ranking-box.rank-bronze strong {
+  background-image: linear-gradient(180deg,
+    #ffd2a8 0%,
+    #e59451 18%,
+    #bf6025 38%,
+    #763015 50%,
+    #d57636 64%,
+    #ffc28d 80%,
+    #964116 100%) !important;
+  filter: drop-shadow(0 1px 0 rgba(87, 33, 10, .24)) drop-shadow(0 0 9px rgba(214, 105, 42, .32)) !important;
+}
