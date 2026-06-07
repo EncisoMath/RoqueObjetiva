@@ -7787,3 +7787,96 @@ body {
   0%, 100% { background-position: 0% 50%; filter: saturate(1.02) brightness(.94); }
   50% { background-position: 100% 50%; filter: saturate(1.13) brightness(1.00); }
 }
+
+
+/* Ajustes v69: gold/cobre mas metalicos y version movil discreta */
+.top-banner.banner-rank-gold {
+  background:
+    linear-gradient(90deg, rgba(10, 6, 0, .62) 0%, rgba(38, 23, 0, .34) 43%, rgba(12, 8, 2, .66) 100%),
+    radial-gradient(circle at 24% 18%, rgba(255, 226, 109, .58), transparent 18rem),
+    radial-gradient(circle at 56% 82%, rgba(255, 183, 34, .30), transparent 25rem),
+    linear-gradient(112deg, #3a2200 0%, #8f5d05 22%, #d99a18 43%, #ffd66a 56%, #b97605 69%, #4a2b00 86%, #130b00 100%) !important;
+  background-image:
+    linear-gradient(90deg, rgba(10, 6, 0, .62) 0%, rgba(38, 23, 0, .34) 43%, rgba(12, 8, 2, .66) 100%),
+    radial-gradient(circle at 24% 18%, rgba(255, 226, 109, .58), transparent 18rem),
+    radial-gradient(circle at 56% 82%, rgba(255, 183, 34, .30), transparent 25rem),
+    linear-gradient(112deg, #3a2200 0%, #8f5d05 22%, #d99a18 43%, #ffd66a 56%, #b97605 69%, #4a2b00 86%, #130b00 100%) !important;
+  box-shadow: 0 18px 46px rgba(185, 126, 10, .34), inset 0 1px 0 rgba(255, 232, 140, .18);
+}
+
+.top-banner.banner-rank-bronze {
+  background:
+    linear-gradient(90deg, rgba(13, 6, 2, .62) 0%, rgba(54, 22, 7, .34) 43%, rgba(13, 6, 3, .66) 100%),
+    radial-gradient(circle at 22% 17%, rgba(255, 171, 96, .50), transparent 18rem),
+    radial-gradient(circle at 56% 84%, rgba(205, 94, 33, .31), transparent 25rem),
+    linear-gradient(112deg, #351406 0%, #7f3817 22%, #c56b35 43%, #f0a26d 56%, #a64f22 69%, #431808 86%, #130603 100%) !important;
+  background-image:
+    linear-gradient(90deg, rgba(13, 6, 2, .62) 0%, rgba(54, 22, 7, .34) 43%, rgba(13, 6, 3, .66) 100%),
+    radial-gradient(circle at 22% 17%, rgba(255, 171, 96, .50), transparent 18rem),
+    radial-gradient(circle at 56% 84%, rgba(205, 94, 33, .31), transparent 25rem),
+    linear-gradient(112deg, #351406 0%, #7f3817 22%, #c56b35 43%, #f0a26d 56%, #a64f22 69%, #431808 86%, #130603 100%) !important;
+  box-shadow: 0 18px 46px rgba(154, 70, 28, .34), inset 0 1px 0 rgba(255, 184, 122, .15);
+}
+
+.top-banner.banner-rank-gold .banner-copy h1,
+.top-banner.banner-rank-gold .banner-copy p,
+.top-banner.banner-rank-bronze .banner-copy h1,
+.top-banner.banner-rank-bronze .banner-copy p {
+  color: #fffaf0 !important;
+  text-shadow: 0 4px 18px rgba(0, 0, 0, .74), 0 1px 2px rgba(0, 0, 0, .70);
+}
+
+.top-banner.banner-rank-gold .banner-shapes.banner-stars .shape {
+  color: rgba(255, 220, 93, .76);
+  text-shadow: 0 0 18px rgba(255, 202, 52, .48);
+}
+
+.top-banner.banner-rank-bronze .banner-shapes.banner-stars .shape {
+  color: rgba(255, 170, 104, .72);
+  text-shadow: 0 0 18px rgba(214, 105, 42, .45);
+}
+
+.ranking-box.rank-gold strong {
+  background: linear-gradient(112deg, #6a4300 0%, #b77a06 34%, #f3bd42 52%, #9b6300 72%, #573300 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+  -webkit-text-stroke: .35px rgba(54, 31, 0, .28);
+  filter: drop-shadow(0 1px 0 rgba(255, 243, 183, .42)) drop-shadow(0 2px 5px rgba(83, 52, 0, .25)) !important;
+}
+
+.ranking-box.rank-bronze strong {
+  background: linear-gradient(112deg, #5b2410 0%, #a74d25 34%, #e1874d 52%, #843818 72%, #421307 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+  -webkit-text-stroke: .35px rgba(61, 19, 5, .28);
+  filter: drop-shadow(0 1px 0 rgba(255, 214, 178, .38)) drop-shadow(0 2px 5px rgba(88, 32, 11, .25)) !important;
+}
+
+@media (max-width: 680px) {
+  .login-card-dark .login-version {
+    position: fixed;
+    left: auto;
+    right: max(10px, env(safe-area-inset-right));
+    bottom: max(8px, env(safe-area-inset-bottom));
+    width: auto;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    color: rgba(255, 255, 255, .52);
+    font-size: .64rem;
+    font-weight: 800;
+    letter-spacing: .01em;
+    line-height: 1;
+    opacity: .88;
+    pointer-events: none;
+    text-shadow: 0 1px 5px rgba(0, 0, 0, .38);
+  }
+}

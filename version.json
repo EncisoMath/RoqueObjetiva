@@ -1,7 +1,7 @@
 {
-  "version": "v68",
-  "cache": "resultados-pwa-v68",
+  "version": "v69",
+  "cache": "resultados-pwa-v69",
   "updatedAt": "2026-06-07",
-  "note": "Oscurece los banners gold, silver y bronze y mejora el contraste de los numeros de ranking 1, 2 y 3.",
-  "builtAt": "2026-06-07T19:55:00Z"
+  "note": "Mejora los tonos gold y cobre del banner de ranking y ubica la version movil como texto pequeño en la esquina inferior.",
+  "builtAt": "2026-06-07T20:05:00Z"
 }
