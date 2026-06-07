@@ -1,25 +1,22 @@
 {
   "title": "Roque Objetiva",
   "subtitle": "Consulta tu desempeño académico por áreas, componentes y competencias.",
-  "logoImage": "assets/logo-principal.png?v=84",
+  "logoImage": "assets/logo-principal.png?v=85",
   "appIcon": "icons/icon-512.png",
   "bannerImage": "",
   "footerText": "Consulta institucional de resultados",
   "primaryColor": "#1975ae",
-  "buttonRadius": 4,
-  "cornerRadius": 4,
+  "buttonRadius": 8,
+  "cornerRadius": 8,
   "logoZoom": 1,
   "subjectLogos": {},
   "appName": "Roque Objetiva",
-  "identityVersion": "v84",
-  "logoAssetVersion": "v84",
+  "identityVersion": "v85",
+  "logoAssetVersion": "v85",
   "appIcon192": "icons/icon-192.png",
   "appIconMaskable": "icons/maskable-512.png",
   "appleTouchIcon": "icons/apple-touch-icon.png",
   "favicon32": "icons/favicon-32.png",
   "favicon16": "icons/favicon-16.png",
-  "subjectAreaMap": {
-    "Economía": "Ciencias Sociales y Ciudadanía",
-    "economia": "Ciencias Sociales y Ciudadanía"
-  }
+  "subjectAreaMap": {}
 }

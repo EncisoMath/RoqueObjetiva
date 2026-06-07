@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v84";
+  const APP_VERSION = "v85";
 
   const app = document.getElementById("app");
   const toastEl = document.getElementById("toast");
@@ -38,7 +38,7 @@
   const DEFAULT_CONFIG = {
     title: "Roque Objetiva",
     subtitle: "Este reporte no se pasa ni se pierde. Es una herramienta para identificar fortalezas, habilidades y oportunidades de mejora.",
-    logoImage: "assets/logo-principal.png?v=84",
+    logoImage: "assets/logo-principal.png?v=85",
     appIcon: "icons/icon-512.png",
     bannerImage: "",
     footerText: "Consulta institucional de resultados",
@@ -49,8 +49,8 @@
     subjectLogos: {},
     github: { owner: "", repo: "", branch: "main" },
     appName: "Roque Objetiva",
-    identityVersion: "v84",
-    logoAssetVersion: "v84"
+    identityVersion: "v85",
+    logoAssetVersion: "v85"
   };
 
   const DEFAULT_GRADES = [6, 7, 8, 9, 10];
@@ -99,6 +99,7 @@
     adminGradeFilter: "all",
     adminSubjectFilter: "all",
     adminMapGrade: 6,
+    adminMapSede: "",
     adminStatsMode: "estructura",
     adminStatsSede: "all",
     adminStatsGrade: "all",
@@ -1535,6 +1536,7 @@
         <td class="teacher-index">${index + 1}</td>
         <td><strong>${esc(displayListName(student))}</strong><br><span class="student-subid">ID Prueba ${esc(student.roll)}</span></td>
         ${subjects.map((subject) => `<td><span class="teacher-score teacher-score-plain">${student.subjectStats[subject.name]?.score ?? "—"}</span></td>`).join("")}
+        <td><button class="danger-btn mini-btn director-delete-student-btn" data-action="director-delete-student" data-roll="${escAttr(student.roll)}">Eliminar</button></td>
       </tr>
     `).join("");
 
@@ -1560,8 +1562,8 @@
         <section class="card table-card teacher-table-card director-table-card">
           <div class="table-wrap">
             <table class="teacher-table director-table">
-              <thead><tr><th>#</th><th>${sortHeader("Estudiante", "director-group", "name")}</th>${subjects.map((subject) => `<th>${sortHeader(subject.short || subject.name, "director-group", subject.name)}</th>`).join("")}</tr></thead>
-              <tbody>${tableRows || `<tr><td colspan="${2 + subjects.length}" class="empty-state">No hay estudiantes con resultados en este grupo.</td></tr>`}</tbody>
+              <thead><tr><th>#</th><th>${sortHeader("Estudiante", "director-group", "name")}</th>${subjects.map((subject) => `<th>${sortHeader(subject.short || subject.name, "director-group", subject.name)}</th>`).join("")}<th>Acción</th></tr></thead>
+              <tbody>${tableRows || `<tr><td colspan="${3 + subjects.length}" class="empty-state">No hay estudiantes con resultados en este grupo.</td></tr>`}</tbody>
             </table>
           </div>
         </section>
@@ -3062,6 +3064,12 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     }
 
 
+    if (action === "map-sede-tab") {
+      state.adminMapSede = displaySedeForMap(target.dataset.sede || "");
+      renderAdminContext();
+      return;
+    }
+
     if (action === "map-grade-tab") {
       state.adminMapGrade = toInt(target.dataset.grade) || state.adminMapGrade || 6;
       renderAdminContext();
@@ -3304,13 +3312,22 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     }
 
     if (action === "delete-student") {
-      const index = Number(target.dataset.index);
-      const student = state.studentsRegistry[index];
-      if (!student) return;
-      if (!confirm(`¿Eliminar a ${student.name || student.examId || "este estudiante"}?`)) return;
-      state.studentsRegistry.splice(index, 1);
-      buildRepository();
-      renderAdminContext();
+      openDeleteStudentWarning(Number(target.dataset.index), false);
+      return;
+    }
+
+    if (action === "confirm-delete-student") {
+      deleteStudentByIndex(Number(target.dataset.index), false);
+      return;
+    }
+
+    if (action === "director-delete-student") {
+      openDeleteStudentWarningByRoll(target.dataset.roll || "", true);
+      return;
+    }
+
+    if (action === "confirm-director-delete-student") {
+      deleteStudentByRoll(target.dataset.roll || "", true);
       return;
     }
 
@@ -3427,9 +3444,20 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     }
 
     if (action === "delete-carga-teacher") {
+      openDeleteTeacherWarning(target.dataset.id || "");
+      return;
+    }
+
+    if (action === "confirm-delete-carga-teacher") {
       const id = target.dataset.id || "";
       state.cargaRows = state.cargaRows.filter((row) => row.id !== id);
+      state.directorRows = state.directorRows.filter((row) => row.id !== id);
       state.adminCargaTeacherId = "";
+      state.adminDirectorTeacherId = "";
+      normalizeDirectorRows();
+      buildRepository();
+      closeModal();
+      toast("Docente eliminado de cargas y direcciones.");
       renderAdminContext();
       return;
     }
@@ -3464,9 +3492,18 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     }
 
     if (action === "delete-carga") {
+      openDeleteCargaWarning(Number(target.dataset.index));
+      return;
+    }
+
+    if (action === "confirm-delete-carga") {
       const index = Number(target.dataset.index);
-      state.cargaRows.splice(index, 1);
+      if (state.cargaRows[index]) state.cargaRows.splice(index, 1);
+      buildRepository();
+      closeModal();
+      toast("Carga eliminada.");
       renderAdminContext();
+      return;
     }
 
     if (action === "save-carga") {
@@ -3519,11 +3556,18 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     }
 
     if (action === "delete-director") {
+      openDeleteDirectorWarning(Number(target.dataset.index));
+      return;
+    }
+
+    if (action === "confirm-delete-director") {
       const index = Number(target.dataset.index);
-      state.directorRows.splice(index, 1);
+      if (state.directorRows[index]) state.directorRows.splice(index, 1);
       normalizeDirectorRows();
       buildRepository();
-      renderAdmin();
+      closeModal();
+      toast("Dirección de grupo eliminada.");
+      renderAdminContext();
       return;
     }
 
@@ -3600,20 +3644,25 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     }
 
     if (target.dataset.cargaTeacherField) {
-      const oldId = target.dataset.oldId || state.adminCargaTeacherId;
-      const currentId = state.adminCargaTeacherId;
+      const oldId = cleanId(target.dataset.oldId || state.adminCargaTeacherId || "");
+      const currentId = cleanId(state.adminCargaTeacherId || oldId || "");
       const field = target.dataset.cargaTeacherField;
       const value = field === "id" ? cleanId(target.value) : target.value;
       state.cargaRows.forEach((row) => {
         if (row.id === oldId || row.id === currentId) {
           if (field === "id") row.id = value;
-          if (field === "name") row.name = value;
+          if (field === "name") row.name = cleanText(value);
         }
+      });
+      state.directorRows.forEach((row) => {
+        if (field === "id" && (row.id === oldId || row.id === currentId)) row.id = value;
       });
       if (field === "id") {
         state.adminCargaTeacherId = value;
+        state.adminDirectorTeacherId = value;
         target.dataset.oldId = value;
       }
+      buildRepository();
     }
 
     if (target.dataset.cargaCoordinator) {
@@ -4258,6 +4307,106 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     `;
   }
 
+
+  function warningModal({ title, message, details = "", confirmLabel = "Confirmar", confirmAction, attrs = "", severe = false }) {
+    document.body.classList.add("modal-open");
+    modalRoot.innerHTML = `
+      <div class="modal-backdrop warning-backdrop ${severe ? "warning-backdrop-severe" : ""}" data-action="close-modal">
+        <section class="modal warning-modal ${severe ? "warning-modal-severe" : ""}" style="max-width:${severe ? "680" : "600"}px;">
+          <div class="warning-icon ${severe ? "severe" : ""}">!</div>
+          <div class="modal-head warning-head">
+            <div>
+              <h2>${esc(title)}</h2>
+              <span>${esc(message)}</span>
+            </div>
+            <button type="button" class="icon-btn" data-action="close-modal" aria-label="Cerrar">×</button>
+          </div>
+          <div class="modal-body">
+            ${details ? `<div class="warning-details">${details}</div>` : ""}
+            <div class="inline-actions warning-actions">
+              <button class="danger-btn ${severe ? "danger-btn-severe" : ""}" data-action="${escAttr(confirmAction)}" ${attrs}>${esc(confirmLabel)}</button>
+              <button class="ghost-btn" data-action="close-modal">Cancelar</button>
+            </div>
+          </div>
+        </section>
+      </div>`;
+  }
+
+  function openDeleteCargaWarning(index) {
+    const row = state.cargaRows[index];
+    if (!row) return;
+    warningModal({
+      title: "Eliminar carga académica",
+      message: "Vas a quitar esta asignación del docente. Revisa bien antes de confirmar.",
+      details: `<strong>${esc(row.name || teacherNameById(row.id))}</strong><span>${esc(row.subjectRaw || row.subject || "Sin asignatura")} · ${esc(row.grade || "—")}° ${esc(row.group || "")} · ${esc(row.sede || "Sin sede")}</span>`,
+      confirmLabel: "Sí, eliminar carga",
+      confirmAction: "confirm-delete-carga",
+      attrs: `data-index="${escAttr(index)}"`
+    });
+  }
+
+  function openDeleteDirectorWarning(index) {
+    const row = state.directorRows[index];
+    if (!row) return;
+    warningModal({
+      title: "Eliminar dirección de grupo",
+      message: "Vas a quitar esta dirección asignada a un docente.",
+      details: `<strong>ID ${esc(row.id)}</strong><span>${esc(row.sede || "Sin sede")} · ${esc(row.grade || "—")}° ${esc(row.group || "")}</span>`,
+      confirmLabel: "Sí, eliminar dirección",
+      confirmAction: "confirm-delete-director",
+      attrs: `data-index="${escAttr(index)}"`
+    });
+  }
+
+  function openDeleteTeacherWarning(id) {
+    const teacher = buildUnifiedTeachers().find((item) => cleanId(item.id) === cleanId(id));
+    if (!teacher) return;
+    warningModal({
+      title: "Eliminar docente",
+      message: "Esto eliminará sus cargas académicas y direcciones de grupo en esta configuración local.",
+      details: `<strong>${esc(teacher.name || `Docente ${teacher.id}`)}</strong><span>ID ${esc(teacher.id)} · ${teacher.assignments.length} carga(s) · ${teacher.directorGroups.length} dirección(es)</span>`,
+      confirmLabel: "Sí, eliminar docente",
+      confirmAction: "confirm-delete-carga-teacher",
+      attrs: `data-id="${escAttr(id)}"`
+    });
+  }
+
+  function openDeleteStudentWarning(index, severe = false) {
+    const student = state.studentsRegistry[index];
+    if (!student) return;
+    warningModal({
+      title: severe ? "¡OJO! Eliminar estudiante" : "Eliminar estudiante",
+      message: severe ? "Esta acción sacará al estudiante del grupo del director. Confirma solo si estás completamente seguro." : "Vas a eliminar este estudiante del registro local.",
+      details: `<strong>${esc(displayListName(student) || student.name || "Estudiante")}</strong><span>ID prueba ${esc(student.examId || "—")} · ID ${esc(student.nationalId || "—")} · ${esc(student.sede || "Sin sede")} · ${esc(student.grade || "—")}° ${esc(student.group || "")}</span>`,
+      confirmLabel: severe ? "SÍ, ELIMINAR ESTUDIANTE" : "Sí, eliminar estudiante",
+      confirmAction: severe ? "confirm-director-delete-student" : "confirm-delete-student",
+      attrs: severe ? `data-roll="${escAttr(student.examId || student.nationalId || "")}"` : `data-index="${escAttr(index)}"`,
+      severe
+    });
+  }
+
+  function openDeleteStudentWarningByRoll(roll, severe = true) {
+    const clean = cleanId(roll);
+    const index = state.studentsRegistry.findIndex((student) => cleanId(student.examId) === clean || cleanId(student.nationalId) === clean);
+    if (index >= 0) openDeleteStudentWarning(index, severe);
+  }
+
+  function deleteStudentByIndex(index, severe = false) {
+    const student = state.studentsRegistry[index];
+    if (!student) return;
+    state.studentsRegistry.splice(index, 1);
+    buildRepository();
+    closeModal();
+    toast(severe ? "Estudiante eliminado del grupo." : "Estudiante eliminado.");
+    renderAdminContext();
+  }
+
+  function deleteStudentByRoll(roll, severe = true) {
+    const clean = cleanId(roll);
+    const index = state.studentsRegistry.findIndex((student) => cleanId(student.examId) === clean || cleanId(student.nationalId) === clean);
+    if (index >= 0) deleteStudentByIndex(index, severe);
+  }
+
   function openAddCargaTeacherModal() {
     modalRoot.innerHTML = `
       <div class="modal-backdrop" data-action="close-modal">
@@ -4534,10 +4683,21 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
   function teacherAdminDetailHtml(teacher, inModal = false) {
     const isCoordinator = teacher.assignments.some((row) => row.coordinator) || !!teacher.coordinator;
     return `
-      <div class="carga-teacher-head">
-        <div><span class="section-eyebrow">Docente</span><h3 style="margin:6px 0 0;font-size:1.4rem;">${esc(teacher.name || `Docente ${teacher.id}`)}</h3><p class="muted-copy">ID ${esc(teacher.id)} · ${teacher.assignments.length} carga${teacher.assignments.length === 1 ? "" : "s"} · ${teacher.directorGroups.length} dirección${teacher.directorGroups.length === 1 ? "" : "es"}</p></div>
-        <label class="coordinator-check"><input type="checkbox" ${isCoordinator ? "checked" : ""} data-carga-coordinator="${escAttr(teacher.id)}"> Coordinador</label>
+      <div class="carga-teacher-head docente-editor-head">
+        <div>
+          <span class="section-eyebrow">Docente</span>
+          <h3 style="margin:6px 0 0;font-size:1.4rem;">${esc(teacher.name || `Docente ${teacher.id}`)}</h3>
+          <p class="muted-copy">ID ${esc(teacher.id)} · ${teacher.assignments.length} carga${teacher.assignments.length === 1 ? "" : "s"} · ${teacher.directorGroups.length} dirección${teacher.directorGroups.length === 1 ? "" : "es"}</p>
+        </div>
+        <div class="inline-actions teacher-danger-actions"><button class="danger-btn" data-action="delete-carga-teacher" data-id="${escAttr(teacher.id)}">Eliminar docente</button></div>
       </div>
+      <section class="docente-subsection docente-identity-card">
+        <div class="form-grid compact">
+          <div class="field"><label>ID docente</label><input value="${escAttr(teacher.id || "")}" data-carga-teacher-field="id" data-old-id="${escAttr(teacher.id)}"></div>
+          <div class="field"><label>Nombre docente</label><input value="${escAttr(teacher.name || "")}" data-carga-teacher-field="name" data-old-id="${escAttr(teacher.id)}"></div>
+        </div>
+        <label class="coordinator-check"><input type="checkbox" ${isCoordinator ? "checked" : ""} data-carga-coordinator="${escAttr(teacher.id)}"> Coordinador</label>
+      </section>
       <section class="docente-subsection"><div class="subsection-head"><h4>Cargas académicas</h4><button class="primary-btn" data-action="add-carga-to-teacher" data-id="${escAttr(teacher.id)}">Agregar carga</button></div><div class="carga-assignment-grid compact-carga-grid">${teacher.assignments.map((row) => cargaAssignmentTag(row)).join("") || `<div class="empty-state">Este docente no tiene cargas.</div>`}</div></section>
       <section class="docente-subsection"><div class="subsection-head"><h4>Dirección de grupo</h4><button class="secondary-btn" data-action="add-director-assignment" data-id="${escAttr(teacher.id)}">Agregar dirección</button></div><div class="carga-assignment-grid compact-carga-grid">${teacher.directorGroups.map((row) => directorAssignmentTag(row)).join("") || `<div class="empty-state">Este docente no tiene dirección de grupo.</div>`}</div></section>
       ${inModal ? `<div class="inline-actions" style="margin-top:16px;"><button class="secondary-btn" data-action="save-carga">Guardar cambios</button><button class="ghost-btn" data-action="close-modal">Cerrar</button></div>` : ""}`;
@@ -4606,11 +4766,15 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
   }
 
   function adminGradeMapHtml() {
-    const grades = adminGradeMapGrades();
+    const sedes = adminGradeMapSedes();
+    if (!sedes.length) sedes.push("Municipal");
+    if (!sedes.some((s) => sameMapSede(s, state.adminMapSede))) state.adminMapSede = sedes[0] || "Municipal";
+    const activeSede = displaySedeForMap(state.adminMapSede || sedes[0] || "Municipal");
+    const grades = adminGradeMapGrades(activeSede);
     if (!grades.length) grades.push(6, 7, 8, 9, 10, 11);
     if (!grades.includes(Number(state.adminMapGrade))) state.adminMapGrade = grades[0] || 6;
     const grade = Number(state.adminMapGrade || grades[0] || 6);
-    const cards = adminGradeSubjectCards(grade);
+    const cards = adminGradeSubjectCards(grade, activeSede);
     const warningCount = cards.filter((card) => card.needsAttention).length;
     return `
       <section class="toolbar">
@@ -4625,37 +4789,81 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
           <button class="secondary-btn" data-action="publish-github">Publicar en GitHub</button>
         </div>
       </section>
-      <nav class="grade-map-tabs">
-        ${grades.map((g) => `<button type="button" class="nav-chip ${Number(g) === grade ? "active" : ""}" data-action="map-grade-tab" data-grade="${escAttr(g)}">${esc(g)}°</button>`).join("")}
-      </nav>
+      <div class="grade-map-tab-block">
+        <span class="section-eyebrow">Sedes</span>
+        <nav class="grade-map-tabs grade-map-sede-tabs">
+          ${sedes.map((sede) => `<button type="button" class="nav-chip ${sameMapSede(sede, activeSede) ? "active" : ""}" data-action="map-sede-tab" data-sede="${escAttr(sede)}">${esc(sede)}</button>`).join("")}
+        </nav>
+        <span class="section-eyebrow">Grados</span>
+        <nav class="grade-map-tabs grade-map-grade-tabs">
+          ${grades.map((g) => `<button type="button" class="nav-chip ${Number(g) === grade ? "active" : ""}" data-action="map-grade-tab" data-grade="${escAttr(g)}">${esc(g)}°</button>`).join("")}
+        </nav>
+      </div>
       <div class="admin-note grade-map-note">
-        Grado ${esc(grade)}° · ${cards.length} áreas/asignaturas revisadas · ${warningCount ? `${warningCount} con alerta` : "sin alertas visibles"}.
+        ${esc(activeSede)} · Grado ${esc(grade)}° · ${cards.length} áreas/asignaturas revisadas · ${warningCount ? `${warningCount} con alerta` : "sin alertas visibles"}.
       </div>
       <section class="grade-subject-map-grid">
-        ${cards.map((card) => gradeSubjectMapCardHtml(card)).join("") || `<div class="empty-state">No hay áreas para este grado.</div>`}
+        ${cards.map((card) => gradeSubjectMapCardHtml(card)).join("") || `<div class="empty-state">No hay áreas para este grado y sede.</div>`}
       </section>
     `;
   }
 
-  function adminGradeMapGrades() {
+  function adminGradeMapGrades(activeSede = "") {
     const values = [];
+    const sede = displaySedeForMap(activeSede || state.adminMapSede || "");
+    const sedeFilter = (row) => !sede || sameMapSede(row?.sede, sede);
     values.push(...(state.manifest.grades || []));
-    values.push(...(state.studentsRegistry || []).map((s) => s.grade));
-    values.push(...(state.computedStudents || []).map((s) => s.grade));
-    values.push(...(state.cargaRows || []).map((r) => r.grade));
+    values.push(...(state.studentsRegistry || []).filter(sedeFilter).map((s) => s.grade));
+    values.push(...(state.computedStudents || []).filter(sedeFilter).map((s) => s.grade));
+    values.push(...(state.cargaRows || []).filter(sedeFilter).map((r) => r.grade));
     values.push(...(state.keys || []).map((k) => k.grade));
     const unique = [...new Set(values.map((v) => Number(v)).filter((v) => v >= 6 && v <= 11))].sort((a, b) => a - b);
     return unique.length ? unique : [6, 7, 8, 9, 10, 11];
   }
 
-  function adminGradeCourses(grade) {
+  function displaySedeForMap(value) {
+    const text = cleanText(value) || "Municipal";
+    const norm = normalizeText(text);
+    if (norm.includes("bongo")) return "Bongo";
+    if (norm.includes("municipal") || norm.includes("principal")) return "Municipal";
+    return text;
+  }
+
+  function sameMapSede(a, b) {
+    return normalizeText(displaySedeForMap(a)) === normalizeText(displaySedeForMap(b));
+  }
+
+  function adminGradeMapSedes() {
+    const values = [];
+    values.push(...(state.studentsRegistry || []).map((student) => student.sede));
+    values.push(...(state.computedStudents || []).map((student) => student.sede));
+    values.push(...(state.cargaRows || []).map((row) => row.sede));
+    return uniqueValues(values.map(displaySedeForMap).filter(Boolean)).sort((a, b) => {
+      const order = { municipal: 1, bongo: 2 };
+      const av = order[normalizeText(a)] || 99;
+      const bv = order[normalizeText(b)] || 99;
+      if (av !== bv) return av - bv;
+      return String(a).localeCompare(String(b), "es", { sensitivity: "base", numeric: true });
+    });
+  }
+
+  function formatGradeCourseLabel(item, includeSede = false) {
+    const grade = Number(item?.grade || state.adminMapGrade || 0);
+    const group = cleanText(item?.group || "Sin curso");
+    const base = grade ? `${grade}-${group}` : group;
+    return includeSede ? `${base} · ${displaySedeForMap(item?.sede)}` : base;
+  }
+
+  function adminGradeCourses(grade, activeSede = "") {
     const map = new Map();
+    const sedeFilter = displaySedeForMap(activeSede || state.adminMapSede || "");
     const add = (sede, group) => {
       const cleanGroup = cleanText(group);
       if (!cleanGroup) return;
-      const cleanSede = cleanText(sede) || "Municipal";
+      const cleanSede = displaySedeForMap(sede || "Municipal");
+      if (sedeFilter && !sameMapSede(cleanSede, sedeFilter)) return;
       const key = `${normalizeText(cleanSede)}|${normalizeText(cleanGroup)}`;
-      if (!map.has(key)) map.set(key, { sede: cleanSede, group: cleanGroup });
+      if (!map.has(key)) map.set(key, { sede: cleanSede, grade: Number(grade), group: cleanGroup });
     };
     (state.studentsRegistry || []).filter((s) => Number(s.grade) === Number(grade)).forEach((s) => add(s.sede, s.group));
     (state.computedStudents || []).filter((s) => Number(s.grade) === Number(grade)).forEach((s) => add(s.sede, s.group));
@@ -4682,17 +4890,18 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       });
   }
 
-  function adminGradeSubjectCards(grade) {
-    const courses = adminGradeCourses(grade);
+  function adminGradeSubjectCards(grade, activeSede = "") {
+    const sede = displaySedeForMap(activeSede || state.adminMapSede || "");
+    const courses = adminGradeCourses(grade, sede);
     const subjects = adminExpectedSubjectsForGrade(grade);
     return subjects.map((subject) => {
       const rows = (state.cargaRows || [])
-        .map((row, index) => ({ ...row, index }))
-        .filter((row) => Number(row.grade) === Number(grade) && sameSubject(mappedSubject(row.subjectRaw || row.subject), subject));
+        .map((row, index) => ({ ...row, index, sede: displaySedeForMap(row.sede || "Municipal") }))
+        .filter((row) => Number(row.grade) === Number(grade) && sameMapSede(row.sede, sede) && sameSubject(mappedSubject(row.subjectRaw || row.subject), subject));
       const covered = new Set(rows.map((row) => `${normalizeText(row.sede || "Municipal")}|${normalizeText(row.group || "")}`));
       const missingCourses = courses.filter((course) => !covered.has(`${normalizeText(course.sede)}|${normalizeText(course.group)}`));
       const needsAttention = !rows.length || missingCourses.length > 0;
-      return { grade, subject, rows, courses, missingCourses, needsAttention };
+      return { grade, sede, subject, rows, courses, missingCourses, needsAttention };
     });
   }
 
@@ -4703,7 +4912,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       const name = cleanText(row.name || teacherNameById(id));
       const key = id || name || `docente-${teacherMap.size}`;
       if (!teacherMap.has(key)) teacherMap.set(key, { id, name, courses: [] });
-      teacherMap.get(key).courses.push(`${row.sede || "Municipal"} · ${row.group || "Sin curso"}`);
+      teacherMap.get(key).courses.push(formatGradeCourseLabel({ ...row, grade: card.grade }, false));
     });
     const teachers = [...teacherMap.values()];
     const status = !card.rows.length
@@ -4723,9 +4932,9 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
           </div>
         </div>
         <div class="grade-subject-teachers">
-          ${teachers.length ? teachers.map((teacher) => `<div class="grade-map-teacher"><strong>${esc(teacher.name || `Docente ${teacher.id}`)}</strong><span>${esc(uniqueValues(teacher.courses).join(" · "))}</span></div>`).join("") : `<span class="muted-copy">Toca para asignar docente.</span>`}
+          ${teachers.length ? teachers.map((teacher) => `<div class="grade-map-teacher"><strong>${esc(teacher.name || `Docente ${teacher.id}`)}</strong><span>${esc(uniqueValues(teacher.courses).join(", "))}</span></div>`).join("") : `<span class="muted-copy">Toca para asignar docente.</span>`}
         </div>
-        ${card.missingCourses.length ? `<div class="grade-map-missing"><strong>Sin cubrir:</strong> ${esc(card.missingCourses.slice(0, 4).map((c) => `${c.sede} ${c.group}`).join(", "))}${card.missingCourses.length > 4 ? "…" : ""}</div>` : ""}
+        ${card.missingCourses.length ? `<div class="grade-map-missing"><strong>Sin cubrir:</strong> ${esc(card.missingCourses.slice(0, 6).map((c) => formatGradeCourseLabel(c, false)).join(", "))}${card.missingCourses.length > 6 ? "…" : ""}</div>` : ""}
       </button>
     `;
   }
@@ -4734,14 +4943,15 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     grade = Number(grade || state.adminMapGrade || 6);
     subject = canonicalSubject(subject);
     if (!grade || !subject) return;
-    const card = adminGradeSubjectCards(grade).find((item) => sameSubject(item.subject, subject)) || { grade, subject, rows: [], courses: adminGradeCourses(grade), missingCourses: adminGradeCourses(grade) };
+    const activeSede = displaySedeForMap(state.adminMapSede || "Municipal");
+    const card = adminGradeSubjectCards(grade, activeSede).find((item) => sameSubject(item.subject, subject)) || { grade, sede: activeSede, subject, rows: [], courses: adminGradeCourses(grade, activeSede), missingCourses: adminGradeCourses(grade, activeSede) };
     const teachers = buildUnifiedTeachers().filter((teacher) => cleanId(teacher.id) && !String(teacher.id).startsWith("sin-id-"));
     const missing = card.missingCourses || [];
     const allCourses = card.courses || [];
     const courseOptions = [
       `<option value="__missing__">Todos los cursos sin docente (${missing.length || 0})</option>`,
       `<option value="__all__">Todos los cursos del grado</option>`,
-      ...allCourses.map((course) => `<option value="${escAttr(`${course.sede}|${course.group}`)}">${esc(course.sede)} · ${esc(course.group)}</option>`)
+      ...allCourses.map((course) => `<option value="${escAttr(`${course.sede}|${course.group}`)}">${esc(formatGradeCourseLabel(course, false))}</option>`)
     ].join("");
     const teacherOptions = teachers.map((teacher) => `<option value="${escAttr(teacher.id)}">${esc(teacher.name || `Docente ${teacher.id}`)} · ID ${esc(teacher.id)}</option>`).join("");
     document.body.classList.add("modal-open");
@@ -4751,7 +4961,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
           <div class="modal-head">
             <div>
               <h2>Asignar docente</h2>
-              <span style="color:#7d8089;font-weight:600;">${esc(subject)} · ${esc(grade)}°</span>
+              <span style="color:#7d8089;font-weight:600;">${esc(subject)} · ${esc(activeSede)} · ${esc(grade)}°</span>
             </div>
             <button type="button" class="icon-btn" data-action="close-modal">×</button>
           </div>
@@ -4762,7 +4972,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
               <div class="field"><label>Asignatura / área</label><input id="gradeMapSubject" value="${escAttr(subject)}"></div>
               <div class="field"><label>Alcance</label><select id="gradeMapScope" class="select-pill">${courseOptions}</select></div>
             </div>
-            ${card.rows.length ? `<section class="grade-map-current"><h3>Asignación actual</h3>${card.rows.map((row) => `<div><strong>${esc(row.name || teacherNameById(row.id))}</strong><span>${esc(row.sede || "Municipal")} · ${esc(row.group || "Sin curso")}</span></div>`).join("")}</section>` : `<div class="empty-state">Esta área no tiene docentes asignados todavía en ${esc(grade)}°.</div>`}
+            ${card.rows.length ? `<section class="grade-map-current"><h3>Asignación actual</h3>${card.rows.map((row) => `<div><strong>${esc(row.name || teacherNameById(row.id))}</strong><span>${esc(formatGradeCourseLabel({ ...row, grade }, false))}</span></div>`).join("")}</section>` : `<div class="empty-state">Esta área no tiene docentes asignados todavía en ${esc(activeSede)} · ${esc(grade)}°.</div>`}
             <div class="inline-actions" style="margin-top:16px;">
               <button class="primary-btn" data-action="confirm-grade-subject-map" data-grade="${escAttr(grade)}" data-subject="${escAttr(subject)}">Asignar docente</button>
               <button class="ghost-btn" data-action="close-modal">Cancelar</button>
@@ -4785,8 +4995,9 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       toast("Selecciona docente y asignatura.");
       return;
     }
-    const courses = adminGradeCourses(grade);
-    const currentRows = (state.cargaRows || []).filter((row) => Number(row.grade) === grade && sameSubject(mappedSubject(row.subjectRaw || row.subject), subject));
+    const activeSede = displaySedeForMap(state.adminMapSede || "Municipal");
+    const courses = adminGradeCourses(grade, activeSede);
+    const currentRows = (state.cargaRows || []).filter((row) => Number(row.grade) === grade && sameMapSede(row.sede || "Municipal", activeSede) && sameSubject(mappedSubject(row.subjectRaw || row.subject), subject));
     const covered = new Set(currentRows.map((row) => `${normalizeText(row.sede || "Municipal")}|${normalizeText(row.group || "")}`));
     let selectedCourses = [];
     if (scope === "__all__") {
@@ -4803,7 +5014,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     }
     let created = 0;
     selectedCourses.forEach((course) => {
-      const duplicate = state.cargaRows.some((row) => cleanId(row.id) === teacherId && Number(row.grade) === grade && sameSubject(mappedSubject(row.subjectRaw || row.subject), subject) && normalizeText(row.sede || "Municipal") === normalizeText(course.sede) && normalizeText(row.group || "") === normalizeText(course.group));
+      const duplicate = state.cargaRows.some((row) => cleanId(row.id) === teacherId && Number(row.grade) === grade && sameSubject(mappedSubject(row.subjectRaw || row.subject), subject) && sameMapSede(row.sede || "Municipal", course.sede || "Municipal") && normalizeText(row.group || "") === normalizeText(course.group));
       if (duplicate) return;
       state.cargaRows.push({
         id: teacherId,

@@ -1,8 +1,8 @@
 {
-  "version": "v84",
-  "cache": "resultados-pwa-v84",
+  "version": "v85",
+  "cache": "resultados-pwa-v85",
   "updatedAt": "2026-06-07",
-  "note": "Agrega Admin > Mapa por grado para revisar asignaturas/áreas por grado y asignar docentes faltantes.",
+  "note": "Mapa por grado filtrado por sede, alertas animadas y advertencias de eliminación para docentes/cargas/estudiantes.",
   "builtAt": "2026-06-07T23:20:00Z",
   "date": "2026-06-07"
 }

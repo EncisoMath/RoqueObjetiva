@@ -8868,3 +8868,167 @@ select,
     min-height: auto;
   }
 }
+
+
+/* Ajustes v85: mapa por sede/grado, alertas animadas y modales warning */
+.grade-map-tab-block {
+  display: grid;
+  gap: 7px;
+  margin: 12px 0 14px;
+}
+
+.grade-map-tabs .nav-chip {
+  background: #eef5fb !important;
+  color: #075985 !important;
+  border: 1px solid rgba(7, 89, 133, .18) !important;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, .05);
+  opacity: 1 !important;
+}
+
+.grade-map-tabs .nav-chip.active {
+  background: var(--primary) !important;
+  color: #fff !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 12px 24px rgba(var(--primary-rgb, 25, 117, 174), .25);
+}
+
+.grade-map-sede-tabs .nav-chip {
+  min-width: 108px;
+  justify-content: center;
+  font-weight: 900;
+}
+
+.grade-map-grade-tabs .nav-chip {
+  min-width: 48px;
+  justify-content: center;
+}
+
+.grade-subject-alert {
+  animation: warningPixarBounce 1.25s cubic-bezier(.28,.84,.42,1) infinite;
+  transform-origin: 50% 100%;
+  will-change: transform, box-shadow;
+}
+
+@keyframes warningPixarBounce {
+  0%, 100% { transform: translateY(0) scale(1); box-shadow: 0 10px 24px rgba(220, 38, 38, .28); }
+  14% { transform: translateY(-16px) scale(1.06); box-shadow: 0 18px 30px rgba(220, 38, 38, .34); }
+  26% { transform: translateY(2px) scale(1.12, .86); }
+  38% { transform: translateY(-8px) scale(.96, 1.08); }
+  52% { transform: translateY(1px) scale(1.04, .94); }
+  66% { transform: translateY(-3px) scale(.99, 1.02); }
+  78% { transform: translateY(0) scale(1); }
+}
+
+.docente-identity-card {
+  margin-top: 12px;
+}
+
+.docente-editor-head {
+  align-items: flex-start;
+}
+
+.teacher-danger-actions {
+  justify-content: flex-end;
+}
+
+.warning-backdrop {
+  background: rgba(15, 23, 42, .52) !important;
+}
+
+.warning-backdrop-severe {
+  background: rgba(127, 29, 29, .72) !important;
+}
+
+.warning-modal {
+  border: 2px solid rgba(220, 38, 38, .25);
+  overflow: visible;
+}
+
+.warning-modal-severe {
+  border: 3px solid #dc2626;
+  box-shadow: 0 30px 80px rgba(127, 29, 29, .38), 0 0 0 8px rgba(220, 38, 38, .10);
+}
+
+.warning-icon {
+  position: absolute;
+  top: -26px;
+  left: 24px;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #dc2626;
+  color: #fff;
+  font-size: 2rem;
+  font-weight: 1000;
+  box-shadow: 0 16px 34px rgba(220, 38, 38, .35);
+  animation: warningPixarBounce 1.15s cubic-bezier(.28,.84,.42,1) infinite;
+}
+
+.warning-icon.severe {
+  width: 70px;
+  height: 70px;
+  top: -35px;
+  background: #b91c1c;
+  font-size: 2.5rem;
+  box-shadow: 0 20px 42px rgba(185, 28, 28, .52), 0 0 0 7px rgba(254, 226, 226, .7);
+}
+
+.warning-head {
+  padding-left: 70px;
+}
+
+.warning-head span {
+  color: #7f1d1d;
+  font-weight: 800;
+}
+
+.warning-details {
+  display: grid;
+  gap: 4px;
+  background: #fff7ed;
+  border: 1px solid rgba(248, 113, 113, .28);
+  border-radius: var(--corner-radius, 4px);
+  padding: 12px 14px;
+  color: #7f1d1d;
+}
+
+.warning-details strong {
+  font-weight: 950;
+  color: #2d1b1b;
+}
+
+.warning-details span {
+  font-weight: 750;
+  font-size: .88rem;
+}
+
+.warning-actions {
+  margin-top: 16px;
+}
+
+.danger-btn-severe {
+  background: #b91c1c !important;
+  color: #fff !important;
+  box-shadow: 0 16px 32px rgba(185, 28, 28, .35) !important;
+  text-transform: uppercase;
+  letter-spacing: .02em;
+}
+
+.director-delete-student-btn {
+  white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+  .grade-map-sede-tabs .nav-chip,
+  .grade-map-grade-tabs .nav-chip {
+    min-width: auto;
+    flex: 1 1 auto;
+  }
+  .warning-head {
+    padding-left: 0;
+    padding-top: 22px;
+  }
+}
