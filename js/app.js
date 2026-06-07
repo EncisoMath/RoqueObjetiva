@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v65";
+  const APP_VERSION = "v66";
 
   const app = document.getElementById("app");
   const toastEl = document.getElementById("toast");
@@ -951,17 +951,29 @@
     document.body.classList.add("modal-open");
   }
 
-  function renderPlayShapes(prefix = "banner") {
+  function renderPlayShapes(prefix = "banner", stars = false) {
     const shapes = ["x", "square", "tri", "circle"];
     const variants = ["", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"];
-    const symbols = { x: "×", square: "□", tri: "△", circle: "○" };
+    const symbols = stars
+      ? { x: "★", square: "✦", tri: "✧", circle: "✷" }
+      : { x: "×", square: "□", tri: "△", circle: "○" };
     return variants.map((variant, index) => {
       const shape = shapes[index % shapes.length];
-      return `<span class="shape ${shape} ${variant}" aria-hidden="true">${symbols[shape]}</span>`;
+      return `<span class="shape ${stars ? "star" : ""} ${shape} ${variant}" aria-hidden="true">${symbols[shape]}</span>`;
     }).join("");
   }
 
-  function renderShell(content, nav = "") {
+  function studentBannerTone(student) {
+    const ranks = [student?.courseRank, student?.gradeRank]
+      .map((value) => Number(value))
+      .filter((value) => Number.isFinite(value) && value > 0);
+    if (ranks.includes(1)) return "banner-rank-gold";
+    if (ranks.includes(2)) return "banner-rank-silver";
+    if (ranks.includes(3)) return "banner-rank-bronze";
+    return "";
+  }
+
+  function renderShell(content, nav = "", bannerToneClass = "") {
     const cfg = state.config;
     const primary = normalizeColor(cfg.primaryColor || "#1975ae");
     const primaryDark = shadeColor(primary, -18);
@@ -979,11 +991,13 @@
     document.querySelector('meta[name="theme-color"]')?.setAttribute("content", primary);
     applyAppMeta(primary);
     const bannerStyle = `style="background: linear-gradient(105deg, ${primary} 0%, ${primary} 42%, ${primaryDark} 100%)"`;
+    const isMedalBanner = ["banner-rank-gold", "banner-rank-silver", "banner-rank-bronze"].includes(bannerToneClass);
+    const bannerClass = isMedalBanner ? ` ${bannerToneClass}` : "";
     app.innerHTML = `
       <div class="app-shell">
-        <header class="top-banner" ${bannerStyle}>
-          <div class="banner-shapes" aria-hidden="true">
-            ${renderPlayShapes("banner")}
+        <header class="top-banner${bannerClass}" ${bannerStyle}>
+          <div class="banner-shapes ${isMedalBanner ? "banner-stars" : ""}" aria-hidden="true">
+            ${renderPlayShapes("banner", isMedalBanner)}
           </div>
           <div class="banner-inner">
             <div class="banner-copy">
@@ -1093,7 +1107,7 @@
           ${subject ? buildSubjectDetailHtml(student, subject, stat, false) : buildEmptySubjectDetailHtml()}
         </section>
       </section>
-    `, navFor("student"));
+    `, navFor("student"), studentBannerTone(student));
     if (!state.zeroToleranceShown) {
       state.zeroToleranceShown = true;
       window.setTimeout(() => openZeroToleranceModal(), 260);

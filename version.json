@@ -1,6 +1,6 @@
 {
-  "version": "v65",
-  "cache": "resultados-pwa-v65",
+  "version": "v66",
+  "cache": "resultados-pwa-v66",
   "updatedAt": "2026-06-07",
-  "note": "Reordenamiento de login movil y accesos recientes compactos debajo del boton de ingreso."
+  "note": "Banner estudiante con estilo dorado, plateado o cobre cuando el ranking por curso o grado es 1, 2 o 3."
 }
