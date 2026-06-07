@@ -6218,3 +6218,98 @@ body {
   .zt-footer-note { font-size: .88rem; }
   .zero-tolerance-actions .primary-btn { width: 100%; }
 }
+
+
+/* Zero tolerance image refinement v50 */
+.zero-tolerance-modal {
+  width: min(430px, calc(100vw - 24px));
+  max-height: calc(100dvh - 24px);
+  overflow: hidden;
+  border-radius: 5px !important;
+}
+
+.zero-tolerance-head {
+  border-radius: 5px 5px 0 0;
+  padding: 12px 14px;
+}
+
+.zero-tolerance-head h2 {
+  font-size: 1.02rem;
+}
+
+.zero-tolerance-body {
+  padding: 12px 14px 14px;
+  gap: 10px;
+}
+
+.zt-logo-image-wrap {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.zt-logo-image {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.zero-tolerance-modal .zt-lead {
+  font-size: .9rem;
+  line-height: 1.38;
+}
+
+.zero-tolerance-modal .zt-rules {
+  border-radius: 5px;
+  padding: 10px 12px;
+  gap: 5px;
+}
+
+.zero-tolerance-modal .zt-rule {
+  font-size: .86rem;
+  line-height: 1.24;
+}
+
+.zero-tolerance-modal .zt-footer-note {
+  font-size: .84rem;
+}
+
+.zero-tolerance-actions {
+  margin-top: 0;
+}
+
+.zero-tolerance-actions .primary-btn {
+  min-height: 40px;
+  padding: 10px 16px;
+}
+
+@media (max-width: 420px) {
+  .zero-tolerance-modal {
+    width: calc(100vw - 20px);
+  }
+  .zero-tolerance-head {
+    padding: 10px 12px;
+  }
+  .zero-tolerance-body {
+    padding: 10px 12px 12px;
+    gap: 8px;
+  }
+  .zero-tolerance-modal .zt-lead {
+    font-size: .84rem;
+    line-height: 1.32;
+  }
+  .zero-tolerance-modal .zt-rules {
+    padding: 9px 10px;
+    gap: 4px;
+  }
+  .zero-tolerance-modal .zt-rule {
+    font-size: .8rem;
+    line-height: 1.2;
+  }
+  .zero-tolerance-modal .zt-footer-note {
+    font-size: .78rem;
+  }
+}

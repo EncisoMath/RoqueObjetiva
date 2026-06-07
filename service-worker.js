@@ -1,4 +1,4 @@
-const CACHE_VERSION = "resultados-pwa-v48";
+const CACHE_VERSION = "resultados-pwa-v50";
 const APP_SHELL = [
   "./",
   "index.html",
@@ -12,7 +12,8 @@ const APP_SHELL = [
   "icons/icon-512.png",
   "icons/maskable-512.png",
   "icons/apple-touch-icon.png",
-  "assets/default-logo.svg"
+  "assets/default-logo.svg",
+  "assets/ZERO.png"
 ];
 
 self.addEventListener("install", (event) => {

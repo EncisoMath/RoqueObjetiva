@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v48";
+  const APP_VERSION = "v50";
 
   const app = document.getElementById("app");
   const toastEl = document.getElementById("toast");
@@ -687,12 +687,8 @@
 
   function zeroToleranceLogoHtml() {
     return `
-      <div class="zt-logo" aria-label="Zero Tolerance">
-        <div class="zt-logo-top">
-          <span class="zt-word">ZERO</span>
-          <span class="zt-sign" aria-hidden="true"></span>
-        </div>
-        <div class="zt-logo-bottom">TOLERANCE</div>
+      <div class="zt-logo-image-wrap" aria-label="Zero Tolerance">
+        <img class="zt-logo-image" src="assets/ZERO.png" alt="ZERO TOLERANCE">
       </div>
     `;
   }
@@ -1382,7 +1378,7 @@
 
     const nav = `
       <nav class="app-nav admin-top-tabs">
-        ${tabs.map(([id, label]) => `<button class="nav-chip ${state.adminTab === id ? "active" : ""}" data-action="admin-tab" data-tab="${id}">${label}</button>`).join("")}
+        ${tabs.map(([id, label]) => `<button class="nav-chip ${state.adminTab === id ? "active" : ""}" onclick="window.__poAdminTabFromElement&&window.__poAdminTabFromElement(event,this)" data-action="admin-tab" data-tab="${id}">${label}</button>`).join("")}
         <button class="nav-chip logout" data-action="logout">Salir</button>
       </nav>
     `;
@@ -2226,15 +2222,73 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       const activeMode = state.teacherMode || "asignaturas";
       return `
         <nav class="app-nav teacher-top-nav">
-          <button class="nav-chip ${activeMode === "asignaturas" ? "active" : ""}" data-action="teacher-mode" data-mode="asignaturas" ${hasAssignments ? "" : "disabled"}>Panel docente</button>
-          ${hasDirector ? `<button class="nav-chip ${activeMode === "director" ? "active" : ""}" data-action="teacher-mode" data-mode="director">Panel director de grupo</button>` : ""}
-          ${isCoordinator ? `<button class="nav-chip ${activeMode === "coord-estudiantes" ? "active" : ""}" data-action="teacher-mode" data-mode="coord-estudiantes">Estudiantes</button><button class="nav-chip ${activeMode === "coord-resultados" ? "active" : ""}" data-action="teacher-mode" data-mode="coord-resultados">Resultados</button><button class="nav-chip ${activeMode === "coord-analisis" ? "active" : ""}" data-action="teacher-mode" data-mode="coord-analisis">Análisis / ranking</button><button class="nav-chip ${activeMode === "coord-claves" ? "active" : ""}" data-action="teacher-mode" data-mode="coord-claves">Claves</button>` : ""}
+          <button class="nav-chip ${activeMode === "asignaturas" ? "active" : ""}" onclick="window.__poTeacherModeFromElement&&window.__poTeacherModeFromElement(event,this)" data-action="teacher-mode" data-mode="asignaturas" ${hasAssignments ? "" : "disabled"}>Panel docente</button>
+          ${hasDirector ? `<button class="nav-chip ${activeMode === "director" ? "active" : ""}" onclick="window.__poTeacherModeFromElement&&window.__poTeacherModeFromElement(event,this)" data-action="teacher-mode" data-mode="director">Panel director de grupo</button>` : ""}
+          ${isCoordinator ? `<button class="nav-chip ${activeMode === "coord-estudiantes" ? "active" : ""}" onclick="window.__poTeacherModeFromElement&&window.__poTeacherModeFromElement(event,this)" data-action="teacher-mode" data-mode="coord-estudiantes">Estudiantes</button><button class="nav-chip ${activeMode === "coord-resultados" ? "active" : ""}" onclick="window.__poTeacherModeFromElement&&window.__poTeacherModeFromElement(event,this)" data-action="teacher-mode" data-mode="coord-resultados">Resultados</button><button class="nav-chip ${activeMode === "coord-analisis" ? "active" : ""}" onclick="window.__poTeacherModeFromElement&&window.__poTeacherModeFromElement(event,this)" data-action="teacher-mode" data-mode="coord-analisis">Análisis / ranking</button><button class="nav-chip ${activeMode === "coord-claves" ? "active" : ""}" onclick="window.__poTeacherModeFromElement&&window.__poTeacherModeFromElement(event,this)" data-action="teacher-mode" data-mode="coord-claves">Claves</button>` : ""}
           <button class="nav-chip logout" data-action="logout">Salir</button>
         </nav>
       `;
     }
     return "";
   }
+
+  function setAnalysisField(field, value) {
+    if (field === "mode") state.adminAnalysisMode = value === "area" ? "area" : "estructura";
+    if (field === "sede") { state.adminAnalysisSede = value; state.adminAnalysisGrade = "all"; }
+    if (field === "grade") state.adminAnalysisGrade = value;
+    if (field === "subject") state.adminAnalysisSubject = value;
+    state.adminAnalysisPath = {};
+  }
+
+  function drillAnalysis(level, value) {
+    if (!level) return;
+    if (!state.adminAnalysisPath) state.adminAnalysisPath = {};
+    const mode = state.adminAnalysisMode === "area" ? "area" : "estructura";
+    const activeOrder = mode === "area" ? ["subject", "sede", "grade", "course"] : ["sede", "grade", "course", "subject"];
+    const idx = activeOrder.indexOf(level);
+    if (idx >= 0) activeOrder.slice(idx + 1).forEach((key) => delete state.adminAnalysisPath[key]);
+    if (String(state.adminAnalysisPath[level] || "") === String(value || "")) {
+      delete state.adminAnalysisPath[level];
+      if (idx >= 0) activeOrder.slice(idx + 1).forEach((key) => delete state.adminAnalysisPath[key]);
+    } else {
+      state.adminAnalysisPath[level] = value;
+    }
+    renderAdminContext();
+  }
+
+  function clearAnalysisFrom(level = "all") {
+    if (level === "all") state.adminAnalysisPath = {};
+    else {
+      const order = state.adminAnalysisMode === "area" ? ["subject", "sede", "grade", "course"] : ["sede", "grade", "course", "subject"];
+      const idx = order.indexOf(level);
+      if (idx >= 0) order.slice(idx).forEach((key) => delete state.adminAnalysisPath[key]);
+    }
+    renderAdminContext();
+  }
+
+  window.__poAnalysisDrillFromElement = function(event, element) {
+    if (event) { event.preventDefault(); event.stopPropagation(); }
+    drillAnalysis(element?.dataset?.level || "", element?.dataset?.value || "");
+  };
+
+  window.__poAnalysisChangeFromElement = function(element) {
+    setAnalysisField(element?.dataset?.adminAnalysisField || "", element?.value || "all");
+    renderAdminContext();
+  };
+
+  window.__poAdminTabFromElement = function(event, element) {
+    if (event) { event.preventDefault(); event.stopPropagation(); }
+    state.adminTab = element?.dataset?.tab || "resumen";
+    if (state.adminTab !== "claves") state.adminSubjectFilter = "all";
+    renderAdminContext();
+  };
+
+  window.__poTeacherModeFromElement = function(event, element) {
+    if (event) { event.preventDefault(); event.stopPropagation(); }
+    const mode = element?.dataset?.mode || "asignaturas";
+    state.teacherMode = ["director", "asignaturas", "coord-estudiantes", "coord-resultados", "coord-analisis", "coord-claves"].includes(mode) ? mode : "asignaturas";
+    renderBySession();
+  };
 
   function handleSubmit(event) {
     if (event.target.id === "loginForm") {
@@ -2354,28 +2408,12 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     }
 
     if (action === "analysis-drill") {
-      const level = target.dataset.level || "";
-      const value = target.dataset.value || "";
-      if (!state.adminAnalysisPath) state.adminAnalysisPath = {};
-      const order = ["subject", "sede", "grade", "course"];
-      const structureOrder = ["sede", "grade", "course", "subject"];
-      const activeOrder = state.adminAnalysisMode === "area" ? order : structureOrder;
-      const idx = activeOrder.indexOf(level);
-      if (idx >= 0) activeOrder.slice(idx + 1).forEach((key) => delete state.adminAnalysisPath[key]);
-      state.adminAnalysisPath[level] = value;
-      renderAdminContext();
+      drillAnalysis(target.dataset.level || "", target.dataset.value || "");
       return;
     }
 
     if (action === "analysis-clear") {
-      const level = target.dataset.level || "all";
-      if (level === "all") state.adminAnalysisPath = {};
-      else {
-        const order = state.adminAnalysisMode === "area" ? ["subject", "sede", "grade", "course"] : ["sede", "grade", "course", "subject"];
-        const idx = order.indexOf(level);
-        if (idx >= 0) order.slice(idx).forEach((key) => delete state.adminAnalysisPath[key]);
-      }
-      renderAdminContext();
+      clearAnalysisFrom(target.dataset.level || "all");
       return;
     }
 
@@ -2898,12 +2936,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     }
 
     if (target.dataset.adminAnalysisField) {
-      const field = target.dataset.adminAnalysisField;
-      if (field === "mode") state.adminAnalysisMode = target.value;
-      if (field === "sede") { state.adminAnalysisSede = target.value; state.adminAnalysisGrade = "all"; }
-      if (field === "grade") state.adminAnalysisGrade = target.value;
-      if (field === "subject") state.adminAnalysisSubject = target.value;
-      state.adminAnalysisPath = {};
+      setAnalysisField(target.dataset.adminAnalysisField, target.value);
       renderAdminContext();
       return;
     }
@@ -3882,7 +3915,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       : "Primero compara sedes. Al abrir una sede verás grados, cursos, áreas/asignaturas y luego componentes/competencias si existen.";
 
     return `<section class="toolbar"><div><span class="section-eyebrow">Análisis / ranking</span><h2 style="margin:8px 0 0;font-weight:900;">Desempeño institucional</h2><p class="muted-copy">${modeHelp} Cada barra muestra el <strong>promedio de nota</strong> en escala de 20 a 100.</p></div></section>
-      <section class="card card-pad admin-results-filters"><div class="form-grid compact admin-results-required-grid"><div class="field"><label>Ver ranking por</label><select class="select-pill" data-admin-analysis-field="mode"><option value="estructura" ${mode === "estructura" ? "selected" : ""}>Sede / grado / curso</option><option value="area" ${mode === "area" ? "selected" : ""}>Área / asignatura</option></select></div><div class="field"><label>Limitar sede</label><select class="select-pill" data-admin-analysis-field="sede">${sedes.map((v)=>`<option value="${escAttr(v)}" ${state.adminAnalysisSede===v?"selected":""}>${v==="all"?"Todas":esc(v)}</option>`).join("")}</select></div><div class="field"><label>Limitar grado</label><select class="select-pill" data-admin-analysis-field="grade">${grades.map((v)=>`<option value="${escAttr(v)}" ${String(state.adminAnalysisGrade)===String(v)?"selected":""}>${v==="all"?"Todos":`${esc(v)}°`}</option>`).join("")}</select></div><div class="field"><label>Área rápida</label><select class="select-pill" data-admin-analysis-field="subject">${subjects.map((v)=>`<option value="${escAttr(v)}" ${state.adminAnalysisSubject===v?"selected":""}>${v==="all"?"Todas":esc(shortSubjectName(v))}</option>`).join("")}</select></div></div></section>
+      <section class="card card-pad admin-results-filters"><div class="form-grid compact admin-results-required-grid"><div class="field"><label>Ver ranking por</label><select class="select-pill" onchange="window.__poAnalysisChangeFromElement&&window.__poAnalysisChangeFromElement(this)" data-admin-analysis-field="mode"><option value="estructura" ${mode === "estructura" ? "selected" : ""}>Sede / grado / curso</option><option value="area" ${mode === "area" ? "selected" : ""}>Área / asignatura</option></select></div><div class="field"><label>Limitar sede</label><select class="select-pill" onchange="window.__poAnalysisChangeFromElement&&window.__poAnalysisChangeFromElement(this)" data-admin-analysis-field="sede">${sedes.map((v)=>`<option value="${escAttr(v)}" ${state.adminAnalysisSede===v?"selected":""}>${v==="all"?"Todas":esc(v)}</option>`).join("")}</select></div><div class="field"><label>Limitar grado</label><select class="select-pill" onchange="window.__poAnalysisChangeFromElement&&window.__poAnalysisChangeFromElement(this)" data-admin-analysis-field="grade">${grades.map((v)=>`<option value="${escAttr(v)}" ${String(state.adminAnalysisGrade)===String(v)?"selected":""}>${v==="all"?"Todos":`${esc(v)}°`}</option>`).join("")}</select></div><div class="field"><label>Área rápida</label><select class="select-pill" onchange="window.__poAnalysisChangeFromElement&&window.__poAnalysisChangeFromElement(this)" data-admin-analysis-field="subject">${subjects.map((v)=>`<option value="${escAttr(v)}" ${state.adminAnalysisSubject===v?"selected":""}>${v==="all"?"Todas":esc(shortSubjectName(v))}</option>`).join("")}</select></div></div></section>
       <section class="analysis-tree card card-pad">${content || `<div class="empty-state">No hay datos para estos filtros.</div>`}</section>`;
   }
 
@@ -3938,7 +3971,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     const avgValue = Number(row.avg) || 0;
     const width = clamp(avgValue / 100 * 100, 0, 100);
     const active = activeValue && String(activeValue) === String(row.key);
-    return `<button class="analysis-drill-row ${active ? "active" : ""}" data-action="analysis-drill" data-level="${escAttr(level)}" data-value="${escAttr(row.key)}" title="Promedio de nota: ${escAttr(row.avg)}/100">
+    return `<button class="analysis-drill-row ${active ? "active" : ""}" onclick="window.__poAnalysisDrillFromElement&&window.__poAnalysisDrillFromElement(event,this)" data-action="analysis-drill" data-level="${escAttr(level)}" data-value="${escAttr(row.key)}" title="Promedio de nota: ${escAttr(row.avg)}/100">
       <span class="analysis-rank">${index + 1}</span>
       ${withIcon ? subjectIcon(row.subject || row.label) : ""}
       <span class="analysis-label"><strong>${esc(row.label)}</strong><small>Promedio de nota · ${row.count} estudiante${row.count === 1 ? "" : "s"}</small></span>
