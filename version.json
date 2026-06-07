@@ -1,6 +1,7 @@
 {
-  "version": "v66",
-  "cache": "resultados-pwa-v66",
+  "version": "v67",
+  "cache": "resultados-pwa-v67",
   "updatedAt": "2026-06-07",
-  "note": "Banner estudiante con estilo dorado, plateado o cobre cuando el ranking por curso o grado es 1, 2 o 3."
+  "note": "Banner estudiante con estilo dorado, plateado o cobre cuando el ranking por curso o grado es 1, 2 o 3.",
+  "builtAt": "2026-06-07T19:50:00Z"
 }
