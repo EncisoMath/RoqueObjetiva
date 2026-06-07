@@ -1,13 +1,17 @@
-const CACHE_VERSION = "resultados-pwa-v62";
+const APP_VERSION = "v63";
+const CACHE_VERSION = "resultados-pwa-v63";
+const CACHE_PREFIXES = ["resultados-pwa-", "resultados-pruebas-"];
+
 const APP_SHELL = [
   "./",
   "index.html",
-  "css/app.css",
-  "js/app.js",
+  "css/app.css?v=63",
+  "js/app.js?v=63",
+  "version.json",
   "config/data-manifest.json",
   "config/site-config.json",
   "INTERNO/DIRECTORESGRUPO.json",
-  "manifest.webmanifest",
+  "manifest.webmanifest?v=63",
   "icons/icon-192.png",
   "icons/icon-512.png",
   "icons/maskable-512.png",
@@ -17,19 +21,35 @@ const APP_SHELL = [
 ];
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE_VERSION)
-      .then((cache) => cache.addAll(APP_SHELL))
-      .then(() => self.skipWaiting())
-  );
+  event.waitUntil((async () => {
+    const cache = await caches.open(CACHE_VERSION);
+    await cache.addAll(APP_SHELL.map((url) => new Request(url, { cache: "reload" })));
+    await self.skipWaiting();
+  })());
 });
 
 self.addEventListener("activate", (event) => {
-  event.waitUntil(
-    caches.keys()
-      .then((keys) => Promise.all(keys.filter((key) => key !== CACHE_VERSION).map((key) => caches.delete(key))))
-      .then(() => self.clients.claim())
-  );
+  event.waitUntil((async () => {
+    const keys = await caches.keys();
+    await Promise.all(keys
+      .filter((key) => key !== CACHE_VERSION && CACHE_PREFIXES.some((prefix) => key.startsWith(prefix)))
+      .map((key) => caches.delete(key))
+    );
+
+    await self.clients.claim();
+
+    const clients = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+    await Promise.all(clients.map(async (client) => {
+      try { client.postMessage({ type: "APP_UPDATED", version: APP_VERSION }); } catch (error) {}
+      try { await client.navigate(client.url); } catch (error) {}
+    }));
+  })());
+});
+
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
 });
 
 self.addEventListener("fetch", (event) => {
@@ -39,41 +59,54 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
-  const isDataFile = url.pathname.endsWith(".json") || url.pathname.endsWith(".webmanifest");
-  const isDocument = request.mode === "navigate";
+  const pathname = url.pathname;
+  const isDocument = request.mode === "navigate" || pathname.endsWith("/") || pathname.endsWith(".html");
+  const mustBeFresh = isDocument
+    || pathname.endsWith(".js")
+    || pathname.endsWith(".css")
+    || pathname.endsWith(".json")
+    || pathname.endsWith(".webmanifest");
 
-  if (isDocument) {
-    event.respondWith(networkFirst(request, "index.html"));
-    return;
-  }
-
-  if (isDataFile) {
-    event.respondWith(networkFirst(request));
+  if (mustBeFresh) {
+    event.respondWith(networkFirst(request, isDocument ? "index.html" : null));
     return;
   }
 
   event.respondWith(cacheFirst(request));
 });
 
+function requestWithReload(request) {
+  try {
+    return new Request(request, { cache: "reload" });
+  } catch (error) {
+    return request;
+  }
+}
+
 async function cacheFirst(request) {
   const cached = await caches.match(request);
   if (cached) return cached;
-  const response = await fetch(request);
-  const cache = await caches.open(CACHE_VERSION);
-  cache.put(request, response.clone());
+  const response = await fetch(requestWithReload(request));
+  if (response && response.ok) {
+    const cache = await caches.open(CACHE_VERSION);
+    cache.put(request, response.clone());
+  }
   return response;
 }
 
 async function networkFirst(request, fallbackUrl = null) {
   const cache = await caches.open(CACHE_VERSION);
   try {
-    const response = await fetch(request);
-    cache.put(request, response.clone());
+    const response = await fetch(requestWithReload(request));
+    if (response && response.ok) cache.put(request, response.clone());
     return response;
   } catch (error) {
     const cached = await caches.match(request);
     if (cached) return cached;
-    if (fallbackUrl) return caches.match(fallbackUrl);
+    if (fallbackUrl) {
+      const fallback = await caches.match(fallbackUrl) || await caches.match("./");
+      if (fallback) return fallback;
+    }
     throw error;
   }
 }

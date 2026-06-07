@@ -7155,7 +7155,7 @@ body {
   grid-column: 1 / -1;
 }
 
-/* Ajustes v62: vista docente compacta en móvil */
+/* Ajustes v63: vista docente compacta en móvil y autoactualización */
 .teacher-stat-strip.teacher-stat-strip-three {
   grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
 }
@@ -7176,7 +7176,7 @@ body {
 .teacher-metric-tabbed .metric-tabs.teacher-metric-tabs {
   display: flex;
   gap: 8px;
-  margin: 0 0 10px;
+  margin: 0 0 16px;
 }
 
 .teacher-metric-tabbed .metric-grid.teacher-metric-grid {
@@ -7240,7 +7240,7 @@ body {
     display: none !important;
   }
   .teacher-metric-tabbed .metric-tabs.teacher-metric-tabs {
-    margin-bottom: 8px;
+    margin-bottom: 14px;
   }
   .teacher-metric-tabbed .metric-tab {
     min-height: 38px;

@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v60";
+  const APP_VERSION = "v63";
 
   const app = document.getElementById("app");
   const toastEl = document.getElementById("toast");
@@ -5336,10 +5336,49 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
 
   function registerPWA() {
     if (!("serviceWorker" in navigator)) return;
-    window.addEventListener("load", () => {
-      navigator.serviceWorker.register("service-worker.js").catch(() => {
+
+    let reloadingForUpdate = false;
+    const reloadForUpdate = () => {
+      if (reloadingForUpdate) return;
+      reloadingForUpdate = true;
+      try { toast("Actualizando aplicación..."); } catch (error) {}
+      window.setTimeout(() => window.location.reload(), 450);
+    };
+
+    const checkLatestVersion = async (registration) => {
+      try {
+        const response = await fetch(`version.json?t=${Date.now()}`, { cache: "no-store" });
+        if (!response.ok) return;
+        const info = await response.json();
+        if (info?.version && info.version !== APP_VERSION) {
+          await registration.update();
+          if (registration.waiting) registration.waiting.postMessage({ type: "SKIP_WAITING" });
+        }
+      } catch (error) {
+        /* Si no hay red, se conserva la versión instalada. */
+      }
+    };
+
+    navigator.serviceWorker.addEventListener("controllerchange", reloadForUpdate);
+    navigator.serviceWorker.addEventListener("message", (event) => {
+      if (event.data?.type === "APP_UPDATED") reloadForUpdate();
+    });
+
+    window.addEventListener("load", async () => {
+      try {
+        const registration = await navigator.serviceWorker.register("service-worker.js", { updateViaCache: "none" });
+        if (registration.waiting) registration.waiting.postMessage({ type: "SKIP_WAITING" });
+        await registration.update();
+        await checkLatestVersion(registration);
+
+        window.setInterval(() => checkLatestVersion(registration), 15 * 60 * 1000);
+        window.addEventListener("focus", () => checkLatestVersion(registration));
+        document.addEventListener("visibilitychange", () => {
+          if (document.visibilityState === "visible") checkLatestVersion(registration);
+        });
+      } catch (error) {
         /* La app sigue funcionando aunque el registro PWA falle. */
-      });
+      }
     });
   }
 
