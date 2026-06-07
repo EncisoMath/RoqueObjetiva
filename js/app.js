@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v85";
+  const APP_VERSION = "v86";
 
   const app = document.getElementById("app");
   const toastEl = document.getElementById("toast");
@@ -1559,8 +1559,8 @@
         <section class="director-subject-grid">
           ${subjectCards || `<div class="card card-pad empty-state">No hay resultados por asignatura para este grupo.</div>`}
         </section>
-        <section class="card table-card teacher-table-card director-table-card">
-          <div class="table-wrap">
+        <section class="card table-card teacher-table-card director-table-card" style="--director-cols:${subjects.length};">
+          <div class="table-wrap director-table-wrap">
             <table class="teacher-table director-table">
               <thead><tr><th>#</th><th>${sortHeader("Estudiante", "director-group", "name")}</th>${subjects.map((subject) => `<th>${sortHeader(subject.short || subject.name, "director-group", subject.name)}</th>`).join("")}<th>Acción</th></tr></thead>
               <tbody>${tableRows || `<tr><td colspan="${3 + subjects.length}" class="empty-state">No hay estudiantes con resultados en este grupo.</td></tr>`}</tbody>
@@ -2552,10 +2552,14 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     const isCoordinator = teacher.assignments.some((row) => row.coordinator);
     return `
       <div class="carga-teacher-head">
-        <div class="form-grid compact">
-          <div class="field"><label>ID docente</label><input value="${escAttr(baseRow.id || "")}" data-carga-teacher-field="id" data-old-id="${escAttr(teacher.id)}"></div>
-          <div class="field"><label>Nombre docente</label><input value="${escAttr(baseRow.name || teacher.name || "")}" data-carga-teacher-field="name" data-old-id="${escAttr(teacher.id)}"></div>
-        </div>
+        <section class="docente-identity-summary">
+          <div>
+            <span class="section-eyebrow">Datos del docente</span>
+            <h3>${esc(baseRow.name || teacher.name || "Docente sin nombre")}</h3>
+            <p>ID ${esc(baseRow.id || teacher.id || "sin ID")}</p>
+          </div>
+          <button class="secondary-btn" data-action="edit-teacher-identity" data-id="${escAttr(teacher.id)}">Editar datos</button>
+        </section>
         <label class="coordinator-check">
           <input type="checkbox" data-carga-coordinator="${escAttr(teacher.id)}" ${isCoordinator ? "checked" : ""}>
           <span>Coordinador: puede ver Estudiantes, Resultados y Claves</span>
@@ -3086,6 +3090,11 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       return;
     }
 
+    if (action === "delete-grade-map-row") {
+      openDeleteCargaWarning(Number(target.dataset.index));
+      return;
+    }
+
     if (action === "key-grade-tab") {
       state.adminGradeFilter = target.dataset.grade || state.adminGradeFilter;
       state.adminSubjectFilter = "all";
@@ -3443,6 +3452,16 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       return;
     }
 
+    if (action === "edit-teacher-identity") {
+      openEditTeacherIdentityModal(target.dataset.id || state.adminCargaTeacherId || "");
+      return;
+    }
+
+    if (action === "confirm-edit-teacher-identity") {
+      confirmEditTeacherIdentity(target.dataset.oldId || "");
+      return;
+    }
+
     if (action === "delete-carga-teacher") {
       openDeleteTeacherWarning(target.dataset.id || "");
       return;
@@ -3643,27 +3662,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       else if (field === "group") state.studentsRegistry[index].group = target.value;
     }
 
-    if (target.dataset.cargaTeacherField) {
-      const oldId = cleanId(target.dataset.oldId || state.adminCargaTeacherId || "");
-      const currentId = cleanId(state.adminCargaTeacherId || oldId || "");
-      const field = target.dataset.cargaTeacherField;
-      const value = field === "id" ? cleanId(target.value) : target.value;
-      state.cargaRows.forEach((row) => {
-        if (row.id === oldId || row.id === currentId) {
-          if (field === "id") row.id = value;
-          if (field === "name") row.name = cleanText(value);
-        }
-      });
-      state.directorRows.forEach((row) => {
-        if (field === "id" && (row.id === oldId || row.id === currentId)) row.id = value;
-      });
-      if (field === "id") {
-        state.adminCargaTeacherId = value;
-        state.adminDirectorTeacherId = value;
-        target.dataset.oldId = value;
-      }
-      buildRepository();
-    }
+    // v86: los datos personales del docente se editan desde un modal y se guardan con boton.
 
     if (target.dataset.cargaCoordinator) {
       const id = target.dataset.cargaCoordinator;
@@ -4308,24 +4307,91 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
   }
 
 
-  function warningModal({ title, message, details = "", confirmLabel = "Confirmar", confirmAction, attrs = "", severe = false }) {
+
+  function openEditTeacherIdentityModal(id) {
+    const clean = cleanId(id || state.adminCargaTeacherId || "");
+    const teacher = buildUnifiedTeachers().find((item) => cleanId(item.id) === clean) || buildCargaTeachers().find((item) => cleanId(item.id) === clean);
+    if (!teacher) return;
     document.body.classList.add("modal-open");
     modalRoot.innerHTML = `
-      <div class="modal-backdrop warning-backdrop ${severe ? "warning-backdrop-severe" : ""}" data-action="close-modal">
-        <section class="modal warning-modal ${severe ? "warning-modal-severe" : ""}" style="max-width:${severe ? "680" : "600"}px;">
-          <div class="warning-icon ${severe ? "severe" : ""}">!</div>
-          <div class="modal-head warning-head">
+      <div class="modal-backdrop" data-action="close-modal">
+        <section class="modal teacher-identity-modal" style="max-width:560px;">
+          <div class="modal-head">
             <div>
-              <h2>${esc(title)}</h2>
-              <span>${esc(message)}</span>
+              <h2>Editar docente</h2>
+              <span style="color:#7d8089;font-weight:600;">Modifica el ID o el nombre y guarda cuando termines.</span>
             </div>
             <button type="button" class="icon-btn" data-action="close-modal" aria-label="Cerrar">×</button>
           </div>
           <div class="modal-body">
+            <div class="form-grid compact">
+              <div class="field"><label>ID docente</label><input id="editTeacherId" value="${escAttr(teacher.id || "")}" autocomplete="off"></div>
+              <div class="field"><label>Nombre docente</label><input id="editTeacherName" value="${escAttr(teacher.name || "")}" autocomplete="off"></div>
+            </div>
+            <div class="inline-actions" style="margin-top:16px;">
+              <button class="primary-btn" data-action="confirm-edit-teacher-identity" data-old-id="${escAttr(teacher.id || "")}">Guardar datos</button>
+              <button class="ghost-btn" data-action="close-modal">Cancelar</button>
+            </div>
+          </div>
+        </section>
+      </div>`;
+  }
+
+  function confirmEditTeacherIdentity(oldId) {
+    const previousId = cleanId(oldId || state.adminCargaTeacherId || "");
+    const nextId = cleanId(document.getElementById("editTeacherId")?.value || "");
+    const nextName = cleanText(document.getElementById("editTeacherName")?.value || "");
+    if (!nextId || !nextName) {
+      toast("Escribe ID y nombre del docente.");
+      return;
+    }
+    const duplicate = nextId !== previousId && buildUnifiedTeachers().some((teacher) => cleanId(teacher.id) === nextId);
+    if (duplicate) {
+      toast("Ya existe otro docente con ese ID.");
+      return;
+    }
+    let touchedCarga = false;
+    state.cargaRows.forEach((row) => {
+      if (cleanId(row.id) === previousId) {
+        row.id = nextId;
+        row.name = nextName;
+        touchedCarga = true;
+      }
+    });
+    state.directorRows.forEach((row) => {
+      if (cleanId(row.id) === previousId) row.id = nextId;
+    });
+    if (!touchedCarga) {
+      state.cargaRows.push({ id: nextId, name: nextName, subjectRaw: "", subject: "", sede: "", grade: "", group: "", coordinator: false });
+    }
+    if (cleanId(state.adminCargaTeacherId) === previousId) state.adminCargaTeacherId = nextId;
+    if (cleanId(state.adminDirectorTeacherId) === previousId) state.adminDirectorTeacherId = nextId;
+    normalizeCargaRows();
+    normalizeDirectorRows();
+    buildRepository();
+    closeModal();
+    toast("Datos del docente guardados.");
+    renderAdminContext();
+  }
+
+  function warningModal({ title, message, details = "", confirmLabel = "Confirmar", confirmAction, attrs = "", severe = false }) {
+    document.body.classList.add("modal-open");
+    modalRoot.innerHTML = `
+      <div class="modal-backdrop warning-backdrop ${severe ? "warning-backdrop-severe" : ""}" data-action="close-modal">
+        <section class="modal warning-modal ${severe ? "warning-modal-severe" : ""}" style="max-width:${severe ? "700" : "620"}px;">
+          <div class="warning-topline">
+            <div class="warning-icon ${severe ? "severe" : ""}" aria-hidden="true">!</div>
+            <div class="warning-copy">
+              <h2>${esc(title)}</h2>
+              <p>${esc(message)}</p>
+            </div>
+            <button type="button" class="icon-btn warning-close" data-action="close-modal" aria-label="Cerrar">×</button>
+          </div>
+          <div class="modal-body warning-body">
             ${details ? `<div class="warning-details">${details}</div>` : ""}
             <div class="inline-actions warning-actions">
               <button class="danger-btn ${severe ? "danger-btn-severe" : ""}" data-action="${escAttr(confirmAction)}" ${attrs}>${esc(confirmLabel)}</button>
-              <button class="ghost-btn" data-action="close-modal">Cancelar</button>
+              <button class="ghost-btn warning-cancel" data-action="close-modal">Cancelar</button>
             </div>
           </div>
         </section>
@@ -4692,9 +4758,13 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
         <div class="inline-actions teacher-danger-actions"><button class="danger-btn" data-action="delete-carga-teacher" data-id="${escAttr(teacher.id)}">Eliminar docente</button></div>
       </div>
       <section class="docente-subsection docente-identity-card">
-        <div class="form-grid compact">
-          <div class="field"><label>ID docente</label><input value="${escAttr(teacher.id || "")}" data-carga-teacher-field="id" data-old-id="${escAttr(teacher.id)}"></div>
-          <div class="field"><label>Nombre docente</label><input value="${escAttr(teacher.name || "")}" data-carga-teacher-field="name" data-old-id="${escAttr(teacher.id)}"></div>
+        <div class="docente-identity-summary compact-summary">
+          <div>
+            <span class="section-eyebrow">Datos personales</span>
+            <h3>${esc(teacher.name || `Docente ${teacher.id}`)}</h3>
+            <p>ID ${esc(teacher.id || "sin ID")}</p>
+          </div>
+          <button class="secondary-btn" data-action="edit-teacher-identity" data-id="${escAttr(teacher.id)}">Editar datos</button>
         </div>
         <label class="coordinator-check"><input type="checkbox" ${isCoordinator ? "checked" : ""} data-carga-coordinator="${escAttr(teacher.id)}"> Coordinador</label>
       </section>
@@ -4972,7 +5042,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
               <div class="field"><label>Asignatura / área</label><input id="gradeMapSubject" value="${escAttr(subject)}"></div>
               <div class="field"><label>Alcance</label><select id="gradeMapScope" class="select-pill">${courseOptions}</select></div>
             </div>
-            ${card.rows.length ? `<section class="grade-map-current"><h3>Asignación actual</h3>${card.rows.map((row) => `<div><strong>${esc(row.name || teacherNameById(row.id))}</strong><span>${esc(formatGradeCourseLabel({ ...row, grade }, false))}</span></div>`).join("")}</section>` : `<div class="empty-state">Esta área no tiene docentes asignados todavía en ${esc(activeSede)} · ${esc(grade)}°.</div>`}
+            ${card.rows.length ? `<section class="grade-map-current"><h3>Asignación actual</h3>${card.rows.map((row) => `<div class="grade-map-current-row"><span><strong>${esc(row.name || teacherNameById(row.id))}</strong><em>${esc(formatGradeCourseLabel({ ...row, grade }, false))}</em></span><button type="button" class="grade-map-row-remove" data-action="delete-grade-map-row" data-index="${escAttr(row.index)}" title="Eliminar esta carga">×</button></div>`).join("")}</section>` : `<div class="empty-state">Esta área no tiene docentes asignados todavía en ${esc(activeSede)} · ${esc(grade)}°.</div>`}
             <div class="inline-actions" style="margin-top:16px;">
               <button class="primary-btn" data-action="confirm-grade-subject-map" data-grade="${escAttr(grade)}" data-subject="${escAttr(subject)}">Asignar docente</button>
               <button class="ghost-btn" data-action="close-modal">Cancelar</button>

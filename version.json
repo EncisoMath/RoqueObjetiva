@@ -1,8 +1,8 @@
 {
-  "version": "v85",
-  "cache": "resultados-pwa-v85",
+  "version": "v86",
+  "cache": "resultados-pwa-v86",
   "updatedAt": "2026-06-07",
-  "note": "Mapa por grado filtrado por sede, alertas animadas y advertencias de eliminación para docentes/cargas/estudiantes.",
+  "note": "Mejora warnings, scroll de director de grupo, eliminacion rapida desde mapa por grado y edicion de docentes con boton guardar.",
   "builtAt": "2026-06-07T23:20:00Z",
   "date": "2026-06-07"
 }
