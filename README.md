@@ -287,3 +287,7 @@ El `service-worker.js` usa estrategia de red primero para archivos JSON, para ev
 - Corrige el ajuste de v77: no se fuerzan grosores de borde ni estilos de borde.
 - Aplica esquinas redondeadas de 4px a cuadros/contenedores/cuadros emergentes y de 2px a tarjetas.
 - Mantiene bloqueo de zoom táctil e iconos PNG por defecto de asignaturas.
+
+
+## v79
+- Admin > Apariencia permite escoger un unico valor en px para las esquinas de cuadros, contenedores, modales, tarjetas, tablas y botones.

@@ -8464,3 +8464,125 @@ canvas {
 .stats-fill {
   border-radius: inherit;
 }
+
+
+/* Ajustes v79: radio de esquinas controlado desde Admin > Apariencia */
+:root {
+  --corner-radius: var(--button-radius, 4px);
+}
+
+/* Un solo radio configurable para cuadros, contenedores, cuadros emergentes, tarjetas y tablas. */
+.card,
+.card-pad,
+.table-card,
+.table-wrap,
+table,
+.teacher-table,
+.compact-table,
+.answer-key-table,
+.director-table,
+.admin-edit-table table,
+.admin-results-table table,
+.saber-global-table,
+.subject-card,
+.subject-row-grid-card,
+.director-subject-card,
+.teacher-stat,
+.teacher-stat-action,
+.teacher-score-info-card,
+.score-explain-hero,
+.saber-area-card,
+.carga-teacher-card,
+.carga-assignment-card,
+.carga-tag-card,
+.director-mini-card,
+.student-summary,
+.ranking-box,
+.item-value-note,
+.exam-option-row,
+.coordinator-check,
+.logo-item,
+.stats-big-number,
+.stats-bar-row,
+.analysis-bar-row,
+.analysis-drill-row,
+.graphics-drill-row,
+.recent-login-main,
+.subject-list-item.active,
+.student-workspace .subject-row-grid-card,
+.student-workspace .subject-mobile-detail .subject-detail,
+.director-card,
+.teacher-metric-card,
+.formula-line,
+.global-step-list li,
+.modal,
+.student-subject-modal,
+.zero-tolerance-modal,
+.login-card-dark,
+.github-publish-box,
+.admin-note,
+.graphics-help,
+.zt-rules,
+.subject-drop-zone,
+.subject-map-mobile,
+.global-score-hero.clean,
+.admin-results-wait,
+.formula-box,
+.teacher-formula-steps,
+.admin-results-filters,
+.stats-filter-panel,
+.subject-source,
+.subject-drop-grid,
+.detail-card,
+.student-detail-panel,
+.metric-panel,
+.modal-content,
+.dialog,
+.panel,
+.toolbar,
+.form-grid,
+.filter-panel {
+  border-radius: var(--corner-radius, 4px) !important;
+}
+
+.table-wrap,
+.table-card,
+.admin-edit-table table,
+.admin-results-table table,
+.teacher-table,
+.compact-table,
+.answer-key-table,
+.director-table,
+.saber-global-table {
+  overflow: hidden;
+}
+
+.primary-btn,
+.secondary-btn,
+.ghost-btn,
+.icon-btn,
+button,
+input,
+textarea,
+select,
+.select-pill {
+  border-radius: var(--corner-radius, 4px);
+}
+
+/* Mantener barras, indicadores circulares y avatares con su forma propia. */
+.subject-card-progress,
+.director-mini-bar,
+.graphics-track,
+.stats-track,
+.metric-progress,
+.progress-bar,
+.progress-fill,
+.graphics-fill,
+.stats-fill,
+.banner-logo-frame,
+.banner-logo,
+.app-icon-preview,
+.app-icon-preview img,
+.recent-login-remove {
+  border-radius: inherit;
+}

@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v78";
+  const APP_VERSION = "v79";
 
   const app = document.getElementById("app");
   const toastEl = document.getElementById("toast");
@@ -44,6 +44,7 @@
     footerText: "Consulta institucional de resultados",
     primaryColor: "#1975ae",
     buttonRadius: 4,
+    cornerRadius: 4,
     logoZoom: 1,
     subjectLogos: {},
     github: { owner: "", repo: "", branch: "main" },
@@ -855,7 +856,8 @@
     const primaryDeep = shadeColor(primary, -52);
     const primarySoft = mixWithWhite(primary, 34);
     const rgb = hexToRgb(primary);
-    document.documentElement.style.setProperty("--button-radius", `${Number(state.config.buttonRadius ?? 4)}px`);
+    document.documentElement.style.setProperty("--button-radius", `${Number(state.config.cornerRadius ?? state.config.buttonRadius ?? 4)}px`);
+    document.documentElement.style.setProperty("--corner-radius", `${Number(state.config.cornerRadius ?? state.config.buttonRadius ?? 4)}px`);
     document.documentElement.style.setProperty("--logo-zoom", `${Number(state.config.logoZoom ?? 1)}`);
     document.documentElement.style.setProperty("--orange", primary);
     document.documentElement.style.setProperty("--orange-2", primarySoft);
@@ -985,7 +987,8 @@
     document.documentElement.style.setProperty("--primary", primary);
     document.documentElement.style.setProperty("--primary-soft", primarySoft);
     document.documentElement.style.setProperty("--primary-rgb", `${rgb.r}, ${rgb.g}, ${rgb.b}`);
-    document.documentElement.style.setProperty("--button-radius", `${Number(cfg.buttonRadius ?? 4)}px`);
+    document.documentElement.style.setProperty("--button-radius", `${Number(cfg.cornerRadius ?? cfg.buttonRadius ?? 4)}px`);
+    document.documentElement.style.setProperty("--corner-radius", `${Number(cfg.cornerRadius ?? cfg.buttonRadius ?? 4)}px`);
     document.documentElement.style.setProperty("--logo-zoom", `${Number(cfg.logoZoom ?? 1)}`);
     document.documentElement.removeAttribute("data-theme");
     document.querySelector('meta[name="theme-color"]')?.setAttribute("content", primary);
@@ -2244,8 +2247,9 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
             <input value="${escAttr(cfg.footerText || "")}" data-config-field="footerText">
           </div>
           <div class="field">
-            <label>Borde de botones (px)</label>
-            <input type="number" min="0" max="24" value="${escAttr(cfg.buttonRadius ?? 4)}" data-config-field="buttonRadius">
+            <label>Esquinas generales (px)</label>
+            <input type="number" min="0" max="40" value="${escAttr(cfg.cornerRadius ?? cfg.buttonRadius ?? 4)}" data-config-field="cornerRadius">
+            <small style="color:#7d8089;">Aplica a cuadros, contenedores, modales, tarjetas, tablas y botones.</small>
           </div>
           <div class="field">
             <label>Zoom del logo principal</label>
@@ -3602,7 +3606,9 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
 
   function saveConfig() {
     state.config = { ...DEFAULT_CONFIG, ...state.config };
-    state.config.buttonRadius = clamp(Number(state.config.buttonRadius ?? 4), 0, 24);
+    const radius = clamp(Number(state.config.cornerRadius ?? state.config.buttonRadius ?? 4), 0, 40);
+    state.config.cornerRadius = radius;
+    state.config.buttonRadius = radius;
     state.config.logoZoom = clamp(Number(state.config.logoZoom ?? 1), 0.65, 2.4);
     writeJSON(STORAGE.config, state.config);
   }

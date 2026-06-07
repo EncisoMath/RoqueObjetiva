@@ -1,8 +1,8 @@
 {
-  "version": "v78",
-  "cache": "resultados-pwa-v78",
+  "version": "v79",
+  "cache": "resultados-pwa-v79",
   "updatedAt": "2026-06-07",
-  "note": "Corrige la interpretacion de bordes: no fuerza grosor ni estilo de borde; aplica esquinas redondeadas 4px en contenedores/modales y 2px en tarjetas.",
-  "builtAt": "2026-06-07T20:55:00Z",
+  "note": "Admin > Apariencia ahora controla un unico radio de esquinas para cuadros, contenedores, modales, tarjetas, tablas y botones.",
+  "builtAt": "2026-06-07T21:25:00Z",
   "date": "2026-06-07"
 }

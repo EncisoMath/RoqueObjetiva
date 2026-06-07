@@ -13,5 +13,6 @@
     "branch": "main"
   },
   "logoZoom": 1,
-  "appIcon": "icons/icon-512.png"
+  "appIcon": "icons/icon-512.png",
+  "cornerRadius": 4
 }
