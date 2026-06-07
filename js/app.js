@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v82";
+  const APP_VERSION = "v83";
 
   const app = document.getElementById("app");
   const toastEl = document.getElementById("toast");
@@ -38,7 +38,7 @@
   const DEFAULT_CONFIG = {
     title: "Roque Objetiva",
     subtitle: "Este reporte no se pasa ni se pierde. Es una herramienta para identificar fortalezas, habilidades y oportunidades de mejora.",
-    logoImage: "assets/logo-principal.png",
+    logoImage: "assets/logo-principal.png?v=83",
     appIcon: "icons/icon-512.png",
     bannerImage: "",
     footerText: "Consulta institucional de resultados",
@@ -48,7 +48,9 @@
     logoZoom: 1,
     subjectLogos: {},
     github: { owner: "", repo: "", branch: "main" },
-    appName: "Roque Objetiva"
+    appName: "Roque Objetiva",
+    identityVersion: "v83",
+    logoAssetVersion: "v83"
   };
 
   const DEFAULT_GRADES = [6, 7, 8, 9, 10];
@@ -195,6 +197,7 @@
       fileConfig = parsedConfig.config || parsedConfig;
     }
     state.config = { ...DEFAULT_CONFIG, ...fileConfig, ...(savedConfig || {}) };
+    state.config = reconcileIdentityAssets(fileConfig, savedConfig, state.config);
     state.subjectAreaMap = { ...(fileConfig.subjectAreaMap || {}), ...state.subjectAreaMap, ...((savedConfig || {}).subjectAreaMap || {}) };
     state.config.subjectLogos = { ...(fileConfig.subjectLogos || {}), ...(savedConfig?.subjectLogos || {}) };
     state.logos = { ...state.config.subjectLogos, ...localLogos };
@@ -363,6 +366,40 @@
       map.set(item.path, { ...map.get(item.path), ...item });
     });
     return [...map.values()].sort((a, b) => (Number(a.grade || 0) - Number(b.grade || 0)) || (Number(a.session || 0) - Number(b.session || 0)) || String(a.path).localeCompare(String(b.path)));
+  }
+
+  function reconcileIdentityAssets(fileConfig = {}, savedConfig = null, mergedConfig = {}) {
+    const repoIdentityVersion = fileConfig.identityVersion || DEFAULT_CONFIG.identityVersion || APP_VERSION;
+    const localIdentityVersion = savedConfig?.identityVersion || "";
+    const repoConfig = { ...DEFAULT_CONFIG, ...fileConfig };
+    const out = { ...mergedConfig };
+
+    const identityFields = [
+      "title",
+      "appName",
+      "logoImage",
+      "appIcon",
+      "appIcon192",
+      "appIconMaskable",
+      "appleTouchIcon",
+      "favicon32",
+      "favicon16",
+      "identityVersion",
+      "logoAssetVersion"
+    ];
+
+    const localLogoLooksLikeAppIcon = typeof savedConfig?.logoImage === "string"
+      && (/^icons\//i.test(savedConfig.logoImage) || /icon-512|maskable|apple-touch-icon|favicon/i.test(savedConfig.logoImage));
+
+    if (localIdentityVersion !== repoIdentityVersion || localLogoLooksLikeAppIcon) {
+      identityFields.forEach((field) => {
+        if (repoConfig[field] !== undefined) out[field] = repoConfig[field];
+      });
+      out.identityVersion = repoIdentityVersion;
+      out.logoAssetVersion = repoConfig.logoAssetVersion || repoIdentityVersion;
+    }
+
+    return out;
   }
 
   function parseStudents(text) {
@@ -3637,6 +3674,8 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     if (target.dataset.action === "upload-logo-main") {
       readImageFile(target.files?.[0], (dataUrl) => {
         state.config.logoImage = dataUrl;
+        state.config.identityVersion = DEFAULT_CONFIG.identityVersion || APP_VERSION;
+        state.config.logoAssetVersion = DEFAULT_CONFIG.logoAssetVersion || APP_VERSION;
         writeJSON(STORAGE.config, state.config);
         toast("Logo principal actualizado.");
         renderAdmin();
@@ -3646,6 +3685,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     if (target.dataset.action === "upload-app-icon") {
       readImageFile(target.files?.[0], (dataUrl) => {
         state.config.appIcon = dataUrl;
+        state.config.identityVersion = DEFAULT_CONFIG.identityVersion || APP_VERSION;
         writeJSON(STORAGE.config, state.config);
         applyAppMeta();
         toast("Icono de app actualizado.");
@@ -3795,14 +3835,14 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
 
       if (isDataUrl(repoConfig.logoImage)) {
         const ext = extensionFromDataUrl(repoConfig.logoImage);
-        const path = `assets/logo-principal.${ext}`;
+        const path = `assets/logo-principal-${Date.now()}.${ext}`;
         files.push({ path, contentBase64: base64FromDataUrl(repoConfig.logoImage) });
         repoConfig.logoImage = path;
       }
 
       if (isDataUrl(repoConfig.bannerImage)) {
         const ext = extensionFromDataUrl(repoConfig.bannerImage);
-        const path = `assets/banner-principal.${ext}`;
+        const path = `assets/banner-principal-${Date.now()}.${ext}`;
         files.push({ path, contentBase64: base64FromDataUrl(repoConfig.bannerImage) });
         repoConfig.bannerImage = path;
       }

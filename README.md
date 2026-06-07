@@ -306,3 +306,9 @@ El `service-worker.js` usa estrategia de red primero para archivos JSON, para ev
 ## v82
 - Cambia nombre de la PWA a Roque Objetiva.
 - Reemplaza iconos Android, iOS, favicon y maskable usando ICON.png a fondo completo, sin recuadro interno.
+
+
+## v83
+- Corrige el logo principal del banner/login: usa `assets/logo-principal.png` basado en `LOGO.png`.
+- Mantiene los iconos de app Android/iOS/favicon separados del logo principal.
+- Evita cache antigua del logo usando versionado y rutas únicas al publicar desde Admin > GitHub.
