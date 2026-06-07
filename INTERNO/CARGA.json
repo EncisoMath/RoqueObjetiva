@@ -420,7 +420,7 @@
     "SEDE": "Municipal",
     "GRADO": "6",
     "CURSO": "4PPAL",
-    "COORDINADOR": "SI"
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1082869969",
@@ -855,15 +855,6 @@
     "COORDINADOR": "NO"
   },
   {
-    "ID": "26761878",
-    "NOMBRE": "SHIRLEY EBRAT CARR",
-    "ASIGNATURA": "Ingles",
-    "SEDE": "Municipal",
-    "GRADO": "7",
-    "CURSO": "1PPAL",
-    "COORDINADOR": "NO"
-  },
-  {
     "ID": "19563034",
     "NOMBRE": "CARLOS JULIO PEREZ BALLEN",
     "ASIGNATURA": "Aritmética",
@@ -984,15 +975,6 @@
     "ID": "19561554",
     "NOMBRE": "JOSE MARIA ALTAHONA DE LA HOZ",
     "ASIGNATURA": "Lectura Critica",
-    "SEDE": "Municipal",
-    "GRADO": "7",
-    "CURSO": "2PPAL",
-    "COORDINADOR": "NO"
-  },
-  {
-    "ID": "26761878",
-    "NOMBRE": "SHIRLEY EBRAT CARR",
-    "ASIGNATURA": "Ingles",
     "SEDE": "Municipal",
     "GRADO": "7",
     "CURSO": "2PPAL",
@@ -2034,15 +2016,6 @@
     "COORDINADOR": "NO"
   },
   {
-    "ID": "26761878",
-    "NOMBRE": "SHIRLEY EBRAT CARR",
-    "ASIGNATURA": "Ingles",
-    "SEDE": "Municipal",
-    "GRADO": "9",
-    "CURSO": "1PPAL",
-    "COORDINADOR": "NO"
-  },
-  {
     "ID": "1085108727",
     "NOMBRE": "PEDRO ANTONO CASALINS OROZCO",
     "ASIGNATURA": "Aritmética",
@@ -2151,15 +2124,6 @@
     "COORDINADOR": "NO"
   },
   {
-    "ID": "26761878",
-    "NOMBRE": "SHIRLEY EBRAT CARR",
-    "ASIGNATURA": "Ingles",
-    "SEDE": "Municipal",
-    "GRADO": "9",
-    "CURSO": "2PPAL",
-    "COORDINADOR": "NO"
-  },
-  {
     "ID": "1085108727",
     "NOMBRE": "PEDRO ANTONO CASALINS OROZCO",
     "ASIGNATURA": "Aritmética",
@@ -2268,15 +2232,6 @@
     "COORDINADOR": "NO"
   },
   {
-    "ID": "26761878",
-    "NOMBRE": "SHIRLEY EBRAT CARR",
-    "ASIGNATURA": "Ingles",
-    "SEDE": "Municipal",
-    "GRADO": "9",
-    "CURSO": "3PPAL",
-    "COORDINADOR": "NO"
-  },
-  {
     "ID": "1085108727",
     "NOMBRE": "PEDRO ANTONO CASALINS OROZCO",
     "ASIGNATURA": "Aritmética",
@@ -2379,15 +2334,6 @@
     "ID": "20795846",
     "NOMBRE": "JOSEFA ANTONIA ESMERAL FANDIÑO",
     "ASIGNATURA": "Lectura Critica",
-    "SEDE": "Municipal",
-    "GRADO": "9",
-    "CURSO": "4PPAL",
-    "COORDINADOR": "NO"
-  },
-  {
-    "ID": "26761878",
-    "NOMBRE": "SHIRLEY EBRAT CARR",
-    "ASIGNATURA": "Ingles",
     "SEDE": "Municipal",
     "GRADO": "9",
     "CURSO": "4PPAL",
@@ -2445,7 +2391,7 @@
     "SEDE": "Municipal",
     "GRADO": "10",
     "CURSO": "1PPAL",
-    "COORDINADOR": "SI"
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57449437",
@@ -2580,7 +2526,7 @@
     "SEDE": "Municipal",
     "GRADO": "10",
     "CURSO": "2PPAL",
-    "COORDINADOR": "SI"
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57449437",
@@ -2715,7 +2661,7 @@
     "SEDE": "Municipal",
     "GRADO": "10",
     "CURSO": "3PPAL",
-    "COORDINADOR": "SI"
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57449437",
@@ -2850,7 +2796,7 @@
     "SEDE": "Municipal",
     "GRADO": "11",
     "CURSO": "1PPAL",
-    "COORDINADOR": "SI"
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57449437",
@@ -2976,7 +2922,7 @@
     "SEDE": "Municipal",
     "GRADO": "11",
     "CURSO": "2PPAL",
-    "COORDINADOR": "SI"
+    "COORDINADOR": "NO"
   },
   {
     "ID": "1084738659",
@@ -3093,7 +3039,7 @@
     "SEDE": "Municipal",
     "GRADO": "11",
     "CURSO": "3PPAL",
-    "COORDINADOR": "SI"
+    "COORDINADOR": "NO"
   },
   {
     "ID": "57449437",
