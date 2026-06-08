@@ -12795,3 +12795,54 @@ select,
     font-size: .52rem !important;
   }
 }
+
+
+/* v104: caption de acceso mas claro, visible y llamativo */
+.access-v96-caption {
+  width: min(90%, 360px) !important;
+  max-width: 90% !important;
+  top: 10px !important;
+  padding: 10px 16px !important;
+  border-radius: 18px !important;
+  background: linear-gradient(180deg, rgba(7, 36, 82, .92), rgba(7, 28, 64, .84)) !important;
+  border: 1px solid rgba(121, 198, 255, .26) !important;
+  box-shadow: 0 14px 36px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.12) !important;
+  white-space: normal !important;
+  text-align: center !important;
+  line-height: 1.12 !important;
+  font-size: .82rem !important;
+  letter-spacing: .01em !important;
+  text-wrap: balance;
+}
+.access-v96-caption-line {
+  display: block;
+}
+.access-v96-caption-line + .access-v96-caption-line {
+  margin-top: 2px;
+}
+.access-v96-caption-line-main {
+  font-size: .92rem;
+  font-weight: 1000;
+  color: #ffffff;
+  text-shadow: 0 2px 10px rgba(0,0,0,.18);
+}
+.access-v96-caption-line b {
+  color: #ffd85a;
+  font-weight: 1000;
+}
+.access-v96-caption-line-sub {
+  font-size: .72rem;
+  font-weight: 800;
+  color: rgba(226, 241, 255, .94);
+}
+@media (max-width: 480px) {
+  .access-v96-caption {
+    width: min(92%, 310px) !important;
+    top: 6px !important;
+    padding: 8px 12px !important;
+    font-size: .70rem !important;
+    border-radius: 16px !important;
+  }
+  .access-v96-caption-line-main { font-size: .80rem !important; }
+  .access-v96-caption-line-sub { font-size: .63rem !important; }
+}

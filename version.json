@@ -1,8 +1,8 @@
 {
-  "version": "v103",
-  "cache": "resultados-pwa-v103",
+  "version": "v104",
+  "cache": "resultados-pwa-v104",
   "updatedAt": "2026-06-08",
-  "note": "Ajusta titulo del login: CONSULTA DE RESULTADOS en mayuscula, bold y con tamano/ancho destacado.",
-  "builtAt": "2026-06-08T03:40:00Z",
+  "note": "Mejora el texto superior de la animación del login para explicar con más claridad cómo se forma el usuario.",
+  "builtAt": "2026-06-08T04:05:00Z",
   "date": "2026-06-08"
 }

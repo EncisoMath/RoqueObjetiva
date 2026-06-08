@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v103";
+  const APP_VERSION = "v104";
 
   const app = document.getElementById("app");
   const toastEl = document.getElementById("toast");
@@ -911,7 +911,11 @@
             </footer>
           </article>
 
-          <div class="access-v96-caption">Así construyes tu usuario</div>
+          <div class="access-v96-caption" aria-hidden="true">
+            <span class="access-v96-caption-line access-v96-caption-line-main">Tu usuario es</span>
+            <span class="access-v96-caption-line">tu primer nombre <b>+</b> los 4 últimos dígitos</span>
+            <small class="access-v96-caption-line access-v96-caption-line-sub">de tu tarjeta de identidad o cédula</small>
+          </div>
           <div class="access-v96-token access-v96-token-name" data-access-part="tokenName">${esc(sample.first.toLowerCase())}</div>
           <div class="access-v96-token access-v96-token-id" data-access-part="tokenId">${esc(sample.idLast)}</div>
           <div class="access-v96-plus">+</div>
