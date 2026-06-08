@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v100";
+  const APP_VERSION = "v101";
 
   const app = document.getElementById("app");
   const toastEl = document.getElementById("toast");
@@ -926,32 +926,66 @@
     if (!guide || guide.dataset.accessGuideReady === "1") return;
     guide.dataset.accessGuideReady = "1";
 
-    const setExample = (index) => {
-      const sample = LOGIN_ACCESS_EXAMPLES[index % LOGIN_ACCESS_EXAMPLES.length];
-      guide.dataset.accessExampleIndex = String(index % LOGIN_ACCESS_EXAMPLES.length);
-      const values = {
-        first: sample.first,
-        rest: sample.rest,
-        idPrefix: sample.idPrefix,
-        idLast: sample.idLast,
-        tokenName: sample.first.toLowerCase(),
-        tokenId: sample.idLast,
-        result: sample.user
-      };
-      Object.entries(values).forEach(([key, value]) => {
+    const cycleMs = 12500;
+    const updateCardAtMs = 7600;   // El carne esta atras, opaco y difuminado.
+    const updateTokensAtMs = 11900; // Los tokens ya no se ven; queda listo el siguiente ciclo.
+
+    const writeParts = (parts) => {
+      Object.entries(parts).forEach(([key, value]) => {
         guide.querySelectorAll(`[data-access-part="${key}"]`).forEach((node) => {
           node.textContent = value;
         });
       });
     };
 
-    setExample(0);
-    let index = 0;
-    const card = guide.querySelector(".access-v96-card");
-    card?.addEventListener("animationiteration", () => {
-      index = (index + 1) % LOGIN_ACCESS_EXAMPLES.length;
-      setExample(index);
-    });
+    const setCardExample = (sample) => {
+      writeParts({
+        first: sample.first,
+        rest: sample.rest,
+        idPrefix: sample.idPrefix,
+        idLast: sample.idLast
+      });
+    };
+
+    const setTokenExample = (sample, index) => {
+      guide.dataset.accessExampleIndex = String(index);
+      writeParts({
+        tokenName: sample.first.toLowerCase(),
+        tokenId: sample.idLast,
+        result: sample.user
+      });
+    };
+
+    const randomNextIndex = (currentIndex) => {
+      if (LOGIN_ACCESS_EXAMPLES.length <= 1) return 0;
+      let next = currentIndex;
+      while (next === currentIndex) {
+        next = Math.floor(Math.random() * LOGIN_ACCESS_EXAMPLES.length);
+      }
+      return next;
+    };
+
+    let activeIndex = 0;
+    let queuedIndex = randomNextIndex(activeIndex);
+    setCardExample(LOGIN_ACCESS_EXAMPLES[activeIndex]);
+    setTokenExample(LOGIN_ACCESS_EXAMPLES[activeIndex], activeIndex);
+
+    const scheduleCycle = () => {
+      window.setTimeout(() => {
+        // Cambia el carne mientras esta difuminado al fondo; asi reaparece con el nuevo nombre.
+        setCardExample(LOGIN_ACCESS_EXAMPLES[queuedIndex]);
+      }, updateCardAtMs);
+
+      window.setTimeout(() => {
+        // Prepara las plaquitas del siguiente ciclo cuando estan invisibles.
+        activeIndex = queuedIndex;
+        setTokenExample(LOGIN_ACCESS_EXAMPLES[activeIndex], activeIndex);
+        queuedIndex = randomNextIndex(activeIndex);
+      }, updateTokensAtMs);
+    };
+
+    scheduleCycle();
+    window.setInterval(scheduleCycle, cycleMs);
   }
 
   function startRecentLogin(key) {

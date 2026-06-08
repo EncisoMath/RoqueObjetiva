@@ -1,8 +1,8 @@
 {
-  "version": "v100",
-  "cache": "resultados-pwa-v100",
+  "version": "v101",
+  "cache": "resultados-pwa-v101",
   "updatedAt": "2026-06-08",
-  "note": "Mejora la nitidez de los textos extraidos ruben y digitos en la animacion del login.",
+  "note": "Ajusta la animacion del login para cambiar el ejemplo mientras el carne esta difuminado y seleccionar nombres aleatorios.",
   "builtAt": "2026-06-08T03:30:00Z",
   "date": "2026-06-08"
 }

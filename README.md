@@ -340,3 +340,7 @@ El `service-worker.js` usa estrategia de red primero para archivos JSON, para ev
 
 ## v100
 - Mejora la nitidez de los textos extraídos en la animación de login, quitando blur/backdrop-filter de las plaquitas amarillas.
+
+
+## v101
+- La animacion del login cambia el carne al siguiente ejemplo mientras esta difuminado y usa nombres aleatorios entre los ejemplos configurados.
