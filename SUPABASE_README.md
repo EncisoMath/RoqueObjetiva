@@ -1,4 +1,4 @@
-# Roque Objetiva v108 - Supabase
+# Roque Objetiva v111 - Supabase
 
 Esta versión usa Supabase como fuente privada de datos.
 
@@ -12,7 +12,7 @@ Esta versión usa Supabase como fuente privada de datos.
 
 Ese tercer archivo habilita la escritura administrativa desde el panel Admin.
 
-## Qué cambia en v108
+## Qué cambia en v111
 
 - El panel Admin ya no muestra "Publicar en GitHub".
 - Ahora muestra "Subir a Supabase".

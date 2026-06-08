@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v110";
+  const APP_VERSION = "v111";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -321,6 +321,16 @@
     const directores = datasets.directoresGrupo || datasets.directores_grupo || datasets.directores || directorRowsFromDocentes(docentes);
     const claves = datasets.keys || datasets.claves || [];
     const resultados = datasets.resultados || datasets.results || [];
+    const mapeoAreas = datasets.mapeo_areas || datasets.mapeoAreas || datasets.subjectAreaMap || [];
+    if (Array.isArray(mapeoAreas)) {
+      mapeoAreas.forEach((row) => {
+        const asignatura = cleanText(row.asignatura || row.ASIGNATURA || row.Asignatura || row.subject || row.Subject);
+        const area = cleanText(row.area || row.AREA || row.Area);
+        if (asignatura && area) setSubjectAreaMap(asignatura, area);
+      });
+    } else if (mapeoAreas && typeof mapeoAreas === "object") {
+      state.subjectAreaMap = { ...state.subjectAreaMap, ...mapeoAreas };
+    }
 
     state.studentsRegistry = parseStudents(JSON.stringify(estudiantes || []));
     state.cargaRows = parseCarga(JSON.stringify(carga || []));
@@ -1814,8 +1824,9 @@
     }
 
     const active = state.teacherActive;
+    const activeResolvedSubject = active ? subjectNameForAssignment(active) : "";
     const groupedAssignments = groupAssignmentsBySubject(assignments);
-    const activeSubject = active?.subject || groupedAssignments[0]?.subject || "";
+    const activeSubject = activeResolvedSubject || active?.subject || groupedAssignments[0]?.subject || "";
 
     const subjectButtons = groupedAssignments.map((group) => `
       <button class="tab-btn teacher-subject-tab ${activeSubject === group.subject ? "active" : ""}" data-action="teacher-subject" data-subject="${escAttr(group.subject)}">
@@ -1834,23 +1845,25 @@
       : [];
 
     const filtered = sortRowsByState(students, "teacher-active", (student, key) => {
-      const stat = active ? student.subjectStats[active.subject] || {} : {};
+      const stat = active ? statForSubject(student, active) || {} : {};
       if (key === "score") return stat.score;
       if (key === "correct") return stat.correct;
       return displayListName(student);
     });
 
-    const activeStatForValue = filtered.find((student) => student.subjectStats[active?.subject])?.subjectStats?.[active?.subject] || null;
-    const itemValueInfo = active ? subjectItemValue(active.grade, active.subject, activeStatForValue) : { total: 0, value: null, label: "—" };
+    const activeStatForValue = active ? filtered.map((student) => statForSubject(student, active)).find(Boolean) || null : null;
+    const activeSubjectForStats = activeStatForValue?.subject || activeSubject || active?.subject || "";
+    const itemValueInfo = active ? subjectItemValue(active.grade, activeSubjectForStats, activeStatForValue) : { total: 0, value: null, label: "—" };
 
     const rows = filtered.map((student, index) => {
-      const stat = student.subjectStats[active.subject];
+      const stat = statForSubject(student, active) || { score: null, correct: 0, total: 0, absent: true };
+      const subjectForDetail = stat.subject || activeSubjectForStats || active?.subject || "";
       return `
-        <tr class="table-row-click" data-action="open-detail" data-roll="${escAttr(student.roll)}" data-subject="${escAttr(active.subject)}">
+        <tr class="table-row-click" data-action="open-detail" data-roll="${escAttr(student.roll)}" data-subject="${escAttr(subjectForDetail)}">
           <td class="teacher-index">${index + 1}</td>
           <td><strong>${esc(displayListName(student))}</strong><br><span class="student-subid">ID Prueba ${esc(student.roll)}</span></td>
           <td>${scoreDisplayHtml(stat)}</td>
-          <td><strong>${stat.correct}/${stat.total}</strong></td>
+          <td><strong>${Number(stat.correct || 0)}/${Number(stat.total || 0)}</strong></td>
         </tr>
       `;
     }).join("");
@@ -1874,7 +1887,7 @@
       ${active ? `
         <section class="teacher-stat-strip teacher-stat-strip-three">
           <article class="card card-pad teacher-stat"><span>Estudiantes</span><strong>${filtered.length}</strong></article>
-          <article class="card card-pad teacher-stat"><span>Promedio</span><strong>${avg(scoresForSubjectAverage(filtered, active.subject))}<small>/100</small></strong></article>
+          <article class="card card-pad teacher-stat"><span>Promedio</span><strong>${avg(scoresForSubjectAverage(filtered, activeSubjectForStats || active.subject))}<small>/100</small></strong></article>
           <button class="card card-pad teacher-stat teacher-stat-action" data-action="teacher-score-info" data-subject="${escAttr(active.subject)}" data-grade="${escAttr(active.grade)}" data-total="${escAttr(itemValueInfo.total)}">
             <span>Valor de cada ítem</span>
             <strong>${esc(itemValueInfo.label)}<small> puntos</small></strong>
@@ -1882,7 +1895,7 @@
           </button>
         </section>
         <section class="teacher-metrics-row">
-          ${teacherAggregateMetricsHtml(filtered, active.subject)}
+          ${teacherAggregateMetricsHtml(filtered, activeSubjectForStats || active.subject)}
         </section>
         <section class="teacher-key-actions">
           <button class="secondary-btn" data-action="open-answer-key" data-grade="${escAttr(active.grade)}" data-subject="${escAttr(active.subject)}">Ver respuestas correctas</button>
@@ -6146,7 +6159,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
 
   function scoresForStudent(student, subject = "all") {
     if (subject && subject !== "all") {
-      const stat = student.subjectStats[subject];
+      const stat = statForSubject(student, subject);
       return isPresentedStat(stat) ? [Number(stat.score)] : [];
     }
     return availableSubjects().flatMap((subject) => scoresForSubjectAverage([student], subject));
@@ -6373,6 +6386,45 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     return Math.round(20 + (correct / total) * 80);
   }
 
+  function subjectCandidates(input) {
+    const values = [];
+    const add = (value) => {
+      const clean = cleanText(value);
+      if (clean && !values.some((item) => normalizeText(item) === normalizeText(clean))) values.push(clean);
+    };
+    if (input && typeof input === "object") {
+      add(input.subject);
+      add(input.subjectRaw);
+      add(mappedSubject(input.subjectRaw || input.subject));
+      add(canonicalSubject(input.subjectRaw || input.subject));
+      add(mappedSubject(input.subject));
+      add(canonicalSubject(input.subject));
+    } else {
+      add(input);
+      add(mappedSubject(input));
+      add(canonicalSubject(input));
+    }
+    return values;
+  }
+
+  function statForSubject(student, subjectOrAssignment) {
+    const stats = student?.subjectStats || {};
+    const candidates = subjectCandidates(subjectOrAssignment);
+    for (const candidate of candidates) {
+      if (stats[candidate]) return stats[candidate];
+    }
+    const normalized = new Set(candidates.map((candidate) => normalizeText(candidate)).filter(Boolean));
+    const key = Object.keys(stats).find((name) => normalized.has(normalizeText(name)));
+    return key ? stats[key] : null;
+  }
+
+  function subjectNameForAssignment(assignment) {
+    if (assignment && typeof assignment === "object") {
+      return mappedSubject(assignment.subjectRaw || assignment.subject) || canonicalSubject(assignment.subjectRaw || assignment.subject) || cleanText(assignment.subject || assignment.subjectRaw);
+    }
+    return mappedSubject(assignment) || canonicalSubject(assignment) || cleanText(assignment);
+  }
+
   // v90: el 0 de "No presentó" se muestra en tablas, pero NO entra en promedios.
   function isPresentedStat(stat) {
     return !!(stat && stat.total && !stat.absent && Number.isFinite(Number(stat.score)));
@@ -6383,7 +6435,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
   }
 
   function scoresForSubjectAverage(students, subject) {
-    return (students || []).map((student) => scoreForAverageFromStat(student?.subjectStats?.[subject])).filter((value) => Number.isFinite(Number(value))).map(Number);
+    return (students || []).map((student) => scoreForAverageFromStat(statForSubject(student, subject))).filter((value) => Number.isFinite(Number(value))).map(Number);
   }
 
   function scoresForAllSubjectsAverage(student) {
@@ -6751,7 +6803,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
   function groupAssignmentsBySubject(assignments) {
     const map = new Map();
     (assignments || []).forEach((assignment) => {
-      const subject = canonicalSubject(assignment.subject || assignment.subjectRaw);
+      const subject = subjectNameForAssignment(assignment) || canonicalSubject(assignment.subject || assignment.subjectRaw);
       if (!map.has(subject)) map.set(subject, { subject, assignments: [] });
       map.get(subject).assignments.push(assignment);
     });
@@ -6772,10 +6824,8 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     const sameGrade = String(student.grade) === String(assignment.grade);
     const sameGroup = !assignment.group || normalizeText(student.group) === normalizeText(assignment.group);
     const sameSede = !assignment.sede || normalizeText(student.sede) === normalizeText(assignment.sede);
-    const subjects = [assignment.subject, mappedSubject(assignment.subjectRaw), canonicalSubject(assignment.subjectRaw), canonicalSubject(assignment.subject)]
-      .map(cleanText)
-      .filter(Boolean);
-    const hasSubject = subjects.some((subject) => student.subjectStats?.[subject]?.total);
+    const subjects = subjectCandidates(assignment);
+    const hasSubject = !!(statForSubject(student, assignment)?.total || subjects.some((subject) => statForSubject(student, subject)?.total));
     return sameGrade && sameGroup && sameSede && hasSubject;
   }
 
