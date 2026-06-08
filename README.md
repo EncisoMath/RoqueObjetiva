@@ -1,5 +1,13 @@
-﻿# RoqueObjetiva
+# RoqueObjetiva
 
-Repositorio limpiado.
+Aplicación web para la consulta de resultados de pruebas objetivas de la **IED Roque de los Ríos Valle**.
 
-La versión anterior fue retirada del repositorio.
+Permite a estudiantes, docentes y directivos revisar resultados académicos, puntajes por área y rankings de desempeño de forma sencilla y visual.
+
+## Versión
+
+RoqueObjetiva v130
+
+## Uso
+
+Proyecto institucional para el seguimiento y análisis de resultados de pruebas objetivas.
