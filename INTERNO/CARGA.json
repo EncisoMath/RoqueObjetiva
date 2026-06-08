@@ -420,7 +420,7 @@
     "SEDE": "Municipal",
     "GRADO": "6",
     "CURSO": "4PPAL",
-    "COORDINADOR": "NO"
+    "COORDINADOR": "SI"
   },
   {
     "ID": "1082869969",
@@ -2391,7 +2391,7 @@
     "SEDE": "Municipal",
     "GRADO": "10",
     "CURSO": "1PPAL",
-    "COORDINADOR": "NO"
+    "COORDINADOR": "SI"
   },
   {
     "ID": "57449437",
@@ -2526,7 +2526,7 @@
     "SEDE": "Municipal",
     "GRADO": "10",
     "CURSO": "2PPAL",
-    "COORDINADOR": "NO"
+    "COORDINADOR": "SI"
   },
   {
     "ID": "57449437",
@@ -2661,7 +2661,7 @@
     "SEDE": "Municipal",
     "GRADO": "10",
     "CURSO": "3PPAL",
-    "COORDINADOR": "NO"
+    "COORDINADOR": "SI"
   },
   {
     "ID": "57449437",
@@ -2796,7 +2796,7 @@
     "SEDE": "Municipal",
     "GRADO": "11",
     "CURSO": "1PPAL",
-    "COORDINADOR": "NO"
+    "COORDINADOR": "SI"
   },
   {
     "ID": "57449437",
@@ -2922,7 +2922,7 @@
     "SEDE": "Municipal",
     "GRADO": "11",
     "CURSO": "2PPAL",
-    "COORDINADOR": "NO"
+    "COORDINADOR": "SI"
   },
   {
     "ID": "1084738659",
@@ -3039,7 +3039,7 @@
     "SEDE": "Municipal",
     "GRADO": "11",
     "CURSO": "3PPAL",
-    "COORDINADOR": "NO"
+    "COORDINADOR": "SI"
   },
   {
     "ID": "57449437",
