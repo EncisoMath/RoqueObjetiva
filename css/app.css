@@ -12638,3 +12638,156 @@ select,
     66%, 87% { opacity: 0; transform: translate3d(3px, -6px, 0) scale(.94); }
   }
 }
+
+
+/* v102: login más compacto, sin Bienvenido, accesos recientes 2x2 y versión solo en admin */
+.login-card-dark .login-eyebrow-title {
+  text-transform: none !important;
+  font-size: calc(.78rem + 4px) !important;
+  font-weight: 950 !important;
+  letter-spacing: .01em !important;
+  line-height: 1.08 !important;
+  margin: 2px 0 8px !important;
+}
+
+.login-card-dark > p {
+  margin-bottom: 10px !important;
+}
+
+.login-form-inline {
+  gap: 10px !important;
+  margin-top: 2px !important;
+}
+
+.login-input-row {
+  display: grid;
+  grid-template-columns: minmax(0, 4fr) minmax(94px, 1fr);
+  gap: 10px;
+  align-items: end;
+}
+
+.login-user-field {
+  min-width: 0;
+}
+
+.login-actions-inline {
+  margin: 0 !important;
+  width: 100%;
+  flex-wrap: nowrap;
+}
+
+.login-actions-inline .primary-btn {
+  width: 100%;
+  min-height: 52px;
+  padding-left: 10px;
+  padding-right: 10px;
+  white-space: nowrap;
+}
+
+.login-card-dark .field input#loginUser {
+  min-height: 52px;
+}
+
+.recent-login-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 8px !important;
+  margin: 8px 0 0 !important;
+}
+
+.recent-login-main {
+  height: 54px !important;
+  flex-direction: row !important;
+  justify-content: flex-start !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 7px 9px !important;
+  border-radius: 12px !important;
+  text-align: left !important;
+}
+
+.recent-login-avatar {
+  width: 30px !important;
+  height: 30px !important;
+  border-radius: 10px !important;
+  font-size: .66rem !important;
+}
+
+.recent-login-text {
+  gap: 0 !important;
+  align-content: center !important;
+}
+
+.recent-login-text strong {
+  font-size: .68rem !important;
+  line-height: 1.05 !important;
+}
+
+.recent-login-text small {
+  font-size: .56rem !important;
+  line-height: 1.05 !important;
+}
+
+.login-version {
+  display: none !important;
+}
+
+.admin-version-chip {
+  pointer-events: none;
+  opacity: .75;
+  font-size: .72rem;
+  padding-inline: 10px;
+}
+
+@media (max-width: 680px) {
+  .login-card-dark {
+    padding: 18px 18px !important;
+  }
+  .login-card-dark .login-eyebrow-title {
+    font-size: calc(.78rem + 3px) !important;
+    margin-bottom: 7px !important;
+  }
+  .login-card-dark > p {
+    margin-bottom: 8px !important;
+    font-size: .82rem !important;
+  }
+  .login-input-row {
+    grid-template-columns: minmax(0, 1fr) 104px;
+    gap: 8px;
+  }
+  .login-actions-inline .primary-btn,
+  .login-card-dark .field input#loginUser {
+    min-height: 50px;
+  }
+  .recent-login-main {
+    height: 50px !important;
+    padding: 6px 8px !important;
+  }
+  .recent-login-avatar {
+    width: 28px !important;
+    height: 28px !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .login-input-row {
+    grid-template-columns: minmax(0, 1fr) 92px;
+  }
+  .login-actions-inline .primary-btn {
+    font-size: .84rem;
+    padding-left: 7px;
+    padding-right: 7px;
+  }
+  .recent-login-grid {
+    gap: 6px !important;
+  }
+  .recent-login-main {
+    height: 48px !important;
+  }
+  .recent-login-avatar {
+    display: none !important;
+  }
+  .recent-login-text small {
+    display: block !important;
+    font-size: .52rem !important;
+  }
+}

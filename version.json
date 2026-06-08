@@ -1,8 +1,8 @@
 {
-  "version": "v101",
-  "cache": "resultados-pwa-v101",
+  "version": "v102",
+  "cache": "resultados-pwa-v102",
   "updatedAt": "2026-06-08",
-  "note": "Ajusta la animacion del login para cambiar el ejemplo mientras el carne esta difuminado y seleccionar nombres aleatorios.",
-  "builtAt": "2026-06-08T03:30:00Z",
+  "note": "Ajusta la pantalla de login: elimina Bienvenido, compacta accesos recientes, campo y boton en fila, oculta version para usuarios no admin y cambia la clave admin.",
+  "builtAt": "2026-06-08T03:40:00Z",
   "date": "2026-06-08"
 }

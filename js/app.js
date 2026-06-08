@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v101";
+  const APP_VERSION = "v102";
 
   const app = document.getElementById("app");
   const toastEl = document.getElementById("toast");
@@ -1058,26 +1058,26 @@
         <div class="login-panel">
           <div class="login-card login-card-dark">
             ${logo ? `<div class="login-main-logo"><img src="${escAttr(logo)}" alt="Logo institucional"></div>` : ""}
-            <span class="login-eyebrow">Consulta de resultados</span>
-            <h1>Bienvenido</h1>
+            <span class="login-eyebrow login-eyebrow-title">Consulta de Resultados</span>
             <p>Ingresa con el <strong>ID de tu prueba</strong> o con tu <strong>usuario personal</strong>.</p>
             ${renderLoginAccessGuide()}
             ${error ? `<div class="admin-note login-error">${esc(error)}</div>` : ""}
-            <form class="login-form" id="loginForm">
-              <div class="field">
-                <label for="loginUser">Usuario o ID</label>
-                <input id="loginUser" autocomplete="username" placeholder="Ej. ruben8525, 2585, ID docente o admin" required />
+            <form class="login-form login-form-inline" id="loginForm">
+              <div class="login-input-row">
+                <div class="field login-user-field">
+                  <label for="loginUser">Usuario o ID de tu examen</label>
+                  <input id="loginUser" autocomplete="username" placeholder="" required />
+                </div>
+                <div class="login-actions login-actions-inline">
+                  <button class="primary-btn" type="submit">Ingresar</button>
+                </div>
               </div>
               <div class="field login-password-field is-hidden" id="loginPasswordField">
                 <label for="loginPass">Contraseña</label>
                 <input id="loginPass" type="password" autocomplete="current-password" placeholder="Contraseña de administrador" />
               </div>
-              <div class="login-actions">
-                <button class="primary-btn" type="submit">Ingresar</button>
-              </div>
             </form>
             ${recentLoginsHtml}
-            <span class="login-version">Versión ${esc(APP_VERSION)}</span>
           </div>
         </div>
       </section>
@@ -1802,6 +1802,7 @@
     const nav = `
       <nav class="app-nav admin-top-tabs">
         ${tabs.map(([id, label]) => `<button type="button" class="nav-chip ${state.adminTab === id ? "active" : ""}" data-action="admin-tab" data-tab="${id}" ${id === "estadisticas" ? 'data-force-admin-stats="true" onclick="window.__poOpenAdminStats&&window.__poOpenAdminStats(event)"' : ''}>${label}</button>`).join("")}
+        <span class="nav-chip admin-version-chip">${esc(APP_VERSION)}</span>
         <button class="nav-chip logout" data-action="logout">Salir</button>
       </nav>
     `;
@@ -3292,7 +3293,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       if (!user) return renderLogin("Ingresa un usuario o ID.");
 
       if (normalizeText(user) === "admin") {
-        if (pass === "admin") {
+        if (pass === "Nintendo64!") {
           state.adminTab = "resumen";
           state.zeroToleranceShown = false;
         enterSessionWithLoader({ role: "admin", id: "admin" }, () => renderAdmin(), "Abriendo panel de administración...");
