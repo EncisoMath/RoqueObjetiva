@@ -1,8 +1,8 @@
 {
-  "version": "v97",
-  "cache": "resultados-pwa-v97",
+  "version": "v98",
+  "cache": "resultados-pwa-v98",
   "updatedAt": "2026-06-08",
-  "note": "Ajusta la animación del login: elimina recuadro visible, compacta altura, separa Ruben/Andres, sube la composición ruben+7890 y mantiene ruben7890 visible por más tiempo.",
-  "builtAt": "2026-06-08T03:05:00Z",
+  "note": "Ajusta la animacion de login: composicion mas alta, bounce natural y ruben7890 visible por mas tiempo.",
+  "builtAt": "2026-06-08T03:12:00Z",
   "date": "2026-06-08"
 }

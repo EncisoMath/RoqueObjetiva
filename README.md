@@ -328,3 +328,7 @@ El `service-worker.js` usa estrategia de red primero para archivos JSON, para ev
 
 ## v97
 - Ajusta la animación del login para que sea más compacta, sin recuadro visible, con separación entre Ruben y Andres, composición más arriba y resultado `ruben7890` visible por más tiempo.
+
+
+## v98
+- Ajusta la animación del login: mueve la composición ruben + 7890 más arriba, usa un bounce más natural y mantiene ruben7890 visible más tiempo antes del loop.
