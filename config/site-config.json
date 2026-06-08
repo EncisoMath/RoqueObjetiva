@@ -18,5 +18,8 @@
   "appleTouchIcon": "icons/apple-touch-icon.png",
   "favicon32": "icons/favicon-32.png",
   "favicon16": "icons/favicon-16.png",
-  "subjectAreaMap": {}
+  "subjectAreaMap": {
+    "Economía": "Ciencias Sociales y Ciudadanía",
+    "economia": "Ciencias Sociales y Ciudadanía"
+  }
 }
