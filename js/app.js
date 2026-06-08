@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v121";
+  const APP_VERSION = "v122";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -402,6 +402,112 @@
     } catch (error) {}
   }
 
+
+  function hydrateRankingContextPayload(payload, debug = null, sourceLabel = "Supabase") {
+    const datasets = payload?.datasets || payload?.data?.datasets || payload?.data || payload || {};
+    const beforeStudents = state.studentsRegistry.length;
+    const beforeResponses = state.responsesByRoll.size;
+    const beforeKeys = state.keys.length;
+    const beforeRanks = state.rankingMetadataByRoll.size;
+
+    const estudiantes = datasets.estudiantes || datasets.students || datasets.alumnos || datasets.registry || datasets.registro || [];
+    const claves = datasets.keys || datasets.claves || datasets.answer_keys || datasets.answerKeys || [];
+    const resultados = datasets.resultados || datasets.results || datasets.respuestas || datasets.responses || [];
+    const rankings = datasets.ranking || datasets.rankings || datasets.puestos || datasets.ranking_global || datasets.rankingGlobal || [];
+
+    if (Array.isArray(estudiantes) && estudiantes.length) mergeSupplementalStudents(parseStudents(JSON.stringify(estudiantes)));
+    if (Array.isArray(claves) && claves.length) {
+      claves.forEach((group) => {
+        if (Array.isArray(group?.rows)) {
+          const grade = toInt(group.grade || group.grado || group.GRADO);
+          state.keys.push(...parseAnswerKey(JSON.stringify(group.rows), { grade, path: group.path || `SUPABASE/RANKING_KEYS_${grade || ""}.json` }));
+        } else if (group && typeof group === "object") {
+          state.keys.push(...parseAnswerKey(JSON.stringify([group]), { grade: toInt(group.grade || group.grado || group.GRADO), path: "SUPABASE/ranking_claves" }));
+        }
+      });
+    }
+    if (Array.isArray(resultados) && resultados.length) hydrateSupplementalResultGroups(resultados);
+    if (Array.isArray(rankings) && rankings.length) applyRankingMetadataRows(rankings);
+
+    const summary = {
+      studentsAdded: state.studentsRegistry.length - beforeStudents,
+      responsesAdded: state.responsesByRoll.size - beforeResponses,
+      keysAdded: state.keys.length - beforeKeys,
+      ranksAdded: state.rankingMetadataByRoll.size - beforeRanks
+    };
+    if (debug?.warnings) debug.warnings.push(`${sourceLabel}: estudiantes +${summary.studentsAdded}, claves +${summary.keysAdded}, resultados +${summary.responsesAdded}, rankings +${summary.ranksAdded}.`);
+    return summary;
+  }
+
+  async function loadSupabaseRankingContextForStudent(target, loginKey, debug = null) {
+    if (!SUPABASE_CONFIG.enabled || !target) return;
+    const payload = {
+      p_user: cleanId(loginKey),
+      p_roll: cleanId(target.roll || target.registry?.examId || loginKey),
+      p_id: cleanId(loginKey),
+      p_documento: cleanId(target.registry?.nationalId || target.nationalId || loginKey),
+      p_grade: toInt(target.grade || target.registry?.grade),
+      p_grado: toInt(target.grade || target.registry?.grade),
+      p_sede: cleanText(target.sede || target.registry?.sede || ""),
+      p_curso: cleanText(target.group || target.registry?.group || ""),
+      p_group: cleanText(target.group || target.registry?.group || "")
+    };
+
+    const rpcNames = [
+      "roque_get_student_ranking_context",
+      "roque_student_ranking_context",
+      "roque_get_ranking_context",
+      "roque_get_contexto_ranking",
+      "roque_ranking_context",
+      "roque_get_rankings",
+      "roque_get_ranking_dataset",
+      "roque_get_resultados_publicos"
+    ];
+
+    for (const name of rpcNames) {
+      const before = state.responsesByRoll.size;
+      try {
+        const data = await supabaseRpc(name, payload);
+        hydrateRankingContextPayload(data, debug, `RPC ${name}`);
+        if (state.responsesByRoll.size > before + 1 || state.responsesByRoll.size > 1) return;
+      } catch (error) {
+        if (debug?.warnings) debug.warnings.push(`RPC ${name} no disponible o no autorizada: ${error?.message || error}`);
+      }
+    }
+
+    const tableSets = [
+      { table: "estudiantes", type: "students" },
+      { table: "roque_estudiantes", type: "students" },
+      { table: "app_estudiantes", type: "students" },
+      { table: "claves", type: "keys" },
+      { table: "keys", type: "keys" },
+      { table: "roque_claves", type: "keys" },
+      { table: "resultados", type: "results" },
+      { table: "results", type: "results" },
+      { table: "roque_resultados", type: "results" },
+      { table: "ranking", type: "ranking" },
+      { table: "rankings", type: "ranking" },
+      { table: "roque_ranking", type: "ranking" }
+    ];
+
+    for (const item of tableSets) {
+      try {
+        const rows = await supabaseRestSelect(item.table);
+        if (!rows?.length) {
+          if (debug?.warnings) debug.warnings.push(`Tabla ${item.table}: sin filas visibles para la llave publica.`);
+          continue;
+        }
+        if (item.type === "students") mergeSupplementalStudents(parseStudents(JSON.stringify(rows)));
+        if (item.type === "keys") state.keys.push(...parseAnswerKey(JSON.stringify(rows), { grade: 0, path: `SUPABASE/${item.table}` }));
+        if (item.type === "results") hydrateSupplementalResultGroups(rows);
+        if (item.type === "ranking") applyRankingMetadataRows(rows);
+        if (debug?.warnings) debug.warnings.push(`Tabla ${item.table}: ${rows.length} fila(s) visibles procesadas.`);
+      } catch (error) {
+        if (debug?.warnings) debug.warnings.push(`Tabla ${item.table} no legible: ${error?.message || error}`);
+      }
+    }
+  }
+
   function hasUsableRankingUniverse() {
     const responseRows = Array.from(state.responsesByRoll?.values?.() || []);
     const byGrade = groupBy(responseRows, (record) => String(toInt(record?.grade) || ""));
@@ -420,29 +526,93 @@
     await loadBundledRankingFallbackData();
   }
 
-  async function loadBundledRankingFallbackData() {
-    if (state.rankingFallbackLoaded) return;
+  async function loadBundledRankingFallbackData(options = {}) {
+    // v122: el diagnostico de ranking NO puede depender del payload filtrado de roque_login.
+    // Por eso, cuando force=true, se recarga siempre el paquete local incluido en la PWA
+    // y se arma un universo temporal con ESTUDIANTES + KEYS + RESULTADOS. Esto no modifica
+    // las listas visibles ni reemplaza los datos vivos de Supabase; solo alimenta el ranking.
+    const force = options?.force === true;
+    const debug = options?.debug || null;
+    const gradesHint = (Array.isArray(options?.gradesHint) ? options.gradesHint : [])
+      .map((grade) => toInt(grade))
+      .filter(Boolean);
+
+    const pushDebug = (type, message) => {
+      if (debug && Array.isArray(debug[type])) debug[type].push(message);
+    };
+
+    if (state.rankingFallbackLoaded && !force) return;
     state.rankingFallbackLoaded = true;
     state.rankingFallbackResponsesByRoll = new Map();
     state.rankingFallbackRegistryByExamId = new Map();
     state.rankingFallbackRegistryByNationalId = new Map();
 
+    let bundledManifest = null;
     try {
-      const studentText = await fetchText(state.manifest.estudiantes || DEFAULT_MANIFEST.estudiantes, false);
-      const students = studentText ? parseStudents(studentText) : [];
-      students.forEach((student) => {
-        const examId = cleanId(student?.examId);
-        const nationalId = cleanId(student?.nationalId);
-        if (examId) state.rankingFallbackRegistryByExamId.set(examId, student);
-        if (nationalId) state.rankingFallbackRegistryByNationalId.set(nationalId, student);
-      });
+      const manifestText = await fetchText("config/data-manifest.json", false);
+      if (manifestText) bundledManifest = normalizeManifest({ ...DEFAULT_MANIFEST, ...JSON.parse(manifestText) });
     } catch (error) {
-      console.warn("No se pudo cargar estudiantes locales para ranking:", error?.message || error);
+      pushDebug("warnings", `No se pudo leer config/data-manifest.json para respaldo local: ${error?.message || error}`);
     }
 
-    try {
-      const currentKeyIds = new Set((state.keys || []).map((key) => keyId(key)));
-      for (const keyFile of state.manifest.keys || []) {
+    const fallbackManifest = normalizeManifest({ ...DEFAULT_MANIFEST, grades: DEFAULT_GRADES });
+    const manifests = [state.manifest, bundledManifest, fallbackManifest].filter(Boolean);
+
+    const uniqueByPath = (items) => {
+      const seen = new Set();
+      return (items || []).filter((item) => {
+        const path = cleanText(item?.path || item);
+        if (!path || seen.has(path)) return false;
+        seen.add(path);
+        return true;
+      });
+    };
+
+    const studentPaths = uniqueByPath([
+      state.manifest?.estudiantes,
+      bundledManifest?.estudiantes,
+      fallbackManifest.estudiantes,
+      "ESTUDIANTES/ESTUDIANTES.json"
+    ].filter(Boolean).map((path) => ({ path })));
+
+    let studentsLoaded = 0;
+    for (const item of studentPaths) {
+      try {
+        const studentText = await fetchText(item.path, false);
+        if (!studentText) continue;
+        const students = parseStudents(studentText);
+        students.forEach((student) => {
+          const examId = cleanId(student?.examId);
+          const nationalId = cleanId(student?.nationalId);
+          if (examId) state.rankingFallbackRegistryByExamId.set(examId, student);
+          if (nationalId) state.rankingFallbackRegistryByNationalId.set(nationalId, student);
+        });
+        studentsLoaded += students.length;
+        if (students.length) break;
+      } catch (error) {
+        pushDebug("warnings", `No se pudo cargar estudiantes locales desde ${item.path}: ${error?.message || error}`);
+      }
+    }
+    if (!studentsLoaded) pushDebug("warnings", "El respaldo local de estudiantes quedo vacio; no se pudo armar contexto amplio de ranking desde ESTUDIANTES.json.");
+
+    const gradeSet = new Set(gradesHint);
+    manifests.forEach((manifest) => (manifest?.grades || []).forEach((grade) => { const g = toInt(grade); if (g) gradeSet.add(g); }));
+    DEFAULT_GRADES.forEach((grade) => { const g = toInt(grade); if (g) gradeSet.add(g); });
+    state.studentsRegistry.forEach((student) => { const g = toInt(student?.grade); if (g) gradeSet.add(g); });
+    state.cargaRows.forEach((row) => { const g = toInt(row?.grade); if (g) gradeSet.add(g); });
+
+    const keyCandidates = [];
+    manifests.forEach((manifest) => {
+      (manifest?.keys || []).forEach((item) => keyCandidates.push(item));
+      const template = manifest?.keyTemplate || "KEYS/KEYS_{grade}.json";
+      gradeSet.forEach((grade) => keyCandidates.push({ grade, path: templatePath(template, { grade }), optional: true }));
+    });
+    const keyFiles = uniqueByPath(keyCandidates);
+
+    const currentKeyIds = new Set((state.keys || []).map((key) => keyId(key)));
+    let keyRowsLoaded = 0;
+    for (const keyFile of keyFiles) {
+      try {
         const text = await fetchText(keyFile.path, false);
         if (!text) continue;
         const rows = parseAnswerKey(text, keyFile);
@@ -451,30 +621,57 @@
           if (!currentKeyIds.has(id)) {
             state.keys.push(row);
             currentKeyIds.add(id);
+            keyRowsLoaded += 1;
           }
         });
+      } catch (error) {
+        pushDebug("warnings", `No se pudieron cargar claves locales desde ${keyFile.path}: ${error?.message || error}`);
       }
-    } catch (error) {
-      console.warn("No se pudieron cargar claves locales para ranking:", error?.message || error);
     }
+    if (!state.keys.length) pushDebug("errors", "No hay claves disponibles; no se puede calcular puntaje global ni ranking real.");
+    if (!keyRowsLoaded && !currentKeyIds.size) pushDebug("warnings", "El respaldo local de claves no agrego filas.");
+
+    const resultCandidates = [];
+    manifests.forEach((manifest) => {
+      (manifest?.resultados || []).forEach((item) => resultCandidates.push(item));
+      const template = manifest?.resultTemplate || "RESULTADOS/{grade}S{session}.json";
+      const sessions = manifest?.sessions || DEFAULT_MANIFEST.sessions || [];
+      gradeSet.forEach((grade) => sessions.forEach((sessionInfo) => {
+        const session = toInt(sessionInfo?.session || sessionInfo) || 1;
+        resultCandidates.push({
+          grade,
+          session,
+          startItem: toInt(sessionInfo?.startItem || sessionInfo?.start_item) || (session === 2 ? 71 : 1),
+          path: templatePath(template, { grade, session }),
+          optional: true
+        });
+      }));
+    });
+    const resultFiles = uniqueByPath(resultCandidates);
 
     const originalResponses = state.responsesByRoll;
     const tempResponses = new Map();
+    let resultRowsLoaded = 0;
     try {
       state.responsesByRoll = tempResponses;
-      for (const resultFile of state.manifest.resultados || []) {
-        const text = await fetchText(resultFile.path, false);
-        if (!text) continue;
-        parseResultFile(text, resultFile);
+      for (const resultFile of resultFiles) {
+        try {
+          const text = await fetchText(resultFile.path, false);
+          if (!text) continue;
+          const before = tempResponses.size;
+          parseResultFile(text, resultFile);
+          resultRowsLoaded += Math.max(0, tempResponses.size - before);
+        } catch (error) {
+          pushDebug("warnings", `No se pudieron cargar resultados locales desde ${resultFile.path}: ${error?.message || error}`);
+        }
       }
-    } catch (error) {
-      console.warn("No se pudieron cargar resultados locales para ranking:", error?.message || error);
     } finally {
       state.responsesByRoll = originalResponses;
     }
     state.rankingFallbackResponsesByRoll = tempResponses;
+    if (!tempResponses.size) pushDebug("warnings", "El respaldo local de RESULTADOS quedo vacio; si Supabase solo entrega el estudiante actual, la tabla de ranking seguira con una sola fila.");
+    pushDebug("warnings", `Diagnostico local: estudiantes=${studentsLoaded}, claves=${state.keys.length}, resultadosRespaldo=${tempResponses.size}.`);
   }
-
 
   function clearRankingFallbackData() {
     state.rankingFallbackResponsesByRoll = new Map();
@@ -1032,9 +1229,11 @@
     const objects = parseDataObjects(text, ["Respuesta sugerida"]);
     const grade = toInt(fileInfo.grade) || inferGradeFromPath(fileInfo.path);
     return objects
-      .map((row, idx) => ({
+      .map((row, idx) => {
+        const rowGrade = toInt(row.GRADO || row.grado || row.Grado || row.grade || row.GRADE || grade);
+        return ({
         sourcePath: fileInfo.path,
-        grade,
+        grade: rowGrade,
         areaRaw: cleanText(row["Área"] || row.area || row.Area || row.AREA || row.Asignatura || row.ASIGNATURA),
         area: canonicalSubject(row["Área"] || row.area || row.Area || row.AREA || row.Asignatura || row.ASIGNATURA),
         item: toInt(row["Número de ítem"] || row.numero_item || row["Numero de item"] || row.Numero || row.Número || row.Item || row.ITEM || row["N°"]),
@@ -1042,7 +1241,7 @@
         component: cleanText(row["Componente / pensamiento / entorno / factor / enfoque"] || row.componente || row.Componente || row.COMPONENTE || row.Pensamiento || row.Enfoque),
         competence: cleanText(row.competencia || row.Competencia || row.COMPETENCIA || row.Competencias),
         idx
-      }))
+      }); })
       .filter((r) => r.grade && r.area && r.item && r.correct);
   }
 
@@ -1056,16 +1255,17 @@
       const roll = cleanId(row["Roll No"] || row.RollNo || row.Roll || row.ID || row.ID_PRUEBA || row.id_prueba || row.id);
       if (!roll) continue;
 
+      const rowGrade = toInt(row.GRADO || row.grado || row.Grado || row.grade || row.GRADE || grade);
       const current = state.responsesByRoll.get(roll) || {
         roll,
         name: cleanText(row.Name || row.Nombre || row.NOMBRE),
-        grade,
+        grade: rowGrade,
         sessions: [],
         answers: {}
       };
 
       if (!current.name) current.name = cleanText(row.Name || row.Nombre || row.NOMBRE);
-      if (!current.grade) current.grade = grade;
+      if (!current.grade) current.grade = rowGrade;
       const rowSede = cleanText(row.SEDE || row.sede || row.Sede || row.sede_nombre || row.sedeNombre);
       const rowGroup = cleanText(row.GRUPO || row.grupo || row.Grupo || row.CURSO || row.curso || row.Curso);
       const rowNationalId = cleanId(row.ID_ALUMNO || row.id_alumno || row.IdAlumno || row.Documento || row.documento || row.ID_ESTUDIANTE || row.id_estudiante);
@@ -1754,7 +1954,7 @@
     const warnings = [];
     const errors = [];
 
-    try { await loadBundledRankingFallbackData(); } catch (error) { warnings.push(`No se pudo cargar respaldo local: ${error?.message || error}`); }
+    try { await loadBundledRankingFallbackData({ force: true, debug: { warnings, errors } }); } catch (error) { warnings.push(`No se pudo cargar respaldo local: ${error?.message || error}`); }
 
     let target = findRankingStudentByRoll(key);
     if (!target && state.responsesByRoll?.has?.(key)) target = buildComputedStudentFromResultRecord({ ...state.responsesByRoll.get(key), roll: key }, 0);
@@ -1778,6 +1978,19 @@
     if (!targetGrade) errors.push("No se pudo determinar el grado del estudiante.");
     if (!targetSede) warnings.push("No se pudo determinar la sede del estudiante; el ranking por curso puede quedar vacio.");
     if (!targetGroup) warnings.push("No se pudo determinar el curso del estudiante; el ranking por curso puede quedar vacio.");
+
+    // v122: si el login trae solo el estudiante actual, se intenta pedir un contexto amplio
+    // directamente a Supabase mediante RPC/tablas legibles. Luego se reconstruye el repositorio
+    // para que buildRankingStudentsPool pueda cruzar estudiantes + resultados.
+    try {
+      const beforeResponses = state.responsesByRoll?.size || 0;
+      await loadSupabaseRankingContextForStudent(target, key, { warnings, errors });
+      if ((state.responsesByRoll?.size || 0) !== beforeResponses) buildRepository();
+      const refreshedTarget = findRankingStudentByRoll(key);
+      if (refreshedTarget) target = refreshedTarget;
+    } catch (error) {
+      warnings.push(`No se pudo ampliar el contexto de ranking desde Supabase: ${error?.message || error}`);
+    }
 
     const pool = buildRankingStudentsPool()
       .filter((student) => studentHasRankingResult(student) && Number.isFinite(rankBaseScore(student)));
@@ -1905,7 +2118,7 @@
 
     if (state.activeSession.role === "student") {
       const roll = cleanId(state.activeSession.roll);
-      if (!state.activeSession.rankingDebugDone || state.activeSession.rankingDebugVersion !== "v121") {
+      if (!state.activeSession.rankingDebugDone || state.activeSession.rankingDebugVersion !== "v122") {
         return showStudentRankingDebugGate(roll, "Reconstruyendo diagnóstico de ranking...");
       }
       return renderStudent(roll);
@@ -1920,7 +2133,7 @@
     state.metricTab = "components";
     state.zeroToleranceShown = false;
     return enterSessionWithLoader(
-      { role: "student", roll: cleanRoll, rankingDebugDone: false, rankingDebugVersion: "v121" },
+      { role: "student", roll: cleanRoll, rankingDebugDone: false, rankingDebugVersion: "v122" },
       () => showStudentRankingDebugGate(cleanRoll, message),
       message
     );
@@ -4586,7 +4799,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     if (action === "student-ranking-debug-next") {
       const roll = cleanId(target.dataset.roll || state.activeSession?.roll || "");
       state.zeroToleranceShown = false;
-      state.activeSession = { ...(state.activeSession || {}), role: "student", roll, rankingDebugDone: true, rankingDebugVersion: "v121" };
+      state.activeSession = { ...(state.activeSession || {}), role: "student", roll, rankingDebugDone: true, rankingDebugVersion: "v122" };
       writeJSON(STORAGE.session, state.activeSession);
       return enterSessionWithLoader(state.activeSession, () => renderStudent(roll), "Abriendo tus resultados...");
     }

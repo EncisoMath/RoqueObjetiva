@@ -1,9 +1,9 @@
 {
-  "version": "v121",
-  "cache": "resultados-pwa-v121",
+  "version": "v122",
+  "cache": "resultados-pwa-v122",
   "updatedAt": "2026-06-08",
-  "note": "Ranking debugger obligatorio antes de resultados; tablas de grado/curso visibles; Supabase sin caché.",
-  "builtAt": "2026-06-08T19:35:00Z",
+  "note": "Ranking debugger con universo local forzado; tablas grado/curso con respaldo completo; Supabase sin caché.",
+  "builtAt": "2026-06-08T20:05:00Z",
   "date": "2026-06-08",
-  "build": "121"
+  "build": "122"
 }
