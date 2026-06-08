@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v115";
+  const APP_VERSION = "v116";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -39,7 +39,7 @@
   const DEFAULT_CONFIG = {
     title: "Roque Objetiva",
     subtitle: "Este reporte no se pasa ni se pierde. Es una herramienta para identificar fortalezas, habilidades y oportunidades de mejora.",
-    logoImage: "assets/logo-principal.png?v=115",
+    logoImage: "assets/logo-principal.png?v=116",
     appIcon: "icons/icon-512.png",
     bannerImage: "",
     footerText: "Consulta institucional de resultados",
@@ -289,7 +289,7 @@
     const baseUrl = cleanText(SUPABASE_CONFIG.url).replace(/\/$/, "");
     const key = cleanText(SUPABASE_CONFIG.key);
     if (!baseUrl || !key) throw new Error("Falta configurar Supabase.");
-    const response = await fetch(`${baseUrl}/rest/v1/rpc/${functionName}?_ts=${Date.now()}`, {
+    const response = await fetch(`${baseUrl}/rest/v1/rpc/${functionName}`, {
       method: "POST",
       cache: "no-store",
       headers: {
@@ -980,7 +980,7 @@
   }
 
   function assignRanks() {
-    // v115: rankings calculados desde un universo independiente de resultados reales.
+    // v116: rankings calculados desde un universo independiente de resultados reales.
     // La vista/lista puede estar filtrada por rol, pero los puestos se comparan contra todos
     // los examenes disponibles en el payload de Supabase/RESULTADOS.
     // Grado = solo grado. Curso = sede + grado + curso.

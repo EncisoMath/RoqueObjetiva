@@ -1,8 +1,8 @@
 {
-  "version": "v115",
-  "cache": "resultados-pwa-v115",
+  "version": "v116",
+  "cache": "resultados-pwa-v116",
   "updatedAt": "2026-06-08",
-  "note": "Rankings corregidos por grado y por curso; listas completas y promedios/gráficas calculados solo con estudiantes que tienen resultado real en Supabase.",
-  "builtAt": "2026-06-08T18:45:00Z",
+  "note": "Corrige error de Supabase por parametro _ts; mantiene rankings por puntaje global y evita cachear datos vivos de Supabase.",
+  "builtAt": "2026-06-08T19:00:00Z",
   "date": "2026-06-08"
 }
