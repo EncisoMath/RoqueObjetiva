@@ -1,0 +1,129 @@
+name: Vaciar repo y borrar deployments
+
+on:
+workflow_dispatch:
+inputs:
+environment:
+description: "Environment de GitHub Pages"
+required: true
+default: "github-pages"
+
+permissions:
+contents: write
+deployments: write
+
+jobs:
+limpiar:
+runs-on: ubuntu-latest
+
+```
+steps:
+  - name: Descargar repositorio
+    uses: actions/checkout@v4
+    with:
+      persist-credentials: true
+
+  - name: Borrar deployments antiguos
+    continue-on-error: true
+    shell: bash
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      REPO: ${{ github.repository }}
+      ENV_NAME: ${{ inputs.environment }}
+    run: |
+      set +e
+
+      echo "Repositorio: $REPO"
+      echo "Environment: $ENV_NAME"
+
+      mkdir -p tmp_deployments
+      page=1
+
+      while true; do
+        echo "Leyendo pagina $page"
+
+        response=$(curl -sS -L \
+          -H "Accept: application/vnd.github+json" \
+          -H "Authorization: Bearer $GH_TOKEN" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          "https://api.github.com/repos/$REPO/deployments?environment=$ENV_NAME&per_page=100&page=$page")
+
+        count=$(echo "$response" | jq 'length')
+
+        if [ "$count" = "0" ]; then
+          break
+        fi
+
+        echo "$response" > "tmp_deployments/page_$page.json"
+        page=$((page + 1))
+      done
+
+      if ls tmp_deployments/page_*.json 1> /dev/null 2>&1; then
+        jq -s 'add | sort_by(.created_at) | reverse' tmp_deployments/page_*.json > tmp_deployments/all.json
+
+        total=$(jq 'length' tmp_deployments/all.json)
+        echo "Deployments encontrados: $total"
+
+        jq -r '.[].id' tmp_deployments/all.json | while read -r id; do
+          if [ -z "$id" ]; then
+            continue
+          fi
+
+          echo "Marcando inactive deployment $id"
+
+          curl -sS -L -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/$REPO/deployments/$id/statuses" \
+            -d "{\"state\":\"inactive\",\"environment\":\"$ENV_NAME\",\"description\":\"Cleanup old deployment\"}" \
+            > /dev/null
+
+          echo "Borrando deployment $id"
+
+          status=$(curl -sS -L -X DELETE \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/$REPO/deployments/$id" \
+            -o /dev/null \
+            -w "%{http_code}")
+
+          echo "Deployment $id -> HTTP $status"
+        done
+      else
+        echo "No se encontraron deployments."
+      fi
+
+      exit 0
+
+  - name: Vaciar repositorio y dejar solo README
+    shell: bash
+    run: |
+      set -e
+
+      echo "Borrando todos los archivos excepto .git y README.md"
+
+      find . -mindepth 1 -maxdepth 1 \
+        -not -name ".git" \
+        -not -name "README.md" \
+        -exec rm -rf {} +
+
+      printf "# RoqueObjetiva\n\nRepositorio limpiado.\n\nLa version anterior fue retirada del repositorio.\n" > README.md
+
+      git config user.name "github-actions[bot]"
+      git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      git add -A
+
+      if git diff --cached --quiet; then
+        echo "No hay cambios para confirmar."
+      else
+        git commit -m "Vaciar repositorio y conservar README"
+        git push
+      fi
+
+      echo "Repositorio limpiado. Solo queda README.md."
+```
+
+::: 
