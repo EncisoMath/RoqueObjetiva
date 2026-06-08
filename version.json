@@ -1,9 +1,9 @@
 {
-  "version": "v123",
-  "cache": "resultados-pwa-v123",
+  "version": "v124",
+  "cache": "resultados-pwa-v124",
   "updatedAt": "2026-06-08",
-  "note": "Ranking calculado por RPC Supabase v123 con tablas grado/curso y puntaje global; Supabase sin caché.",
+  "note": "Ranking calculado por RPC Supabase v124 con tablas grado/curso y puntaje global; Supabase sin caché.",
   "builtAt": "2026-06-08T20:25:00Z",
   "date": "2026-06-08",
-  "build": "123"
+  "build": "124"
 }

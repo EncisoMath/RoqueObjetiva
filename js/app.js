@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v123";
+  const APP_VERSION = "v124";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -367,6 +367,7 @@
     const rankingScore = numberOrNull(row.puntaje_orden ?? row.rankingScore ?? row.score_used ?? row.puntaje_global ?? row.globalScore);
     return {
       position,
+      rank: position,
       isTarget,
       roll,
       nationalId,
@@ -381,25 +382,25 @@
       english: numberOrNull(row.ingles ?? row.english ?? row.INGLES),
       globalScore,
       rankingScore,
-      source: cleanText(row.fuente || row.source || "Supabase RPC v123"),
+      source: cleanText(row.fuente || row.source || "Supabase RPC ranking"),
       notes: cleanText(row.notas || row.notes || row.debug || "")
     };
   }
 
-  async function tryPrepareStudentRankingContextFromRpcV123(loginKey, warnings = [], errors = []) {
+  async function tryPrepareStudentRankingContextFromRpcV124(loginKey, warnings = [], errors = []) {
     if (!SUPABASE_CONFIG.enabled) return false;
     const key = cleanId(loginKey);
     if (!key) return false;
     let data = null;
     try {
-      data = await supabaseRpc("roque_get_student_ranking_context_v123", { p_login: key });
+      data = await supabaseRpc("roque_get_student_ranking_context", { p_login: key });
     } catch (error) {
-      warnings.push(`RPC roque_get_student_ranking_context_v123 no disponible o falló: ${error?.message || error}`);
+      warnings.push(`RPC roque_get_student_ranking_context no disponible o falló: ${error?.message || error}`);
       return false;
     }
 
     if (!data || data.ok === false) {
-      warnings.push(`RPC v123 respondió sin ranking usable: ${data?.error || data?.message || "respuesta vacía"}`);
+      warnings.push(`RPC de ranking respondió sin ranking usable: ${data?.error || data?.message || "respuesta vacía"}`);
       return false;
     }
 
@@ -410,8 +411,8 @@
     const courseRows = (Array.isArray(data.curso_rows) ? data.curso_rows : Array.isArray(data.courseRows) ? data.courseRows : [])
       .map((row) => normalizeRpcRankingRowV123(row, key));
 
-    if (!gradeRows.length) errors.push("RPC v123 no devolvió filas para ranking por grado.");
-    if (!courseRows.length) errors.push("RPC v123 no devolvió filas para ranking por curso.");
+    if (!gradeRows.length) errors.push("RPC de ranking no devolvió filas para ranking por grado.");
+    if (!courseRows.length) errors.push("RPC de ranking no devolvió filas para ranking por curso.");
 
     const gradeTarget = gradeRows.find((row) => row.isTarget) || gradeRows.find((row) => [row.roll, row.nationalId].includes(key));
     const courseTarget = courseRows.find((row) => row.isTarget) || courseRows.find((row) => [row.roll, row.nationalId].includes(key));
@@ -448,8 +449,8 @@
       group: cleanText(estudiante.curso || estudiante.grupo || estudiante.group || "")
     };
 
-    if (!meta.gradeRank) errors.push("RPC v123 no pudo ubicar el puesto del estudiante en el ranking de grado.");
-    if (!meta.courseRank) errors.push("RPC v123 no pudo ubicar el puesto del estudiante en el ranking de curso.");
+    if (!meta.gradeRank) errors.push("RPC de ranking no pudo ubicar el puesto del estudiante en el ranking de grado.");
+    if (!meta.courseRank) errors.push("RPC de ranking no pudo ubicar el puesto del estudiante en el ranking de curso.");
 
     setStudentRankingDebug(key, {
       loginKey: key,
@@ -467,7 +468,7 @@
         gradeRows: gradeRows.length,
         courseRows: courseRows.length
       },
-      warnings: [`Ranking calculado por Supabase RPC v123.`, ...warnings],
+      warnings: [`Ranking calculado por Supabase RPC roque_get_student_ranking_context.`, ...warnings],
       errors,
       gradeRows,
       courseRows
@@ -650,7 +651,7 @@
   }
 
   async function loadBundledRankingFallbackData(options = {}) {
-    // v123: el diagnostico de ranking NO puede depender del payload filtrado de roque_login.
+    // v124: el diagnostico de ranking NO puede depender del payload filtrado de roque_login.
     // Por eso, cuando force=true, se recarga siempre el paquete local incluido en la PWA
     // y se arma un universo temporal con ESTUDIANTES + KEYS + RESULTADOS. Esto no modifica
     // las listas visibles ni reemplaza los datos vivos de Supabase; solo alimenta el ranking.
@@ -1063,8 +1064,8 @@
         return renderLogin(payload?.error || "No fue posible iniciar sesion.");
       }
       hydrateSupabasePayload(payload);
-      await loadSupabaseRankingSupplement(payload);
-      await ensureRankingFallbackUniverse();
+      // v124: no se hacen consultas exploratorias de ranking aquí.
+      // El ranking de estudiante se calcula después con la RPC dedicada.
       buildRepository();
 
       const session = payload.session || {};
@@ -1955,26 +1956,36 @@
   }
 
   function buildRankingDebugHtmlTable(rows, title, subtitle) {
-    const tableRows = (rows || []).map((row) => `
+    const value = (v) => (v === null || v === undefined || v === "" ? "\u2014" : v);
+    const tableRows = (rows || []).map((row = {}) => {
+      const scores = row.scores || {};
+      const math = row.math ?? row.matematicas ?? row.MATEMATICAS ?? scores.matematicas ?? scores.math;
+      const language = row.language ?? row.lenguaje ?? row.LENGUAJE ?? scores.lenguaje ?? scores.language;
+      const natural = row.natural ?? row.naturales ?? row.ciencias_naturales ?? row.CIENCIAS_NATURALES ?? scores.naturales ?? scores.natural;
+      const social = row.social ?? row.sociales ?? row.ciencias_sociales ?? row.CIENCIAS_SOCIALES ?? scores.sociales ?? scores.social;
+      const english = row.english ?? row.ingles ?? row.INGLES ?? scores.ingles ?? scores.english;
+      const pos = row.position ?? row.rank ?? row.posicion ?? row.puesto;
+      return `
       <tr class="${row.isTarget ? "rank-debug-target" : ""}">
-        <td>${esc(row.rank)}</td>
+        <td>${esc(value(pos))}</td>
         <td>${row.isTarget ? "\u2605" : ""}</td>
-        <td>${esc(row.roll || "\u2014")}</td>
-        <td>${esc(row.nationalId || "\u2014")}</td>
-        <td>${esc(row.name || "\u2014")}</td>
-        <td>${esc(row.sede || "\u2014")}</td>
-        <td>${esc(row.grade || "\u2014")}</td>
-        <td>${esc(row.group || "\u2014")}</td>
-        <td>${esc(row.scores.matematicas ?? "\u2014")}</td>
-        <td>${esc(row.scores.lenguaje ?? "\u2014")}</td>
-        <td>${esc(row.scores.naturales ?? "\u2014")}</td>
-        <td>${esc(row.scores.sociales ?? "\u2014")}</td>
-        <td>${esc(row.scores.ingles ?? "\u2014")}</td>
-        <td><strong>${esc(row.globalScore ?? "\u2014")}</strong></td>
-        <td><strong>${esc(row.rankingScore ?? "\u2014")}</strong></td>
-        <td>${esc(row.source || "")}</td>
-        <td>${esc(row.notes || "")}</td>
-      </tr>`).join("");
+        <td>${esc(value(row.roll || row.id_prueba))}</td>
+        <td>${esc(value(row.nationalId || row.id_alumno || row.documento))}</td>
+        <td>${esc(value(row.name || row.nombre))}</td>
+        <td>${esc(value(row.sede))}</td>
+        <td>${esc(value(row.grade || row.grado))}</td>
+        <td>${esc(value(row.group || row.curso || row.grupo))}</td>
+        <td>${esc(value(math))}</td>
+        <td>${esc(value(language))}</td>
+        <td>${esc(value(natural))}</td>
+        <td>${esc(value(social))}</td>
+        <td>${esc(value(english))}</td>
+        <td><strong>${esc(value(row.globalScore ?? row.puntaje_global))}</strong></td>
+        <td><strong>${esc(value(row.rankingScore ?? row.puntaje_orden ?? row.globalScore ?? row.puntaje_global))}</strong></td>
+        <td>${esc(value(row.source || row.fuente))}</td>
+        <td>${esc(value(row.notes || row.notas))}</td>
+      </tr>`;
+    }).join("");
     return `
       <section class="card card-pad rank-debug-table-card">
         <h3>${esc(title)}</h3>
@@ -2077,21 +2088,44 @@
     const warnings = [];
     const errors = [];
 
-    // v123: solución definitiva: el ranking se pide a una RPC SECURITY DEFINER de Supabase.
-    // Esa RPC cruza estudiantes + resultados + claves y devuelve las dos tablas completas
-    // de diagnóstico. Si la función no existe todavía, se mantiene el flujo de respaldo.
-    const rpcReady = await tryPrepareStudentRankingContextFromRpcV123(key, warnings, errors);
+    // v124: solución definitiva: el ranking se pide SOLO a una RPC SECURITY DEFINER de Supabase.
+    // Esto evita 404/401 de funciones/tablas exploratorias y evita quedarse pegado.
+    // Si esta RPC no existe, se muestra el diagnóstico con el error y no se inventa ranking.
+    const rpcReady = await tryPrepareStudentRankingContextFromRpcV124(key, warnings, errors);
     if (rpcReady) return;
 
-    try { await loadBundledRankingFallbackData({ force: true, debug: { warnings, errors } }); } catch (error) { warnings.push(`No se pudo cargar respaldo local: ${error?.message || error}`); }
+    errors.push("No se pudo cargar el ranking porque falta o falló la RPC roque_get_student_ranking_context. Ejecuta SUPABASE_RANKING_CONTEXT_V124.sql en Supabase y vuelve a iniciar sesión.");
 
     let target = findRankingStudentByRoll(key);
     if (!target && state.responsesByRoll?.has?.(key)) target = buildComputedStudentFromResultRecord({ ...state.responsesByRoll.get(key), roll: key }, 0);
     if (!target) {
-      errors.push("No se encontro el estudiante en computedStudents, responsesByRoll ni respaldo local.");
+      errors.push("No se encontro el estudiante en computedStudents ni en el payload del login.");
       setStudentRankingDebug(key, { loginKey: key, target: {}, warnings, errors, counts: { pool: 0, gradeRows: 0, courseRows: 0 }, gradeRows: [], courseRows: [] });
       return;
     }
+
+    setStudentRankingDebug(key, {
+      loginKey: key,
+      target: {
+        roll: cleanId(target.roll || target.registry?.examId || key),
+        nationalId: cleanId(target.nationalId || target.registry?.nationalId || ""),
+        name: cleanText(target.name || target.registry?.name || ""),
+        sede: cleanText(target.sede || target.registry?.sede || ""),
+        grade: toInt(target.grade || target.registry?.grade) || "",
+        group: cleanText(target.group || target.registry?.group || "")
+      },
+      targetRankingScore: null,
+      gradeRank: null,
+      gradeCount: null,
+      courseRank: null,
+      courseCount: null,
+      counts: { pool: 0, gradeRows: 0, courseRows: 0 },
+      warnings,
+      errors,
+      gradeRows: [],
+      courseRows: []
+    });
+    return;
 
     const localRegistry = state.rankingFallbackRegistryByExamId?.get?.(key)
       || state.rankingFallbackRegistryByNationalId?.get?.(cleanId(target.registry?.nationalId))
@@ -2108,7 +2142,7 @@
     if (!targetSede) warnings.push("No se pudo determinar la sede del estudiante; el ranking por curso puede quedar vacio.");
     if (!targetGroup) warnings.push("No se pudo determinar el curso del estudiante; el ranking por curso puede quedar vacio.");
 
-    // v123: si el login trae solo el estudiante actual, se intenta pedir un contexto amplio
+    // v124: si el login trae solo el estudiante actual, se intenta pedir un contexto amplio
     // directamente a Supabase mediante RPC/tablas legibles. Luego se reconstruye el repositorio
     // para que buildRankingStudentsPool pueda cruzar estudiantes + resultados.
     try {
@@ -2247,7 +2281,7 @@
 
     if (state.activeSession.role === "student") {
       const roll = cleanId(state.activeSession.roll);
-      if (!state.activeSession.rankingDebugDone || state.activeSession.rankingDebugVersion !== "v123") {
+      if (!state.activeSession.rankingDebugDone || state.activeSession.rankingDebugVersion !== "v124") {
         return showStudentRankingDebugGate(roll, "Reconstruyendo diagnóstico de ranking...");
       }
       return renderStudent(roll);
@@ -2262,7 +2296,7 @@
     state.metricTab = "components";
     state.zeroToleranceShown = false;
     return enterSessionWithLoader(
-      { role: "student", roll: cleanRoll, rankingDebugDone: false, rankingDebugVersion: "v123" },
+      { role: "student", roll: cleanRoll, rankingDebugDone: false, rankingDebugVersion: "v124" },
       () => showStudentRankingDebugGate(cleanRoll, message),
       message
     );
@@ -4928,7 +4962,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     if (action === "student-ranking-debug-next") {
       const roll = cleanId(target.dataset.roll || state.activeSession?.roll || "");
       state.zeroToleranceShown = false;
-      state.activeSession = { ...(state.activeSession || {}), role: "student", roll, rankingDebugDone: true, rankingDebugVersion: "v123" };
+      state.activeSession = { ...(state.activeSession || {}), role: "student", roll, rankingDebugDone: true, rankingDebugVersion: "v124" };
       writeJSON(STORAGE.session, state.activeSession);
       return enterSessionWithLoader(state.activeSession, () => renderStudent(roll), "Abriendo tus resultados...");
     }
