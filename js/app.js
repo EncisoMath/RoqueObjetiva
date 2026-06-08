@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v113";
+  const APP_VERSION = "v114";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -39,7 +39,7 @@
   const DEFAULT_CONFIG = {
     title: "Roque Objetiva",
     subtitle: "Este reporte no se pasa ni se pierde. Es una herramienta para identificar fortalezas, habilidades y oportunidades de mejora.",
-    logoImage: "assets/logo-principal.png?v=113",
+    logoImage: "assets/logo-principal.png?v=114",
     appIcon: "icons/icon-512.png",
     bannerImage: "",
     footerText: "Consulta institucional de resultados",
@@ -928,28 +928,94 @@
   }
 
   function assignRanks() {
-    const byGrade = groupBy(state.computedStudents.filter((s) => s.globalScore !== null), (s) => String(s.grade || ""));
-    byGrade.forEach((students) => {
-      students.forEach((student) => {
-        student.gradeCount = students.length;
-        student.gradeRank = 1 + students.filter((other) => (other.globalScore || 0) > (student.globalScore || 0)).length;
-        student.percentile = students.length ? Math.round((students.filter((other) => (other.globalScore || 0) < (student.globalScore || 0)).length / students.length) * 100) : 0;
-      });
+    // v114: rankings calculados solo con estudiantes que sí tienen examen real.
+    // Grado agrupa únicamente por grado: 8, 9, 10...
+    // Curso agrupa por sede + grado + curso: por ejemplo PPAL|10|10-1ppal.
+    const students = state.computedStudents || [];
+    students.forEach((student) => {
+      student.gradeRank = null;
+      student.gradeCount = null;
+      student.courseRank = null;
+      student.courseCount = null;
+      student.percentile = 0;
+    });
 
-      const byCourse = groupBy(students, (s) => `${s.grade}|${s.group || ""}`);
-      byCourse.forEach((courseStudents) => {
-        courseStudents.forEach((student) => {
-          student.courseCount = courseStudents.length;
-          student.courseRank = 1 + courseStudents.filter((other) => (other.globalScore || 0) > (student.globalScore || 0)).length;
-        });
+    const rankedStudents = students.filter((student) => studentHasExistingResult(student) && Number.isFinite(rankBaseScore(student)));
+
+    const byGrade = groupBy(rankedStudents, gradeRankKey);
+    byGrade.forEach((gradeStudents, key) => {
+      if (!key) return;
+      applyOrderedRanks(gradeStudents, "grade");
+
+      const byCourse = groupBy(gradeStudents, courseRankKey);
+      byCourse.forEach((courseStudents, courseKey) => {
+        if (!courseKey) return;
+        applyOrderedRanks(courseStudents, "course");
       });
 
       for (const subject of SUBJECTS) {
-        const scored = students.filter((student) => student.subjectStats[subject.name]?.score !== null);
-        scored.forEach((student) => {
-          const stat = student.subjectStats[subject.name];
-          stat.percentile = scored.length ? Math.round((scored.filter((other) => (other.subjectStats[subject.name]?.score || 0) < stat.score).length / scored.length) * 100) : 0;
+        const scored = gradeStudents.filter((student) => {
+          const stat = student.subjectStats?.[subject.name];
+          return isExistingResultStat(student, stat);
         });
+        const ordered = orderStudentsForRanking(scored, (student) => Number(student.subjectStats?.[subject.name]?.score));
+        ordered.forEach((student, index) => {
+          const stat = student.subjectStats?.[subject.name];
+          if (!stat) return;
+          stat.percentile = ordered.length > 1 ? Math.round(((ordered.length - index - 1) / (ordered.length - 1)) * 100) : 100;
+        });
+      }
+    });
+  }
+
+  function gradeRankKey(student) {
+    const grade = toInt(student?.grade);
+    return grade ? String(grade) : "";
+  }
+
+  function courseRankKey(student) {
+    const grade = toInt(student?.grade);
+    const sede = normalizeText(student?.sede || student?.registry?.sede || "");
+    const group = normalizeText(student?.group || student?.registry?.group || "");
+    return grade && group ? `${sede}|${grade}|${group}` : "";
+  }
+
+  function rankBaseScore(student) {
+    const global = Number(student?.globalScore);
+    if (Number.isFinite(global)) return global;
+    const scores = scoresForAllSubjectsAverage(student);
+    return scores.length ? avg(scores) : NaN;
+  }
+
+  function orderStudentsForRanking(students, scoreGetter = rankBaseScore) {
+    return (students || [])
+      .filter((student) => Number.isFinite(Number(scoreGetter(student))))
+      .slice()
+      .sort((a, b) => {
+        const scoreDiff = Number(scoreGetter(b)) - Number(scoreGetter(a));
+        if (scoreDiff) return scoreDiff;
+        const correctDiff = Number(b.correct || 0) - Number(a.correct || 0);
+        if (correctDiff) return correctDiff;
+        const rawDiff = Number(b.rawGlobalScore || 0) - Number(a.rawGlobalScore || 0);
+        if (rawDiff) return rawDiff;
+        const nameDiff = displayListName(a).localeCompare(displayListName(b), "es", { sensitivity: "base", numeric: true });
+        if (nameDiff) return nameDiff;
+        return String(a.roll || "").localeCompare(String(b.roll || ""), "es", { numeric: true });
+      });
+  }
+
+  function applyOrderedRanks(students, scope) {
+    const ordered = orderStudentsForRanking(students);
+    const count = ordered.length;
+    ordered.forEach((student, index) => {
+      const rank = index + 1;
+      if (scope === "grade") {
+        student.gradeCount = count;
+        student.gradeRank = rank;
+        student.percentile = count > 1 ? Math.round(((count - rank) / (count - 1)) * 100) : 100;
+      } else if (scope === "course") {
+        student.courseCount = count;
+        student.courseRank = rank;
       }
     });
   }
@@ -6471,7 +6537,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     return mappedSubject(assignment) || canonicalSubject(assignment) || cleanText(assignment);
   }
 
-  // v113: listas completas, promedios y gráficas solo con exámenes reales de RESULTADOS/Supabase.
+  // v114: listas completas, promedios y gráficas solo con exámenes reales de RESULTADOS/Supabase.
   function isPresentedStat(stat) {
     return !!(stat && stat.total && !stat.absent && Number.isFinite(Number(stat.score)));
   }

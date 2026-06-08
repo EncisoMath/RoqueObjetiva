@@ -1,8 +1,8 @@
 {
-  "version": "v113",
-  "cache": "resultados-pwa-v113",
+  "version": "v114",
+  "cache": "resultados-pwa-v114",
   "updatedAt": "2026-06-08",
-  "note": "Listas completas; tarjetas de promedio, componentes/competencias, estadísticas y gráficas calculadas solo con estudiantes que tienen resultado real en Supabase.",
-  "builtAt": "2026-06-08T18:05:00Z",
+  "note": "Rankings corregidos por grado y por curso; listas completas y promedios/gráficas calculados solo con estudiantes que tienen resultado real en Supabase.",
+  "builtAt": "2026-06-08T18:45:00Z",
   "date": "2026-06-08"
 }
