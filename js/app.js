@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v124";
+  const APP_VERSION = "v125";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -1046,7 +1046,10 @@
     }
   }
 
-  async function loginWithSupabase(user, pass = "") {
+  async function loginWithSupabase(user, pass = "", options = {}) {
+    const parsedLogin = parseRankingLoginInput(user);
+    const cleanUser = parsedLogin.login;
+    const wantsRankingDebug = !!(options.rankingDebug || parsedLogin.rankingDebug);
     try {
       const bootCopy = randomLoaderCopy();
       fadeAppOut();
@@ -1059,7 +1062,7 @@
         </div>
       `;
       fadeAppIn();
-      const payload = await supabaseRpc("roque_login", { p_user: user, p_password: pass || "", p_device: deviceInfoText(), p_mode: appModeText() });
+      const payload = await supabaseRpc("roque_login", { p_user: cleanUser, p_password: pass || "", p_device: deviceInfoText(), p_mode: appModeText() });
       if (!payload?.ok) {
         return renderLogin(payload?.error || "No fue posible iniciar sesion.");
       }
@@ -1091,7 +1094,7 @@
 
       if (session.role === "student") {
         const roll = cleanId(session.roll);
-        return enterStudentSessionWithRankingDebug(roll, "Preparando diagnóstico de ranking...");
+        return enterStudentSessionWithRankingMode(roll, { debug: wantsRankingDebug, message: wantsRankingDebug ? "Preparando diagnóstico de ranking..." : "Calculando ranking y preparando resultados..." });
       }
 
       return renderLogin("No se pudo identificar el tipo de usuario.");
@@ -2281,7 +2284,7 @@
 
     if (state.activeSession.role === "student") {
       const roll = cleanId(state.activeSession.roll);
-      if (!state.activeSession.rankingDebugDone || state.activeSession.rankingDebugVersion !== "v124") {
+      if (state.activeSession.rankingDebugRequested && (!state.activeSession.rankingDebugDone || state.activeSession.rankingDebugVersion !== "v125")) {
         return showStudentRankingDebugGate(roll, "Reconstruyendo diagnóstico de ranking...");
       }
       return renderStudent(roll);
@@ -2290,16 +2293,47 @@
     renderLogin();
   }
 
-  function enterStudentSessionWithRankingDebug(roll, message = "Preparando diagnóstico de ranking...") {
+  function enterStudentSessionWithRankingMode(roll, options = {}) {
     const cleanRoll = cleanId(roll);
+    const debug = !!options.debug;
+    const message = options.message || (debug ? "Preparando diagnóstico de ranking..." : "Calculando ranking y preparando resultados...");
     state.selectedSubject = null;
     state.metricTab = "components";
     state.zeroToleranceShown = false;
-    return enterSessionWithLoader(
-      { role: "student", roll: cleanRoll, rankingDebugDone: false, rankingDebugVersion: "v124" },
-      () => showStudentRankingDebugGate(cleanRoll, message),
-      message
-    );
+    const session = {
+      role: "student",
+      roll: cleanRoll,
+      rankingDebugRequested: debug,
+      rankingDebugDone: !debug,
+      rankingDebugVersion: "v125"
+    };
+    state.activeSession = session;
+    writeJSON(STORAGE.session, state.activeSession);
+    rememberRecentLogin(session);
+    fadeAppOut();
+    showRouteLoader(message);
+    window.setTimeout(async () => {
+      try {
+        await prepareStudentRankingContext(cleanRoll);
+        if (debug) {
+          state.activeSession = { ...(state.activeSession || session), rankingDebugRequested: true, rankingDebugDone: false, rankingDebugVersion: "v125" };
+          writeJSON(STORAGE.session, state.activeSession);
+          renderStudentRankingDebug(cleanRoll);
+        } else {
+          renderStudent(cleanRoll);
+        }
+      } catch (error) {
+        console.error(error);
+        if (debug) {
+          renderStudentRankingDebug(cleanRoll);
+        } else {
+          renderStudent(cleanRoll);
+        }
+      } finally {
+        fadeAppIn();
+        window.setTimeout(hideRouteLoader, 180);
+      }
+    }, 420);
   }
 
   async function showStudentRankingDebugGate(roll, message = "Preparando diagnóstico de ranking...") {
@@ -2605,7 +2639,7 @@
         removeRecentLogin(key);
         return renderLogin("Ese estudiante ya no aparece en los resultados actuales.");
       }
-      return enterStudentSessionWithRankingDebug(roll, "Preparando diagnóstico de ranking...");
+      return enterStudentSessionWithRankingMode(roll, { debug: wantsRankingDebug, message: wantsRankingDebug ? "Preparando diagnóstico de ranking..." : "Calculando ranking y preparando resultados..." });
     }
 
     renderLogin("No se pudo abrir ese ingreso reciente.");
@@ -4862,13 +4896,15 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
   function handleSubmit(event) {
     if (event.target.id === "loginForm") {
       event.preventDefault();
-      const user = cleanId(document.getElementById("loginUser").value);
+      const loginParsed = parseRankingLoginInput(document.getElementById("loginUser").value);
+      const user = loginParsed.login;
+      const wantsRankingDebug = loginParsed.rankingDebug;
       const pass = String(document.getElementById("loginPass").value || "").trim();
 
       if (!user) return renderLogin("Ingresa un usuario o ID.");
 
       if (SUPABASE_CONFIG.enabled) {
-        loginWithSupabase(user, pass);
+        loginWithSupabase(user, pass, { rankingDebug: wantsRankingDebug });
         return;
       }
 
@@ -4897,12 +4933,12 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
 
       if (state.studentLogin.has(user)) {
         const roll = state.studentLogin.get(user);
-        enterStudentSessionWithRankingDebug(roll, "Preparando diagnóstico de ranking...");
+        enterStudentSessionWithRankingMode(roll, { debug: wantsRankingDebug, message: wantsRankingDebug ? "Preparando diagnóstico de ranking..." : "Calculando ranking y preparando resultados..." });
         return;
       }
 
       if (state.responsesByRoll.has(user)) {
-        enterStudentSessionWithRankingDebug(user, "Preparando diagnóstico de ranking...");
+        enterStudentSessionWithRankingMode(user, { debug: wantsRankingDebug, message: wantsRankingDebug ? "Preparando diagnóstico de ranking..." : "Calculando ranking y preparando resultados..." });
         return;
       }
 
@@ -4962,7 +4998,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     if (action === "student-ranking-debug-next") {
       const roll = cleanId(target.dataset.roll || state.activeSession?.roll || "");
       state.zeroToleranceShown = false;
-      state.activeSession = { ...(state.activeSession || {}), role: "student", roll, rankingDebugDone: true, rankingDebugVersion: "v124" };
+      state.activeSession = { ...(state.activeSession || {}), role: "student", roll, rankingDebugRequested: false, rankingDebugDone: true, rankingDebugVersion: "v125" };
       writeJSON(STORAGE.session, state.activeSession);
       return enterSessionWithLoader(state.activeSession, () => renderStudent(roll), "Abriendo tus resultados...");
     }
@@ -4970,7 +5006,9 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     if (action === "student-ranking-debug-refresh") {
       const roll = cleanId(target.dataset.roll || state.activeSession?.roll || "");
       if (state.activeSession?.role === "student") {
+        state.activeSession.rankingDebugRequested = true;
         state.activeSession.rankingDebugDone = false;
+        state.activeSession.rankingDebugVersion = "v125";
         writeJSON(STORAGE.session, state.activeSession);
       }
       state.studentRankDebugByRoll?.delete?.(roll);
@@ -8188,6 +8226,16 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
 
   function cleanId(value) {
     return cleanText(value).replace(/\.0$/, "");
+  }
+
+  function parseRankingLoginInput(value) {
+    const raw = cleanText(value);
+    const suffix = "--ranking";
+    const lower = raw.toLowerCase();
+    if (lower.endsWith(suffix)) {
+      return { login: cleanId(raw.slice(0, -suffix.length)), rankingDebug: true };
+    }
+    return { login: cleanId(raw), rankingDebug: false };
   }
 
   function cleanOption(value) {
