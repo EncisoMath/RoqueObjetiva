@@ -1,18 +1,25 @@
-# Roque Objetiva v107 - modo Supabase
+# Roque Objetiva v108 - Supabase
 
-Esta version ya no debe publicar datos confidenciales en JSON publicos. Los JSON de ESTUDIANTES, INTERNO, KEYS y RESULTADOS quedan vacios en esta copia.
+Esta versión usa Supabase como fuente privada de datos.
 
-Antes de subir esta version a GitHub Pages:
+## Antes de subir esta app a GitHub
 
-1. Ejecuta `01_schema.sql` en Supabase.
-2. Ejecuta `02_seed_data.sql` en Supabase.
-3. Verifica que `config/supabase-config.js` tenga tu URL y publishable key.
-4. Sube esta carpeta a GitHub.
+1. En Supabase ejecuta primero el SQL privado que ya tenías:
+   - `01_schema.sql`
+   - `02_seed_data.sql`
+2. Luego ejecuta el nuevo archivo de esta versión:
+   - `03_admin_write_rpc.sql`
 
-URL configurada:
+Ese tercer archivo habilita la escritura administrativa desde el panel Admin.
 
-```text
-https://wkbczbjexnwbmyscrhah.supabase.co
-```
+## Qué cambia en v108
 
-No subas el paquete privado de SQL al repositorio publico.
+- El panel Admin ya no muestra "Publicar en GitHub".
+- Ahora muestra "Subir a Supabase".
+- Los cambios de estudiantes, docentes, cargas, directores, claves, resultados y ajustes públicos se sincronizan con Supabase mediante la función RPC `roque_admin_sync`.
+- La pantalla de carga usa mensajes aleatorios más informales y no muestra "Conectando con Supabase".
+
+## Seguridad
+
+No subas archivos SQL privados al repositorio público.
+La publishable key puede ir en la app, pero las secret keys y la contraseña de base de datos no.

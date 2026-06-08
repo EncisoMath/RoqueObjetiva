@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v107";
+  const APP_VERSION = "v108";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -214,6 +214,10 @@
     applyAppMeta();
 
     if (SUPABASE_CONFIG.enabled) {
+      await loadSupabasePublicSettings();
+    }
+
+    if (SUPABASE_CONFIG.enabled) {
       state.keys = [];
       state.responsesByRoll = new Map();
       state.missingFiles = [];
@@ -344,13 +348,47 @@
     applyResultOverrides();
   }
 
+  const FUNNY_LOADER_COPIES = [
+    { title: "Tranquilo, estamos haciendo este examen por ti", subtitle: "Mentira... pero ya estamos preparando tus resultados." },
+    { title: "Seguro que borraste bien? Hmm...", subtitle: "Revisando respuestas, cursos y ese sospechoso ítem 37." },
+    { title: "Invocando al espíritu del ICFES", subtitle: "Si aparece una gráfica rara, no fuimos nosotros. Bueno, sí." },
+    { title: "Consultando la bola de cristal académica", subtitle: "También estamos calculando promedios, rankings y cositas serias." },
+    { title: "No cierres esto, se asusta la base de datos", subtitle: "Estamos acomodando tus resultados en una bandejita bonita." },
+    { title: "Contando respuestas correctas con los dedos", subtitle: "Ya casi. Nos prestaron una calculadora." },
+    { title: "Respira. Si sale cero rojo, hablamos luego", subtitle: "Cargando vista, notas y reportes autorizados." }
+  ];
+
+  function randomLoaderCopy() {
+    return FUNNY_LOADER_COPIES[Math.floor(Math.random() * FUNNY_LOADER_COPIES.length)] || FUNNY_LOADER_COPIES[0];
+  }
+
+  async function loadSupabasePublicSettings() {
+    try {
+      const settings = await supabaseRpc("roque_get_public_settings", {});
+      const config = settings?.config || settings?.publicConfig || null;
+      if (config && typeof config === "object") {
+        state.config = { ...state.config, ...config };
+        if (config.subjectAreaMap && typeof config.subjectAreaMap === "object") {
+          state.subjectAreaMap = { ...state.subjectAreaMap, ...config.subjectAreaMap };
+        }
+        if (config.subjectLogos && typeof config.subjectLogos === "object") {
+          state.logos = { ...state.logos, ...config.subjectLogos };
+        }
+        applyAppMeta();
+      }
+    } catch (error) {
+      console.warn("No se pudieron cargar ajustes públicos desde Supabase:", error?.message || error);
+    }
+  }
+
   async function loginWithSupabase(user, pass = "") {
     try {
+      const bootCopy = randomLoaderCopy();
       app.innerHTML = `
         <div class="boot">
           <div class="boot-mark"></div>
-          <h1>Conectando con Supabase...</h1>
-          <p>Validando usuario y preparando datos autorizados.</p>
+          <h1>${esc(bootCopy.title)}</h1>
+          <p>${esc(bootCopy.subtitle)}</p>
         </div>
       `;
       const payload = await supabaseRpc("roque_login", { p_user: user, p_password: pass || "" });
@@ -362,6 +400,7 @@
 
       const session = payload.session || {};
       if (session.role === "admin") {
+        sessionStorage.setItem("po_supabase_admin_password", pass || "");
         state.adminTab = "resumen";
         state.zeroToleranceShown = false;
         return enterSessionWithLoader({ role: "admin", id: "admin" }, () => renderAdmin(), "Abriendo panel de administración...");
@@ -1941,7 +1980,7 @@
       ["apariencia", "Apariencia"],
       ["logos", "Logos"],
       ["claves", "Claves"],
-      ["github", "GitHub"]
+      ["github", "Supabase"]
     ];
 
     const nav = `
@@ -2282,7 +2321,7 @@
         </div>
       </section>
       <div class="admin-note">
-Esta versión funciona en GitHub Pages como aplicación estática. Los cambios se guardan localmente mientras editas. Para que los vea todo el mundo, entra a la pestaña <strong>GitHub</strong> y publícalos directamente en el repositorio.
+Esta versión usa GitHub Pages como interfaz y Supabase como base de datos privada. Puedes editar en el panel y luego usar <strong>Subir a Supabase</strong> para dejar los cambios disponibles para todos.
       </div>
       <section class="grid grid-auto">
         <article class="card card-pad"><span class="section-eyebrow">Exámenes</span><h3 style="margin:8px 0 0;font-size:2rem;">${state.computedStudents.length}</h3></article>
@@ -2379,11 +2418,11 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
           </table>
         </div>
       </section>
-      <div class="admin-note" style="margin-top:14px;">Al vincular o crear, se actualiza el registro local de estudiantes. Luego usa <strong>Guardar estudiantes</strong> o <strong>Publicar en GitHub</strong> si quieres dejarlo fijo en el repositorio.</div>
+      <div class="admin-note" style="margin-top:14px;">Al vincular o crear, se actualiza el registro local de estudiantes. Luego usa <strong>Guardar estudiantes</strong> y <strong>Subir a Supabase</strong> para dejarlo fijo en la base privada.</div>
       <div class="inline-actions admin-actions-line">
         <button class="secondary-btn" data-action="save-students">Guardar estudiantes</button>
         <button class="ghost-btn" data-action="export-students">Exportar ESTUDIANTES</button>
-        <button class="secondary-btn" data-action="publish-github">Publicar en GitHub</button>
+        <button class="secondary-btn" data-action="publish-supabase">Subir a Supabase</button>
       </div>
     `;
   }
@@ -2526,7 +2565,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
         <button class="primary-btn" data-action="add-student">Agregar estudiante</button>
         <button class="secondary-btn" data-action="save-students">Guardar estudiantes</button>
         <button class="ghost-btn" data-action="export-students">Exportar JSON</button>
-        <button class="secondary-btn" data-action="publish-github">Publicar en GitHub</button>
+        <button class="secondary-btn" data-action="publish-supabase">Subir a Supabase</button>
       </div>
       <section class="card table-card admin-students-compact">
         <div class="table-wrap">
@@ -2736,7 +2775,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
           <h2 style="margin:8px 0 0;font-weight:900;">Banner, logo y textos</h2>
         </div>
       </section>
-      <div class="admin-note">Puedes subir imágenes desde el panel. Para que el color, banner y logo queden disponibles para todos los usuarios, usa la pestaña <strong>GitHub</strong> y pulsa <strong>Publicar cambios en el repositorio</strong>.</div>
+      <div class="admin-note">Puedes ajustar la apariencia desde el panel. Para que los cambios públicos de apariencia queden disponibles para todos, usa <strong>Subir a Supabase</strong>.</div>
       <form id="appearanceForm" class="card card-pad">
         <div class="form-grid">
           <div class="field span-2">
@@ -2788,7 +2827,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
             <button class="primary-btn" type="submit">Guardar apariencia</button>
             <button class="ghost-btn" type="button" data-action="clear-banner">Quitar imagen de banner</button>
             <button class="secondary-btn" type="button" data-action="export-config">Exportar configuración</button>
-            <button class="ghost-btn" type="button" data-action="publish-github">Publicar en GitHub</button>
+            <button class="ghost-btn" type="button" data-action="publish-supabase">Subir a Supabase</button>
           </div>
         </div>
       </form>
@@ -2802,9 +2841,9 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
           <span class="section-eyebrow">Logos por asignatura</span>
           <h2 style="margin:8px 0 0;font-weight:900;">Íconos de las pruebas</h2>
         </div>
-        <div class="inline-actions"><button class="secondary-btn" data-action="reset-logos">Restaurar íconos</button><button class="ghost-btn" data-action="publish-github">Publicar en GitHub</button></div>
+        <div class="inline-actions"><button class="secondary-btn" data-action="reset-logos">Restaurar íconos</button><button class="ghost-btn" data-action="publish-supabase">Subir a Supabase</button></div>
       </section>
-      <div class="admin-note">Los logos base del repositorio están en la carpeta <strong>ICONOS</strong>. Las imágenes que subas aquí se pueden publicar directamente en esa carpeta desde la pestaña <strong>GitHub</strong>.</div>
+      <div class="admin-note">Los logos base siguen en la carpeta <strong>ICONOS</strong>. Los cambios de apariencia se sincronizan desde esta versión con <strong>Supabase</strong>.</div>
       <section class="logo-grid">
         ${SUBJECTS.map((subject) => `
           <article class="logo-item">
@@ -2821,54 +2860,30 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
   }
 
   function adminGithubHtml() {
-    const gh = getGithubSettings();
-    const inferred = inferGithubFromLocation();
     return `
       <section class="toolbar">
         <div>
-          <span class="section-eyebrow">Publicación en repositorio</span>
-          <h2 style="margin:8px 0 0;font-weight:900;">Guardar cambios directamente en GitHub</h2>
+          <span class="section-eyebrow">Supabase</span>
+          <h2 style="margin:8px 0 0;font-weight:900;">Subir cambios a la base privada</h2>
+          <p class="muted-copy">Sin JSON públicos: los cambios administrativos se sincronizan con Supabase.</p>
         </div>
+        <div class="inline-actions"><button class="primary-btn" type="button" data-action="publish-supabase">Subir cambios a Supabase</button></div>
       </section>
       <div class="admin-note github-note">
-        GitHub Pages no puede modificar archivos del repositorio sin autorización. Pega un token de GitHub con permiso de escritura para este repositorio y pulsa <strong>Publicar cambios</strong>. El token se usa desde este navegador para crear commits; no lo dejes escrito dentro del código del sitio.
+        Esta acción reemplaza en Supabase los datos de estudiantes, docentes, cargas, direcciones de grupo, claves, resultados editados y ajustes públicos de apariencia usando lo que tienes cargado en este panel.
       </div>
-      <section class="card card-pad github-panel">
-        <div class="form-grid">
-          <div class="field">
-            <label>Usuario / dueño del repo</label>
-            <input value="${escAttr(gh.owner || inferred.owner || "")}" placeholder="Ej. rubendarioenciso" data-github-field="owner">
-          </div>
-          <div class="field">
-            <label>Repositorio</label>
-            <input value="${escAttr(gh.repo || inferred.repo || "")}" placeholder="Ej. resultados-pruebas" data-github-field="repo">
-          </div>
-          <div class="field">
-            <label>Rama</label>
-            <input value="${escAttr(gh.branch || "main")}" placeholder="main" data-github-field="branch">
-          </div>
-          <div class="field span-2">
-            <label>Token de GitHub</label>
-            <input type="password" value="${escAttr(gh.token || "")}" placeholder="github_pat_..." data-github-field="token">
-          </div>
-          <div class="span-2 github-publish-box">
-            <div>
-              <strong>Archivos que se publicarán</strong>
-              <p>config/site-config.json, config/data-manifest.json, ESTUDIANTES/ESTUDIANTES.json, INTERNO/CARGA.json, INTERNO/DIRECTORESGRUPO.json, RESULTADOS/#S#.json, config/site-config.json con mapeos de asignaturas/áreas, las claves KEYS/KEYS_#.json y las imágenes nuevas en ICONOS o assets.</p>
-            </div>
-            <button class="primary-btn" type="button" data-action="publish-github">Publicar cambios en GitHub</button>
-          </div>
+      <section class="card card-pad github-panel supabase-panel">
+        <div class="github-publish-box">
+          <h3>Qué se sube</h3>
+          <ul style="margin:0;padding-left:18px;color:#4d5260;line-height:1.65;">
+            <li>ESTUDIANTES</li>
+            <li>CARGA y DIRECTORES DE GRUPO</li>
+            <li>KEYS / claves editadas</li>
+            <li>RESULTADOS con cambios hechos desde Admin</li>
+            <li>Configuración pública de apariencia y mapeos de áreas</li>
+          </ul>
+          <button class="primary-btn" type="button" data-action="publish-supabase">Subir cambios a Supabase</button>
         </div>
-      </section>
-      <section class="grid grid-2" style="margin-top:16px;">
-        <article class="card card-pad">
-          <h3 style="margin:0 0 10px;font-weight:800;">Qué queda global</h3>
-          <p style="margin:0;color:#666a73;line-height:1.55;">Después de publicar, el color, el banner, los logos, las cargas y las claves quedan en el repositorio. Los demás navegadores los leerán desde los JSON y carpetas del sitio.</p>
-        </article>
-        <article class="card card-pad">
-          <h3 style="margin:0 0 10px;font-weight:800;">Qué no debes hacer</h3>
-          <p style="margin:0;color:#666a73;line-height:1.55;">No pegues el token dentro de <strong>app.js</strong> ni en ningún archivo público. Úsalo solo desde esta pantalla de administración.</p>
-        </article>
       </section>
     `;
   }
@@ -2890,10 +2905,10 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
           <button class="primary-btn" data-action="add-carga-teacher">Agregar docente</button>
           <button class="secondary-btn" data-action="save-carga">Guardar cargas</button>
           <button class="ghost-btn" data-action="export-carga">Exportar JSON</button>
-          <button class="secondary-btn" data-action="publish-github">Publicar en GitHub</button>
+          <button class="secondary-btn" data-action="publish-supabase">Subir a Supabase</button>
         </div>
       </section>
-      <div class="admin-note">La carga se organiza por docente. Cada tarjeta de asignatura puede modificarse o eliminarse. Para que todos vean los cambios, publícalos en GitHub.</div>
+      <div class="admin-note">La carga se organiza por docente. Cada tarjeta de asignatura puede modificarse o eliminarse. Para que todos vean los cambios, súbelos a Supabase.</div>
       <section class="carga-manager">
         <aside class="card carga-teacher-list">
           <h3>Docentes</h3>
@@ -3125,7 +3140,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
           <button class="primary-btn" data-action="add-director-assignment">Agregar dirección de grupo</button>
           <button class="secondary-btn" data-action="save-directores">Guardar directores</button>
           <button class="ghost-btn" data-action="export-directores">Exportar JSON</button>
-          <button class="secondary-btn" data-action="publish-github">Publicar en GitHub</button>
+          <button class="secondary-btn" data-action="publish-supabase">Subir a Supabase</button>
         </div>
       </section>
       <div class="admin-note">No se crean docentes nuevos en esta vista. Para asignar una dirección de grupo, primero el docente debe existir en la carga docente o en el archivo de directores actual.</div>
@@ -3296,12 +3311,12 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       </section>
 
       ${canEditKeys ? `
-        <div class="admin-note">Los cambios quedan guardados localmente al usar <strong>Guardar claves</strong>. Para publicarlos para todos, usa <strong>Publicar en GitHub</strong>.</div>
+        <div class="admin-note">Los cambios quedan guardados localmente al usar <strong>Guardar claves</strong>. Para publicarlos para todos, usa <strong>Subir a Supabase</strong>.</div>
         <div class="inline-actions" style="margin-bottom:14px;">
           <button class="secondary-btn" data-action="save-keys">Guardar claves</button>
           <button class="ghost-btn" data-action="export-keys">Exportar JSON</button>
           <button class="danger-btn" data-action="reset-keys">Restaurar claves originales</button>
-          <button class="secondary-btn" data-action="publish-github">Publicar en GitHub</button>
+          <button class="secondary-btn" data-action="publish-supabase">Subir a Supabase</button>
         </div>
       ` : `<div class="admin-note">Modo consulta. Las claves no se pueden editar desde una cuenta de coordinación.</div>`}
 
@@ -3776,8 +3791,8 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       downloadFile("configuracion-resultados.json", JSON.stringify({ config: buildRepoConfigPreview(), logos: state.logos }, null, 2), "application/json");
     }
 
-    if (action === "publish-github") {
-      await publishAllToGithub();
+    if (action === "publish-github" || action === "publish-supabase") {
+      await publishAllToSupabase();
       return;
     }
 
@@ -4352,6 +4367,92 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       subjectLogos: { ...state.config.subjectLogos, ...state.logos },
       subjectAreaMap: { ...state.subjectAreaMap }
     };
+  }
+
+  function buildSupabaseSyncPayload() {
+    state.studentsRegistry = state.studentsRegistry.map(normalizeStudentRow).filter((s) => s.examId || s.nationalId || s.name);
+    normalizeCargaRows();
+    normalizeDirectorRows();
+    saveKeys();
+    persistResultOverrides();
+    buildRepository();
+
+    const keyGroups = Array.from(new Set(state.keys.map((row) => Number(row.grade)).filter(Boolean)))
+      .sort((a, b) => a - b)
+      .map((grade) => ({
+        grade,
+        rows: exportKeyRows(state.keys.filter((row) => Number(row.grade) === grade))
+      }));
+
+    const resultGroups = exportResultFilesForRepo().map((file) => {
+      const match = String(file.path || "").match(/(\d{1,2})S(\d)/i);
+      const rows = JSON.parse(file.content || "[]");
+      const grade = match ? Number(match[1]) : inferGradeFromPath(file.path);
+      const session = match ? Number(match[2]) : inferSessionFromPath(file.path);
+      return {
+        grade,
+        session,
+        startItem: session === 2 ? 71 : 1,
+        rows
+      };
+    }).filter((group) => group.grade && group.session);
+
+    return {
+      version: APP_VERSION,
+      savedAt: new Date().toISOString(),
+      settings: {
+        config: buildRepoConfigPreview()
+      },
+      datasets: {
+        estudiantes: exportStudentRows(),
+        carga: exportCargaRows(),
+        directoresGrupo: exportDirectoresRows(),
+        keys: keyGroups,
+        resultados: resultGroups
+      }
+    };
+  }
+
+  function getSupabaseAdminPassword() {
+    let password = sessionStorage.getItem("po_supabase_admin_password") || "";
+    if (!password) {
+      password = window.prompt("Confirma la contraseña de administrador para subir a Supabase:") || "";
+      if (password) sessionStorage.setItem("po_supabase_admin_password", password);
+    }
+    return password;
+  }
+
+  async function publishAllToSupabase() {
+    if (!SUPABASE_CONFIG.enabled) {
+      toast("Supabase no está habilitado en esta versión.");
+      return;
+    }
+    if (state.activeSession?.role !== "admin") {
+      toast("Solo el administrador puede subir cambios a Supabase.");
+      return;
+    }
+    const password = getSupabaseAdminPassword();
+    if (!password) return;
+    const payload = buildSupabaseSyncPayload();
+    showRouteLoader("Subiendo cambios a Supabase...");
+    try {
+      const result = await supabaseRpc("roque_admin_sync", { p_password: password, p_payload: payload });
+      if (!result?.ok) throw new Error(result?.error || "Supabase rechazó la sincronización.");
+      toast("Cambios subidos a Supabase.");
+      localStorage.removeItem(STORAGE.students);
+      localStorage.removeItem(STORAGE.carga);
+      localStorage.removeItem(STORAGE.directores);
+      localStorage.removeItem(STORAGE.answers);
+      localStorage.removeItem(STORAGE.resultOverrides);
+      localStorage.removeItem(STORAGE.subjectAreas);
+      renderAdminContext();
+    } catch (error) {
+      console.error(error);
+      toast(error.message || "No se pudo subir a Supabase.");
+      if (/contrase/i.test(error.message || "")) sessionStorage.removeItem("po_supabase_admin_password");
+    } finally {
+      hideRouteLoader();
+    }
   }
 
   function getGithubSettings() {
@@ -5225,7 +5326,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     return `
       <section class="toolbar">
         <div><span class="section-eyebrow">Docentes</span><h2 style="margin:8px 0 0;font-weight:900;">Cargas, dirección de grupo y coordinación</h2><p class="muted-copy">Todo se administra desde una sola pestaña. En celular, al tocar un docente se abre su panel en ventana emergente.</p></div>
-        <div class="inline-actions"><button class="primary-btn" data-action="add-carga-teacher">Agregar docente</button><button class="secondary-btn" data-action="save-carga">Guardar docentes</button><button class="ghost-btn" data-action="export-carga">Exportar CARGA</button><button class="ghost-btn" data-action="export-directores">Exportar directores</button><button class="secondary-btn" data-action="publish-github">Publicar en GitHub</button></div>
+        <div class="inline-actions"><button class="primary-btn" data-action="add-carga-teacher">Agregar docente</button><button class="secondary-btn" data-action="save-carga">Guardar docentes</button><button class="ghost-btn" data-action="export-carga">Exportar CARGA</button><button class="ghost-btn" data-action="export-directores">Exportar directores</button><button class="secondary-btn" data-action="publish-supabase">Subir a Supabase</button></div>
       </section>
       <section class="carga-manager docentes-manager">
         <aside class="card carga-teacher-list">
@@ -5358,7 +5459,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
         <div class="inline-actions">
           <button class="secondary-btn" data-action="save-carga">Guardar cargas</button>
           <button class="ghost-btn" data-action="export-carga">Exportar CARGA</button>
-          <button class="secondary-btn" data-action="publish-github">Publicar en GitHub</button>
+          <button class="secondary-btn" data-action="publish-supabase">Subir a Supabase</button>
         </div>
       </section>
       <div class="grade-map-tab-block">
@@ -5538,7 +5639,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
             <button type="button" class="icon-btn" data-action="close-modal">×</button>
           </div>
           <div class="modal-body">
-            <div class="admin-note">Selecciona un docente y el alcance de la asignación. Después usa <strong>Guardar cargas</strong> y, si quieres hacerlo global, <strong>Publicar en GitHub</strong>.</div>
+            <div class="admin-note">Selecciona un docente y el alcance de la asignación. Después usa <strong>Guardar cargas</strong> y, si quieres hacerlo global, <strong>Subir a Supabase</strong>.</div>
             <div class="form-grid compact">
               <div class="field span-2"><label>Docente</label><select id="gradeMapTeacher" class="select-pill">${teacherOptions || `<option value="">No hay docentes registrados</option>`}</select></div>
               <div class="field"><label>Asignatura / área</label><input id="gradeMapSubject" value="${escAttr(subject)}"></div>
@@ -5649,7 +5750,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     const manualSubjectOptions = unassigned.map((subject) => `<option value="${escAttr(subject)}">${esc(subject)}</option>`).join("");
     const manualAreaOptions = areas.map((area) => `<option value="${escAttr(area)}">${esc(area)}</option>`).join("");
     const allOrganizedMessage = `<div class="empty-state subject-map-happy"><strong>😊 Todo está organizado</strong><span>No hay asignaturas pendientes por asignar a un área.</span></div>`;
-    return `<section class="toolbar"><div><span class="section-eyebrow">Asignaturas y áreas</span><h2 style="margin:8px 0 0;font-weight:900;">Cruce entre carga docente y áreas del examen</h2><p class="muted-copy">En PC puedes arrastrar una asignatura pendiente hacia su área. Usa la X para quitar una asignatura de un área y devolverla a pendientes. En celular usa los selectores de abajo para reasignar.</p></div><div class="inline-actions"><button class="secondary-btn" data-action="save-carga">Guardar mapeos</button><button class="secondary-btn" data-action="publish-github">Publicar en GitHub</button></div></section>
+    return `<section class="toolbar"><div><span class="section-eyebrow">Asignaturas y áreas</span><h2 style="margin:8px 0 0;font-weight:900;">Cruce entre carga docente y áreas del examen</h2><p class="muted-copy">En PC puedes arrastrar una asignatura pendiente hacia su área. Usa la X para quitar una asignatura de un área y devolverla a pendientes. En celular usa los selectores de abajo para reasignar.</p></div><div class="inline-actions"><button class="secondary-btn" data-action="save-carga">Guardar mapeos</button><button class="secondary-btn" data-action="publish-supabase">Subir a Supabase</button></div></section>
     <section class="subject-map-mobile card card-pad"><span class="section-eyebrow">Asignar desde celular</span><h3>Asignatura → área del examen</h3><p class="muted-copy">Solo aparecen asignaturas que todavía no están organizadas en un área.</p>${unassigned.length ? `<div class="form-grid compact subject-map-form"><div class="field"><label>Asignatura de la carga</label><select id="subjectAreaMapSubject" class="select-pill">${manualSubjectOptions}</select></div><div class="field"><label>Área del examen</label><select id="subjectAreaMapArea" class="select-pill">${manualAreaOptions}</select></div><div class="field subject-map-submit"><label>&nbsp;</label><button class="primary-btn" data-action="assign-subject-area-manual">Asignar</button></div></div>` : allOrganizedMessage}</section>
     <section class="subject-map-layout"><aside class="card card-pad subject-source"><h3>Asignaturas pendientes</h3>${unassigned.map((subject) => `<button class="subject-chip" draggable="true" data-drag-subject="${escAttr(subject)}">${esc(subject)}</button>`).join("") || allOrganizedMessage}</aside><div class="subject-drop-grid">${areas.map((area) => { const assigned = rawSubjects.filter((subject) => sameSubject(subjectAssignedArea(subject), area)); return `<article class="subject-drop-zone" data-drop-area="${escAttr(area)}" style="--subject-color:${subjectAccent(area)};">${subjectIcon(area)}<h3>${esc(area)}</h3><div class="assigned-chip-list">${assigned.map((subject) => `<span class="assigned-chip">${esc(subject)} <button type="button" title="Quitar esta asignatura del área" aria-label="Quitar ${escAttr(subject)}" data-action="remove-subject-area-map" data-subject="${escAttr(subject)}">×</button></span>`).join("") || `<span class="muted-copy">Suelta aquí una asignatura</span>`}</div></article>`; }).join("")}</div></section>`;
   }
@@ -5990,6 +6091,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     state.activeSession = null;
     state.zeroToleranceShown = false;
     localStorage.removeItem(STORAGE.session);
+    sessionStorage.removeItem("po_supabase_admin_password");
   }
 
   function enterSessionWithLoader(session, renderFn, message = "Preparando resultados...") {
@@ -6006,12 +6108,13 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
   function showRouteLoader(message) {
     document.querySelector(".route-loader")?.remove();
     const loader = document.createElement("div");
+    const copy = randomLoaderCopy();
     loader.className = "route-loader";
     loader.innerHTML = `
       <div class="route-loader-card">
         <div class="route-loader-mark"></div>
-        <strong>${esc(message)}</strong>
-        <span>Calculando puntajes, rankings y reportes.</span>
+        <strong>${esc(copy.title || message)}</strong>
+        <span>${esc(copy.subtitle || "Calculando puntajes, rankings y reportes.")}</span>
       </div>
     `;
     document.body.appendChild(loader);

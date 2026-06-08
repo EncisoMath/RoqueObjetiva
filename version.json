@@ -1,8 +1,8 @@
 {
-  "version": "v107",
-  "cache": "resultados-pwa-v107",
+  "version": "v108",
+  "cache": "resultados-pwa-v108",
   "updatedAt": "2026-06-08",
-  "note": "Migra la lectura de datos confidenciales a Supabase y elimina datos sensibles de JSON publicos.",
-  "builtAt": "2026-06-08T13:55:00Z",
+  "note": "Agrega escritura administrativa directa en Supabase y textos aleatorios de carga.",
+  "builtAt": "2026-06-08T14:20:00Z",
   "date": "2026-06-08"
 }
