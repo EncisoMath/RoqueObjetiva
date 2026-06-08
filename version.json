@@ -1,8 +1,8 @@
 {
-  "version": "v102",
-  "cache": "resultados-pwa-v102",
+  "version": "v103",
+  "cache": "resultados-pwa-v103",
   "updatedAt": "2026-06-08",
-  "note": "Ajusta la pantalla de login: elimina Bienvenido, compacta accesos recientes, campo y boton en fila, oculta version para usuarios no admin y cambia la clave admin.",
+  "note": "Ajusta titulo del login: CONSULTA DE RESULTADOS en mayuscula, bold y con tamano/ancho destacado.",
   "builtAt": "2026-06-08T03:40:00Z",
   "date": "2026-06-08"
 }

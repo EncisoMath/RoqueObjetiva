@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v102";
+  const APP_VERSION = "v103";
 
   const app = document.getElementById("app");
   const toastEl = document.getElementById("toast");
@@ -1058,7 +1058,7 @@
         <div class="login-panel">
           <div class="login-card login-card-dark">
             ${logo ? `<div class="login-main-logo"><img src="${escAttr(logo)}" alt="Logo institucional"></div>` : ""}
-            <span class="login-eyebrow login-eyebrow-title">Consulta de Resultados</span>
+            <span class="login-eyebrow login-eyebrow-title">CONSULTA DE RESULTADOS</span>
             <p>Ingresa con el <strong>ID de tu prueba</strong> o con tu <strong>usuario personal</strong>.</p>
             ${renderLoginAccessGuide()}
             ${error ? `<div class="admin-note login-error">${esc(error)}</div>` : ""}

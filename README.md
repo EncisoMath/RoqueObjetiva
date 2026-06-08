@@ -344,3 +344,7 @@ El `service-worker.js` usa estrategia de red primero para archivos JSON, para ev
 
 ## v101
 - La animacion del login cambia el carne al siguiente ejemplo mientras esta difuminado y usa nombres aleatorios entre los ejemplos configurados.
+
+
+## v103
+- Ajusta el título del login a `CONSULTA DE RESULTADOS`, en mayúscula, negrita y con ancho visual aproximado del 80% del contenedor.
