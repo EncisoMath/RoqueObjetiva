@@ -1,8 +1,8 @@
 {
-  "version": "v112",
-  "cache": "resultados-pwa-v112",
+  "version": "v113",
+  "cache": "resultados-pwa-v113",
   "updatedAt": "2026-06-08",
-  "note": "Fade en login/logout, navegación docente estable y promedios/gráficas calculados solo con exámenes existentes en RESULTADOS/Supabase.",
-  "builtAt": "2026-06-08T17:55:00Z",
+  "note": "Listas completas; tarjetas de promedio, componentes/competencias, estadísticas y gráficas calculadas solo con estudiantes que tienen resultado real en Supabase.",
+  "builtAt": "2026-06-08T18:05:00Z",
   "date": "2026-06-08"
 }

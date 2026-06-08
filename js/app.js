@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v112";
+  const APP_VERSION = "v113";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -39,7 +39,7 @@
   const DEFAULT_CONFIG = {
     title: "Roque Objetiva",
     subtitle: "Este reporte no se pasa ni se pierde. Es una herramienta para identificar fortalezas, habilidades y oportunidades de mejora.",
-    logoImage: "assets/logo-principal.png?v=112",
+    logoImage: "assets/logo-principal.png?v=113",
     appIcon: "icons/icon-512.png",
     bannerImage: "",
     footerText: "Consulta institucional de resultados",
@@ -1858,6 +1858,9 @@
 
     const activeStatForValue = active ? filtered.map((student) => statForSubject(student, active)).find(Boolean) || null : null;
     const activeSubjectForStats = activeStatForValue?.subject || activeSubject || active?.subject || "";
+    const statsSubject = activeSubjectForStats || active?.subject || "";
+    const studentsForStats = active ? evaluatedStudentsForSubject(filtered, statsSubject) : [];
+    const teacherScoreValues = scoresForSubjectAverage(studentsForStats, statsSubject);
     const itemValueInfo = active ? subjectItemValue(active.grade, activeSubjectForStats, activeStatForValue) : { total: 0, value: null, label: "—" };
 
     const rows = filtered.map((student, index) => {
@@ -1892,7 +1895,7 @@
       ${active ? `
         <section class="teacher-stat-strip teacher-stat-strip-three">
           <article class="card card-pad teacher-stat"><span>Estudiantes</span><strong>${filtered.length}</strong></article>
-          <article class="card card-pad teacher-stat"><span>Promedio</span><strong>${avg(scoresForSubjectAverage(filtered, activeSubjectForStats || active.subject))}<small>/100</small></strong></article>
+          <article class="card card-pad teacher-stat"><span>Promedio</span><strong>${avg(teacherScoreValues)}<small>/100</small></strong></article>
           <button class="card card-pad teacher-stat teacher-stat-action" data-action="teacher-score-info" data-subject="${escAttr(active.subject)}" data-grade="${escAttr(active.grade)}" data-total="${escAttr(itemValueInfo.total)}">
             <span>Valor de cada ítem</span>
             <strong>${esc(itemValueInfo.label)}<small> puntos</small></strong>
@@ -1900,7 +1903,7 @@
           </button>
         </section>
         <section class="teacher-metrics-row">
-          ${teacherAggregateMetricsHtml(filtered, activeSubjectForStats || active.subject)}
+          ${teacherAggregateMetricsHtml(studentsForStats, statsSubject)}
         </section>
         <section class="teacher-key-actions">
           <button class="secondary-btn" data-action="open-answer-key" data-grade="${escAttr(active.grade)}" data-subject="${escAttr(active.subject)}">Ver respuestas correctas</button>
@@ -1944,7 +1947,8 @@
       </button>
     `).join("");
     const subjectCards = subjects.map((subject) => {
-      const values = scoresForSubjectAverage(students, subject.name);
+      const studentsForSubjectStats = evaluatedStudentsForSubject(students, subject.name);
+      const values = scoresForSubjectAverage(studentsForSubjectStats, subject.name);
       const display = avg(values);
       const percent = Number.isFinite(Number(display)) ? clamp(Number(display), 0, 100) : 0;
       return `
@@ -2005,7 +2009,7 @@
     const directorGroup = (teacher?.directorGroups || []).find((group) => group.key === key);
     if (!directorGroup || !subject) return;
     const students = sortRowsByState(
-      state.computedStudents.filter((student) => directorGroupMatches(student, directorGroup) && isExistingResultStat(student, statForSubject(student, subject))),
+      state.computedStudents.filter((student) => directorGroupMatches(student, directorGroup)),
       "director-detail",
       (student, key) => {
         const stat = statForSubject(student, subject) || {};
@@ -2014,8 +2018,9 @@
         return displayListName(student);
       }
     );
-    const details = aggregateDetails(students, subject);
-    const scores = scoresForSubjectAverage(students, subject);
+    const studentsForStats = evaluatedStudentsForSubject(students, subject);
+    const details = aggregateDetails(studentsForStats, subject);
+    const scores = scoresForSubjectAverage(studentsForStats, subject);
     const rows = students.map((student, index) => {
       const stat = statForSubject(student, subject) || {};
       return `
@@ -2236,7 +2241,7 @@
     const filtered = filterStudentsByStats(students, { subject: false });
     const subject = state.adminStatsSubject === "all" ? "" : state.adminStatsSubject;
     if (subject) {
-      const subjectStudents = filtered.filter((student) => student.subjectStats?.[subject]?.total);
+      const subjectStudents = evaluatedStudentsForSubject(filtered, subject);
       return statsMetricsPanel(subjectStudents, subject, statsContextText("estructura", true));
     }
     if (state.adminStatsGroup !== "all") {
@@ -2261,7 +2266,7 @@
     if (!subject) {
       return statsPanelHtml("Promedio general por área/asignatura", statsContextText("area"), statsSubjectRows(filtered), true, "Selecciona un área arriba para comparar sedes, grados y cursos.");
     }
-    const subjectStudents = filtered.filter((student) => student.subjectStats?.[subject]?.total);
+    const subjectStudents = evaluatedStudentsForSubject(filtered, subject);
     if (state.adminStatsGroup !== "all") {
       return statsMetricsPanel(subjectStudents, subject, statsContextText("area", true));
     }
@@ -2293,7 +2298,7 @@
     const set = new Set();
     students.forEach((student) => {
       Object.entries(student.subjectStats || {}).forEach(([subject, stat]) => {
-        if (stat?.total) set.add(canonicalSubject(subject));
+        if (isExistingResultStat(student, stat)) set.add(canonicalSubject(subject));
       });
     });
     return [...set].filter(Boolean).sort((a, b) => a.localeCompare(b, "es", { sensitivity: "base" }));
@@ -6466,7 +6471,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     return mappedSubject(assignment) || canonicalSubject(assignment) || cleanText(assignment);
   }
 
-  // v112: promedios y gráficas se calculan solo con exámenes que existen en RESULTADOS/Supabase.
+  // v113: listas completas, promedios y gráficas solo con exámenes reales de RESULTADOS/Supabase.
   function isPresentedStat(stat) {
     return !!(stat && stat.total && !stat.absent && Number.isFinite(Number(stat.score)));
   }
@@ -6486,6 +6491,10 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     return !!(studentHasExistingResult(student) && stat && stat.total && Number.isFinite(Number(stat.score)));
   }
 
+  function evaluatedStudentsForSubject(students = [], subject) {
+    return (students || []).filter((student) => isExistingResultStat(student, statForSubject(student, subject)));
+  }
+
   function scoreForAverageFromStudentStat(student, stat) {
     return isExistingResultStat(student, stat) ? Number(stat.score) : null;
   }
@@ -6495,7 +6504,9 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
   }
 
   function scoresForSubjectAverage(students, subject) {
-    return (students || []).map((student) => scoreForAverageFromStudentStat(student, statForSubject(student, subject))).filter((value) => Number.isFinite(Number(value))).map(Number);
+    return evaluatedStudentsForSubject(students, subject)
+      .map((student) => Number(statForSubject(student, subject)?.score))
+      .filter((value) => Number.isFinite(Number(value)));
   }
 
   function scoresForAllSubjectsAverage(student) {
