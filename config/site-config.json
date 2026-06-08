@@ -6,8 +6,8 @@
   "bannerImage": "",
   "footerText": "Consulta institucional de resultados",
   "primaryColor": "#1975ae",
-  "buttonRadius": 8,
-  "cornerRadius": 8,
+  "buttonRadius": 4,
+  "cornerRadius": 4,
   "logoZoom": 1,
   "subjectLogos": {},
   "appName": "Roque Objetiva",
@@ -18,5 +18,8 @@
   "appleTouchIcon": "icons/apple-touch-icon.png",
   "favicon32": "icons/favicon-32.png",
   "favicon16": "icons/favicon-16.png",
-  "subjectAreaMap": {}
+  "subjectAreaMap": {
+    "Economía": "Ciencias Sociales y Ciudadanía",
+    "economia": "Ciencias Sociales y Ciudadanía"
+  }
 }
