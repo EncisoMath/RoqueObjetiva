@@ -13518,3 +13518,47 @@ select,
     height: 70px !important;
   }
 }
+
+
+/* v129: ajuste fino de peso tipografico del login para apariencia mas elegante */
+.login-card-dark .login-eyebrow,
+.login-card-dark .login-eyebrow-title {
+  font-weight: 700 !important;
+  letter-spacing: .055em !important;
+  opacity: .88 !important;
+  color: rgba(238, 246, 255, .90) !important;
+  text-shadow: 0 2px 12px rgba(0,0,0,.18) !important;
+}
+
+.login-card-dark h1 {
+  font-weight: 700 !important;
+  letter-spacing: -.052em !important;
+  color: rgba(255,255,255,.96) !important;
+  text-shadow: 0 2px 18px rgba(0,0,0,.20) !important;
+  -webkit-font-smoothing: antialiased !important;
+  text-rendering: geometricPrecision !important;
+}
+
+.login-card-dark p,
+.login-card-dark .login-intro-copy {
+  font-weight: 500 !important;
+  color: rgba(237, 245, 255, .80) !important;
+}
+
+.login-card-dark p strong,
+.login-card-dark .login-intro-copy strong {
+  font-weight: 700 !important;
+  color: rgba(255,255,255,.94) !important;
+}
+
+@media (max-width: 680px) {
+  .login-card-dark .login-eyebrow,
+  .login-card-dark .login-eyebrow-title {
+    font-weight: 700 !important;
+    letter-spacing: .05em !important;
+  }
+  .login-card-dark h1 {
+    font-weight: 700 !important;
+    letter-spacing: -.05em !important;
+  }
+}
