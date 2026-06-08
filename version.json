@@ -1,8 +1,8 @@
 {
-  "version": "v108",
-  "cache": "resultados-pwa-v108",
+  "version": "v109",
+  "cache": "resultados-pwa-v109",
   "updatedAt": "2026-06-08",
-  "note": "Agrega escritura administrativa directa en Supabase y textos aleatorios de carga.",
-  "builtAt": "2026-06-08T14:20:00Z",
+  "note": "Adapta la app a la estructura minimalista de Supabase sin raw ni timestamps innecesarios.",
+  "builtAt": "2026-06-08T15:40:00Z",
   "date": "2026-06-08"
 }

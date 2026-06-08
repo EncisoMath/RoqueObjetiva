@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v108";
+  const APP_VERSION = "v109";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -391,7 +391,7 @@
           <p>${esc(bootCopy.subtitle)}</p>
         </div>
       `;
-      const payload = await supabaseRpc("roque_login", { p_user: user, p_password: pass || "" });
+      const payload = await supabaseRpc("roque_login", { p_user: user, p_password: pass || "", p_device: deviceInfoText(), p_mode: appModeText() });
       if (!payload?.ok) {
         return renderLogin(payload?.error || "No fue posible iniciar sesion.");
       }
@@ -582,12 +582,15 @@
   function parseStudents(text) {
     const objects = parseDataObjects(text, ["ID_PRUEBA", "NOMBRES"]);
     return objects.map((row) => {
-      const apellidos = cleanText(row.APELLIDOS || row.Apellidos || row.apellidos);
-      const nombres = cleanText(row.NOMBRE_COMPLETO || row.NOMBRES || row.Nombres || row.Name || row.Nombre || row.nombre);
-      const fullName = cleanText(nombres && apellidos ? `${nombres} ${apellidos}` : (nombres || apellidos));
+      const apellidos = cleanText(row.APELLIDOS || row.Apellidos || row.apellidos || row.APELLIDO || row.Apellido);
+      const nombres = cleanText(row.NOMBRES || row.Nombres || row.nombres || row.NOMBRE || row.Nombre || row.nombre);
+      const fullFromParts = cleanText(nombres && apellidos ? `${nombres} ${apellidos}` : (nombres || apellidos));
+      const fullName = cleanText(row.NOMBRE_COMPLETO || row.NombreCompleto || row.Name || row.name || fullFromParts);
       return {
         examId: cleanId(row.ID_PRUEBA || row.IdPrueba || row.ID || row.Id || row.id),
         nationalId: cleanId(row.ID_ALUMNO || row.IdAlumno || row["Carné"] || row.Carne || row.Carnet || row.Documento || row.documento),
+        nombres,
+        apellidos,
         name: fullName,
         sede: cleanText(row.SEDE || row.Sede),
         grade: toInt(row.GRADO || row.Grado),
@@ -2870,14 +2873,14 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
         <div class="inline-actions"><button class="primary-btn" type="button" data-action="publish-supabase">Subir cambios a Supabase</button></div>
       </section>
       <div class="admin-note github-note">
-        Esta acción reemplaza en Supabase los datos de estudiantes, docentes, cargas, direcciones de grupo, claves, resultados editados y ajustes públicos de apariencia usando lo que tienes cargado en este panel.
+        Esta acción reemplaza en Supabase la estructura minimalista: estudiantes, docentes, carga_docente, claves, resultados, mapeo_areas y configuracion_app usando lo que tienes cargado en este panel.
       </div>
       <section class="card card-pad github-panel supabase-panel">
         <div class="github-publish-box">
           <h3>Qué se sube</h3>
           <ul style="margin:0;padding-left:18px;color:#4d5260;line-height:1.65;">
             <li>ESTUDIANTES</li>
-            <li>CARGA y DIRECTORES DE GRUPO</li>
+            <li>DOCENTES y CARGA_DOCENTE</li>
             <li>KEYS / claves editadas</li>
             <li>RESULTADOS con cambios hechos desde Admin</li>
             <li>Configuración pública de apariencia y mapeos de áreas</li>
@@ -2929,10 +2932,15 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
 
 
   function normalizeStudentRow(row) {
+    const nombres = cleanText(row.nombres || row.NOMBRES || row.Nombres || row.NOMBRE || row.Nombre);
+    const apellidos = cleanText(row.apellidos || row.APELLIDOS || row.Apellidos || row.APELLIDO || row.Apellido);
+    const name = cleanText(row.name || row.NOMBRE_COMPLETO || row.NombreCompleto || row.NOMBRE || row.Nombre || (nombres && apellidos ? `${nombres} ${apellidos}` : (nombres || apellidos)));
     return {
       examId: cleanId(row.examId || row.ID_PRUEBA || row.IdPrueba || row.ID || row.id),
       nationalId: cleanId(row.nationalId || row.ID_ALUMNO || row.IdAlumno || row.Documento || row.documento),
-      name: cleanText(row.name || row.NOMBRE_COMPLETO || row.NOMBRE || row.Nombre || row.NOMBRES || row.APellidos),
+      nombres,
+      apellidos,
+      name,
       sede: cleanText(row.sede || row.SEDE || row.Sede),
       grade: toInt(row.grade || row.GRADO || row.Grado),
       group: cleanText(row.group || row.GRUPO || row.Grupo || row.CURSO || row.Curso)
@@ -3546,6 +3554,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     }
 
     if (action === "logout") {
+      logSupabaseLogout(state.activeSession);
       clearSession();
       renderLogin();
     }
@@ -4601,14 +4610,20 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
   }
 
   function exportStudentRows() {
-    return state.studentsRegistry.map((row) => ({
-      ID_PRUEBA: row.examId || "",
-      ID_ALUMNO: row.nationalId || "",
-      NOMBRE_COMPLETO: row.name || "",
-      SEDE: row.sede || "",
-      GRADO: String(row.grade || ""),
-      GRUPO: row.group || ""
-    }));
+    return state.studentsRegistry.map((row) => {
+      const nombres = cleanText(row.nombres);
+      const apellidos = cleanText(row.apellidos);
+      const full = cleanText(row.name);
+      return {
+        ID_ALUMNO: row.nationalId || "",
+        ID_PRUEBA: row.examId || "",
+        APELLIDOS: apellidos || "",
+        NOMBRES: nombres || full || "",
+        SEDE: row.sede || "",
+        GRADO: String(row.grade || ""),
+        GRUPO: row.group || ""
+      };
+    });
   }
 
   function exportCargaRows() {
@@ -6085,6 +6100,35 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       modalRoot.innerHTML = "";
       document.body.classList.remove("modal-open");
     }, 160);
+  }
+
+  function appModeText() {
+    const standalone = window.matchMedia?.("(display-mode: standalone)")?.matches || window.navigator?.standalone;
+    return standalone ? "PWA" : "Web";
+  }
+
+  function deviceInfoText() {
+    const ua = navigator.userAgent || "";
+    const os = /Android/i.test(ua) ? "Android" : /iPhone|iPad|iPod/i.test(ua) ? "iOS" : /Windows/i.test(ua) ? "Windows" : /Mac OS/i.test(ua) ? "Mac" : /Linux/i.test(ua) ? "Linux" : "Dispositivo";
+    const browser = /Edg\//i.test(ua) ? "Edge" : /Chrome\//i.test(ua) ? "Chrome" : /Safari\//i.test(ua) ? "Safari" : /Firefox\//i.test(ua) ? "Firefox" : "Navegador";
+    return `${os} · ${browser}`;
+  }
+
+  async function logSupabaseLogout(session) {
+    if (!SUPABASE_CONFIG.enabled || !session?.role) return;
+    try {
+      await supabaseRpc("roque_log_access", {
+        p_usuario: session.id || session.roll || session.role,
+        p_id_prueba: session.roll || "",
+        p_rol: session.role,
+        p_evento: "logout",
+        p_exitoso: true,
+        p_dispositivo: deviceInfoText(),
+        p_modo: appModeText()
+      });
+    } catch (error) {
+      console.warn("No se pudo registrar cierre de sesión:", error?.message || error);
+    }
   }
 
   function clearSession() {

@@ -1,18 +1,18 @@
-const APP_VERSION = "v108";
-const CACHE_VERSION = "resultados-pwa-v108";
+const APP_VERSION = "v109";
+const CACHE_VERSION = "resultados-pwa-v109";
 const CACHE_PREFIXES = ["resultados-pwa-", "resultados-pruebas-"];
 
 const APP_SHELL = [
   "./",
   "index.html",
-  "css/app.css?v=108",
-  "js/app.js?v=108",
+  "css/app.css?v=109",
+  "js/app.js?v=109",
   "version.json",
   "config/data-manifest.json",
   "config/site-config.json",
-  "config/supabase-config.js?v=108",
+  "config/supabase-config.js?v=109",
   "INTERNO/DIRECTORESGRUPO.json",
-  "manifest.webmanifest?v=108",
+  "manifest.webmanifest?v=109",
   "icons/icon-192.png",
   "icons/icon-512.png",
   "icons/maskable-512.png",
