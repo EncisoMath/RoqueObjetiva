@@ -13111,3 +13111,125 @@ select,
     #ea8f56 84%,
     #ffd0af 100%) !important;
 }
+
+
+/* v127: numeros de ranking con color directo, sin pseudo-capa que blanquea/corta */
+.ranking-box.rank-gold strong,
+.ranking-box.rank-bronze strong {
+  -webkit-background-clip: initial !important;
+  background-clip: initial !important;
+  -webkit-text-fill-color: currentColor !important;
+  background: none !important;
+  filter: none !important;
+  position: relative !important;
+}
+
+.ranking-box.rank-gold strong::after,
+.ranking-box.rank-bronze strong::after {
+  content: none !important;
+  display: none !important;
+}
+
+.ranking-box.rank-gold strong {
+  color: #ce9403 !important;
+  text-shadow:
+    0 1px 0 #fff1a8,
+    0 3px 0 rgba(159, 99, 0, .28),
+    0 10px 22px rgba(143, 88, 0, .24),
+    -1px -1px 0 rgba(255, 245, 196, .62),
+    1px 1px 0 rgba(112, 70, 0, .23) !important;
+}
+
+.ranking-box.rank-bronze strong {
+  color: #b65b1e !important;
+  text-shadow:
+    0 1px 0 #ffd6bd,
+    0 3px 0 rgba(117, 48, 14, .26),
+    0 10px 22px rgba(100, 42, 14, .22),
+    -1px -1px 0 rgba(255, 221, 197, .58),
+    1px 1px 0 rgba(103, 42, 13, .22) !important;
+}
+
+/* v127: login screen con escala del pantallazo de referencia */
+.login-card-dark .login-eyebrow-title {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 0 14px !important;
+  font-size: clamp(1.02rem, 2.35vw, 1.38rem) !important;
+  font-weight: 900 !important;
+  letter-spacing: .105em !important;
+  line-height: 1.08 !important;
+  color: rgba(231, 241, 255, .92) !important;
+  text-transform: uppercase !important;
+}
+
+.login-card-dark .login-intro-title {
+  margin: 0 0 18px !important;
+  font-size: clamp(3.8rem, 13vw, 5.15rem) !important;
+  font-weight: 950 !important;
+  letter-spacing: -.065em !important;
+  line-height: .88 !important;
+  color: #f4f8ff !important;
+  text-shadow: 0 4px 22px rgba(0,0,0,.22) !important;
+}
+
+.login-card-dark .login-intro-copy {
+  width: min(100%, 46rem);
+  margin: 0 0 28px !important;
+  font-size: clamp(1.42rem, 3.7vw, 1.86rem) !important;
+  font-weight: 650 !important;
+  line-height: 1.55 !important;
+  letter-spacing: -.025em !important;
+  color: rgba(231, 241, 255, .86) !important;
+}
+
+.login-card-dark .login-intro-copy strong {
+  color: #f9fbff !important;
+  font-weight: 950 !important;
+}
+
+.login-shell-dark .login-panel {
+  width: min(100%, 760px) !important;
+}
+
+.login-card-dark {
+  width: min(100%, 720px) !important;
+}
+
+@media (max-width: 680px) {
+  .login-shell-dark {
+    place-items: start center !important;
+    padding-top: max(16px, env(safe-area-inset-top)) !important;
+  }
+  .login-shell-dark .login-panel {
+    padding: 14px 16px 20px !important;
+    width: min(100%, 540px) !important;
+  }
+  .login-card-dark {
+    width: min(100%, 520px) !important;
+    padding: 18px 18px 20px !important;
+  }
+  .login-card-dark .login-eyebrow-title {
+    font-size: clamp(.92rem, 4.7vw, 1.16rem) !important;
+    margin-bottom: 12px !important;
+  }
+  .login-card-dark .login-intro-title {
+    font-size: clamp(3.3rem, 18vw, 4.55rem) !important;
+    margin-bottom: 16px !important;
+  }
+  .login-card-dark .login-intro-copy {
+    font-size: clamp(1.16rem, 6.4vw, 1.55rem) !important;
+    line-height: 1.45 !important;
+    margin-bottom: 22px !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .login-card-dark .login-intro-title {
+    font-size: clamp(3rem, 17vw, 3.75rem) !important;
+  }
+  .login-card-dark .login-intro-copy {
+    font-size: clamp(1.03rem, 5.8vw, 1.28rem) !important;
+  }
+}
