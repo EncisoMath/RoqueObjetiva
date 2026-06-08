@@ -314,5 +314,5 @@ El `service-worker.js` usa estrategia de red primero para archivos JSON, para ev
 - Evita cache antigua del logo usando versionado y rutas únicas al publicar desde Admin > GitHub.
 
 
-## v93
+## v94
 - Rediseña la animación del login con carné cinematográfico, desaparición de datos secundarios y composición animada de `ruben7890`.

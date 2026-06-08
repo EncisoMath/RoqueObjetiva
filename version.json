@@ -1,8 +1,8 @@
 {
-  "version": "v93",
-  "cache": "resultados-pwa-v93",
+  "version": "v94",
+  "cache": "resultados-pwa-v94",
   "updatedAt": "2026-06-08",
-  "note": "Mejora cinematografica de la animacion de construccion del usuario en el login.",
+  "note": "Ajusta la animación de construcción de usuario para que avance de forma visible y más rápida.",
   "builtAt": "2026-06-08T02:30:00Z",
   "date": "2026-06-08"
 }
