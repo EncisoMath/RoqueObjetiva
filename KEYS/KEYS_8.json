@@ -2,106 +2,106 @@
   {
     "Área": "Matemáticas",
     "Número de ítem": "1",
-    "Respuesta sugerida": "C",
+    "Respuesta sugerida": "A",
     "Componente / pensamiento / entorno / factor / enfoque": "Pensamiento aleatorio y sistemas de datos",
     "Competencia": "Comunicación, representación y modelación"
   },
   {
     "Área": "Matemáticas",
     "Número de ítem": "2",
-    "Respuesta sugerida": "B",
-    "Componente / pensamiento / entorno / factor / enfoque": "Pensamiento espacial y sistemas geométricos",
-    "Competencia": "Comunicación, representación y modelación"
+    "Respuesta sugerida": "C",
+    "Componente / pensamiento / entorno / factor / enfoque": "Pensamiento aleatorio y sistemas de datos",
+    "Competencia": "Planteamiento y resolución de problemas"
   },
   {
     "Área": "Matemáticas",
     "Número de ítem": "3",
-    "Respuesta sugerida": "D",
+    "Respuesta sugerida": "C",
     "Componente / pensamiento / entorno / factor / enfoque": "Pensamiento métrico y sistemas de medidas",
     "Competencia": "Planteamiento y resolución de problemas"
   },
   {
     "Área": "Matemáticas",
     "Número de ítem": "4",
-    "Respuesta sugerida": "D",
-    "Componente / pensamiento / entorno / factor / enfoque": "Pensamiento numérico y sistemas numéricos",
-    "Competencia": "Razonamiento y argumentación"
+    "Respuesta sugerida": "C",
+    "Componente / pensamiento / entorno / factor / enfoque": "Pensamiento aleatorio y sistemas de datos",
+    "Competencia": "Comunicación, representación y modelación"
   },
   {
     "Área": "Matemáticas",
     "Número de ítem": "5",
+    "Respuesta sugerida": "B",
+    "Componente / pensamiento / entorno / factor / enfoque": "Pensamiento numérico y sistemas numéricos",
+    "Competencia": "Planteamiento y resolución de problemas"
+  },
+  {
+    "Área": "Matemáticas",
+    "Número de ítem": "6",
     "Respuesta sugerida": "B",
     "Componente / pensamiento / entorno / factor / enfoque": "Pensamiento aleatorio y sistemas de datos",
     "Competencia": "Razonamiento y argumentación"
   },
   {
     "Área": "Matemáticas",
-    "Número de ítem": "6",
+    "Número de ítem": "7",
+    "Respuesta sugerida": "C",
+    "Componente / pensamiento / entorno / factor / enfoque": "Pensamiento aleatorio y sistemas de datos",
+    "Competencia": "Razonamiento y argumentación"
+  },
+  {
+    "Área": "Matemáticas",
+    "Número de ítem": "8",
+    "Respuesta sugerida": "A",
+    "Componente / pensamiento / entorno / factor / enfoque": "Pensamiento variacional y sistemas algebraicos y analíticos",
+    "Competencia": "Razonamiento y argumentación"
+  },
+  {
+    "Área": "Matemáticas",
+    "Número de ítem": "9",
+    "Respuesta sugerida": "B",
+    "Componente / pensamiento / entorno / factor / enfoque": "Pensamiento espacial y sistemas geométricos",
+    "Competencia": "Planteamiento y resolución de problemas"
+  },
+  {
+    "Área": "Matemáticas",
+    "Número de ítem": "10",
     "Respuesta sugerida": "B",
     "Componente / pensamiento / entorno / factor / enfoque": "Pensamiento variacional y sistemas algebraicos y analíticos",
     "Competencia": "Comunicación, representación y modelación"
   },
   {
     "Área": "Matemáticas",
-    "Número de ítem": "7",
-    "Respuesta sugerida": "C",
-    "Componente / pensamiento / entorno / factor / enfoque": "Pensamiento numérico y sistemas numéricos",
-    "Competencia": "Razonamiento y argumentación"
-  },
-  {
-    "Área": "Matemáticas",
-    "Número de ítem": "8",
-    "Respuesta sugerida": "C",
-    "Componente / pensamiento / entorno / factor / enfoque": "Pensamiento numérico y sistemas numéricos",
-    "Competencia": "Razonamiento y argumentación"
-  },
-  {
-    "Área": "Matemáticas",
-    "Número de ítem": "9",
-    "Respuesta sugerida": "C",
-    "Componente / pensamiento / entorno / factor / enfoque": "Pensamiento métrico y sistemas de medidas",
-    "Competencia": "Razonamiento y argumentación"
-  },
-  {
-    "Área": "Matemáticas",
-    "Número de ítem": "10",
-    "Respuesta sugerida": "C",
-    "Componente / pensamiento / entorno / factor / enfoque": "Pensamiento espacial y sistemas geométricos",
-    "Competencia": "Razonamiento y argumentación"
-  },
-  {
-    "Área": "Matemáticas",
     "Número de ítem": "11",
-    "Respuesta sugerida": "D",
-    "Componente / pensamiento / entorno / factor / enfoque": "Pensamiento numérico y sistemas numéricos",
-    "Competencia": "Razonamiento y argumentación"
-  },
-  {
-    "Área": "Matemáticas",
-    "Número de ítem": "12",
-    "Respuesta sugerida": "D",
-    "Componente / pensamiento / entorno / factor / enfoque": "Pensamiento numérico y sistemas numéricos",
-    "Competencia": "Razonamiento y argumentación"
-  },
-  {
-    "Área": "Matemáticas",
-    "Número de ítem": "13",
-    "Respuesta sugerida": "C",
-    "Componente / pensamiento / entorno / factor / enfoque": "Pensamiento espacial y sistemas geométricos",
-    "Competencia": "Razonamiento y argumentación"
-  },
-  {
-    "Área": "Matemáticas",
-    "Número de ítem": "14",
     "Respuesta sugerida": "B",
     "Componente / pensamiento / entorno / factor / enfoque": "Pensamiento aleatorio y sistemas de datos",
     "Competencia": "Planteamiento y resolución de problemas"
   },
   {
     "Área": "Matemáticas",
+    "Número de ítem": "12",
+    "Respuesta sugerida": "B",
+    "Componente / pensamiento / entorno / factor / enfoque": "Pensamiento espacial y sistemas geométricos",
+    "Competencia": "Razonamiento y argumentación"
+  },
+  {
+    "Área": "Matemáticas",
+    "Número de ítem": "13",
+    "Respuesta sugerida": "B",
+    "Componente / pensamiento / entorno / factor / enfoque": "Pensamiento numérico y sistemas numéricos",
+    "Competencia": "Razonamiento y argumentación"
+  },
+  {
+    "Área": "Matemáticas",
+    "Número de ítem": "14",
+    "Respuesta sugerida": "C",
+    "Componente / pensamiento / entorno / factor / enfoque": "Pensamiento métrico y sistemas de medidas",
+    "Competencia": "Comunicación, representación y modelación"
+  },
+  {
+    "Área": "Matemáticas",
     "Número de ítem": "15",
-    "Respuesta sugerida": "A",
-    "Componente / pensamiento / entorno / factor / enfoque": "Pensamiento aleatorio y sistemas de datos",
+    "Respuesta sugerida": "C",
+    "Componente / pensamiento / entorno / factor / enfoque": "Pensamiento métrico y sistemas de medidas",
     "Competencia": "Planteamiento y resolución de problemas"
   },
   {
@@ -109,40 +109,40 @@
     "Número de ítem": "16",
     "Respuesta sugerida": "C",
     "Componente / pensamiento / entorno / factor / enfoque": "Pensamiento aleatorio y sistemas de datos",
-    "Competencia": "Planteamiento y resolución de problemas"
+    "Competencia": "Comunicación, representación y modelación"
   },
   {
     "Área": "Matemáticas",
     "Número de ítem": "17",
-    "Respuesta sugerida": "D",
-    "Componente / pensamiento / entorno / factor / enfoque": "Pensamiento variacional y sistemas algebraicos y analíticos",
-    "Competencia": "Comunicación, representación y modelación"
+    "Respuesta sugerida": "C",
+    "Componente / pensamiento / entorno / factor / enfoque": "Pensamiento aleatorio y sistemas de datos",
+    "Competencia": "Razonamiento y argumentación"
   },
   {
     "Área": "Matemáticas",
     "Número de ítem": "18",
     "Respuesta sugerida": "C",
-    "Componente / pensamiento / entorno / factor / enfoque": "Pensamiento aleatorio y sistemas de datos",
-    "Competencia": "Planteamiento y resolución de problemas"
+    "Componente / pensamiento / entorno / factor / enfoque": "Pensamiento espacial y sistemas geométricos",
+    "Competencia": "Razonamiento y argumentación"
   },
   {
     "Área": "Matemáticas",
     "Número de ítem": "19",
-    "Respuesta sugerida": "C",
+    "Respuesta sugerida": "A",
     "Componente / pensamiento / entorno / factor / enfoque": "Pensamiento métrico y sistemas de medidas",
     "Competencia": "Planteamiento y resolución de problemas"
   },
   {
     "Área": "Matemáticas",
     "Número de ítem": "20",
-    "Respuesta sugerida": "A",
+    "Respuesta sugerida": "C",
     "Componente / pensamiento / entorno / factor / enfoque": "Pensamiento variacional y sistemas algebraicos y analíticos",
-    "Competencia": "Planteamiento y resolución de problemas"
+    "Competencia": "Comunicación, representación y modelación"
   },
   {
     "Área": "Lenguaje",
     "Número de ítem": "21",
-    "Respuesta sugerida": "D",
+    "Respuesta sugerida": "A",
     "Componente / pensamiento / entorno / factor / enfoque": "Pragmático",
     "Competencia": "Comunicativa lectora - Crítico-intertextual"
   },
@@ -156,49 +156,49 @@
   {
     "Área": "Lenguaje",
     "Número de ítem": "23",
-    "Respuesta sugerida": "C",
+    "Respuesta sugerida": "D",
     "Componente / pensamiento / entorno / factor / enfoque": "Semántico",
     "Competencia": "Comunicativa lectora - Inferencial"
   },
   {
     "Área": "Lenguaje",
     "Número de ítem": "24",
-    "Respuesta sugerida": "D",
-    "Componente / pensamiento / entorno / factor / enfoque": "Pragmático",
-    "Competencia": "Comunicativa lectora - Crítico-intertextual"
+    "Respuesta sugerida": "B",
+    "Componente / pensamiento / entorno / factor / enfoque": "Semántico",
+    "Competencia": "Comunicativa lectora - Inferencial"
   },
   {
     "Área": "Lenguaje",
     "Número de ítem": "25",
-    "Respuesta sugerida": "D",
-    "Componente / pensamiento / entorno / factor / enfoque": "Pragmático",
+    "Respuesta sugerida": "A",
+    "Componente / pensamiento / entorno / factor / enfoque": "Semántico",
     "Competencia": "Comunicativa lectora - Inferencial"
   },
   {
     "Área": "Lenguaje",
     "Número de ítem": "26",
     "Respuesta sugerida": "C",
+    "Componente / pensamiento / entorno / factor / enfoque": "Semántico",
+    "Competencia": "Comunicativa lectora - Literal"
+  },
+  {
+    "Área": "Lenguaje",
+    "Número de ítem": "27",
+    "Respuesta sugerida": "A",
     "Componente / pensamiento / entorno / factor / enfoque": "Pragmático",
     "Competencia": "Comunicativa lectora - Inferencial"
   },
   {
     "Área": "Lenguaje",
-    "Número de ítem": "27",
-    "Respuesta sugerida": "C",
-    "Componente / pensamiento / entorno / factor / enfoque": "Pragmático",
-    "Competencia": "Comunicativa lectora - Crítico-intertextual"
-  },
-  {
-    "Área": "Lenguaje",
     "Número de ítem": "28",
-    "Respuesta sugerida": "C",
+    "Respuesta sugerida": "A",
     "Componente / pensamiento / entorno / factor / enfoque": "Semántico",
     "Competencia": "Comunicativa lectora - Inferencial"
   },
   {
     "Área": "Lenguaje",
     "Número de ítem": "29",
-    "Respuesta sugerida": "C",
+    "Respuesta sugerida": "D",
     "Componente / pensamiento / entorno / factor / enfoque": "Pragmático",
     "Competencia": "Comunicativa lectora - Crítico-intertextual"
   },
@@ -206,524 +206,524 @@
     "Área": "Lenguaje",
     "Número de ítem": "30",
     "Respuesta sugerida": "D",
-    "Componente / pensamiento / entorno / factor / enfoque": "Semántico",
-    "Competencia": "Comunicativa lectora - Literal"
-  },
-  {
-    "Área": "Lenguaje",
-    "Número de ítem": "31",
-    "Respuesta sugerida": "D",
-    "Componente / pensamiento / entorno / factor / enfoque": "Pragmático",
-    "Competencia": "Comunicativa lectora - Inferencial"
-  },
-  {
-    "Área": "Lenguaje",
-    "Número de ítem": "32",
-    "Respuesta sugerida": "C",
     "Componente / pensamiento / entorno / factor / enfoque": "Sintáctico",
     "Competencia": "Comunicativa lectora - Inferencial"
   },
   {
     "Área": "Lenguaje",
-    "Número de ítem": "33",
-    "Respuesta sugerida": "A",
-    "Componente / pensamiento / entorno / factor / enfoque": "Pragmático",
-    "Competencia": "Comunicativa lectora - Inferencial"
-  },
-  {
-    "Área": "Lenguaje",
-    "Número de ítem": "34",
+    "Número de ítem": "31",
     "Respuesta sugerida": "B",
     "Componente / pensamiento / entorno / factor / enfoque": "Semántico",
     "Competencia": "Comunicativa lectora - Inferencial"
   },
   {
     "Área": "Lenguaje",
-    "Número de ítem": "35",
+    "Número de ítem": "32",
     "Respuesta sugerida": "A",
+    "Componente / pensamiento / entorno / factor / enfoque": "Semántico",
+    "Competencia": "Comunicativa lectora - Literal"
+  },
+  {
+    "Área": "Lenguaje",
+    "Número de ítem": "33",
+    "Respuesta sugerida": "C",
+    "Componente / pensamiento / entorno / factor / enfoque": "Semántico",
+    "Competencia": "Comunicativa lectora - Inferencial"
+  },
+  {
+    "Área": "Lenguaje",
+    "Número de ítem": "34",
+    "Respuesta sugerida": "A",
+    "Componente / pensamiento / entorno / factor / enfoque": "Sintáctico",
+    "Competencia": "Comunicativa lectora - Literal"
+  },
+  {
+    "Área": "Lenguaje",
+    "Número de ítem": "35",
+    "Respuesta sugerida": "B",
     "Componente / pensamiento / entorno / factor / enfoque": "Semántico",
     "Competencia": "Comunicativa lectora - Literal"
   },
   {
     "Área": "Lenguaje",
     "Número de ítem": "36",
-    "Respuesta sugerida": "B",
+    "Respuesta sugerida": "A",
     "Componente / pensamiento / entorno / factor / enfoque": "Semántico",
-    "Competencia": "Comunicativa lectora - Inferencial"
+    "Competencia": "Comunicativa lectora - Literal"
   },
   {
     "Área": "Lenguaje",
     "Número de ítem": "37",
-    "Respuesta sugerida": "A",
-    "Componente / pensamiento / entorno / factor / enfoque": "Pragmático",
-    "Competencia": "Comunicativa lectora - Crítico-intertextual"
-  },
-  {
-    "Área": "Lenguaje",
-    "Número de ítem": "38",
-    "Respuesta sugerida": "B",
+    "Respuesta sugerida": "D",
     "Componente / pensamiento / entorno / factor / enfoque": "Sintáctico",
     "Competencia": "Comunicativa lectora - Inferencial"
   },
   {
     "Área": "Lenguaje",
-    "Número de ítem": "39",
-    "Respuesta sugerida": "A",
+    "Número de ítem": "38",
+    "Respuesta sugerida": "B",
     "Componente / pensamiento / entorno / factor / enfoque": "Semántico",
-    "Competencia": "Comunicativa lectora - Literal"
+    "Competencia": "Comunicativa lectora - Inferencial"
+  },
+  {
+    "Área": "Lenguaje",
+    "Número de ítem": "39",
+    "Respuesta sugerida": "C",
+    "Componente / pensamiento / entorno / factor / enfoque": "Semántico",
+    "Competencia": "Comunicativa lectora - Inferencial"
   },
   {
     "Área": "Lenguaje",
     "Número de ítem": "40",
     "Respuesta sugerida": "B",
-    "Componente / pensamiento / entorno / factor / enfoque": "Semántico",
+    "Componente / pensamiento / entorno / factor / enfoque": "Sintáctico",
     "Competencia": "Comunicativa lectora - Literal"
   },
   {
     "Área": "Ciencias Naturales",
     "Número de ítem": "41",
-    "Respuesta sugerida": "D",
-    "Componente / pensamiento / entorno / factor / enfoque": "Proceso químico",
-    "Competencia": "Uso comprensivo del conocimiento científico"
-  },
-  {
-    "Área": "Ciencias Naturales",
-    "Número de ítem": "42",
-    "Respuesta sugerida": "D",
-    "Componente / pensamiento / entorno / factor / enfoque": "Proceso químico",
-    "Competencia": "Uso comprensivo del conocimiento científico"
-  },
-  {
-    "Área": "Ciencias Naturales",
-    "Número de ítem": "43",
-    "Respuesta sugerida": "B",
-    "Componente / pensamiento / entorno / factor / enfoque": "Proceso físico",
+    "Respuesta sugerida": "A",
+    "Componente / pensamiento / entorno / factor / enfoque": "Entorno físico",
     "Competencia": "Indagación"
   },
   {
     "Área": "Ciencias Naturales",
-    "Número de ítem": "44",
+    "Número de ítem": "42",
     "Respuesta sugerida": "A",
-    "Componente / pensamiento / entorno / factor / enfoque": "Proceso biológico",
+    "Componente / pensamiento / entorno / factor / enfoque": "Entorno vivo",
+    "Competencia": "Indagación"
+  },
+  {
+    "Área": "Ciencias Naturales",
+    "Número de ítem": "43",
+    "Respuesta sugerida": "C",
+    "Componente / pensamiento / entorno / factor / enfoque": "Entorno físico",
+    "Competencia": "Uso comprensivo del conocimiento científico"
+  },
+  {
+    "Área": "Ciencias Naturales",
+    "Número de ítem": "44",
+    "Respuesta sugerida": "B",
+    "Componente / pensamiento / entorno / factor / enfoque": "Entorno vivo",
     "Competencia": "Explicación de fenómenos"
   },
   {
     "Área": "Ciencias Naturales",
     "Número de ítem": "45",
-    "Respuesta sugerida": "D",
-    "Componente / pensamiento / entorno / factor / enfoque": "Proceso biológico",
+    "Respuesta sugerida": "A",
+    "Componente / pensamiento / entorno / factor / enfoque": "Ciencia, tecnología y sociedad",
     "Competencia": "Indagación"
   },
   {
     "Área": "Ciencias Naturales",
     "Número de ítem": "46",
     "Respuesta sugerida": "D",
-    "Componente / pensamiento / entorno / factor / enfoque": "Proceso químico",
-    "Competencia": "Indagación"
+    "Componente / pensamiento / entorno / factor / enfoque": "Entorno físico",
+    "Competencia": "Explicación de fenómenos"
   },
   {
     "Área": "Ciencias Naturales",
     "Número de ítem": "47",
-    "Respuesta sugerida": "D",
-    "Componente / pensamiento / entorno / factor / enfoque": "Proceso biológico",
-    "Competencia": "Uso comprensivo del conocimiento científico"
+    "Respuesta sugerida": "C",
+    "Componente / pensamiento / entorno / factor / enfoque": "Entorno físico",
+    "Competencia": "Explicación de fenómenos"
   },
   {
     "Área": "Ciencias Naturales",
     "Número de ítem": "48",
     "Respuesta sugerida": "B",
-    "Componente / pensamiento / entorno / factor / enfoque": "Proceso biológico",
-    "Competencia": "Explicación de fenómenos"
+    "Componente / pensamiento / entorno / factor / enfoque": "Entorno físico",
+    "Competencia": "Indagación"
   },
   {
     "Área": "Ciencias Naturales",
     "Número de ítem": "49",
-    "Respuesta sugerida": "D",
-    "Componente / pensamiento / entorno / factor / enfoque": "Ciencia, tecnología y sociedad",
+    "Respuesta sugerida": "B",
+    "Componente / pensamiento / entorno / factor / enfoque": "Entorno físico",
     "Competencia": "Explicación de fenómenos"
   },
   {
     "Área": "Ciencias Naturales",
     "Número de ítem": "50",
-    "Respuesta sugerida": "C",
-    "Componente / pensamiento / entorno / factor / enfoque": "Proceso físico",
-    "Competencia": "Uso comprensivo del conocimiento científico"
+    "Respuesta sugerida": "A",
+    "Componente / pensamiento / entorno / factor / enfoque": "Entorno vivo",
+    "Competencia": "Indagación"
   },
   {
     "Área": "Ciencias Naturales",
     "Número de ítem": "51",
-    "Respuesta sugerida": "D",
-    "Componente / pensamiento / entorno / factor / enfoque": "Proceso físico",
+    "Respuesta sugerida": "C",
+    "Componente / pensamiento / entorno / factor / enfoque": "Entorno vivo",
     "Competencia": "Explicación de fenómenos"
   },
   {
     "Área": "Ciencias Naturales",
     "Número de ítem": "52",
     "Respuesta sugerida": "A",
-    "Componente / pensamiento / entorno / factor / enfoque": "Proceso biológico",
-    "Competencia": "Explicación de fenómenos"
+    "Componente / pensamiento / entorno / factor / enfoque": "Entorno vivo",
+    "Competencia": "Uso comprensivo del conocimiento científico"
   },
   {
     "Área": "Ciencias Naturales",
     "Número de ítem": "53",
     "Respuesta sugerida": "B",
-    "Componente / pensamiento / entorno / factor / enfoque": "Proceso físico",
-    "Competencia": "Explicación de fenómenos"
+    "Componente / pensamiento / entorno / factor / enfoque": "Entorno vivo",
+    "Competencia": "Uso comprensivo del conocimiento científico"
   },
   {
     "Área": "Ciencias Naturales",
     "Número de ítem": "54",
     "Respuesta sugerida": "B",
+    "Componente / pensamiento / entorno / factor / enfoque": "Entorno físico",
+    "Competencia": "Explicación de fenómenos"
+  },
+  {
+    "Área": "Ciencias Naturales",
+    "Número de ítem": "55",
+    "Respuesta sugerida": "A",
+    "Componente / pensamiento / entorno / factor / enfoque": "Entorno vivo",
+    "Competencia": "Indagación"
+  },
+  {
+    "Área": "Ciencias Naturales",
+    "Número de ítem": "56",
+    "Respuesta sugerida": "A",
     "Componente / pensamiento / entorno / factor / enfoque": "Ciencia, tecnología y sociedad",
     "Competencia": "Uso comprensivo del conocimiento científico"
   },
   {
     "Área": "Ciencias Naturales",
-    "Número de ítem": "55",
+    "Número de ítem": "57",
     "Respuesta sugerida": "C",
-    "Componente / pensamiento / entorno / factor / enfoque": "Proceso químico",
+    "Componente / pensamiento / entorno / factor / enfoque": "Entorno vivo",
     "Competencia": "Uso comprensivo del conocimiento científico"
   },
   {
     "Área": "Ciencias Naturales",
-    "Número de ítem": "56",
-    "Respuesta sugerida": "C",
-    "Componente / pensamiento / entorno / factor / enfoque": "Proceso biológico",
-    "Competencia": "Indagación"
-  },
-  {
-    "Área": "Ciencias Naturales",
-    "Número de ítem": "57",
-    "Respuesta sugerida": "B",
-    "Componente / pensamiento / entorno / factor / enfoque": "Proceso físico",
-    "Competencia": "Indagación"
-  },
-  {
-    "Área": "Ciencias Naturales",
     "Número de ítem": "58",
-    "Respuesta sugerida": "C",
-    "Componente / pensamiento / entorno / factor / enfoque": "Proceso físico",
-    "Competencia": "Indagación"
+    "Respuesta sugerida": "A",
+    "Componente / pensamiento / entorno / factor / enfoque": "Ciencia, tecnología y sociedad",
+    "Competencia": "Uso comprensivo del conocimiento científico"
   },
   {
     "Área": "Ciencias Naturales",
     "Número de ítem": "59",
-    "Respuesta sugerida": "C",
-    "Componente / pensamiento / entorno / factor / enfoque": "Proceso físico",
+    "Respuesta sugerida": "A",
+    "Componente / pensamiento / entorno / factor / enfoque": "Ciencia, tecnología y sociedad",
     "Competencia": "Uso comprensivo del conocimiento científico"
   },
   {
     "Área": "Ciencias Naturales",
     "Número de ítem": "60",
     "Respuesta sugerida": "A",
-    "Componente / pensamiento / entorno / factor / enfoque": "Proceso físico",
+    "Componente / pensamiento / entorno / factor / enfoque": "Ciencia, tecnología y sociedad",
     "Competencia": "Explicación de fenómenos"
   },
   {
     "Área": "Ética y Valores",
     "Número de ítem": "61",
-    "Respuesta sugerida": "A",
-    "Componente / pensamiento / entorno / factor / enfoque": "Sentido crítico",
-    "Competencia": "Crítica"
+    "Respuesta sugerida": "B",
+    "Componente / pensamiento / entorno / factor / enfoque": "Formación ciudadana",
+    "Competencia": "Dialógica / Competencias ciudadanas: Convivencia y paz"
   },
   {
     "Área": "Ética y Valores",
     "Número de ítem": "62",
-    "Respuesta sugerida": "A",
-    "Componente / pensamiento / entorno / factor / enfoque": "Identidad y sentido de pertenencia",
-    "Competencia": "Pensamiento reflexivo y sistémico"
+    "Respuesta sugerida": "C",
+    "Componente / pensamiento / entorno / factor / enfoque": "Formación ciudadana",
+    "Competencia": "Pensamiento reflexivo y sistémico / Competencias ciudadanas integradoras"
   },
   {
     "Área": "Ética y Valores",
     "Número de ítem": "63",
-    "Respuesta sugerida": "C",
-    "Componente / pensamiento / entorno / factor / enfoque": "Sentido crítico",
-    "Competencia": "Crítica"
+    "Respuesta sugerida": "B",
+    "Componente / pensamiento / entorno / factor / enfoque": "Identidad y sentido de pertenencia",
+    "Competencia": "Competencia ciudadana emocional y comunicativa"
   },
   {
     "Área": "Ética y Valores",
     "Número de ítem": "64",
     "Respuesta sugerida": "B",
     "Componente / pensamiento / entorno / factor / enfoque": "Formación ciudadana",
-    "Competencia": "Conocimiento"
+    "Competencia": "Competencias ciudadanas integradoras / Participación y responsabilidad democrática"
   },
   {
     "Área": "Ética y Valores",
     "Número de ítem": "65",
-    "Respuesta sugerida": "A",
-    "Componente / pensamiento / entorno / factor / enfoque": "Identidad y sentido de pertenencia",
-    "Competencia": "Pensamiento reflexivo y sistémico"
+    "Respuesta sugerida": "B",
+    "Componente / pensamiento / entorno / factor / enfoque": "Sentido crítico",
+    "Competencia": "Crítica y dialógica"
   },
   {
     "Área": "Artística",
     "Número de ítem": "66",
-    "Respuesta sugerida": "B",
-    "Componente / pensamiento / entorno / factor / enfoque": "Comprensión crítico-cultural",
-    "Competencia": "Sensibilidad perceptiva"
+    "Respuesta sugerida": "C",
+    "Componente / pensamiento / entorno / factor / enfoque": "Sensibilidad perceptiva",
+    "Competencia": "Comunicativas"
   },
   {
     "Área": "Artística",
     "Número de ítem": "67",
-    "Respuesta sugerida": "B",
+    "Respuesta sugerida": "A",
     "Componente / pensamiento / entorno / factor / enfoque": "Sensibilidad perceptiva",
-    "Competencia": "Comprensión crítico-cultural"
+    "Competencia": "Comunicativas"
   },
   {
     "Área": "Artística",
     "Número de ítem": "68",
-    "Respuesta sugerida": "B",
-    "Componente / pensamiento / entorno / factor / enfoque": "Comprensión crítico-cultural",
+    "Respuesta sugerida": "C",
+    "Componente / pensamiento / entorno / factor / enfoque": "Sensibilidad perceptiva",
     "Competencia": "Comunicativas"
   },
   {
     "Área": "Artística",
     "Número de ítem": "69",
     "Respuesta sugerida": "C",
-    "Componente / pensamiento / entorno / factor / enfoque": "Sensibilidad perceptiva",
-    "Competencia": "Comprensión crítico-cultural"
+    "Componente / pensamiento / entorno / factor / enfoque": "Comprensión crítico-cultural",
+    "Competencia": "Comunicativas y socioemocionales"
   },
   {
     "Área": "Artística",
     "Número de ítem": "70",
-    "Respuesta sugerida": "C",
+    "Respuesta sugerida": "B",
     "Componente / pensamiento / entorno / factor / enfoque": "Comprensión crítico-cultural",
-    "Competencia": "Socioemocionales"
+    "Competencia": "Comunicativas"
   },
   {
     "Área": "Inglés",
     "Número de ítem": "71",
-    "Respuesta sugerida": "B",
+    "Respuesta sugerida": "D",
     "Componente / pensamiento / entorno / factor / enfoque": "Conocimiento lexical / Lectura",
     "Competencia": "Lingüística"
   },
   {
     "Área": "Inglés",
     "Número de ítem": "72",
-    "Respuesta sugerida": "A",
+    "Respuesta sugerida": "C",
     "Componente / pensamiento / entorno / factor / enfoque": "Conocimiento lexical / Lectura",
     "Competencia": "Lingüística"
   },
   {
     "Área": "Inglés",
     "Número de ítem": "73",
-    "Respuesta sugerida": "F",
+    "Respuesta sugerida": "B",
     "Componente / pensamiento / entorno / factor / enfoque": "Conocimiento lexical / Lectura",
     "Competencia": "Lingüística"
   },
   {
     "Área": "Inglés",
     "Número de ítem": "74",
-    "Respuesta sugerida": "G",
+    "Respuesta sugerida": "E",
     "Componente / pensamiento / entorno / factor / enfoque": "Conocimiento lexical / Lectura",
     "Competencia": "Lingüística"
   },
   {
     "Área": "Inglés",
     "Número de ítem": "75",
-    "Respuesta sugerida": "D",
+    "Respuesta sugerida": "F",
     "Componente / pensamiento / entorno / factor / enfoque": "Conocimiento lexical / Lectura",
     "Competencia": "Lingüística"
   },
   {
     "Área": "Inglés",
     "Número de ítem": "76",
-    "Respuesta sugerida": "C",
-    "Componente / pensamiento / entorno / factor / enfoque": "Conocimiento pragmático-comunicativo / Conversación",
+    "Respuesta sugerida": "B",
+    "Componente / pensamiento / entorno / factor / enfoque": "Conocimiento pragmático-comunicativo / Lectura de avisos",
     "Competencia": "Pragmática"
   },
   {
     "Área": "Inglés",
     "Número de ítem": "77",
-    "Respuesta sugerida": "B",
-    "Componente / pensamiento / entorno / factor / enfoque": "Conocimiento pragmático-comunicativo / Conversación",
+    "Respuesta sugerida": "A",
+    "Componente / pensamiento / entorno / factor / enfoque": "Conocimiento pragmático-comunicativo / Lectura de avisos",
     "Competencia": "Pragmática"
   },
   {
     "Área": "Inglés",
     "Número de ítem": "78",
     "Respuesta sugerida": "B",
-    "Componente / pensamiento / entorno / factor / enfoque": "Conocimiento pragmático-comunicativo / Conversación",
-    "Competencia": "Pragmática"
+    "Componente / pensamiento / entorno / factor / enfoque": "Comprensión de lectura literal",
+    "Competencia": "Lingüística"
   },
   {
     "Área": "Inglés",
     "Número de ítem": "79",
-    "Respuesta sugerida": "C",
-    "Componente / pensamiento / entorno / factor / enfoque": "Conocimiento pragmático-comunicativo / Conversación",
-    "Competencia": "Pragmática"
+    "Respuesta sugerida": "B",
+    "Componente / pensamiento / entorno / factor / enfoque": "Comprensión de lectura literal",
+    "Competencia": "Lingüística"
   },
   {
     "Área": "Inglés",
     "Número de ítem": "80",
     "Respuesta sugerida": "C",
-    "Componente / pensamiento / entorno / factor / enfoque": "Conocimiento pragmático-comunicativo / Conversación",
-    "Competencia": "Pragmática"
+    "Componente / pensamiento / entorno / factor / enfoque": "Comprensión de lectura literal",
+    "Competencia": "Lingüística"
   },
   {
     "Área": "Inglés",
     "Número de ítem": "81",
-    "Respuesta sugerida": "A",
-    "Componente / pensamiento / entorno / factor / enfoque": "Conocimiento gramatical y lexical / Lectura",
+    "Respuesta sugerida": "C",
+    "Componente / pensamiento / entorno / factor / enfoque": "Comprensión de lectura inferencial",
     "Competencia": "Lingüística"
   },
   {
     "Área": "Inglés",
     "Número de ítem": "82",
-    "Respuesta sugerida": "B",
-    "Componente / pensamiento / entorno / factor / enfoque": "Conocimiento gramatical y lexical / Lectura",
+    "Respuesta sugerida": "A",
+    "Componente / pensamiento / entorno / factor / enfoque": "Comprensión de lectura literal",
     "Competencia": "Lingüística"
   },
   {
     "Área": "Inglés",
     "Número de ítem": "83",
-    "Respuesta sugerida": "A",
-    "Componente / pensamiento / entorno / factor / enfoque": "Conocimiento gramatical y lexical / Lectura",
+    "Respuesta sugerida": "B",
+    "Componente / pensamiento / entorno / factor / enfoque": "Conocimiento gramatical y lexical",
     "Competencia": "Lingüística"
   },
   {
     "Área": "Inglés",
     "Número de ítem": "84",
     "Respuesta sugerida": "B",
-    "Componente / pensamiento / entorno / factor / enfoque": "Conocimiento gramatical y lexical / Lectura",
+    "Componente / pensamiento / entorno / factor / enfoque": "Conocimiento gramatical",
     "Competencia": "Lingüística"
   },
   {
     "Área": "Inglés",
     "Número de ítem": "85",
-    "Respuesta sugerida": "A",
-    "Componente / pensamiento / entorno / factor / enfoque": "Conocimiento gramatical y lexical / Lectura",
+    "Respuesta sugerida": "B",
+    "Componente / pensamiento / entorno / factor / enfoque": "Conocimiento lexical",
     "Competencia": "Lingüística"
   },
   {
     "Área": "Inglés",
     "Número de ítem": "86",
-    "Respuesta sugerida": "C",
-    "Componente / pensamiento / entorno / factor / enfoque": "Conocimiento gramatical y lexical / Lectura",
+    "Respuesta sugerida": "A",
+    "Componente / pensamiento / entorno / factor / enfoque": "Conocimiento gramatical y lexical",
     "Competencia": "Lingüística"
   },
   {
     "Área": "Inglés",
     "Número de ítem": "87",
-    "Respuesta sugerida": "A",
-    "Componente / pensamiento / entorno / factor / enfoque": "Comprensión de lectura literal e inferencial",
+    "Respuesta sugerida": "B",
+    "Componente / pensamiento / entorno / factor / enfoque": "Conocimiento gramatical y lexical",
     "Competencia": "Lingüística"
   },
   {
     "Área": "Inglés",
     "Número de ítem": "88",
-    "Respuesta sugerida": "B",
-    "Componente / pensamiento / entorno / factor / enfoque": "Comprensión de lectura literal e inferencial",
-    "Competencia": "Lingüística"
+    "Respuesta sugerida": "C",
+    "Componente / pensamiento / entorno / factor / enfoque": "Conocimiento comunicativo-pragmático",
+    "Competencia": "Pragmática"
   },
   {
     "Área": "Inglés",
     "Número de ítem": "89",
-    "Respuesta sugerida": "C",
-    "Componente / pensamiento / entorno / factor / enfoque": "Comprensión de lectura literal e inferencial",
-    "Competencia": "Lingüística"
+    "Respuesta sugerida": "B",
+    "Componente / pensamiento / entorno / factor / enfoque": "Conocimiento comunicativo-pragmático",
+    "Competencia": "Pragmática"
   },
   {
     "Área": "Inglés",
     "Número de ítem": "90",
-    "Respuesta sugerida": "B",
-    "Componente / pensamiento / entorno / factor / enfoque": "Comprensión de lectura literal e inferencial",
-    "Competencia": "Lingüística"
+    "Respuesta sugerida": "A",
+    "Componente / pensamiento / entorno / factor / enfoque": "Conocimiento comunicativo-pragmático",
+    "Competencia": "Pragmática"
   },
   {
     "Área": "Ciencias Sociales y Ciudadanía",
     "Número de ítem": "91",
+    "Respuesta sugerida": "B",
+    "Componente / pensamiento / entorno / factor / enfoque": "Ético-político",
+    "Competencia": "Pensamiento social"
+  },
+  {
+    "Área": "Ciencias Sociales y Ciudadanía",
+    "Número de ítem": "92",
     "Respuesta sugerida": "C",
     "Componente / pensamiento / entorno / factor / enfoque": "Ético-político",
     "Competencia": "Interpretación y análisis de perspectivas"
   },
   {
     "Área": "Ciencias Sociales y Ciudadanía",
-    "Número de ítem": "92",
-    "Respuesta sugerida": "D",
-    "Componente / pensamiento / entorno / factor / enfoque": "Ético-político",
+    "Número de ítem": "93",
+    "Respuesta sugerida": "A",
+    "Componente / pensamiento / entorno / factor / enfoque": "Espacial-ambiental",
     "Competencia": "Pensamiento reflexivo y sistémico"
   },
   {
     "Área": "Ciencias Sociales y Ciudadanía",
-    "Número de ítem": "93",
-    "Respuesta sugerida": "C",
-    "Componente / pensamiento / entorno / factor / enfoque": "Ético-político",
-    "Competencia": "Pensamiento social"
-  },
-  {
-    "Área": "Ciencias Sociales y Ciudadanía",
     "Número de ítem": "94",
-    "Respuesta sugerida": "C",
+    "Respuesta sugerida": "A",
     "Componente / pensamiento / entorno / factor / enfoque": "Ético-político",
     "Competencia": "Pensamiento social"
   },
   {
     "Área": "Ciencias Sociales y Ciudadanía",
     "Número de ítem": "95",
-    "Respuesta sugerida": "C",
-    "Componente / pensamiento / entorno / factor / enfoque": "Ético-político",
-    "Competencia": "Pensamiento reflexivo y sistémico"
-  },
-  {
-    "Área": "Ciencias Sociales y Ciudadanía",
-    "Número de ítem": "96",
-    "Respuesta sugerida": "C",
+    "Respuesta sugerida": "A",
     "Componente / pensamiento / entorno / factor / enfoque": "Ético-político",
     "Competencia": "Interpretación y análisis de perspectivas"
   },
   {
     "Área": "Ciencias Sociales y Ciudadanía",
-    "Número de ítem": "97",
-    "Respuesta sugerida": "C",
-    "Componente / pensamiento / entorno / factor / enfoque": "Ético-político",
-    "Competencia": "Pensamiento social"
-  },
-  {
-    "Área": "Ciencias Sociales y Ciudadanía",
-    "Número de ítem": "98",
-    "Respuesta sugerida": "D",
-    "Componente / pensamiento / entorno / factor / enfoque": "Historia y cultura",
-    "Competencia": "Pensamiento social"
-  },
-  {
-    "Área": "Ciencias Sociales y Ciudadanía",
-    "Número de ítem": "99",
-    "Respuesta sugerida": "C",
-    "Componente / pensamiento / entorno / factor / enfoque": "Espacial-ambiental",
-    "Competencia": "Pensamiento reflexivo y sistémico"
-  },
-  {
-    "Área": "Ciencias Sociales y Ciudadanía",
-    "Número de ítem": "100",
-    "Respuesta sugerida": "D",
-    "Componente / pensamiento / entorno / factor / enfoque": "Ético-político",
-    "Competencia": "Pensamiento social"
-  },
-  {
-    "Área": "Ciencias Sociales y Ciudadanía",
-    "Número de ítem": "101",
-    "Respuesta sugerida": "A",
-    "Componente / pensamiento / entorno / factor / enfoque": "Espacial-ambiental",
-    "Competencia": "Pensamiento reflexivo y sistémico"
-  },
-  {
-    "Área": "Ciencias Sociales y Ciudadanía",
-    "Número de ítem": "102",
-    "Respuesta sugerida": "C",
-    "Componente / pensamiento / entorno / factor / enfoque": "Espacial-ambiental",
-    "Competencia": "Pensamiento reflexivo y sistémico"
-  },
-  {
-    "Área": "Ciencias Sociales y Ciudadanía",
-    "Número de ítem": "103",
+    "Número de ítem": "96",
     "Respuesta sugerida": "B",
     "Componente / pensamiento / entorno / factor / enfoque": "Ético-político",
     "Competencia": "Interpretación y análisis de perspectivas"
   },
   {
     "Área": "Ciencias Sociales y Ciudadanía",
-    "Número de ítem": "104",
+    "Número de ítem": "97",
+    "Respuesta sugerida": "D",
+    "Componente / pensamiento / entorno / factor / enfoque": "Ético-político",
+    "Competencia": "Pensamiento social"
+  },
+  {
+    "Área": "Ciencias Sociales y Ciudadanía",
+    "Número de ítem": "98",
     "Respuesta sugerida": "A",
+    "Componente / pensamiento / entorno / factor / enfoque": "Ético-político",
+    "Competencia": "Pensamiento social"
+  },
+  {
+    "Área": "Ciencias Sociales y Ciudadanía",
+    "Número de ítem": "99",
+    "Respuesta sugerida": "C",
+    "Componente / pensamiento / entorno / factor / enfoque": "Ético-político",
+    "Competencia": "Interpretación y análisis de perspectivas"
+  },
+  {
+    "Área": "Ciencias Sociales y Ciudadanía",
+    "Número de ítem": "100",
+    "Respuesta sugerida": "A",
+    "Componente / pensamiento / entorno / factor / enfoque": "Ético-político",
+    "Competencia": "Interpretación y análisis de perspectivas"
+  },
+  {
+    "Área": "Ciencias Sociales y Ciudadanía",
+    "Número de ítem": "101",
+    "Respuesta sugerida": "B",
+    "Componente / pensamiento / entorno / factor / enfoque": "Ético-político",
+    "Competencia": "Interpretación y análisis de perspectivas"
+  },
+  {
+    "Área": "Ciencias Sociales y Ciudadanía",
+    "Número de ítem": "102",
+    "Respuesta sugerida": "B",
+    "Componente / pensamiento / entorno / factor / enfoque": "Ético-político",
+    "Competencia": "Interpretación y análisis de perspectivas"
+  },
+  {
+    "Área": "Ciencias Sociales y Ciudadanía",
+    "Número de ítem": "103",
+    "Respuesta sugerida": "C",
+    "Componente / pensamiento / entorno / factor / enfoque": "Espacial-ambiental",
+    "Competencia": "Interpretación y análisis de perspectivas"
+  },
+  {
+    "Área": "Ciencias Sociales y Ciudadanía",
+    "Número de ítem": "104",
+    "Respuesta sugerida": "C",
     "Componente / pensamiento / entorno / factor / enfoque": "Ético-político",
     "Competencia": "Pensamiento social"
   },
@@ -731,42 +731,42 @@
     "Área": "Ciencias Sociales y Ciudadanía",
     "Número de ítem": "105",
     "Respuesta sugerida": "B",
-    "Componente / pensamiento / entorno / factor / enfoque": "Historia y cultura",
+    "Componente / pensamiento / entorno / factor / enfoque": "Ético-político",
     "Competencia": "Pensamiento social"
   },
   {
     "Área": "Ciencias Sociales y Ciudadanía",
     "Número de ítem": "106",
-    "Respuesta sugerida": "C",
-    "Componente / pensamiento / entorno / factor / enfoque": "Historia y cultura",
-    "Competencia": "Pensamiento social"
-  },
-  {
-    "Área": "Ciencias Sociales y Ciudadanía",
-    "Número de ítem": "107",
     "Respuesta sugerida": "B",
     "Componente / pensamiento / entorno / factor / enfoque": "Ético-político",
     "Competencia": "Interpretación y análisis de perspectivas"
   },
   {
     "Área": "Ciencias Sociales y Ciudadanía",
-    "Número de ítem": "108",
-    "Respuesta sugerida": "B",
-    "Componente / pensamiento / entorno / factor / enfoque": "Historia y cultura",
+    "Número de ítem": "107",
+    "Respuesta sugerida": "A",
+    "Componente / pensamiento / entorno / factor / enfoque": "Espacial-ambiental",
     "Competencia": "Pensamiento reflexivo y sistémico"
   },
   {
     "Área": "Ciencias Sociales y Ciudadanía",
-    "Número de ítem": "109",
-    "Respuesta sugerida": "D",
+    "Número de ítem": "108",
+    "Respuesta sugerida": "B",
     "Componente / pensamiento / entorno / factor / enfoque": "Ético-político",
-    "Competencia": "Pensamiento social"
+    "Competencia": "Interpretación y análisis de perspectivas"
+  },
+  {
+    "Área": "Ciencias Sociales y Ciudadanía",
+    "Número de ítem": "109",
+    "Respuesta sugerida": "A",
+    "Componente / pensamiento / entorno / factor / enfoque": "Ético-político",
+    "Competencia": "Pensamiento reflexivo y sistémico"
   },
   {
     "Área": "Ciencias Sociales y Ciudadanía",
     "Número de ítem": "110",
-    "Respuesta sugerida": "C",
-    "Componente / pensamiento / entorno / factor / enfoque": "Historia y cultura",
+    "Respuesta sugerida": "A",
+    "Componente / pensamiento / entorno / factor / enfoque": "Ético-político",
     "Competencia": "Pensamiento social"
   },
   {
@@ -779,99 +779,99 @@
   {
     "Área": "Educación Física",
     "Número de ítem": "112",
-    "Respuesta sugerida": "B",
-    "Componente / pensamiento / entorno / factor / enfoque": "Actividad física y salud",
+    "Respuesta sugerida": "D",
+    "Componente / pensamiento / entorno / factor / enfoque": "Cuerpo, percepción y motricidad",
     "Competencia": "Motriz"
   },
   {
     "Área": "Educación Física",
     "Número de ítem": "113",
-    "Respuesta sugerida": "B",
-    "Componente / pensamiento / entorno / factor / enfoque": "Actividad física y salud",
+    "Respuesta sugerida": "C",
+    "Componente / pensamiento / entorno / factor / enfoque": "Cuerpo, percepción y motricidad",
     "Competencia": "Motriz"
   },
   {
     "Área": "Educación Física",
     "Número de ítem": "114",
     "Respuesta sugerida": "B",
-    "Componente / pensamiento / entorno / factor / enfoque": "Actividad física y salud",
+    "Componente / pensamiento / entorno / factor / enfoque": "Cuerpo, percepción y motricidad",
     "Competencia": "Motriz"
   },
   {
     "Área": "Educación Física",
     "Número de ítem": "115",
-    "Respuesta sugerida": "C",
-    "Componente / pensamiento / entorno / factor / enfoque": "Prácticas deportivas y recreativas",
-    "Competencia": "Axiológica corporal"
+    "Respuesta sugerida": "A",
+    "Componente / pensamiento / entorno / factor / enfoque": "Actividad física y salud",
+    "Competencia": "Motriz"
   },
   {
     "Área": "Informática",
     "Número de ítem": "116",
-    "Respuesta sugerida": "B",
-    "Componente / pensamiento / entorno / factor / enfoque": "Solución de problemas con tecnología e informática",
-    "Competencia": "Gestión del proceso tecnológico"
+    "Respuesta sugerida": "D",
+    "Componente / pensamiento / entorno / factor / enfoque": "Naturaleza y evolución de la tecnología e informática",
+    "Competencia": "Comprensión de conceptos de la World Wide Web"
   },
   {
     "Área": "Informática",
     "Número de ítem": "117",
     "Respuesta sugerida": "B",
     "Componente / pensamiento / entorno / factor / enfoque": "Uso y apropiación de la tecnología e informática",
-    "Competencia": "Evaluación y mejora de soluciones tecnológicas"
+    "Competencia": "Uso adecuado de recursos web"
   },
   {
     "Área": "Informática",
     "Número de ítem": "118",
-    "Respuesta sugerida": "A",
-    "Componente / pensamiento / entorno / factor / enfoque": "Solución de problemas con tecnología e informática",
-    "Competencia": "Planeación y organización tecnológica"
+    "Respuesta sugerida": "C",
+    "Componente / pensamiento / entorno / factor / enfoque": "Uso y apropiación de la tecnología e informática",
+    "Competencia": "Uso adecuado de navegadores web"
   },
   {
     "Área": "Informática",
     "Número de ítem": "119",
-    "Respuesta sugerida": "B",
+    "Respuesta sugerida": "A",
     "Componente / pensamiento / entorno / factor / enfoque": "Naturaleza y evolución de la tecnología e informática",
-    "Competencia": "Actualización e innovación tecnológica"
+    "Competencia": "Comprensión del funcionamiento de servidores"
   },
   {
     "Área": "Informática",
     "Número de ítem": "120",
     "Respuesta sugerida": "C",
-    "Componente / pensamiento / entorno / factor / enfoque": "Solución de problemas con tecnología e informática",
-    "Competencia": "Evaluación de prototipos"
+    "Componente / pensamiento / entorno / factor / enfoque": "Tecnología, informática y sociedad",
+    "Competencia": "Pensamiento crítico frente a brechas digitales"
   },
   {
     "Área": "Religión",
     "Número de ítem": "121",
-    "Respuesta sugerida": "C",
+    "Respuesta sugerida": "B",
     "Componente / pensamiento / entorno / factor / enfoque": "Antropológico",
-    "Competencia": "Aprender a conocer (cognitivas)"
+    "Competencia": "Aprender a aplicar a la vida (procedimental)"
   },
   {
     "Área": "Religión",
     "Número de ítem": "122",
     "Respuesta sugerida": "D",
     "Componente / pensamiento / entorno / factor / enfoque": "Antropológico",
-    "Competencia": "Aprender a aplicar a la vida (procedimentales)"
+    "Competencia": "Aprender a integrar fe y vida (actitudinal)"
   },
   {
     "Área": "Religión",
     "Número de ítem": "123",
-    "Respuesta sugerida": "A",
+    "Respuesta sugerida": "D",
     "Componente / pensamiento / entorno / factor / enfoque": "Antropológico",
-    "Competencia": "Aprender a integrar fe y vida (actitudinales)"
+    "Competencia": "Aprender a conocer (cognitiva)"
   },
   {
     "Área": "Religión",
     "Número de ítem": "124",
-    "Respuesta sugerida": "B",
-    "Componente / pensamiento / entorno / factor / enfoque": "Antropológico",
-    "Competencia": "Aprender a integrar fe y vida (actitudinales)"
+    "Respuesta sugerida": "D",
+    "Componente / pensamiento / entorno / factor / enfoque": "Bíblico-cristológico",
+    "Competencia": "Aprender a aplicar a la vida (procedimental)"
   },
   {
     "Área": "Religión",
     "Número de ítem": "125",
     "Respuesta sugerida": "C",
-    "Componente / pensamiento / entorno / factor / enfoque": "Antropológico",
-    "Competencia": "Aprender a aplicar a la vida (procedimentales)"
+    "Componente / pensamiento / entorno / factor / enfoque": "Bíblico-cristológico",
+    "Competencia": "Aprender a integrar fe y vida (actitudinal)"
   }
 ]
