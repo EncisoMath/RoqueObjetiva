@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v119";
+  const APP_VERSION = "v121";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -39,7 +39,7 @@
   const DEFAULT_CONFIG = {
     title: "Roque Objetiva",
     subtitle: "Este reporte no se pasa ni se pierde. Es una herramienta para identificar fortalezas, habilidades y oportunidades de mejora.",
-    logoImage: "assets/logo-principal.png?v=119",
+    logoImage: "assets/logo-principal.png?v=121",
     appIcon: "icons/icon-512.png",
     bannerImage: "",
     footerText: "Consulta institucional de resultados",
@@ -96,6 +96,7 @@
     rankingFallbackLoaded: false,
     rankingSupplementLoaded: false,
     sessionRankContextByRoll: new Map(),
+    studentRankDebugByRoll: new Map(),
     missingFiles: [],
     computedStudents: [],
     orphanExams: [],
@@ -484,6 +485,7 @@
 
   function clearSessionRankContext() {
     state.sessionRankContextByRoll = new Map();
+    state.studentRankDebugByRoll = new Map();
   }
 
   function setSessionRankContext(roll, meta = {}) {
@@ -768,11 +770,7 @@
 
       if (session.role === "student") {
         const roll = cleanId(session.roll);
-        await prepareStudentRankingContext(roll);
-        state.selectedSubject = null;
-        state.metricTab = "components";
-        state.zeroToleranceShown = false;
-        return enterSessionWithLoader({ role: "student", roll }, () => renderStudent(roll), "Preparando tus resultados...");
+        return enterStudentSessionWithRankingDebug(roll, "Preparando diagnóstico de ranking...");
       }
 
       return renderLogin("No se pudo identificar el tipo de usuario.");
@@ -1550,36 +1548,253 @@
     return { rank: index >= 0 ? index + 1 : null, count: ordered.length };
   }
 
+  function studentIdentityIds(student, extra = []) {
+    const ids = new Set();
+    const add = (value) => {
+      const clean = cleanId(value || "");
+      if (clean) ids.add(clean);
+    };
+    add(student?.roll);
+    add(student?.registry?.examId);
+    add(student?.registry?.nationalId);
+    add(student?.nationalId);
+    (student?.loginIds || []).forEach(add);
+    (extra || []).forEach(add);
+    return ids;
+  }
+
+  function sameRankingStudent(a, b, extraA = [], extraB = []) {
+    const aIds = studentIdentityIds(a, extraA);
+    const bIds = studentIdentityIds(b, extraB);
+    for (const id of aIds) if (bIds.has(id)) return true;
+    return false;
+  }
+
+  function rankInfoForTarget(rows, target, loginKey = "") {
+    const ordered = orderStudentsForRanking(rows || []);
+    const targetIds = studentIdentityIds(target, [loginKey]);
+    const index = ordered.findIndex((student) => {
+      const ids = studentIdentityIds(student);
+      for (const id of targetIds) if (ids.has(id)) return true;
+      return false;
+    });
+    return { rank: index >= 0 ? index + 1 : null, count: ordered.length, ordered };
+  }
+
+  function debugSubjectScore(student, subject) {
+    const stat = statForSubject(student, subject);
+    const value = stat?.score;
+    return Number.isFinite(Number(value)) ? Math.round(Number(value)) : null;
+  }
+
+  function debugMainAreaScores(student) {
+    return {
+      matematicas: debugSubjectScore(student, "Matem\u00e1ticas"),
+      lenguaje: debugSubjectScore(student, "Lenguaje"),
+      naturales: debugSubjectScore(student, "Ciencias Naturales"),
+      sociales: debugSubjectScore(student, "Ciencias Sociales y Ciudadan\u00eda"),
+      ingles: debugSubjectScore(student, "Ingl\u00e9s")
+    };
+  }
+
+  function debugRowForRanking(student, index, target, loginKey = "") {
+    const scores = debugMainAreaScores(student);
+    const global = Number.isFinite(Number(student?.globalScore)) ? Number(student.globalScore) : null;
+    const base = rankBaseScore(student);
+    const missing = Object.entries(scores).filter(([, value]) => !Number.isFinite(Number(value))).map(([key]) => key);
+    return {
+      rank: index + 1,
+      isTarget: sameRankingStudent(student, target, [loginKey], [loginKey]),
+      roll: cleanId(student?.roll || student?.registry?.examId || ""),
+      nationalId: cleanId(student?.registry?.nationalId || student?.nationalId || ""),
+      name: student?.name || student?.registry?.name || "",
+      sede: student?.sede || student?.registry?.sede || "",
+      grade: toInt(student?.grade || student?.registry?.grade) || "",
+      group: student?.group || student?.registry?.group || "",
+      scores,
+      globalScore: global,
+      rankingScore: Number.isFinite(Number(base)) ? Math.round(Number(base)) : null,
+      hasResult: studentHasRankingResult(student),
+      source: student?.rankingOnly ? "respaldo/local" : "principal",
+      notes: missing.length ? `Faltan areas: ${missing.join(", ")}` : ""
+    };
+  }
+
+  function setStudentRankingDebug(roll, debug) {
+    const key = cleanId(roll);
+    if (!key) return;
+    state.studentRankDebugByRoll.set(key, debug);
+  }
+
+  function getStudentRankingDebug(roll) {
+    const key = cleanId(roll);
+    return key ? state.studentRankDebugByRoll.get(key) : null;
+  }
+
+  function buildRankingDebugHtmlTable(rows, title, subtitle) {
+    const tableRows = (rows || []).map((row) => `
+      <tr class="${row.isTarget ? "rank-debug-target" : ""}">
+        <td>${esc(row.rank)}</td>
+        <td>${row.isTarget ? "\u2605" : ""}</td>
+        <td>${esc(row.roll || "\u2014")}</td>
+        <td>${esc(row.nationalId || "\u2014")}</td>
+        <td>${esc(row.name || "\u2014")}</td>
+        <td>${esc(row.sede || "\u2014")}</td>
+        <td>${esc(row.grade || "\u2014")}</td>
+        <td>${esc(row.group || "\u2014")}</td>
+        <td>${esc(row.scores.matematicas ?? "\u2014")}</td>
+        <td>${esc(row.scores.lenguaje ?? "\u2014")}</td>
+        <td>${esc(row.scores.naturales ?? "\u2014")}</td>
+        <td>${esc(row.scores.sociales ?? "\u2014")}</td>
+        <td>${esc(row.scores.ingles ?? "\u2014")}</td>
+        <td><strong>${esc(row.globalScore ?? "\u2014")}</strong></td>
+        <td><strong>${esc(row.rankingScore ?? "\u2014")}</strong></td>
+        <td>${esc(row.source || "")}</td>
+        <td>${esc(row.notes || "")}</td>
+      </tr>`).join("");
+    return `
+      <section class="card card-pad rank-debug-table-card">
+        <h3>${esc(title)}</h3>
+        <p>${esc(subtitle || "")}</p>
+        <div class="rank-debug-table-wrap">
+          <table class="rank-debug-table">
+            <thead>
+              <tr>
+                <th>Pos.</th><th>Yo</th><th>ID prueba</th><th>Documento</th><th>Nombre</th><th>Sede</th><th>Grado</th><th>Curso</th>
+                <th>Mat.</th><th>Len.</th><th>Nat.</th><th>Soc.</th><th>Ing.</th><th>Global</th><th>Usado</th><th>Fuente</th><th>Notas</th>
+              </tr>
+            </thead>
+            <tbody>${tableRows || `<tr><td colspan="17">No hay filas para este ranking.</td></tr>`}</tbody>
+          </table>
+        </div>
+      </section>
+    `;
+  }
+
+  function renderStudentRankingDebug(roll) {
+    const key = cleanId(roll);
+    const debug = getStudentRankingDebug(key);
+    const student = state.computedByRoll.get(key) || findRankingStudentByRoll(key);
+    if (!debug) {
+      renderShell(`
+        <div class="card card-pad empty-state rank-debug-screen">
+          <h2>No se pudo construir el diagnostico de ranking</h2>
+          <p>No hay datos de ranking guardados para el usuario <strong>${esc(key || "sin ID")}</strong>.</p>
+          <button class="primary-btn" data-action="student-ranking-debug-refresh" data-roll="${escAttr(key)}">Reintentar diagnostico</button>
+          <button class="ghost-btn" data-action="student-ranking-debug-next" data-roll="${escAttr(key)}">Continuar a resultados</button>
+          <button class="ghost-btn" data-action="logout">Salir</button>
+        </div>
+      `, navFor("student"));
+      return;
+    }
+
+    const warnings = (debug.warnings || []).map((item) => `<li>${esc(item)}</li>`).join("");
+    const errors = (debug.errors || []).map((item) => `<li>${esc(item)}</li>`).join("");
+    const target = debug.target || {};
+    renderShell(`
+      <section class="rank-debug-screen">
+        <div class="card card-pad rank-debug-header">
+          <div>
+            <span class="eyebrow">Diagnostico de ranking</span>
+            <h2>Verificacion antes de mostrar resultados</h2>
+            <p>Esta pantalla muestra el universo real usado para calcular el ranking. La fila marcada con \u2605 es el estudiante que inicio sesion.</p>
+          </div>
+          <div class="rank-debug-actions">
+            <button class="ghost-btn" data-action="student-ranking-debug-refresh" data-roll="${escAttr(key)}">Recalcular</button>
+            <button class="primary-btn" data-action="student-ranking-debug-next" data-roll="${escAttr(key)}">Siguiente: ver resultados</button>
+          </div>
+        </div>
+
+        <section class="rank-debug-grid">
+          <article class="card card-pad">
+            <h3>Estudiante detectado</h3>
+            <dl class="rank-debug-dl">
+              <dt>ID ingresado</dt><dd>${esc(debug.loginKey || key)}</dd>
+              <dt>ID prueba resuelto</dt><dd>${esc(target.roll || "\u2014")}</dd>
+              <dt>Documento</dt><dd>${esc(target.nationalId || "\u2014")}</dd>
+              <dt>Nombre</dt><dd>${esc(target.name || student?.name || "\u2014")}</dd>
+              <dt>Sede</dt><dd>${esc(target.sede || "\u2014")}</dd>
+              <dt>Grado</dt><dd>${esc(target.grade || "\u2014")}</dd>
+              <dt>Curso</dt><dd>${esc(target.group || "\u2014")}</dd>
+            </dl>
+          </article>
+          <article class="card card-pad">
+            <h3>Resultado calculado</h3>
+            <dl class="rank-debug-dl">
+              <dt>Puntaje global usado</dt><dd>${esc(debug.targetRankingScore ?? "\u2014")}</dd>
+              <dt>Ranking grado</dt><dd>${esc(rankText(debug.gradeRank, debug.gradeCount))}</dd>
+              <dt>Ranking curso</dt><dd>${esc(rankText(debug.courseRank, debug.courseCount))}</dd>
+              <dt>Filas universo total</dt><dd>${esc(debug.counts?.pool ?? 0)}</dd>
+              <dt>Filas mismo grado</dt><dd>${esc(debug.counts?.gradeRows ?? 0)}</dd>
+              <dt>Filas mismo curso</dt><dd>${esc(debug.counts?.courseRows ?? 0)}</dd>
+            </dl>
+          </article>
+          <article class="card card-pad">
+            <h3>Debugger</h3>
+            ${errors ? `<div class="debug-errors"><strong>Errores</strong><ul>${errors}</ul></div>` : `<p class="ok-pill">Sin errores criticos detectados.</p>`}
+            ${warnings ? `<div class="debug-warnings"><strong>Advertencias</strong><ul>${warnings}</ul></div>` : `<p class="ok-pill">Sin advertencias.</p>`}
+          </article>
+        </section>
+
+        ${buildRankingDebugHtmlTable(debug.gradeRows || [], "Tabla para ranking por grado", "Agrupa a todos los evaluados del mismo grado, sin importar sede ni curso.")}
+        ${buildRankingDebugHtmlTable(debug.courseRows || [], "Tabla para ranking por curso", "Agrupa solo la misma sede + grado + curso del estudiante.")}
+
+        <div class="rank-debug-footer card card-pad">
+          <button class="primary-btn" data-action="student-ranking-debug-next" data-roll="${escAttr(key)}">Siguiente: ver pantalla normal del estudiante</button>
+          <button class="ghost-btn" data-action="logout">Salir</button>
+        </div>
+      </section>
+    `, navFor("student"));
+  }
+
   async function prepareStudentRankingContext(roll) {
-    // v119: ranking de estudiante por contexto temporal. No usa la lista visible como universo.
-    // 1) ubica sede/grado/curso del estudiante; 2) arma pool temporal; 3) calcula grado y curso;
-    // 4) guarda solo los dos puestos; 5) borra el pool local para liberar memoria.
     const key = cleanId(roll);
     if (!key) return;
     clearSessionRankContext();
+    const warnings = [];
+    const errors = [];
 
-    // Cargar respaldo local siempre para estudiante: sirve solo como universo temporal de ranking
-    // cuando Supabase entrega un payload filtrado por usuario.
-    try { await loadBundledRankingFallbackData(); } catch (error) { console.warn("No se pudo preparar universo local de ranking:", error?.message || error); }
+    try { await loadBundledRankingFallbackData(); } catch (error) { warnings.push(`No se pudo cargar respaldo local: ${error?.message || error}`); }
 
     let target = findRankingStudentByRoll(key);
     if (!target && state.responsesByRoll?.has?.(key)) target = buildComputedStudentFromResultRecord({ ...state.responsesByRoll.get(key), roll: key }, 0);
-    if (!target) return;
+    if (!target) {
+      errors.push("No se encontro el estudiante en computedStudents, responsesByRoll ni respaldo local.");
+      setStudentRankingDebug(key, { loginKey: key, target: {}, warnings, errors, counts: { pool: 0, gradeRows: 0, courseRows: 0 }, gradeRows: [], courseRows: [] });
+      return;
+    }
 
-    // Si el payload no trajo sede/grupo, se completa desde ESTUDIANTES local solo para este cálculo.
-    const localRegistry = state.rankingFallbackRegistryByExamId?.get?.(key) || state.rankingFallbackRegistryByNationalId?.get?.(cleanId(target.registry?.nationalId));
+    const localRegistry = state.rankingFallbackRegistryByExamId?.get?.(key)
+      || state.rankingFallbackRegistryByNationalId?.get?.(cleanId(target.registry?.nationalId))
+      || state.rankingFallbackRegistryByNationalId?.get?.(key)
+      || state.rankingFallbackRegistryByExamId?.get?.(cleanId(target.registry?.examId));
+
     const targetGrade = toInt(target.grade) || toInt(localRegistry?.grade);
-    const targetSede = normalizeText(target.sede || target.registry?.sede || localRegistry?.sede || "");
-    const targetGroup = normalizeText(target.group || target.registry?.group || localRegistry?.group || "");
-    if (!targetGrade) return;
+    const targetSedeRaw = target.sede || target.registry?.sede || localRegistry?.sede || "";
+    const targetGroupRaw = target.group || target.registry?.group || localRegistry?.group || "";
+    const targetSede = normalizeText(targetSedeRaw);
+    const targetGroup = normalizeText(targetGroupRaw);
+
+    if (!targetGrade) errors.push("No se pudo determinar el grado del estudiante.");
+    if (!targetSede) warnings.push("No se pudo determinar la sede del estudiante; el ranking por curso puede quedar vacio.");
+    if (!targetGroup) warnings.push("No se pudo determinar el curso del estudiante; el ranking por curso puede quedar vacio.");
 
     const pool = buildRankingStudentsPool()
       .filter((student) => studentHasRankingResult(student) && Number.isFinite(rankBaseScore(student)));
 
-    const gradeRows = pool.filter((student) => toInt(student.grade) === targetGrade);
+    if (!pool.length) errors.push("El universo temporal de ranking quedo vacio: no hay estudiantes con resultado y puntaje usable.");
+
+    const gradeRows = targetGrade ? pool.filter((student) => toInt(student.grade) === targetGrade) : [];
     const courseRows = gradeRows.filter((student) => sameRankCourse(student, targetSede, targetGrade, targetGroup));
-    const gradeInfo = rankInfoForRoll(gradeRows, key);
-    const courseInfo = rankInfoForRoll(courseRows, key);
+
+    if (targetGrade && !gradeRows.length) errors.push(`No aparecieron evaluados para el grado ${targetGrade}.`);
+    if (targetGrade && targetSede && targetGroup && !courseRows.length) errors.push(`No aparecieron evaluados para el curso ${targetSedeRaw} / ${targetGrade} / ${targetGroupRaw}.`);
+
+    const gradeInfo = rankInfoForTarget(gradeRows, target, key);
+    const courseInfo = rankInfoForTarget(courseRows, target, key);
+
+    if (!gradeInfo.rank) errors.push("El estudiante no aparecio dentro de la tabla de ranking por grado.");
+    if (!courseInfo.rank) errors.push("El estudiante no aparecio dentro de la tabla de ranking por curso.");
 
     const meta = {
       globalScore: rankBaseScore(target),
@@ -1598,7 +1813,39 @@
       applySessionRankContextToStudent(visibleStudent);
     }
 
-    // La tabla temporal queda descartada. Se conservan solo las variables finales de ranking.
+    const orderedGrade = gradeInfo.ordered || [];
+    const orderedCourse = courseInfo.ordered || [];
+    const debug = {
+      loginKey: key,
+      target: {
+        roll: cleanId(target.roll || target.registry?.examId || localRegistry?.examId || ""),
+        nationalId: cleanId(target.registry?.nationalId || localRegistry?.nationalId || ""),
+        name: target.name || target.registry?.name || localRegistry?.name || "",
+        sede: targetSedeRaw,
+        grade: targetGrade || "",
+        group: targetGroupRaw
+      },
+      targetRankingScore: Number.isFinite(Number(rankBaseScore(target))) ? Math.round(Number(rankBaseScore(target))) : null,
+      gradeRank: gradeInfo.rank,
+      gradeCount: gradeInfo.count,
+      courseRank: courseInfo.rank,
+      courseCount: courseInfo.count,
+      counts: {
+        computedStudents: state.computedStudents?.length || 0,
+        responsesByRoll: state.responsesByRoll?.size || 0,
+        fallbackResponses: state.rankingFallbackResponsesByRoll?.size || 0,
+        pool: pool.length,
+        gradeRows: orderedGrade.length,
+        courseRows: orderedCourse.length
+      },
+      warnings,
+      errors,
+      gradeRows: orderedGrade.map((student, index) => debugRowForRanking(student, index, target, key)),
+      courseRows: orderedCourse.map((student, index) => debugRowForRanking(student, index, target, key))
+    };
+    setStudentRankingDebug(key, debug);
+
+    // Se descarta el universo bruto local. Quedan solo variables finales y la tabla reducida de diagnostico de esta sesion.
     clearRankingFallbackData();
   }
 
@@ -1657,10 +1904,42 @@
     }
 
     if (state.activeSession.role === "student") {
-      return renderStudent(state.activeSession.roll);
+      const roll = cleanId(state.activeSession.roll);
+      if (!state.activeSession.rankingDebugDone || state.activeSession.rankingDebugVersion !== "v121") {
+        return showStudentRankingDebugGate(roll, "Reconstruyendo diagnóstico de ranking...");
+      }
+      return renderStudent(roll);
     }
 
     renderLogin();
+  }
+
+  function enterStudentSessionWithRankingDebug(roll, message = "Preparando diagnóstico de ranking...") {
+    const cleanRoll = cleanId(roll);
+    state.selectedSubject = null;
+    state.metricTab = "components";
+    state.zeroToleranceShown = false;
+    return enterSessionWithLoader(
+      { role: "student", roll: cleanRoll, rankingDebugDone: false, rankingDebugVersion: "v121" },
+      () => showStudentRankingDebugGate(cleanRoll, message),
+      message
+    );
+  }
+
+  async function showStudentRankingDebugGate(roll, message = "Preparando diagnóstico de ranking...") {
+    const cleanRoll = cleanId(roll);
+    if (!cleanRoll) return renderLogin("No se pudo identificar el estudiante para ranking.");
+    const existing = getStudentRankingDebug(cleanRoll);
+    if (existing) return renderStudentRankingDebug(cleanRoll);
+    renderShell(`
+      <div class="boot rank-debug-loading">
+        <div class="boot-mark"></div>
+        <h1>${esc(message)}</h1>
+        <p>Estoy armando las tablas temporales de grado y curso antes de mostrar resultados.</p>
+      </div>
+    `, navFor("student"));
+    await prepareStudentRankingContext(cleanRoll);
+    return renderStudentRankingDebug(cleanRoll);
   }
 
   function adminTabIds() {
@@ -1946,14 +2225,11 @@
 
     if (session.role === "student") {
       const roll = cleanId(session.roll);
-      if (!state.computedByRoll.has(roll) && !state.responsesByRoll.has(roll)) {
+      if (!state.computedByRoll.has(roll) && !state.responsesByRoll.has(roll) && !state.studentLogin.has(roll)) {
         removeRecentLogin(key);
         return renderLogin("Ese estudiante ya no aparece en los resultados actuales.");
       }
-      state.selectedSubject = null;
-      state.metricTab = "components";
-      state.zeroToleranceShown = false;
-      return enterSessionWithLoader({ role: "student", roll }, () => renderStudent(roll), "Preparando tus resultados...");
+      return enterStudentSessionWithRankingDebug(roll, "Preparando diagnóstico de ranking...");
     }
 
     renderLogin("No se pudo abrir ese ingreso reciente.");
@@ -4245,18 +4521,12 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
 
       if (state.studentLogin.has(user)) {
         const roll = state.studentLogin.get(user);
-        state.selectedSubject = null;
-        state.metricTab = "components";
-        state.zeroToleranceShown = false;
-        enterSessionWithLoader({ role: "student", roll }, () => renderStudent(roll), "Preparando tus resultados...");
+        enterStudentSessionWithRankingDebug(roll, "Preparando diagnóstico de ranking...");
         return;
       }
 
       if (state.responsesByRoll.has(user)) {
-        state.selectedSubject = null;
-        state.metricTab = "components";
-        state.zeroToleranceShown = false;
-        enterSessionWithLoader({ role: "student", roll: user }, () => renderStudent(user), "Preparando tus resultados...");
+        enterStudentSessionWithRankingDebug(user, "Preparando diagnóstico de ranking...");
         return;
       }
 
@@ -4311,6 +4581,25 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     if (action === "logout") {
       logoutWithFade();
       return;
+    }
+
+    if (action === "student-ranking-debug-next") {
+      const roll = cleanId(target.dataset.roll || state.activeSession?.roll || "");
+      state.zeroToleranceShown = false;
+      state.activeSession = { ...(state.activeSession || {}), role: "student", roll, rankingDebugDone: true, rankingDebugVersion: "v121" };
+      writeJSON(STORAGE.session, state.activeSession);
+      return enterSessionWithLoader(state.activeSession, () => renderStudent(roll), "Abriendo tus resultados...");
+    }
+
+    if (action === "student-ranking-debug-refresh") {
+      const roll = cleanId(target.dataset.roll || state.activeSession?.roll || "");
+      if (state.activeSession?.role === "student") {
+        state.activeSession.rankingDebugDone = false;
+        writeJSON(STORAGE.session, state.activeSession);
+      }
+      state.studentRankDebugByRoll?.delete?.(roll);
+      await prepareStudentRankingContext(roll);
+      return renderStudentRankingDebug(roll);
     }
 
     if (action === "print") {

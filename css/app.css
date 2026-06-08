@@ -12960,3 +12960,31 @@ select,
   color: #fff !important;
   box-shadow: 0 12px 28px rgba(25, 117, 174, .28) !important;
 }
+
+
+/* v120 ranking debugger */
+.rank-debug-screen { display: grid; gap: 18px; }
+.rank-debug-header { display: flex; justify-content: space-between; gap: 18px; align-items: flex-start; }
+.rank-debug-header h2 { margin: 4px 0 8px; }
+.rank-debug-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+.rank-debug-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.rank-debug-dl { display: grid; grid-template-columns: minmax(110px, 0.8fr) 1fr; gap: 8px 12px; margin: 0; }
+.rank-debug-dl dt { font-weight: 700; color: var(--muted); }
+.rank-debug-dl dd { margin: 0; font-weight: 800; }
+.rank-debug-table-card h3 { margin-top: 0; }
+.rank-debug-table-wrap { overflow: auto; max-height: 460px; border: 1px solid rgba(25,117,174,.16); border-radius: 14px; }
+.rank-debug-table { width: 100%; min-width: 1280px; border-collapse: collapse; font-size: 12px; }
+.rank-debug-table th, .rank-debug-table td { padding: 8px 10px; border-bottom: 1px solid rgba(25,117,174,.12); text-align: left; white-space: nowrap; }
+.rank-debug-table th { position: sticky; top: 0; z-index: 1; background: #eef8ff; color: #154c73; font-weight: 900; }
+.rank-debug-table tr.rank-debug-target { background: #fff6d7; outline: 2px solid #f4c542; }
+.debug-errors, .debug-warnings { padding: 10px 12px; border-radius: 12px; margin-bottom: 10px; }
+.debug-errors { background: #fff1f1; color: #842029; }
+.debug-warnings { background: #fff8e1; color: #7a4f00; }
+.debug-errors ul, .debug-warnings ul { margin: 8px 0 0 18px; padding: 0; }
+.ok-pill { display: inline-block; padding: 8px 12px; border-radius: 999px; background: #ecfdf3; color: #17663a; font-weight: 800; }
+.rank-debug-footer { display: flex; gap: 12px; justify-content: flex-end; flex-wrap: wrap; }
+@media (max-width: 900px) {
+  .rank-debug-header { flex-direction: column; }
+  .rank-debug-grid { grid-template-columns: 1fr; }
+  .rank-debug-actions { justify-content: flex-start; }
+}

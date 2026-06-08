@@ -1,8 +1,9 @@
 {
-  "version": "v119",
-  "cache": "resultados-pwa-v119",
+  "version": "v121",
+  "cache": "resultados-pwa-v121",
   "updatedAt": "2026-06-08",
-  "note": "Ranking de estudiante con tabla temporal por contexto: grado completo y curso sede+grado+curso; variables limpias al cerrar sesión; Supabase sin caché.",
+  "note": "Ranking debugger obligatorio antes de resultados; tablas de grado/curso visibles; Supabase sin caché.",
   "builtAt": "2026-06-08T19:35:00Z",
-  "date": "2026-06-08"
+  "date": "2026-06-08",
+  "build": "121"
 }
