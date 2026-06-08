@@ -1,8 +1,8 @@
 {
-  "version": "v104",
-  "cache": "resultados-pwa-v104",
+  "version": "v105",
+  "cache": "resultados-pwa-v105",
   "updatedAt": "2026-06-08",
-  "note": "Mejora el texto superior de la animación del login para explicar con más claridad cómo se forma el usuario.",
+  "note": "Ajusta la animacion del login para que las plaquitas de usuario no se superpongan con el texto explicativo.",
   "builtAt": "2026-06-08T04:05:00Z",
   "date": "2026-06-08"
 }

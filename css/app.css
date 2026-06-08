@@ -12846,3 +12846,44 @@ select,
   .access-v96-caption-line-main { font-size: .80rem !important; }
   .access-v96-caption-line-sub { font-size: .63rem !important; }
 }
+
+
+/* v105: separa las plaquitas del texto explicativo en login */
+.login-access-guide.access-story-v96 {
+  min-height: 184px !important;
+}
+
+.access-v96-token,
+.access-v96-plus,
+.access-v96-result {
+  top: 58% !important;
+}
+
+.access-v96-caption {
+  z-index: 12 !important;
+}
+
+.access-v96-token,
+.access-v96-plus,
+.access-v96-result {
+  z-index: 10 !important;
+}
+
+@media (max-width: 480px) {
+  .login-access-guide.access-story-v96 {
+    min-height: 182px !important;
+  }
+  .access-v96-token,
+  .access-v96-plus,
+  .access-v96-result {
+    top: 59% !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .access-v96-token,
+  .access-v96-plus,
+  .access-v96-result {
+    top: 60% !important;
+  }
+}
