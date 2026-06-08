@@ -13562,3 +13562,105 @@ select,
     letter-spacing: -.05em !important;
   }
 }
+
+
+/* v130: numeros de ranking refinados: silver mas oscuro y gold/cobre con metalizado por franjas */
+.ranking-box.rank-medal strong {
+  position: relative !important;
+  display: inline-block !important;
+  isolation: isolate !important;
+  background: none !important;
+  background-image: none !important;
+  -webkit-background-clip: border-box !important;
+  background-clip: border-box !important;
+  -webkit-text-fill-color: currentColor !important;
+  filter: none !important;
+  overflow: visible !important;
+}
+
+.ranking-box.rank-medal strong::after {
+  content: attr(data-rank-number) !important;
+  display: block !important;
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 1 !important;
+  pointer-events: none !important;
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+  background-repeat: no-repeat !important;
+  background-size: 100% 112% !important;
+  background-position: center !important;
+  background-clip: text !important;
+  -webkit-background-clip: text !important;
+  opacity: .98 !important;
+  filter: drop-shadow(0 0 4px var(--rank-glow-soft)) drop-shadow(0 0 10px var(--rank-glow)) !important;
+}
+
+.ranking-box.rank-gold strong {
+  color: #ce9403 !important;
+  --rank-glow-soft: rgba(255, 225, 110, .44) !important;
+  --rank-glow: rgba(206, 148, 3, .34) !important;
+  text-shadow:
+    0 1px 0 rgba(255, 241, 184, .62),
+    0 2px 4px rgba(101, 66, 0, .20),
+    0 0 8px rgba(240, 188, 48, .18) !important;
+}
+
+.ranking-box.rank-gold strong::after {
+  background-image: linear-gradient(180deg,
+    #fff6c8 0%,
+    #ffe89b 10%,
+    #f1c54e 22%,
+    #ce9403 34%,
+    #9d6a00 46%,
+    #e5b43b 58%,
+    #fff0b3 70%,
+    #c88800 82%,
+    #8f5d00 100%) !important;
+}
+
+.ranking-box.rank-silver strong {
+  color: #6e7886 !important;
+  --rank-glow-soft: rgba(225, 233, 241, .34) !important;
+  --rank-glow: rgba(110, 120, 134, .24) !important;
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, .54),
+    0 2px 4px rgba(45, 53, 63, .18),
+    0 0 8px rgba(138, 152, 168, .14) !important;
+}
+
+.ranking-box.rank-silver strong::after {
+  background-image: linear-gradient(180deg,
+    #f1f5f9 0%,
+    #d2dae3 14%,
+    #97a2af 28%,
+    #6e7886 42%,
+    #515b68 54%,
+    #aab4bf 66%,
+    #e5ebf1 78%,
+    #7d8794 90%,
+    #5f6874 100%) !important;
+}
+
+.ranking-box.rank-bronze strong {
+  color: #b65b1e !important;
+  --rank-glow-soft: rgba(255, 205, 173, .42) !important;
+  --rank-glow: rgba(182, 91, 30, .30) !important;
+  text-shadow:
+    0 1px 0 rgba(255, 223, 199, .60),
+    0 2px 4px rgba(88, 38, 13, .20),
+    0 0 8px rgba(214, 115, 55, .17) !important;
+}
+
+.ranking-box.rank-bronze strong::after {
+  background-image: linear-gradient(180deg,
+    #ffe0ca 0%,
+    #f2b089 10%,
+    #d7834b 22%,
+    #b65b1e 34%,
+    #8d4215 46%,
+    #d37235 58%,
+    #ffd0ad 70%,
+    #aa4d1a 82%,
+    #74300d 100%) !important;
+}
