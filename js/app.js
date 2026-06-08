@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v87";
+  const APP_VERSION = "v88";
 
   const app = document.getElementById("app");
   const toastEl = document.getElementById("toast");
@@ -546,32 +546,43 @@
     const keysByGrade = groupBy(state.keys, (row) => String(row.grade));
     const responseRecords = Array.from(state.responsesByRoll.values());
     state.orphanExams = buildOrphanExams(responseRecords);
-    state.computedStudents = responseRecords
-      .filter((record) => state.registryByExamId.has(cleanId(record.roll)))
-      .map((record) => {
-      const registry = state.registryByExamId.get(record.roll);
-      const grade = toInt(registry?.grade) || toInt(record.grade);
+
+    // v88: las tablas se basan en ESTUDIANTES.json, no solo en quienes aparecen en S1/S2.
+    // Si el estudiante registrado no aparece en la sesión correspondiente a una asignatura,
+    // esa asignatura queda con nota 0 y marcada como no presentada.
+    state.computedStudents = state.studentsRegistry
+      .filter((registry) => registry && (registry.examId || registry.nationalId || registry.name) && (toInt(registry.grade) || registry.examId))
+      .map((registry, index) => {
+      const examId = cleanId(registry.examId);
+      const record = examId ? state.responsesByRoll.get(examId) : null;
+      const grade = toInt(registry?.grade) || toInt(record?.grade);
+      const roll = examId || cleanId(registry?.nationalId) || `REG-${index + 1}`;
       const keys = keysByGrade.get(String(grade)) || [];
       const subjectStats = {};
       const allDetails = [];
+      const presentSessions = responseSessions(record);
 
       for (const subject of SUBJECTS) {
         const subjectKeys = keys.filter((key) => sameSubject(key.area, subject.name));
+        const total = subjectKeys.length;
+        const requiredSessions = requiredSessionsForKeys(subjectKeys);
+        const hasAttempt = !!record && (!requiredSessions.length || requiredSessions.some((session) => presentSessions.has(session)));
+        const absent = total > 0 && !hasAttempt;
         const details = subjectKeys.map((key) => {
-          const marked = record.answers[key.item] || "";
-          const status = classifyAnswer(marked, key.correct);
+          const marked = absent ? "" : (record?.answers?.[key.item] || "");
+          const status = absent ? "empty" : classifyAnswer(marked, key.correct);
           return {
             item: key.item,
             subject: subject.name,
             marked,
             correct: key.correct,
             status,
+            absent,
             component: key.component,
             competence: key.competence
           };
         });
 
-        const total = details.length;
         const correct = details.filter((d) => d.status === "correct").length;
         const wrong = details.filter((d) => d.status === "wrong").length;
         const doubleMark = details.filter((d) => d.status === "double").length;
@@ -584,7 +595,8 @@
           wrong,
           doubleMark,
           empty,
-          score: total ? calculateScore(correct, total) : null,
+          absent,
+          score: total ? (absent ? 0 : calculateScore(correct, total)) : null,
           percentile: 0,
           details
         };
@@ -597,23 +609,25 @@
       const wrong = allDetails.filter((d) => d.status === "wrong").length;
       const doubleMark = allDetails.filter((d) => d.status === "double").length;
       const empty = allDetails.filter((d) => d.status === "empty").length;
+      const anyAttempt = Object.values(subjectStats).some((stat) => stat?.total && !stat.absent);
 
       return {
-        roll: record.roll,
-        loginIds: [record.roll, registry?.nationalId].filter(Boolean),
-        name: cleanText(registry?.name) || cleanText(record.name) || `Estudiante ${record.roll}`,
-        scannedName: cleanText(record.name),
+        roll,
+        loginIds: [roll, registry?.nationalId].filter(Boolean),
+        name: cleanText(registry?.name) || cleanText(record?.name) || `Estudiante ${roll}`,
+        scannedName: cleanText(record?.name),
         grade,
         group: cleanText(registry?.group) || `Grado ${grade}`,
         sede: cleanText(registry?.sede),
         registry,
+        missingExam: !record,
         total,
         correct,
         wrong,
         doubleMark,
         empty,
         globalScore: calculateSaberGlobal(subjectStats),
-        rawGlobalScore: total ? calculateScore(correct, total) : null,
+        rawGlobalScore: total ? (anyAttempt ? calculateScore(correct, total) : 0) : null,
         percentile: 0,
         gradeRank: null,
         gradeCount: null,
@@ -621,7 +635,7 @@
         courseCount: null,
         subjectStats
       };
-    });
+    }).filter((student) => student.grade);
 
     assignRanks();
 
@@ -1098,7 +1112,7 @@
               <span class="subject-card-text">
                 <span class="subject-card-title">${esc(item.short || item.name)}</span>
                 <span class="subject-card-scoreline">
-                  <span class="subject-score">${s.score ?? "—"}<small>/100</small></span>
+                  ${scoreDisplayHtml(s, "subject-score", true)}
                   <span class="subject-chevron" aria-hidden="true">⌄</span>
                 </span>
               </span>
@@ -1237,7 +1251,7 @@
             ${subjectIcon(subject.name)}
             <span class="subject-card-text">
               <span class="subject-card-title">${esc(subject.short || subject.name)}</span>
-              <span class="subject-card-scoreline"><span class="subject-score">${stat.score ?? "—"}<small>/100</small></span><span class="subject-chevron">⌄</span></span>
+              <span class="subject-card-scoreline">${scoreDisplayHtml(stat, "subject-score", true)}<span class="subject-chevron">⌄</span></span>
             </span>
           </span>
           <span class="subject-card-progress" aria-hidden="true" style="--score:${percent}%;"><i style="width:${percent}%"></i></span>
@@ -1309,7 +1323,7 @@
               <h3>${esc(subject)}</h3>
             </div>
           </div>
-          <div class="subject-detail-score">${stat.score ?? "—"}<small>/100</small></div>
+          <div class="subject-detail-score-wrap">${scoreDisplayHtml(stat, "subject-detail-score", true)}</div>
         </header>
     ` : "";
     return `
@@ -1334,7 +1348,7 @@
         <div class="answers-grid">${detailRows || `<div class="empty-state">No hay ítems para esta asignatura.</div>`}</div>
         ${(() => {
           const info = subjectItemValue(student.grade, subject, stat);
-          return info.total ? `<div class="item-value-note"><span>Valor de cada ítem</span><strong>${esc(info.label)} puntos</strong><small>La nota se calcula desde 20 hasta 100; las respuestas sin marcar o dobles no suman.</small></div>` : "";
+          return info.total ? `<div class="item-value-note"><span>Valor de cada ítem</span><strong>${esc(info.label)} puntos</strong><small>Si presentó la prueba, la nota se calcula desde 20 hasta 100. Si no aparece en la sesión correspondiente, se registra como 0.</small></div>` : "";
         })()}
 
         ${subjectMetricBlockHtml(stat.details || [], activeMetric)}
@@ -1443,7 +1457,7 @@
         <tr class="table-row-click" data-action="open-detail" data-roll="${escAttr(student.roll)}" data-subject="${escAttr(active.subject)}">
           <td class="teacher-index">${index + 1}</td>
           <td><strong>${esc(displayListName(student))}</strong><br><span class="student-subid">ID Prueba ${esc(student.roll)}</span></td>
-          <td><span class="teacher-score teacher-score-plain">${stat.score ?? "—"}</span></td>
+          <td>${scoreDisplayHtml(stat)}</td>
           <td><strong>${stat.correct}/${stat.total}</strong></td>
         </tr>
       `;
@@ -1540,7 +1554,7 @@
       <tr>
         <td class="teacher-index">${index + 1}</td>
         <td><strong>${esc(displayListName(student))}</strong><br><span class="student-subid">ID Prueba ${esc(student.roll)}</span></td>
-        ${subjects.map((subject) => `<td><span class="teacher-score teacher-score-plain">${student.subjectStats[subject.name]?.score ?? "—"}</span></td>`).join("")}
+        ${subjects.map((subject) => `<td>${scoreDisplayHtml(student.subjectStats[subject.name])}</td>`).join("")}
         <td><button class="danger-btn mini-btn director-delete-student-btn" data-action="director-delete-student" data-roll="${escAttr(student.roll)}">Eliminar</button></td>
       </tr>
     `).join("");
@@ -1598,7 +1612,7 @@
         <tr class="table-row-click" data-action="open-detail" data-roll="${escAttr(student.roll)}" data-subject="${escAttr(subject)}">
           <td class="teacher-index">${index + 1}</td>
           <td><strong>${esc(displayListName(student))}</strong><br><span class="student-subid">ID Prueba ${esc(student.roll)}</span></td>
-          <td><span class="teacher-score teacher-score-plain">${stat.score ?? "—"}</span></td>
+          <td>${scoreDisplayHtml(stat)}</td>
           <td><strong>${stat.correct}/${stat.total}</strong></td>
         </tr>
       `;
@@ -2319,7 +2333,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
         <tr class="table-row-click" data-action="open-detail" data-roll="${escAttr(student.roll)}" data-subject="${escAttr(subject)}">
           <td class="teacher-index">${index + 1}</td>
           <td><strong>${esc(displayListName(student))}</strong><br><span class="student-subid">ID Prueba ${esc(student.roll)} · ${esc(student.sede || "—")} · ${esc(student.grade)}° ${esc(student.group || "")}</span></td>
-          <td><span class="teacher-score teacher-score-plain">${Number.isFinite(stat.score) ? stat.score : "—"}</span></td>
+          <td>${scoreDisplayHtml(stat)}</td>
           <td><strong>${stat.total ? `${stat.correct}/${stat.total}` : "—"}</strong></td>
         </tr>
       `;
@@ -5779,7 +5793,8 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       correct: "Correcta",
       wrong: "Incorrecta",
       double: "Doble marca",
-      empty: "Sin marcar"
+      empty: "Sin marcar",
+      absent: "No presentó"
     }[status] || status;
   }
 
@@ -5815,6 +5830,34 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
   function calculateScore(correct, total) {
     if (!total) return null;
     return Math.round(20 + (correct / total) * 80);
+  }
+
+  function responseSessions(record) {
+    return new Set((record?.sessions || []).map((item) => Number(item.session)).filter(Boolean));
+  }
+
+  function sessionForItem(itemNumber) {
+    const item = Number(itemNumber || 0);
+    const sessions = (state.manifest.sessions || DEFAULT_MANIFEST.sessions || [])
+      .slice()
+      .sort((a, b) => Number(a.startItem || 0) - Number(b.startItem || 0));
+    let selected = sessions[0]?.session ? Number(sessions[0].session) : 1;
+    sessions.forEach((session) => {
+      if (item >= Number(session.startItem || 0)) selected = Number(session.session || selected);
+    });
+    return selected;
+  }
+
+  function requiredSessionsForKeys(keys = []) {
+    return [...new Set((keys || []).map((key) => sessionForItem(key.item)).filter(Boolean))];
+  }
+
+  function scoreDisplayHtml(stat, className = "teacher-score teacher-score-plain", showScale = false) {
+    const value = Number.isFinite(Number(stat?.score)) ? Number(stat.score) : null;
+    const absent = !!stat?.absent && value === 0;
+    const classes = `${className}${absent ? " score-absent" : ""}`;
+    const title = absent ? ' title="No presentó esta prueba"' : "";
+    return `<span class="${classes}"${title}>${value === null ? "—" : value}${showScale ? "<small>/100</small>" : ""}</span>`;
   }
 
   function performanceLevel(score) {

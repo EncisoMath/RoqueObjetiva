@@ -1,8 +1,8 @@
 {
-  "version": "v87",
-  "cache": "resultados-pwa-v87",
+  "version": "v88",
+  "cache": "resultados-pwa-v88",
   "updatedAt": "2026-06-08",
-  "note": "Oculta por completo datos sin sede, excluye de reportes los examenes sin estudiante y agrega vista admin para vincularlos o crear estudiantes.",
+  "note": "Incluye todos los estudiantes registrados en tablas de notas y muestra 0 rojo cuando no aparecen en la sesión correspondiente.",
   "builtAt": "2026-06-08T00:45:00Z",
   "date": "2026-06-08"
 }
