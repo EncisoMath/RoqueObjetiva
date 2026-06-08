@@ -1,8 +1,8 @@
 {
-  "version": "v106",
-  "cache": "resultados-pwa-v106",
+  "version": "v107",
+  "cache": "resultados-pwa-v107",
   "updatedAt": "2026-06-08",
-  "note": "Corrige el mapeo de Admin > Asignaturas y áreas para que la X quite una asignatura del área y la devuelva a pendientes.",
-  "builtAt": "2026-06-08T04:05:00Z",
+  "note": "Migra la lectura de datos confidenciales a Supabase y elimina datos sensibles de JSON publicos.",
+  "builtAt": "2026-06-08T13:55:00Z",
   "date": "2026-06-08"
 }

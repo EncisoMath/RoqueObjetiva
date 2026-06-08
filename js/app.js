@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v106";
+  const APP_VERSION = "v107";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -71,6 +71,12 @@
     optionalGradeFiles: true,
     keys: [],
     resultados: []
+  };
+
+  const SUPABASE_CONFIG = {
+    enabled: true,
+    url: (window.ROQUE_SUPABASE && window.ROQUE_SUPABASE.url) || "https://wkbczbjexnwbmyscrhah.supabase.co",
+    key: (window.ROQUE_SUPABASE && window.ROQUE_SUPABASE.key) || "sb_publishable_6U4vM0f1TZ7sNRkjqQI1CQ_H1uCYSD_"
   };
 
   const state = {
@@ -207,6 +213,20 @@
     state.logos = { ...state.config.subjectLogos, ...localLogos };
     applyAppMeta();
 
+    if (SUPABASE_CONFIG.enabled) {
+      state.keys = [];
+      state.responsesByRoll = new Map();
+      state.missingFiles = [];
+      state.studentsRegistry = [];
+      state.cargaRows = [];
+      state.directorRows = [];
+      state.orphanExams = [];
+      state.computedStudents = [];
+      state.computedByRoll = new Map();
+      state.studentLogin = new Map();
+      return;
+    }
+
     state.keys = [];
     state.responsesByRoll = new Map();
     state.missingFiles = [];
@@ -259,6 +279,120 @@
       parseResultFile(text, resultFile);
     }
     applyResultOverrides();
+  }
+
+  async function supabaseRpc(functionName, payload = {}) {
+    const baseUrl = cleanText(SUPABASE_CONFIG.url).replace(/\/$/, "");
+    const key = cleanText(SUPABASE_CONFIG.key);
+    if (!baseUrl || !key) throw new Error("Falta configurar Supabase.");
+    const response = await fetch(`${baseUrl}/rest/v1/rpc/${functionName}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": key,
+        "Authorization": `Bearer ${key}`
+      },
+      body: JSON.stringify(payload || {})
+    });
+    const text = await response.text();
+    let data = null;
+    try { data = text ? JSON.parse(text) : null; } catch (error) { data = text; }
+    if (!response.ok) {
+      const message = data?.message || data?.error || text || `Error ${response.status}`;
+      throw new Error(message);
+    }
+    return data;
+  }
+
+  function hydrateSupabasePayload(payload) {
+    const datasets = payload?.datasets || {};
+    state.keys = [];
+    state.responsesByRoll = new Map();
+    state.missingFiles = [];
+    state.orphanExams = [];
+
+    state.studentsRegistry = parseStudents(JSON.stringify(datasets.estudiantes || []));
+    state.cargaRows = parseCarga(JSON.stringify(datasets.carga || []));
+    state.directorRows = parseDirectoresGrupo(JSON.stringify(datasets.directoresGrupo || []));
+
+    const gradeValues = [];
+    state.studentsRegistry.forEach((student) => { if (student.grade) gradeValues.push(student.grade); });
+    state.cargaRows.forEach((row) => { if (row.grade) gradeValues.push(row.grade); });
+    state.directorRows.forEach((row) => { if (row.grade) gradeValues.push(row.grade); });
+    (datasets.keys || []).forEach((group) => { if (group.grade) gradeValues.push(group.grade); });
+    (datasets.resultados || []).forEach((group) => { if (group.grade) gradeValues.push(group.grade); });
+    state.manifest = addGradesToManifest(normalizeManifest({ ...DEFAULT_MANIFEST, grades: DEFAULT_GRADES }), gradeValues);
+
+    (datasets.keys || []).forEach((group) => {
+      const grade = toInt(group.grade);
+      const rows = Array.isArray(group.rows) ? group.rows : [];
+      state.keys.push(...parseAnswerKey(JSON.stringify(rows), { grade, path: group.path || `SUPABASE/KEYS_${grade}.json` }));
+    });
+    applyAnswerOverrides();
+
+    (datasets.resultados || []).forEach((group) => {
+      const grade = toInt(group.grade);
+      const session = toInt(group.session);
+      const rows = Array.isArray(group.rows) ? group.rows : [];
+      parseResultFile(JSON.stringify(rows), {
+        grade,
+        session,
+        startItem: toInt(group.startItem) || (session === 2 ? 71 : 1),
+        path: group.path || `SUPABASE/${grade}S${session}.json`
+      });
+    });
+    applyResultOverrides();
+  }
+
+  async function loginWithSupabase(user, pass = "") {
+    try {
+      app.innerHTML = `
+        <div class="boot">
+          <div class="boot-mark"></div>
+          <h1>Conectando con Supabase...</h1>
+          <p>Validando usuario y preparando datos autorizados.</p>
+        </div>
+      `;
+      const payload = await supabaseRpc("roque_login", { p_user: user, p_password: pass || "" });
+      if (!payload?.ok) {
+        return renderLogin(payload?.error || "No fue posible iniciar sesion.");
+      }
+      hydrateSupabasePayload(payload);
+      buildRepository();
+
+      const session = payload.session || {};
+      if (session.role === "admin") {
+        state.adminTab = "resumen";
+        state.zeroToleranceShown = false;
+        return enterSessionWithLoader({ role: "admin", id: "admin" }, () => renderAdmin(), "Abriendo panel de administración...");
+      }
+
+      if (session.role === "teacher") {
+        const id = cleanId(session.id);
+        const teacher = state.teachers.get(id);
+        if (!teacher) return renderLogin("No encontré ese docente en Supabase.");
+        state.teacherActive = null;
+        state.teacherMode = "asignaturas";
+        state.teacherDirectorActiveKey = "";
+        if (!(teacher?.assignments || []).length && (teacher?.directorGroups || []).length) state.teacherMode = "director";
+        if (!(teacher?.assignments || []).length && !(teacher?.directorGroups || []).length && teacher?.coordinator) state.teacherMode = "coord-estudiantes";
+        state.zeroToleranceShown = false;
+        return enterSessionWithLoader({ role: "teacher", id }, () => renderTeacher(teacher), "Preparando vista docente...");
+      }
+
+      if (session.role === "student") {
+        const roll = cleanId(session.roll);
+        state.selectedSubject = null;
+        state.metricTab = "components";
+        state.zeroToleranceShown = false;
+        return enterSessionWithLoader({ role: "student", roll }, () => renderStudent(roll), "Preparando tus resultados...");
+      }
+
+      return renderLogin("No se pudo identificar el tipo de usuario.");
+    } catch (error) {
+      console.error(error);
+      return renderLogin(error.message || "No fue posible conectar con Supabase.");
+    }
   }
 
   async function fetchText(path, required = true) {
@@ -997,6 +1131,12 @@
     const item = getRecentLogins().find((entry) => entry.key === key);
     if (!item || !item.session) return renderLogin("No se encontró ese ingreso reciente.");
     const session = item.session;
+
+    if (SUPABASE_CONFIG.enabled) {
+      if (session.role === "admin") return renderLogin("Por seguridad, vuelve a escribir la contraseña de administrador.");
+      if (session.role === "teacher") return loginWithSupabase(cleanId(session.id), "");
+      if (session.role === "student") return loginWithSupabase(cleanId(session.roll), "");
+    }
 
     if (session.role === "admin") {
       state.adminTab = "resumen";
@@ -3296,6 +3436,11 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       const pass = String(document.getElementById("loginPass").value || "").trim();
 
       if (!user) return renderLogin("Ingresa un usuario o ID.");
+
+      if (SUPABASE_CONFIG.enabled) {
+        loginWithSupabase(user, pass);
+        return;
+      }
 
       if (normalizeText(user) === "admin") {
         if (pass === "Nintendo64!") {
