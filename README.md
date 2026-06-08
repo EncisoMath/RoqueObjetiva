@@ -312,3 +312,7 @@ El `service-worker.js` usa estrategia de red primero para archivos JSON, para ev
 - Corrige el logo principal del banner/login: usa `assets/logo-principal.png` basado en `LOGO.png`.
 - Mantiene los iconos de app Android/iOS/favicon separados del logo principal.
 - Evita cache antigua del logo usando versionado y rutas únicas al publicar desde Admin > GitHub.
+
+
+## v93
+- Rediseña la animación del login con carné cinematográfico, desaparición de datos secundarios y composición animada de `ruben7890`.

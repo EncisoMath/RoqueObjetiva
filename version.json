@@ -1,8 +1,8 @@
 {
-  "version": "v91",
-  "cache": "resultados-pwa-v91",
+  "version": "v93",
+  "cache": "resultados-pwa-v93",
   "updatedAt": "2026-06-08",
-  "note": "Agrega una animación guía en el login para explicar cómo formar el usuario personal con primer nombre + últimos 4 dígitos del documento.",
-  "builtAt": "2026-06-08T01:25:00Z",
+  "note": "Mejora cinematografica de la animacion de construccion del usuario en el login.",
+  "builtAt": "2026-06-08T02:30:00Z",
   "date": "2026-06-08"
 }

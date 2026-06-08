@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v91";
+  const APP_VERSION = "v93";
 
   const app = document.getElementById("app");
   const toastEl = document.getElementById("toast");
@@ -868,30 +868,41 @@
 
   function renderLoginAccessGuide() {
     return `
-      <div class="login-access-guide" aria-hidden="true">
-        <div class="access-guide-stage access-guide-stage-card">
-          <span class="access-guide-kicker">Así construyes tu usuario</span>
-          <div class="access-id-card">
-            <div class="access-id-card-glow"></div>
-            <div class="access-id-chip"></div>
-            <div class="access-id-avatar">R</div>
-            <div class="access-id-body">
-              <span class="access-id-label">Ejemplo de documento</span>
-              <strong class="access-id-name"><span class="is-focus">Ruben</span> <span class="is-dim">Andres Enciso Lopez</span></strong>
-              <span class="access-id-number"><span class="is-dim">ID</span> <span class="is-dim">102674</span><span class="is-focus">8525</span></span>
+      <div class="login-access-guide access-cinema-guide" aria-hidden="true">
+        <div class="access-cinema-glow access-cinema-glow-a"></div>
+        <div class="access-cinema-glow access-cinema-glow-b"></div>
+        <div class="access-cinema-shape access-cinema-circle"></div>
+        <div class="access-cinema-shape access-cinema-cross">×</div>
+        <div class="access-cinema-shape access-cinema-triangle"></div>
+
+        <div class="access-cinema-scene">
+          <div class="cinema-id-card">
+            <div class="cinema-card-sheen"></div>
+            <div class="cinema-card-topline">
+              <span>Roque Objetiva</span>
+              <i>Acceso</i>
+            </div>
+            <div class="cinema-card-main">
+              <div class="cinema-photo">
+                <span>R</span>
+              </div>
+              <div class="cinema-card-data">
+                <span class="cinema-field-label">Nombre completo</span>
+                <strong class="cinema-card-name"><span class="cinema-card-token-name">Ruben</span><span class="cinema-card-muted"> Andres Enciso Lopez</span></strong>
+                <span class="cinema-field-label cinema-id-label">Documento / ID</span>
+                <strong class="cinema-card-id"><span class="cinema-card-muted">123456</span><span class="cinema-card-token-digits">7890</span></strong>
+              </div>
+            </div>
+            <div class="cinema-card-footer">
+              <span></span><span></span><span></span><span></span>
             </div>
           </div>
-        </div>
-        <div class="access-guide-stage access-guide-stage-formula">
-          <span class="access-guide-kicker">Tu usuario personal</span>
-          <p class="access-guide-copy">Combina tu <strong>primer nombre</strong> con los <strong>últimos 4 dígitos</strong> de tu documento.</p>
-          <div class="access-guide-equation" aria-label="ruben más 8525 igual a ruben8525">
-            <span class="access-pill access-pill-name">ruben</span>
-            <span class="access-equation-symbol">+</span>
-            <span class="access-pill access-pill-digits">8525</span>
-            <span class="access-equation-symbol">=</span>
-            <strong class="access-guide-user">ruben8525</strong>
-          </div>
+
+          <div class="cinema-guide-title">Así construyes tu usuario</div>
+          <div class="cinema-token cinema-token-name">ruben</div>
+          <div class="cinema-token cinema-token-digits">7890</div>
+          <div class="cinema-plus">+</div>
+          <div class="cinema-final-user">ruben7890</div>
         </div>
       </div>
     `;

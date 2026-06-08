@@ -9789,3 +9789,1143 @@ select,
     font-size: .84rem;
   }
 }
+
+/* v92: guía de acceso más pro, integrada al login, sin recuadro externo */
+.login-access-guide.login-access-guide-pro {
+  position: relative;
+  min-height: 210px;
+  margin: 6px 0 18px;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  overflow: visible;
+  isolation: isolate;
+  perspective: 900px;
+}
+
+.login-access-guide.login-access-guide-pro::before,
+.login-access-guide.login-access-guide-pro::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.login-access-guide.login-access-guide-pro::before {
+  inset: 12px 8% 20px;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 18% 42%, rgba(255, 211, 89, .25), transparent 18%),
+    radial-gradient(circle at 72% 48%, rgba(96, 188, 255, .18), transparent 24%),
+    linear-gradient(90deg, transparent, rgba(255, 255, 255, .08), transparent);
+  filter: blur(2px);
+  opacity: .95;
+  animation: accessAmbientPulse 8.4s ease-in-out infinite;
+}
+
+.login-access-guide.login-access-guide-pro::after {
+  left: 8%;
+  right: 8%;
+  top: 52%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.24), rgba(255, 205, 77, .55), rgba(255,255,255,.24), transparent);
+  opacity: .62;
+}
+
+.access-orbit-shape {
+  position: absolute;
+  z-index: 0;
+  opacity: .72;
+  pointer-events: none;
+  filter: drop-shadow(0 10px 20px rgba(0,0,0,.12));
+}
+
+.access-orbit-shape-one {
+  width: 20px;
+  height: 20px;
+  left: 9%;
+  top: 18px;
+  border: 3px solid rgba(255,255,255,.24);
+  border-radius: 50%;
+  animation: accessFloatOne 7.5s ease-in-out infinite;
+}
+
+.access-orbit-shape-two {
+  width: 18px;
+  height: 18px;
+  right: 13%;
+  top: 30px;
+  transform: rotate(45deg);
+  border: 3px solid rgba(255, 209, 92, .42);
+  animation: accessFloatTwo 7.8s ease-in-out infinite;
+}
+
+.access-orbit-shape-three {
+  width: 22px;
+  height: 4px;
+  left: 18%;
+  bottom: 24px;
+  background: rgba(255,255,255,.26);
+  border-radius: 999px;
+  transform: rotate(-24deg);
+  animation: accessFloatThree 6.8s ease-in-out infinite;
+}
+
+.access-motion-track {
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  top: 53%;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  opacity: .78;
+  pointer-events: none;
+}
+
+.access-motion-track span {
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.24), transparent);
+  transform-origin: center;
+  animation: accessTrackBeat 8.4s ease-in-out infinite;
+}
+
+.access-motion-track span:nth-child(2) { animation-delay: .18s; }
+.access-motion-track span:nth-child(3) { animation-delay: .34s; }
+
+.access-guide-scene {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+}
+
+.access-id-card.access-id-card-pro {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  top: 50%;
+  width: min(100%, 340px);
+  min-height: 118px;
+  display: grid;
+  grid-template-columns: 58px 1fr;
+  align-items: center;
+  gap: 13px;
+  padding: 16px 18px;
+  border-radius: 24px;
+  overflow: hidden;
+  background:
+    linear-gradient(135deg, rgba(9, 23, 49, .98), rgba(12, 59, 111, .96) 58%, rgba(20, 110, 159, .92));
+  border: 1px solid rgba(255,255,255,.18);
+  box-shadow:
+    0 22px 46px rgba(0, 0, 0, .26),
+    inset 0 1px 0 rgba(255,255,255,.16),
+    inset 0 -18px 42px rgba(2, 7, 20, .18);
+  transform: translate(-50%, -50%) rotateX(0deg) rotateZ(-1deg) translateY(0) scale(1);
+  animation: accessCardProLoop 8.8s cubic-bezier(.36,.01,.16,1) infinite;
+  will-change: transform, opacity, filter;
+}
+
+.access-id-card.access-id-card-pro::before {
+  content: "";
+  position: absolute;
+  inset: -45% -30%;
+  background:
+    radial-gradient(circle at 20% 35%, rgba(255, 223, 117, .18), transparent 18%),
+    linear-gradient(115deg, transparent 34%, rgba(255,255,255,.22) 44%, transparent 54%);
+  transform: translateX(-38%);
+  animation: accessCardSheen 8.8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.access-id-holo {
+  position: absolute;
+  right: 48px;
+  bottom: 16px;
+  width: 58px;
+  height: 42px;
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 28% 24%, rgba(255,255,255,.42), transparent 18%),
+    linear-gradient(135deg, rgba(255,255,255,.12), rgba(255, 210, 87, .18), rgba(65, 185, 255, .20));
+  border: 1px solid rgba(255,255,255,.12);
+  opacity: .44;
+  transform: rotate(-4deg);
+}
+
+.access-id-scan {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -34%;
+  height: 34px;
+  background: linear-gradient(180deg, transparent, rgba(255, 231, 145, .34), transparent);
+  mix-blend-mode: screen;
+  opacity: 0;
+  animation: accessScanLoop 8.8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.access-id-card.access-id-card-pro .access-id-chip {
+  top: 16px;
+  right: 16px;
+  width: 30px;
+  height: 23px;
+  border-radius: 8px;
+  background:
+    linear-gradient(145deg, rgba(255, 229, 150, .98), rgba(217, 148, 13, .95));
+  box-shadow:
+    inset 0 1px 1px rgba(255,255,255,.55),
+    0 10px 20px rgba(0,0,0,.24);
+}
+
+.access-id-card.access-id-card-pro .access-id-avatar {
+  z-index: 2;
+  width: 58px;
+  height: 58px;
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at 32% 18%, rgba(255,255,255,.30), transparent 38%),
+    linear-gradient(145deg, rgba(255,255,255,.20), rgba(255,255,255,.07));
+  color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.15), 0 12px 24px rgba(0,0,0,.16);
+}
+
+.access-id-card.access-id-card-pro .access-id-body {
+  z-index: 2;
+}
+
+.access-id-card.access-id-card-pro .access-id-label {
+  color: rgba(255,255,255,.70);
+}
+
+.access-id-card.access-id-card-pro .access-id-name {
+  color: #fff;
+  font-size: 1.13rem;
+}
+
+.access-id-card.access-id-card-pro .access-id-number {
+  color: #fff;
+  font-size: .94rem;
+}
+
+.access-id-card.access-id-card-pro .is-dim {
+  opacity: .24;
+  filter: blur(.15px) saturate(.78);
+  transition: opacity .3s ease;
+}
+
+.access-id-card.access-id-card-pro .is-focus {
+  position: relative;
+  color: #ffeaa0;
+  text-shadow:
+    0 0 11px rgba(255, 224, 112, .42),
+    0 2px 10px rgba(0,0,0,.20);
+}
+
+.access-token-name,
+.access-token-digits {
+  animation: accessFocusPulse 8.8s ease-in-out infinite;
+}
+
+.access-token-digits { animation-delay: .38s; }
+
+.access-card-bars {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 10px;
+  display: flex;
+  gap: 5px;
+  opacity: .30;
+}
+
+.access-card-bars i {
+  height: 3px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.44);
+}
+
+.access-card-bars i:nth-child(1) { width: 42px; }
+.access-card-bars i:nth-child(2) { width: 22px; }
+.access-card-bars i:nth-child(3) { width: 58px; }
+
+.access-extract-token {
+  position: absolute;
+  z-index: 4;
+  left: 50%;
+  top: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 7px 14px;
+  border-radius: 15px;
+  border: 1px solid rgba(255,255,255,.20);
+  background:
+    linear-gradient(145deg, rgba(255,255,255,.22), rgba(255,255,255,.10));
+  color: #fff1a5;
+  box-shadow:
+    0 16px 32px rgba(0,0,0,.20),
+    inset 0 1px 0 rgba(255,255,255,.18);
+  font-weight: 1000;
+  letter-spacing: -.02em;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(.72);
+  will-change: transform, opacity;
+}
+
+.access-extract-name {
+  animation: accessNameTokenLoop 8.8s cubic-bezier(.36,.01,.16,1) infinite;
+}
+
+.access-extract-digits {
+  color: #ffd48b;
+  animation: accessDigitsTokenLoop 8.8s cubic-bezier(.36,.01,.16,1) infinite;
+}
+
+.access-guide-result {
+  position: absolute;
+  z-index: 5;
+  left: 50%;
+  top: 50%;
+  width: min(100%, 355px);
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  text-align: center;
+  opacity: 0;
+  transform: translate(-50%, -50%) translateY(20px) scale(.92);
+  animation: accessResultLoop 8.8s cubic-bezier(.36,.01,.16,1) infinite;
+  will-change: transform, opacity;
+}
+
+.login-access-guide-pro .access-guide-kicker {
+  padding: 6px 11px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.13);
+  border: 1px solid rgba(255,255,255,.12);
+  color: rgba(255,255,255,.88);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.10);
+  backdrop-filter: blur(8px);
+}
+
+.login-access-guide-pro .access-guide-user {
+  position: relative;
+  min-height: 50px;
+  padding: 9px 22px;
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(255,255,255,.28), transparent 34%),
+    linear-gradient(135deg, rgba(255, 213, 89, .96), rgba(238, 152, 18, .96));
+  color: #172033;
+  border: 1px solid rgba(255,255,255,.34);
+  box-shadow:
+    0 20px 42px rgba(0,0,0,.24),
+    0 0 0 8px rgba(255, 200, 61, .08),
+    inset 0 1px 0 rgba(255,255,255,.52);
+  font-size: 1.36rem;
+  font-weight: 1000;
+  letter-spacing: -.04em;
+  text-shadow: 0 1px 0 rgba(255,255,255,.38);
+}
+
+.access-guide-result small {
+  color: rgba(255,255,255,.86);
+  font-size: .78rem;
+  font-weight: 800;
+  text-shadow: 0 2px 12px rgba(0,0,0,.22);
+}
+
+@keyframes accessAmbientPulse {
+  0%, 100% { transform: scale(.98); opacity: .70; }
+  48%, 68% { transform: scale(1.05); opacity: 1; }
+}
+
+@keyframes accessFloatOne {
+  0%, 100% { transform: translate3d(0,0,0) scale(1); }
+  50% { transform: translate3d(10px, 14px, 0) scale(1.08); }
+}
+
+@keyframes accessFloatTwo {
+  0%, 100% { transform: translate3d(0,0,0) rotate(45deg); }
+  50% { transform: translate3d(-12px, 16px, 0) rotate(86deg); }
+}
+
+@keyframes accessFloatThree {
+  0%, 100% { transform: translate3d(0,0,0) rotate(-24deg); }
+  50% { transform: translate3d(18px, -12px, 0) rotate(16deg); }
+}
+
+@keyframes accessTrackBeat {
+  0%, 30%, 100% { opacity: .24; transform: scaleX(.76); }
+  45%, 72% { opacity: .92; transform: scaleX(1.05); }
+}
+
+@keyframes accessCardProLoop {
+  0% { opacity: 0; transform: translate(-50%, -50%) translateX(-20px) rotateX(10deg) rotateZ(-4deg) scale(.92); filter: blur(2px); }
+  7%, 38% { opacity: 1; transform: translate(-50%, -50%) translateX(0) rotateX(0deg) rotateZ(-1deg) scale(1); filter: blur(0); }
+  42% { opacity: 1; transform: translate(-50%, -50%) translateX(-5px) rotateX(0deg) rotateZ(-1deg) scale(1.015); }
+  49%, 62% { opacity: .22; transform: translate(-50%, -50%) translateY(-18px) rotateX(12deg) rotateZ(1deg) scale(.86); filter: blur(.2px); }
+  68%, 100% { opacity: 0; transform: translate(-50%, -50%) translateY(-20px) rotateX(14deg) rotateZ(1deg) scale(.82); filter: blur(2px); }
+}
+
+@keyframes accessCardSheen {
+  0%, 12% { transform: translateX(-42%); opacity: 0; }
+  22%, 36% { opacity: .88; }
+  48%, 100% { transform: translateX(42%); opacity: 0; }
+}
+
+@keyframes accessScanLoop {
+  0%, 15% { transform: translateY(0); opacity: 0; }
+  24% { opacity: .95; }
+  39% { transform: translateY(210px); opacity: 0; }
+  100% { opacity: 0; }
+}
+
+@keyframes accessFocusPulse {
+  0%, 14%, 100% { text-shadow: 0 0 8px rgba(255,224,112,.22); }
+  22%, 40% { text-shadow: 0 0 18px rgba(255,224,112,.72), 0 0 34px rgba(255,196,54,.26); }
+}
+
+@keyframes accessNameTokenLoop {
+  0%, 29% { opacity: 0; transform: translate(-50%, -50%) translate(-62px, -26px) scale(.70); }
+  35%, 48% { opacity: 1; transform: translate(-50%, -50%) translate(-78px, -2px) scale(1); }
+  57%, 70% { opacity: 1; transform: translate(-50%, -50%) translate(-62px, 6px) scale(1); }
+  77%, 100% { opacity: 0; transform: translate(-50%, -50%) translate(-42px, 8px) scale(.84); }
+}
+
+@keyframes accessDigitsTokenLoop {
+  0%, 31% { opacity: 0; transform: translate(-50%, -50%) translate(66px, -22px) scale(.70); }
+  38%, 48% { opacity: 1; transform: translate(-50%, -50%) translate(78px, -2px) scale(1); }
+  57%, 70% { opacity: 1; transform: translate(-50%, -50%) translate(62px, 6px) scale(1); }
+  77%, 100% { opacity: 0; transform: translate(-50%, -50%) translate(42px, 8px) scale(.84); }
+}
+
+@keyframes accessResultLoop {
+  0%, 52% { opacity: 0; transform: translate(-50%, -50%) translateY(20px) scale(.90); filter: blur(1px); }
+  60%, 88% { opacity: 1; transform: translate(-50%, -50%) translateY(0) scale(1); filter: blur(0); }
+  96%, 100% { opacity: 0; transform: translate(-50%, -50%) translateY(-12px) scale(.96); filter: blur(1px); }
+}
+
+@media (max-width: 680px) {
+  .login-access-guide.login-access-guide-pro {
+    min-height: 194px;
+    margin: 2px 0 14px;
+  }
+
+  .access-id-card.access-id-card-pro {
+    width: min(100%, 310px);
+    min-height: 106px;
+    grid-template-columns: 50px 1fr;
+    gap: 11px;
+    padding: 14px 15px;
+    border-radius: 22px;
+  }
+
+  .access-id-card.access-id-card-pro .access-id-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 18px;
+  }
+
+  .access-id-card.access-id-card-pro .access-id-name {
+    font-size: .98rem;
+  }
+
+  .access-id-card.access-id-card-pro .access-id-number {
+    font-size: .82rem;
+  }
+
+  .access-guide-result {
+    width: min(100%, 320px);
+  }
+
+  .login-access-guide-pro .access-guide-user {
+    min-height: 46px;
+    padding: 8px 18px;
+    border-radius: 18px;
+    font-size: 1.18rem;
+  }
+
+  .access-guide-result small {
+    font-size: .72rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .login-access-guide.login-access-guide-pro {
+    min-height: 178px;
+  }
+
+  .access-id-card.access-id-card-pro {
+    width: min(100%, 288px);
+    min-height: 98px;
+    grid-template-columns: 44px 1fr;
+    padding: 12px 13px;
+    border-radius: 20px;
+  }
+
+  .access-id-card.access-id-card-pro .access-id-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 16px;
+    font-size: .98rem;
+  }
+
+  .access-id-card.access-id-card-pro .access-id-label {
+    font-size: .58rem;
+  }
+
+  .access-id-card.access-id-card-pro .access-id-name {
+    font-size: .86rem;
+  }
+
+  .access-id-card.access-id-card-pro .access-id-number {
+    font-size: .74rem;
+  }
+
+  .access-extract-token {
+    min-height: 33px;
+    padding: 6px 11px;
+    border-radius: 13px;
+    font-size: .86rem;
+  }
+
+  .login-access-guide-pro .access-guide-kicker {
+    font-size: .62rem;
+    padding: 5px 9px;
+  }
+
+  .login-access-guide-pro .access-guide-user {
+    min-height: 42px;
+    padding: 7px 16px;
+    font-size: 1.06rem;
+  }
+
+  .access-guide-result small {
+    max-width: 235px;
+    line-height: 1.25;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-access-guide-pro *,
+  .login-access-guide-pro::before,
+  .login-access-guide-pro::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
+
+
+/* v93: animación cinematográfica de construcción de usuario en login */
+.login-access-guide.access-cinema-guide {
+  position: relative;
+  min-height: 268px;
+  margin: 2px 0 18px;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  overflow: visible;
+  isolation: isolate;
+  perspective: 1100px;
+}
+
+.access-cinema-guide::before,
+.access-cinema-guide::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.access-cinema-guide::before {
+  left: 50%;
+  top: 50%;
+  width: min(440px, 108%);
+  height: 208px;
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 22% 36%, rgba(255, 208, 71, .34), transparent 24%),
+    radial-gradient(circle at 78% 58%, rgba(63, 187, 255, .24), transparent 30%),
+    linear-gradient(90deg, transparent, rgba(255,255,255,.08), transparent);
+  filter: blur(9px);
+  opacity: .95;
+  animation: cinemaAmbient 13.2s ease-in-out infinite;
+}
+
+.access-cinema-guide::after {
+  left: 8%;
+  right: 8%;
+  top: 55%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.28), rgba(255, 206, 68, .72), rgba(255,255,255,.28), transparent);
+  opacity: .58;
+  animation: cinemaLinePulse 13.2s ease-in-out infinite;
+}
+
+.access-cinema-glow,
+.access-cinema-shape {
+  position: absolute;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.access-cinema-glow-a {
+  width: 74px;
+  height: 74px;
+  left: 5%;
+  top: 24px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 204, 61, .30), transparent 68%);
+  animation: cinemaFloatA 9s ease-in-out infinite;
+}
+
+.access-cinema-glow-b {
+  width: 92px;
+  height: 92px;
+  right: 2%;
+  bottom: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(61, 181, 255, .24), transparent 70%);
+  animation: cinemaFloatB 8.5s ease-in-out infinite;
+}
+
+.access-cinema-circle {
+  width: 20px;
+  height: 20px;
+  left: 14%;
+  bottom: 38px;
+  border: 3px solid rgba(255,255,255,.25);
+  border-radius: 50%;
+  animation: cinemaShapeOne 8.4s ease-in-out infinite;
+}
+
+.access-cinema-cross {
+  right: 12%;
+  top: 18px;
+  color: rgba(255, 219, 105, .64);
+  font-size: 26px;
+  font-weight: 900;
+  line-height: 1;
+  animation: cinemaShapeTwo 7.8s ease-in-out infinite;
+}
+
+.access-cinema-triangle {
+  right: 20%;
+  bottom: 34px;
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 18px solid rgba(255,255,255,.21);
+  transform: rotate(18deg);
+  animation: cinemaShapeThree 8.2s ease-in-out infinite;
+}
+
+.access-cinema-scene {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  transform-style: preserve-3d;
+}
+
+.cinema-id-card {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(100%, 360px);
+  min-height: 150px;
+  padding: 15px 16px 13px;
+  border-radius: 26px;
+  overflow: hidden;
+  background:
+    linear-gradient(135deg, rgba(4, 23, 54, .98) 0%, rgba(9, 70, 128, .98) 54%, rgba(15, 145, 184, .94) 100%);
+  border: 1px solid rgba(255,255,255,.20);
+  box-shadow:
+    0 28px 58px rgba(0, 0, 0, .28),
+    0 0 0 1px rgba(255,255,255,.05),
+    inset 0 1px 0 rgba(255,255,255,.18),
+    inset 0 -26px 54px rgba(0, 16, 40, .22);
+  transform: translate(-50%, -50%) rotateX(0deg) rotateZ(-1.6deg) scale(1);
+  animation: cinemaCardLoop 13.2s cubic-bezier(.34,.02,.16,1) infinite;
+  will-change: opacity, transform, filter;
+}
+
+.cinema-card-sheen {
+  position: absolute;
+  inset: -60% -38%;
+  background:
+    radial-gradient(circle at 26% 28%, rgba(255,255,255,.18), transparent 16%),
+    linear-gradient(118deg, transparent 34%, rgba(255,255,255,.25) 44%, rgba(255, 211, 83, .18) 48%, transparent 58%);
+  transform: translateX(-38%);
+  animation: cinemaCardSheen 13.2s ease-in-out infinite;
+}
+
+.cinema-card-topline,
+.cinema-card-main,
+.cinema-card-footer {
+  position: relative;
+  z-index: 2;
+}
+
+.cinema-card-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 13px;
+  color: rgba(255,255,255,.82);
+  font-size: .63rem;
+  font-weight: 1000;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.cinema-card-topline i {
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.12);
+  border: 1px solid rgba(255,255,255,.12);
+  color: rgba(255, 228, 132, .94);
+  font-style: normal;
+  letter-spacing: .06em;
+}
+
+.cinema-card-main {
+  display: grid;
+  grid-template-columns: 62px 1fr;
+  align-items: center;
+  gap: 14px;
+}
+
+.cinema-photo {
+  width: 62px;
+  height: 72px;
+  border-radius: 22px;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at 32% 18%, rgba(255,255,255,.32), transparent 38%),
+    linear-gradient(145deg, rgba(255,255,255,.20), rgba(255,255,255,.07));
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.18),
+    0 12px 24px rgba(0,0,0,.16);
+  color: white;
+  font-size: 1.28rem;
+  font-weight: 1000;
+}
+
+.cinema-card-data {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.cinema-field-label {
+  color: rgba(255,255,255,.57);
+  font-size: .58rem;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.cinema-id-label {
+  margin-top: 7px;
+}
+
+.cinema-card-name,
+.cinema-card-id {
+  color: white;
+  font-weight: 1000;
+  line-height: 1.16;
+  letter-spacing: -.035em;
+  white-space: nowrap;
+}
+
+.cinema-card-name {
+  font-size: 1.05rem;
+}
+
+.cinema-card-id {
+  font-size: 1rem;
+  letter-spacing: .01em;
+}
+
+.cinema-card-token-name,
+.cinema-card-token-digits {
+  color: #ffe58a;
+  text-shadow: 0 0 14px rgba(255, 222, 111, .58), 0 2px 12px rgba(0,0,0,.18);
+  animation: cinemaCardTokenPulse 13.2s ease-in-out infinite;
+}
+
+.cinema-card-token-digits {
+  color: #ffd170;
+}
+
+.cinema-card-muted {
+  color: rgba(255,255,255,.64);
+  animation: cinemaMutedOut 13.2s ease-in-out infinite;
+}
+
+.cinema-card-footer {
+  display: flex;
+  gap: 5px;
+  margin-top: 14px;
+  opacity: .33;
+}
+
+.cinema-card-footer span {
+  display: block;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.56);
+}
+
+.cinema-card-footer span:nth-child(1) { width: 46px; }
+.cinema-card-footer span:nth-child(2) { width: 20px; }
+.cinema-card-footer span:nth-child(3) { width: 74px; }
+.cinema-card-footer span:nth-child(4) { width: 34px; }
+
+.cinema-guide-title {
+  position: absolute;
+  left: 50%;
+  top: 28%;
+  padding: 7px 13px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.13);
+  border: 1px solid rgba(255,255,255,.16);
+  color: rgba(255,255,255,.92);
+  box-shadow: 0 14px 28px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.12);
+  backdrop-filter: blur(8px);
+  font-size: .72rem;
+  font-weight: 1000;
+  letter-spacing: .02em;
+  text-align: center;
+  white-space: nowrap;
+  transform: translate(-50%, -50%) translateY(8px) scale(.88);
+  opacity: 0;
+  animation: cinemaTitleLoop 13.2s cubic-bezier(.34,.02,.16,1) infinite;
+  will-change: opacity, transform;
+}
+
+.cinema-token {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  min-width: 86px;
+  padding: 8px 14px;
+  border-radius: 18px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  color: #172033;
+  background:
+    radial-gradient(circle at 20% 18%, rgba(255,255,255,.42), transparent 38%),
+    linear-gradient(135deg, rgba(255, 231, 129, .98), rgba(231, 148, 12, .98));
+  border: 1px solid rgba(255,255,255,.34);
+  box-shadow:
+    0 18px 34px rgba(0,0,0,.23),
+    0 0 0 7px rgba(255, 200, 61, .08),
+    inset 0 1px 0 rgba(255,255,255,.52);
+  font-size: 1rem;
+  font-weight: 1000;
+  letter-spacing: -.035em;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(.70);
+  will-change: opacity, transform, filter;
+}
+
+.cinema-token-name {
+  animation: cinemaTokenNameLoop 13.2s cubic-bezier(.34,.02,.16,1) infinite;
+}
+
+.cinema-token-digits {
+  animation: cinemaTokenDigitsLoop 13.2s cubic-bezier(.34,.02,.16,1) infinite;
+}
+
+.cinema-plus {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: rgba(255,255,255,.92);
+  background: rgba(255,255,255,.14);
+  border: 1px solid rgba(255,255,255,.14);
+  box-shadow: 0 12px 24px rgba(0,0,0,.17);
+  font-size: 1.1rem;
+  font-weight: 1000;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(.55);
+  animation: cinemaPlusLoop 13.2s cubic-bezier(.34,.02,.16,1) infinite;
+}
+
+.cinema-final-user {
+  position: absolute;
+  left: 50%;
+  top: 56%;
+  padding: 11px 24px;
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 20% 18%, rgba(255,255,255,.38), transparent 40%),
+    linear-gradient(135deg, rgba(255, 221, 87, .98), rgba(243, 156, 18, .98));
+  color: #162235;
+  border: 1px solid rgba(255,255,255,.36);
+  box-shadow:
+    0 24px 44px rgba(0,0,0,.26),
+    0 0 0 9px rgba(255, 201, 52, .09),
+    0 0 42px rgba(255, 198, 40, .23),
+    inset 0 1px 0 rgba(255,255,255,.56);
+  font-size: 1.45rem;
+  line-height: 1;
+  font-weight: 1000;
+  letter-spacing: -.055em;
+  text-shadow: 0 1px 0 rgba(255,255,255,.38);
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(.72);
+  animation: cinemaFinalLoop 13.2s cubic-bezier(.34,.02,.16,1) infinite;
+  will-change: opacity, transform, filter;
+}
+
+@keyframes cinemaAmbient {
+  0%, 100% { transform: translate(-50%, -50%) scale(.94); opacity: .66; }
+  40%, 78% { transform: translate(-50%, -50%) scale(1.04); opacity: 1; }
+}
+
+@keyframes cinemaLinePulse {
+  0%, 26%, 96%, 100% { opacity: .22; transform: scaleX(.78); }
+  42%, 76% { opacity: .86; transform: scaleX(1.04); }
+}
+
+@keyframes cinemaFloatA {
+  0%, 100% { transform: translate3d(0,0,0) scale(1); }
+  50% { transform: translate3d(18px, 16px, 0) scale(1.1); }
+}
+
+@keyframes cinemaFloatB {
+  0%, 100% { transform: translate3d(0,0,0) scale(1); }
+  50% { transform: translate3d(-18px, -14px, 0) scale(1.05); }
+}
+
+@keyframes cinemaShapeOne {
+  0%, 100% { transform: translate3d(0,0,0) scale(1); }
+  50% { transform: translate3d(11px,-10px,0) scale(1.12); }
+}
+
+@keyframes cinemaShapeTwo {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(28deg) scale(1.08); }
+}
+
+@keyframes cinemaShapeThree {
+  0%, 100% { transform: rotate(18deg) translate3d(0,0,0); }
+  50% { transform: rotate(-12deg) translate3d(-8px, 10px, 0); }
+}
+
+@keyframes cinemaCardLoop {
+  0% { opacity: 0; transform: translate(-50%, -50%) translateY(16px) rotateX(16deg) rotateZ(-5deg) scale(.88); filter: blur(2px); }
+  7%, 31% { opacity: 1; transform: translate(-50%, -50%) translateY(0) rotateX(0deg) rotateZ(-1.6deg) scale(1); filter: blur(0); }
+  36% { opacity: .78; transform: translate(-50%, -50%) translateY(-4px) rotateX(5deg) rotateZ(-.4deg) scale(.96); filter: blur(.1px); }
+  42%, 74% { opacity: 0; transform: translate(-50%, -50%) translateY(-22px) rotateX(16deg) rotateZ(2deg) scale(.78); filter: blur(2.5px); }
+  82% { opacity: 0; transform: translate(-50%, -50%) translateY(20px) rotateX(16deg) rotateZ(-5deg) scale(.88); filter: blur(2px); }
+  90%, 100% { opacity: 1; transform: translate(-50%, -50%) translateY(0) rotateX(0deg) rotateZ(-1.6deg) scale(1); filter: blur(0); }
+}
+
+@keyframes cinemaCardSheen {
+  0%, 8% { transform: translateX(-42%); opacity: 0; }
+  16%, 28% { opacity: .94; }
+  38%, 100% { transform: translateX(42%); opacity: 0; }
+}
+
+@keyframes cinemaCardTokenPulse {
+  0%, 11%, 100% { text-shadow: 0 0 8px rgba(255, 222, 111, .25); }
+  20%, 34% { text-shadow: 0 0 20px rgba(255, 224, 104, .82), 0 0 36px rgba(255, 199, 46, .35); }
+}
+
+@keyframes cinemaMutedOut {
+  0%, 21%, 90%, 100% { opacity: .64; filter: blur(0); }
+  31%, 78% { opacity: .08; filter: blur(1.2px); }
+}
+
+@keyframes cinemaTitleLoop {
+  0%, 35% { opacity: 0; transform: translate(-50%, -50%) translateY(10px) scale(.86); filter: blur(1px); }
+  43%, 77% { opacity: 1; transform: translate(-50%, -50%) translateY(0) scale(1); filter: blur(0); }
+  85%, 100% { opacity: 0; transform: translate(-50%, -50%) translateY(-8px) scale(.92); filter: blur(1px); }
+}
+
+@keyframes cinemaTokenNameLoop {
+  0%, 30% { opacity: 0; transform: translate(-50%, -50%) translate(-54px,-22px) scale(.68); filter: blur(2px); }
+  38% { opacity: 1; transform: translate(-50%, -50%) translate(-44px,-38px) scale(1); filter: blur(0); }
+  47%, 56% { opacity: 1; transform: translate(-50%, -50%) translate(0,-32px) scale(1); }
+  64% { opacity: 1; transform: translate(-50%, -50%) translate(-48px, 16px) scale(1.02); }
+  71% { opacity: 0; transform: translate(-50%, -50%) translate(-32px, 28px) scale(.84); filter: blur(1px); }
+  100% { opacity: 0; transform: translate(-50%, -50%) translate(-54px,-22px) scale(.68); }
+}
+
+@keyframes cinemaTokenDigitsLoop {
+  0%, 31% { opacity: 0; transform: translate(-50%, -50%) translate(68px, 20px) scale(.68); filter: blur(2px); }
+  40% { opacity: 1; transform: translate(-50%, -50%) translate(44px, 38px) scale(1); filter: blur(0); }
+  47%, 56% { opacity: 1; transform: translate(-50%, -50%) translate(0, 28px) scale(1); }
+  64% { opacity: 1; transform: translate(-50%, -50%) translate(54px, 16px) scale(1.02); }
+  71% { opacity: 0; transform: translate(-50%, -50%) translate(34px, 28px) scale(.84); filter: blur(1px); }
+  100% { opacity: 0; transform: translate(-50%, -50%) translate(68px,20px) scale(.68); }
+}
+
+@keyframes cinemaPlusLoop {
+  0%, 42% { opacity: 0; transform: translate(-50%, -50%) scale(.55); }
+  48%, 58% { opacity: .95; transform: translate(-50%, -50%) scale(1); }
+  63%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(.55); }
+}
+
+@keyframes cinemaFinalLoop {
+  0%, 63% { opacity: 0; transform: translate(-50%, -50%) scale(.68); filter: blur(2px); }
+  69% { opacity: 1; transform: translate(-50%, -50%) scale(1.18); filter: blur(0); }
+  73% { opacity: 1; transform: translate(-50%, -50%) scale(.96); }
+  78% { opacity: 1; transform: translate(-50%, -50%) scale(1.08); }
+  85% { opacity: 1; transform: translate(-50%, -50%) scale(1.02); }
+  91%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(.82); filter: blur(1.6px); }
+}
+
+@media (max-width: 680px) {
+  .login-access-guide.access-cinema-guide {
+    min-height: 236px;
+    margin: 0 0 14px;
+  }
+
+  .cinema-id-card {
+    width: min(100%, 326px);
+    min-height: 138px;
+    padding: 13px 14px 12px;
+    border-radius: 23px;
+  }
+
+  .cinema-card-main {
+    grid-template-columns: 54px 1fr;
+    gap: 12px;
+  }
+
+  .cinema-photo {
+    width: 54px;
+    height: 64px;
+    border-radius: 20px;
+  }
+
+  .cinema-card-name {
+    font-size: .93rem;
+  }
+
+  .cinema-card-id {
+    font-size: .9rem;
+  }
+
+  .cinema-guide-title {
+    top: 27%;
+    font-size: .66rem;
+  }
+
+  .cinema-token {
+    min-width: 76px;
+    padding: 7px 12px;
+    border-radius: 16px;
+    font-size: .92rem;
+  }
+
+  .cinema-final-user {
+    padding: 10px 21px;
+    border-radius: 20px;
+    font-size: 1.26rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .login-access-guide.access-cinema-guide {
+    min-height: 216px;
+    transform: translateY(-2px);
+  }
+
+  .cinema-id-card {
+    width: min(100%, 292px);
+    min-height: 126px;
+    padding: 12px 12px 10px;
+    border-radius: 21px;
+  }
+
+  .cinema-card-topline {
+    margin-bottom: 10px;
+    font-size: .54rem;
+  }
+
+  .cinema-card-topline i {
+    padding: 3px 7px;
+  }
+
+  .cinema-card-main {
+    grid-template-columns: 46px 1fr;
+    gap: 10px;
+  }
+
+  .cinema-photo {
+    width: 46px;
+    height: 56px;
+    border-radius: 18px;
+  }
+
+  .cinema-field-label {
+    font-size: .50rem;
+  }
+
+  .cinema-card-name {
+    font-size: .78rem;
+  }
+
+  .cinema-card-id {
+    font-size: .80rem;
+  }
+
+  .cinema-card-footer {
+    margin-top: 10px;
+  }
+
+  .cinema-guide-title {
+    top: 25%;
+    padding: 6px 10px;
+    font-size: .58rem;
+  }
+
+  .cinema-token {
+    min-width: 66px;
+    padding: 6px 10px;
+    border-radius: 15px;
+    font-size: .82rem;
+  }
+
+  .cinema-final-user {
+    padding: 9px 18px;
+    border-radius: 18px;
+    font-size: 1.08rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .access-cinema-guide *,
+  .access-cinema-guide::before,
+  .access-cinema-guide::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
