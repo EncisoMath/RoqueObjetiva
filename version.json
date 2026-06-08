@@ -1,6 +1,6 @@
 {
-  "version": "v127",
-  "cache": "resultados-pwa-v127",
+  "version": "v128",
+  "cache": "resultados-pwa-v128",
   "updatedAt": "2026-06-08",
   "note": "Ranking normal en silencio y pantalla debug solo con sufijo --ranking; RPC Supabase sin caché.",
   "builtAt": "2026-06-08T20:25:00Z",

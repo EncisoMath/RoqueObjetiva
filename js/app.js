@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v127";
+  const APP_VERSION = "v128";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -2284,7 +2284,7 @@
 
     if (state.activeSession.role === "student") {
       const roll = cleanId(state.activeSession.roll);
-      if (state.activeSession.rankingDebugRequested && (!state.activeSession.rankingDebugDone || state.activeSession.rankingDebugVersion !== "v127")) {
+      if (state.activeSession.rankingDebugRequested && (!state.activeSession.rankingDebugDone || state.activeSession.rankingDebugVersion !== "v128")) {
         return showStudentRankingDebugGate(roll, "Reconstruyendo diagnóstico de ranking...");
       }
       return renderStudent(roll);
@@ -2305,7 +2305,7 @@
       roll: cleanRoll,
       rankingDebugRequested: debug,
       rankingDebugDone: !debug,
-      rankingDebugVersion: "v127"
+      rankingDebugVersion: "v128"
     };
     state.activeSession = session;
     writeJSON(STORAGE.session, state.activeSession);
@@ -2316,7 +2316,7 @@
       try {
         await prepareStudentRankingContext(cleanRoll);
         if (debug) {
-          state.activeSession = { ...(state.activeSession || session), rankingDebugRequested: true, rankingDebugDone: false, rankingDebugVersion: "v127" };
+          state.activeSession = { ...(state.activeSession || session), rankingDebugRequested: true, rankingDebugDone: false, rankingDebugVersion: "v128" };
           writeJSON(STORAGE.session, state.activeSession);
           renderStudentRankingDebug(cleanRoll);
         } else {
@@ -2673,26 +2673,25 @@
         <div class="login-panel">
           <div class="login-card login-card-dark">
             ${logo ? `<div class="login-main-logo"><img src="${escAttr(logo)}" alt="Logo institucional"></div>` : ""}
-            <span class="login-eyebrow login-eyebrow-title">CONSULTA DE RESULTADOS</span>
-            <h1 class="login-intro-title">Bienvenido</h1>
-            <p class="login-intro-copy">Ingresa el <strong>ID de tu prueba</strong> o tu <strong>número de documento de identidad</strong>.</p>
+            <span class="login-eyebrow">Consulta de resultados</span>
+            <h1>Bienvenido</h1>
+            <p>Ingresa con el ID de tu prueba o tu número de documento de identidad.</p>
             ${error ? `<div class="admin-note login-error">${esc(error)}</div>` : ""}
-            <form class="login-form login-form-inline" id="loginForm">
-              <div class="login-input-row">
-                <div class="field login-user-field">
-                  <label for="loginUser">Usuario o ID</label>
-                  <input id="loginUser" autocomplete="username" placeholder="" required />
-                </div>
-                <div class="login-actions login-actions-inline">
-                  <button class="primary-btn" type="submit">Ingresar</button>
-                </div>
+            <form class="login-form" id="loginForm">
+              <div class="field">
+                <label for="loginUser">Usuario o ID</label>
+                <input id="loginUser" autocomplete="username" placeholder="Ej. 2585, 1085111839, ID docente o admin" required />
               </div>
               <div class="field login-password-field is-hidden" id="loginPasswordField">
                 <label for="loginPass">Contraseña</label>
                 <input id="loginPass" type="password" autocomplete="current-password" placeholder="Contraseña de administrador" />
               </div>
+              <div class="login-actions">
+                <button class="primary-btn" type="submit">Ingresar</button>
+              </div>
             </form>
             ${recentLoginsHtml}
+            <span class="login-version">Versión ${esc(APP_VERSION)}</span>
           </div>
         </div>
       </section>
@@ -4997,7 +4996,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     if (action === "student-ranking-debug-next") {
       const roll = cleanId(target.dataset.roll || state.activeSession?.roll || "");
       state.zeroToleranceShown = false;
-      state.activeSession = { ...(state.activeSession || {}), role: "student", roll, rankingDebugRequested: false, rankingDebugDone: true, rankingDebugVersion: "v127" };
+      state.activeSession = { ...(state.activeSession || {}), role: "student", roll, rankingDebugRequested: false, rankingDebugDone: true, rankingDebugVersion: "v128" };
       writeJSON(STORAGE.session, state.activeSession);
       return enterSessionWithLoader(state.activeSession, () => renderStudent(roll), "Abriendo tus resultados...");
     }
@@ -5007,7 +5006,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       if (state.activeSession?.role === "student") {
         state.activeSession.rankingDebugRequested = true;
         state.activeSession.rankingDebugDone = false;
-        state.activeSession.rankingDebugVersion = "v127";
+        state.activeSession.rankingDebugVersion = "v128";
         writeJSON(STORAGE.session, state.activeSession);
       }
       state.studentRankDebugByRoll?.delete?.(roll);
