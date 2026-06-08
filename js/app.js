@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v98";
+  const APP_VERSION = "v100";
 
   const app = document.getElementById("app");
   const toastEl = document.getElementById("toast");
@@ -866,9 +866,18 @@
     `;
   }
 
+  const LOGIN_ACCESS_EXAMPLES = [
+    { first: "Ruben", rest: "Andres Enciso Lopez", idPrefix: "123456", idLast: "7890", user: "ruben7890" },
+    { first: "Alain", rest: "Junior Cassis", idPrefix: "516313", idLast: "1110", user: "alain1110" },
+    { first: "Peggy", rest: "Castillo Pacheco", idPrefix: "12345", idLast: "6781", user: "peggy6781" },
+    { first: "Aydee", rest: "Cuadros Martinez", idPrefix: "98765", idLast: "4321", user: "aydee4321" },
+    { first: "Kelly", rest: "Murgas Castillos", idPrefix: "45786", idLast: "5231", user: "kelly5231" }
+  ];
+
   function renderLoginAccessGuide() {
+    const sample = LOGIN_ACCESS_EXAMPLES[0];
     return `
-      <div class="login-access-guide access-story-v96" aria-hidden="true">
+      <div class="login-access-guide access-story-v96" aria-hidden="true" data-access-example-index="0">
         <div class="access-v96-ambient access-v96-ambient-a"></div>
         <div class="access-v96-ambient access-v96-ambient-b"></div>
         <div class="access-v96-glyph access-v96-glyph-x">×</div>
@@ -888,11 +897,12 @@
               <div class="access-v96-info">
                 <small>Nombre completo</small>
                 <div class="access-v96-name-line">
-                  <span class="access-v96-source-name">Ruben</span><span class="access-v96-muted-part">Andres Enciso Lopez</span>
+                  <span class="access-v96-source-name" data-access-part="first">${esc(sample.first)}</span>
+                  <span class="access-v96-muted-part" data-access-part="rest">${esc(sample.rest)}</span>
                 </div>
                 <small>Documento / ID</small>
                 <div class="access-v96-id-line">
-                  <span class="access-v96-muted-part">123456</span><span class="access-v96-source-id">7890</span>
+                  <span class="access-v96-muted-part" data-access-part="idPrefix">${esc(sample.idPrefix)}</span><span class="access-v96-source-id" data-access-part="idLast">${esc(sample.idLast)}</span>
                 </div>
               </div>
             </div>
@@ -902,13 +912,46 @@
           </article>
 
           <div class="access-v96-caption">Así construyes tu usuario</div>
-          <div class="access-v96-token access-v96-token-name">ruben</div>
-          <div class="access-v96-token access-v96-token-id">7890</div>
+          <div class="access-v96-token access-v96-token-name" data-access-part="tokenName">${esc(sample.first.toLowerCase())}</div>
+          <div class="access-v96-token access-v96-token-id" data-access-part="tokenId">${esc(sample.idLast)}</div>
           <div class="access-v96-plus">+</div>
-          <div class="access-v96-result">ruben7890</div>
+          <div class="access-v96-result" data-access-part="result">${esc(sample.user)}</div>
         </div>
       </div>
     `;
+  }
+
+  function initLoginAccessGuide() {
+    const guide = document.querySelector(".login-access-guide.access-story-v96");
+    if (!guide || guide.dataset.accessGuideReady === "1") return;
+    guide.dataset.accessGuideReady = "1";
+
+    const setExample = (index) => {
+      const sample = LOGIN_ACCESS_EXAMPLES[index % LOGIN_ACCESS_EXAMPLES.length];
+      guide.dataset.accessExampleIndex = String(index % LOGIN_ACCESS_EXAMPLES.length);
+      const values = {
+        first: sample.first,
+        rest: sample.rest,
+        idPrefix: sample.idPrefix,
+        idLast: sample.idLast,
+        tokenName: sample.first.toLowerCase(),
+        tokenId: sample.idLast,
+        result: sample.user
+      };
+      Object.entries(values).forEach(([key, value]) => {
+        guide.querySelectorAll(`[data-access-part="${key}"]`).forEach((node) => {
+          node.textContent = value;
+        });
+      });
+    };
+
+    setExample(0);
+    let index = 0;
+    const card = guide.querySelector(".access-v96-card");
+    card?.addEventListener("animationiteration", () => {
+      index = (index + 1) % LOGIN_ACCESS_EXAMPLES.length;
+      setExample(index);
+    });
   }
 
   function startRecentLogin(key) {
@@ -1005,6 +1048,7 @@
         </div>
       </section>
     `;
+    initLoginAccessGuide();
     if (!window.matchMedia || !window.matchMedia("(max-width: 680px)").matches) {
       setTimeout(() => document.getElementById("loginUser")?.focus(), 50);
     }

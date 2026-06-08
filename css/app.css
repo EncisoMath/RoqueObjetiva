@@ -12492,3 +12492,149 @@ select,
     95% { opacity: 0; transform: translate(-50%, -7px) scale(.86); filter: blur(1.6px); }
   }
 }
+
+
+/* v99: ejemplos rotativos de usuario en animacion de login */
+.access-v96-name-line {
+  display: flex !important;
+  align-items: baseline;
+  gap: .28em;
+  min-width: 0;
+}
+.access-v96-name-line .access-v96-muted-part {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.access-v96-source-name,
+.access-v96-source-id,
+.access-v96-token,
+.access-v96-result {
+  transition: color .22s ease, text-shadow .22s ease, letter-spacing .22s ease;
+}
+.login-access-guide[data-access-example-index="1"] .access-v96-source-name,
+.login-access-guide[data-access-example-index="1"] .access-v96-token-name,
+.login-access-guide[data-access-example-index="1"] .access-v96-result { letter-spacing: -.03em; }
+.login-access-guide[data-access-example-index="2"] .access-v96-result,
+.login-access-guide[data-access-example-index="3"] .access-v96-result,
+.login-access-guide[data-access-example-index="4"] .access-v96-result { font-size: 1.22rem !important; }
+@media (max-width: 480px) {
+  .access-v96-name-line { gap: .22em; }
+  .login-access-guide[data-access-example-index="2"] .access-v96-result,
+  .login-access-guide[data-access-example-index="3"] .access-v96-result,
+  .login-access-guide[data-access-example-index="4"] .access-v96-result { font-size: .94rem !important; }
+}
+
+
+/* v100: nitidez de textos extraídos en animación de login */
+.access-story-v96 .access-v96-token,
+.access-story-v96 .access-v96-result {
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+  text-rendering: geometricPrecision !important;
+  backface-visibility: hidden !important;
+  transform-style: flat !important;
+  filter: none !important;
+}
+
+.access-story-v96 .access-v96-token {
+  color: #ffe16e !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.13), rgba(255,255,255,.04)),
+    rgba(7, 35, 79, .94) !important;
+  border-color: rgba(255, 224, 113, .48) !important;
+  box-shadow:
+    0 10px 22px rgba(0, 0, 0, .20),
+    0 0 0 1px rgba(255,255,255,.05) inset !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, .28) !important;
+}
+
+.access-story-v96 .access-v96-token-id {
+  color: #ffc847 !important;
+}
+
+.access-story-v96 .access-v96-result {
+  text-shadow: 0 1px 0 rgba(255, 255, 255, .18) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.access-story-v96 .access-v96-token-name {
+  animation-name: accessV100TokenName !important;
+  animation-timing-function: cubic-bezier(.22,.9,.18,1) !important;
+}
+
+.access-story-v96 .access-v96-token-id {
+  animation-name: accessV100TokenId !important;
+  animation-timing-function: cubic-bezier(.22,.9,.18,1) !important;
+}
+
+.access-story-v96 .access-v96-result {
+  animation-name: accessV100Result !important;
+  animation-timing-function: cubic-bezier(.2,.92,.22,1) !important;
+}
+
+@keyframes accessV100TokenName {
+  0%, 18%, 90%, 100% { opacity: 0; transform: translate3d(-67px, -30px, 0) scale(.96); }
+  21%, 29% { opacity: 1; transform: translate3d(-67px, -30px, 0) scale(1); }
+  36% { opacity: 1; transform: translate3d(-32px, -22px, 0) scale(1); }
+  47% { opacity: 1; transform: translate3d(-32px, -9px, 0) scale(1); }
+  55% { opacity: 1; transform: translate3d(-76px, -7px, 0) scale(1); }
+  58% { opacity: 1; transform: translate3d(-60px, -7px, 0) scale(1); }
+  60% { opacity: 1; transform: translate3d(-70px, -7px, 0) scale(1); }
+  62% { opacity: 1; transform: translate3d(-63px, -7px, 0) scale(1); }
+  64% { opacity: 1; transform: translate3d(-67px, -7px, 0) scale(1); }
+  66%, 87% { opacity: 0; transform: translate3d(-67px, -7px, 0) scale(.94); }
+}
+
+@keyframes accessV100TokenId {
+  0%, 18%, 90%, 100% { opacity: 0; transform: translate3d(24px, -4px, 0) scale(.96); }
+  21%, 29% { opacity: 1; transform: translate3d(24px, -4px, 0) scale(1); }
+  36% { opacity: 1; transform: translate3d(-32px, 24px, 0) scale(1); }
+  47% { opacity: 1; transform: translate3d(-32px, 37px, 0) scale(1); }
+  55% { opacity: 1; transform: translate3d(8px, -7px, 0) scale(1); }
+  58% { opacity: 1; transform: translate3d(-7px, -7px, 0) scale(1); }
+  60% { opacity: 1; transform: translate3d(2px, -7px, 0) scale(1); }
+  62% { opacity: 1; transform: translate3d(-4px, -7px, 0) scale(1); }
+  64% { opacity: 1; transform: translate3d(-1px, -7px, 0) scale(1); }
+  66%, 87% { opacity: 0; transform: translate3d(-1px, -7px, 0) scale(.94); }
+}
+
+@keyframes accessV100Result {
+  0%, 62%, 96%, 100% { opacity: 0; transform: translate3d(-50%, -7px, 0) scale(.84); }
+  65% { opacity: 1; transform: translate3d(-50%, -7px, 0) scale(1.18); }
+  68% { opacity: 1; transform: translate3d(-50%, -7px, 0) scale(.96); }
+  70% { opacity: 1; transform: translate3d(-50%, -7px, 0) scale(1.06); }
+  72% { opacity: 1; transform: translate3d(-50%, -7px, 0) scale(1); }
+  75%, 91% { opacity: 1; transform: translate3d(-50%, -7px, 0) scale(1.04); }
+  95% { opacity: 0; transform: translate3d(-50%, -7px, 0) scale(.92); }
+}
+
+@media (min-width: 481px) {
+  @keyframes accessV100TokenName {
+    0%, 18%, 90%, 100% { opacity: 0; transform: translate3d(-78px, -34px, 0) scale(.96); }
+    21%, 29% { opacity: 1; transform: translate3d(-78px, -34px, 0) scale(1); }
+    36% { opacity: 1; transform: translate3d(-39px, -23px, 0) scale(1); }
+    47% { opacity: 1; transform: translate3d(-39px, -8px, 0) scale(1); }
+    55% { opacity: 1; transform: translate3d(-96px, -6px, 0) scale(1); }
+    58% { opacity: 1; transform: translate3d(-77px, -6px, 0) scale(1); }
+    60% { opacity: 1; transform: translate3d(-87px, -6px, 0) scale(1); }
+    62% { opacity: 1; transform: translate3d(-79px, -6px, 0) scale(1); }
+    64% { opacity: 1; transform: translate3d(-83px, -6px, 0) scale(1); }
+    66%, 87% { opacity: 0; transform: translate3d(-83px, -6px, 0) scale(.94); }
+  }
+  @keyframes accessV100TokenId {
+    0%, 18%, 90%, 100% { opacity: 0; transform: translate3d(34px, -1px, 0) scale(.96); }
+    21%, 29% { opacity: 1; transform: translate3d(34px, -1px, 0) scale(1); }
+    36% { opacity: 1; transform: translate3d(-39px, 28px, 0) scale(1); }
+    47% { opacity: 1; transform: translate3d(-39px, 43px, 0) scale(1); }
+    55% { opacity: 1; transform: translate3d(16px, -6px, 0) scale(1); }
+    58% { opacity: 1; transform: translate3d(-3px, -6px, 0) scale(1); }
+    60% { opacity: 1; transform: translate3d(7px, -6px, 0) scale(1); }
+    62% { opacity: 1; transform: translate3d(-1px, -6px, 0) scale(1); }
+    64% { opacity: 1; transform: translate3d(3px, -6px, 0) scale(1); }
+    66%, 87% { opacity: 0; transform: translate3d(3px, -6px, 0) scale(.94); }
+  }
+}

@@ -332,3 +332,11 @@ El `service-worker.js` usa estrategia de red primero para archivos JSON, para ev
 
 ## v98
 - Ajusta la animación del login: mueve la composición ruben + 7890 más arriba, usa un bounce más natural y mantiene ruben7890 visible más tiempo antes del loop.
+
+
+## v99
+- La animación de acceso rota ejemplos de usuario: Ruben, Alain, Peggy, Aydee y Kelly; cada ciclo muestra cómo combinar primer nombre y últimos 4 dígitos.
+
+
+## v100
+- Mejora la nitidez de los textos extraídos en la animación de login, quitando blur/backdrop-filter de las plaquitas amarillas.

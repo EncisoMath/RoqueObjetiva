@@ -1,8 +1,8 @@
 {
-  "version": "v98",
-  "cache": "resultados-pwa-v98",
+  "version": "v100",
+  "cache": "resultados-pwa-v100",
   "updatedAt": "2026-06-08",
-  "note": "Ajusta la animacion de login: composicion mas alta, bounce natural y ruben7890 visible por mas tiempo.",
-  "builtAt": "2026-06-08T03:12:00Z",
+  "note": "Mejora la nitidez de los textos extraidos ruben y digitos en la animacion del login.",
+  "builtAt": "2026-06-08T03:30:00Z",
   "date": "2026-06-08"
 }
