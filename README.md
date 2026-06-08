@@ -316,3 +316,11 @@ El `service-worker.js` usa estrategia de red primero para archivos JSON, para ev
 
 ## v94
 - Rediseña la animación del login con carné cinematográfico, desaparición de datos secundarios y composición animada de `ruben7890`.
+
+
+## v95
+- Reescribe la animación del login con keyframes únicos para que arranque correctamente en todos los navegadores.
+
+
+## v96
+- Mejora la animación del login: loop continuo, extracción desde el carné, rebote más fuerte y emoji 😎 como foto de perfil.

@@ -1,8 +1,8 @@
 {
-  "version": "v94",
-  "cache": "resultados-pwa-v94",
+  "version": "v96",
+  "cache": "resultados-pwa-v96",
   "updatedAt": "2026-06-08",
-  "note": "Ajusta la animación de construcción de usuario para que avance de forma visible y más rápida.",
-  "builtAt": "2026-06-08T02:30:00Z",
+  "note": "Ajusta la animación del login para que sea un loop continuo, extraiga ruben y 7890 desde el carné, agregue más rebote y use emoji 😎 como foto.",
+  "builtAt": "2026-06-08T02:50:00Z",
   "date": "2026-06-08"
 }

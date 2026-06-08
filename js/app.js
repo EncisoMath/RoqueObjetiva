@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v94";
+  const APP_VERSION = "v96";
 
   const app = document.getElementById("app");
   const toastEl = document.getElementById("toast");
@@ -868,41 +868,44 @@
 
   function renderLoginAccessGuide() {
     return `
-      <div class="login-access-guide access-cinema-guide" aria-hidden="true">
-        <div class="access-cinema-glow access-cinema-glow-a"></div>
-        <div class="access-cinema-glow access-cinema-glow-b"></div>
-        <div class="access-cinema-shape access-cinema-circle"></div>
-        <div class="access-cinema-shape access-cinema-cross">×</div>
-        <div class="access-cinema-shape access-cinema-triangle"></div>
+      <div class="login-access-guide access-story-v96" aria-hidden="true">
+        <div class="access-v96-ambient access-v96-ambient-a"></div>
+        <div class="access-v96-ambient access-v96-ambient-b"></div>
+        <div class="access-v96-glyph access-v96-glyph-x">×</div>
+        <div class="access-v96-glyph access-v96-glyph-ring"></div>
+        <div class="access-v96-glyph access-v96-glyph-triangle"></div>
 
-        <div class="access-cinema-scene">
-          <div class="cinema-id-card">
-            <div class="cinema-card-sheen"></div>
-            <div class="cinema-card-topline">
+        <div class="access-v96-stage">
+          <article class="access-v96-card">
+            <div class="access-v96-card-grid"></div>
+            <div class="access-v96-card-sheen"></div>
+            <header class="access-v96-card-head">
               <span>Roque Objetiva</span>
-              <i>Acceso</i>
-            </div>
-            <div class="cinema-card-main">
-              <div class="cinema-photo">
-                <span>R</span>
+              <strong>Acceso</strong>
+            </header>
+            <div class="access-v96-card-body">
+              <div class="access-v96-photo"><span>😎</span></div>
+              <div class="access-v96-info">
+                <small>Nombre completo</small>
+                <div class="access-v96-name-line">
+                  <span class="access-v96-source-name">Ruben</span><span class="access-v96-muted-part"> Andres Enciso Lopez</span>
+                </div>
+                <small>Documento / ID</small>
+                <div class="access-v96-id-line">
+                  <span class="access-v96-muted-part">123456</span><span class="access-v96-source-id">7890</span>
+                </div>
               </div>
-              <div class="cinema-card-data">
-                <span class="cinema-field-label">Nombre completo</span>
-                <strong class="cinema-card-name"><span class="cinema-card-token-name">Ruben</span><span class="cinema-card-muted"> Andres Enciso Lopez</span></strong>
-                <span class="cinema-field-label cinema-id-label">Documento / ID</span>
-                <strong class="cinema-card-id"><span class="cinema-card-muted">123456</span><span class="cinema-card-token-digits">7890</span></strong>
-              </div>
             </div>
-            <div class="cinema-card-footer">
-              <span></span><span></span><span></span><span></span>
-            </div>
-          </div>
+            <footer class="access-v96-card-foot">
+              <i></i><i></i><i></i>
+            </footer>
+          </article>
 
-          <div class="cinema-guide-title">Así construyes tu usuario</div>
-          <div class="cinema-token cinema-token-name">ruben</div>
-          <div class="cinema-token cinema-token-digits">7890</div>
-          <div class="cinema-plus">+</div>
-          <div class="cinema-final-user">ruben7890</div>
+          <div class="access-v96-caption">Así construyes tu usuario</div>
+          <div class="access-v96-token access-v96-token-name">ruben</div>
+          <div class="access-v96-token access-v96-token-id">7890</div>
+          <div class="access-v96-plus">+</div>
+          <div class="access-v96-result">ruben7890</div>
         </div>
       </div>
     `;
