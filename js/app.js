@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v88";
+  const APP_VERSION = "v90";
 
   const app = document.getElementById("app");
   const toastEl = document.getElementById("toast");
@@ -1482,7 +1482,7 @@
       ${active ? `
         <section class="teacher-stat-strip teacher-stat-strip-three">
           <article class="card card-pad teacher-stat"><span>Estudiantes</span><strong>${filtered.length}</strong></article>
-          <article class="card card-pad teacher-stat"><span>Promedio</span><strong>${avg(filtered.map((s) => s.subjectStats[active.subject].score))}<small>/100</small></strong></article>
+          <article class="card card-pad teacher-stat"><span>Promedio</span><strong>${avg(scoresForSubjectAverage(filtered, active.subject))}<small>/100</small></strong></article>
           <button class="card card-pad teacher-stat teacher-stat-action" data-action="teacher-score-info" data-subject="${escAttr(active.subject)}" data-grade="${escAttr(active.grade)}" data-total="${escAttr(itemValueInfo.total)}">
             <span>Valor de cada ítem</span>
             <strong>${esc(itemValueInfo.label)}<small> puntos</small></strong>
@@ -1534,7 +1534,7 @@
       </button>
     `).join("");
     const subjectCards = subjects.map((subject) => {
-      const values = students.map((student) => student.subjectStats[subject.name]?.score).filter((value) => Number.isFinite(value));
+      const values = scoresForSubjectAverage(students, subject.name);
       const display = avg(values);
       const percent = Number.isFinite(Number(display)) ? clamp(Number(display), 0, 100) : 0;
       return `
@@ -1605,7 +1605,7 @@
       }
     );
     const details = aggregateDetails(students, subject);
-    const scores = students.map((student) => student.subjectStats[subject]?.score).filter((value) => Number.isFinite(value));
+    const scores = scoresForSubjectAverage(students, subject);
     const rows = students.map((student, index) => {
       const stat = student.subjectStats[subject];
       return `
@@ -1654,7 +1654,7 @@
   }
 
   function teacherAggregateMetricsHtml(students, subject) {
-    const details = students.flatMap((student) => student.subjectStats[subject]?.details || []);
+    const details = aggregateDetails(students, subject);
     return teacherAggregateMetricsHtmlForDetails(details);
   }
 
@@ -1890,7 +1890,7 @@
 
   function statsSubjectRows(students) {
     return statsSubjectsFor(students).map((subject) => {
-      const values = students.map((student) => student.subjectStats?.[subject]?.score).filter((value) => Number.isFinite(value));
+      const values = scoresForSubjectAverage(students, subject);
       const evaluated = students.filter((student) => student.subjectStats?.[subject]?.total).length;
       return { key: subject, label: shortSubjectName(subject), avg: values.length ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length) : null, count: evaluated, evaluations: values.length };
     }).filter((row) => row.avg !== null).sort((a, b) => b.avg - a.avg || a.label.localeCompare(b.label, "es"));
@@ -1904,7 +1904,7 @@
       const row = map.get(key);
       row.students.add(student.roll || student.name || key);
       Object.values(student.subjectStats || {}).forEach((stat) => {
-        if (stat?.total && Number.isFinite(stat.score)) row.scores.push(stat.score);
+        if (isPresentedStat(stat)) row.scores.push(Number(stat.score));
       });
     });
     return [...map.values()].map((row) => ({ key: row.key, label: row.label, avg: row.scores.length ? Math.round(row.scores.reduce((sum, value) => sum + value, 0) / row.scores.length) : null, count: row.students.size, evaluations: row.scores.length }))
@@ -1915,12 +1915,12 @@
     const map = new Map();
     students.forEach((student) => {
       const stat = student.subjectStats?.[subject];
-      if (!stat?.total || !Number.isFinite(stat.score)) return;
+      if (!isPresentedStat(stat)) return;
       const key = cleanText(getKey(student)) || "Sin dato";
       if (!map.has(key)) map.set(key, { key, label: getLabel(key), scores: [], students: new Set() });
       const row = map.get(key);
       row.students.add(student.roll || student.name || key);
-      row.scores.push(stat.score);
+      row.scores.push(Number(stat.score));
     });
     return [...map.values()].map((row) => ({ key: row.key, label: row.label, avg: row.scores.length ? Math.round(row.scores.reduce((sum, value) => sum + value, 0) / row.scores.length) : null, count: row.students.size, evaluations: row.scores.length }))
       .filter((row) => row.avg !== null).sort((a, b) => b.avg - a.avg || String(a.label).localeCompare(String(b.label), "es", { numeric: true }));
@@ -1969,7 +1969,7 @@
   }
 
   function statsMetricsPanel(students, subject, context) {
-    const values = students.map((student) => student.subjectStats?.[subject]?.score).filter((value) => Number.isFinite(value));
+    const values = scoresForSubjectAverage(students, subject);
     const score = values.length ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length) : "—";
     const details = aggregateDetails(students, subject);
     const metricHtml = teacherAggregateMetricsHtmlForDetails(details);
@@ -2000,7 +2000,7 @@
 
   function adminSummaryHtml() {
     const grades = [...new Set(state.computedStudents.map((s) => s.grade).filter(Boolean))].sort((a, b) => a - b);
-    const avgGlobal = avg(state.computedStudents.map((s) => s.globalScore));
+    const avgGlobal = avg(state.computedStudents.filter(studentHasPresentedAnySubject).map((s) => s.globalScore));
     return `
       <section class="toolbar">
         <div>
@@ -2024,7 +2024,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
         <article class="card card-pad">
           <h3 style="margin:0 0 12px;font-weight:900;">Promedios por asignatura</h3>
           ${SUBJECTS.map((subject) => {
-            const values = state.computedStudents.map((s) => s.subjectStats[subject.name]?.score).filter((v) => Number.isFinite(v));
+            const values = scoresForSubjectAverage(state.computedStudents, subject.name);
             const value = Number(avg(values));
             return `
               <div class="meta-row">
@@ -2325,7 +2325,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     });
 
     const details = aggregateDetails(filtered, subject);
-    const scoreValues = filtered.map((student) => adminStudentSubjectStat(student, subject).score).filter((value) => Number.isFinite(value));
+    const scoreValues = scoresForSubjectAverage(filtered, subject);
 
     const rows = filteredSorted.map((student, index) => {
       const stat = adminStudentSubjectStat(student, subject);
@@ -2424,14 +2424,15 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
   function adminStudentSubjectStat(student, subject) {
     if (subject !== "all") {
       const stat = student.subjectStats[subject] || {};
-      return { score: stat.score, correct: stat.correct || 0, total: stat.total || 0 };
+      return { score: stat.score, correct: stat.correct || 0, total: stat.total || 0, absent: !!stat.absent };
     }
     const stats = SUBJECTS.map((subjectInfo) => student.subjectStats[subjectInfo.name]).filter((stat) => stat?.total);
-    const scores = stats.map((stat) => stat.score).filter((value) => Number.isFinite(value));
+    const scores = stats.map(scoreForAverageFromStat).filter((value) => Number.isFinite(value));
     return {
       score: scores.length ? Math.round(scores.reduce((sum, value) => sum + value, 0) / scores.length) : null,
       correct: stats.reduce((sum, stat) => sum + (stat.correct || 0), 0),
-      total: stats.reduce((sum, stat) => sum + (stat.total || 0), 0)
+      total: stats.reduce((sum, stat) => sum + (stat.total || 0), 0),
+      absent: stats.length > 0 && scores.length === 0
     };
   }
 
@@ -2664,8 +2665,14 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
 
   function aggregateDetails(students, subject = "all") {
     return students.flatMap((student) => {
-      if (subject !== "all") return student.subjectStats[subject]?.details || [];
-      return SUBJECTS.flatMap((s) => student.subjectStats[s.name]?.details || []);
+      if (subject !== "all") {
+        const stat = student.subjectStats?.[subject];
+        return isPresentedStat(stat) ? (stat.details || []) : [];
+      }
+      return SUBJECTS.flatMap((s) => {
+        const stat = student.subjectStats?.[s.name];
+        return isPresentedStat(stat) ? (stat.details || []) : [];
+      });
     });
   }
 
@@ -2718,8 +2725,8 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
 
     return [...map.values()].map((group) => {
       const scores = group.students.flatMap((student) => {
-        if (group.subject && group.subject !== "all") return [student.subjectStats[group.subject]?.score].filter((v) => Number.isFinite(v));
-        return SUBJECTS.map((s) => student.subjectStats[s.name]?.score).filter((v) => Number.isFinite(v));
+        if (group.subject && group.subject !== "all") return scoresForSubjectAverage([student], group.subject);
+        return scoresForAllSubjectsAverage(student);
       });
       const details = aggregateDetails(group.students, group.subject || subject);
       return {
@@ -5507,8 +5514,8 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       const ids = new Set();
       students.forEach((student) => {
         const stat = student.subjectStats?.[subject];
-        if (stat?.total && Number.isFinite(stat.score)) {
-          scores.push(stat.score);
+        if (isPresentedStat(stat)) {
+          scores.push(Number(stat.score));
           ids.add(student.roll);
         }
       });
@@ -5519,9 +5526,9 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
   function graphScoresForStudent(student, subject = "all") {
     if (subject && subject !== "all") {
       const stat = student.subjectStats?.[subject];
-      return stat?.total && Number.isFinite(stat.score) ? [stat.score] : [];
+      return isPresentedStat(stat) ? [Number(stat.score)] : [];
     }
-    return Object.values(student.subjectStats || {}).filter((stat) => stat?.total && Number.isFinite(stat.score)).map((stat) => stat.score);
+    return scoresForAllSubjectsAverage(student);
   }
 
   function graphMetricsFor(students, subject, depth = 0) {
@@ -5630,18 +5637,18 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
   function subjectMetric(students) {
     const selected = state.adminAnalysisSubject !== "all" ? [state.adminAnalysisSubject] : availableSubjects();
     return selected.map((subject) => {
-      const scores = students.map((student) => student.subjectStats[subject]?.score).filter((value) => Number.isFinite(Number(value)));
-      const count = students.filter((student) => student.subjectStats[subject]?.total).length;
+      const scores = scoresForSubjectAverage(students, subject);
+      const count = students.filter((student) => isPresentedStat(student.subjectStats[subject])).length;
       return { key: subject, subject, label: shortSubjectName(subject), count, avg: avg(scores) };
     }).filter((item) => item.count && item.avg !== "—").sort((a,b)=>(Number(b.avg)||0)-(Number(a.avg)||0));
   }
 
   function scoresForStudent(student, subject = "all") {
     if (subject && subject !== "all") {
-      const value = student.subjectStats[subject]?.score;
-      return Number.isFinite(Number(value)) ? [Number(value)] : [];
+      const stat = student.subjectStats[subject];
+      return isPresentedStat(stat) ? [Number(stat.score)] : [];
     }
-    return availableSubjects().map((subject) => student.subjectStats[subject]?.score).filter((value) => Number.isFinite(Number(value))).map(Number);
+    return availableSubjects().flatMap((subject) => scoresForSubjectAverage([student], subject));
   }
 
   function analysisMetricsFor(students, subject, depth = 0) {
@@ -5830,6 +5837,27 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
   function calculateScore(correct, total) {
     if (!total) return null;
     return Math.round(20 + (correct / total) * 80);
+  }
+
+  // v90: el 0 de "No presentó" se muestra en tablas, pero NO entra en promedios.
+  function isPresentedStat(stat) {
+    return !!(stat && stat.total && !stat.absent && Number.isFinite(Number(stat.score)));
+  }
+
+  function scoreForAverageFromStat(stat) {
+    return isPresentedStat(stat) ? Number(stat.score) : null;
+  }
+
+  function scoresForSubjectAverage(students, subject) {
+    return (students || []).map((student) => scoreForAverageFromStat(student?.subjectStats?.[subject])).filter((value) => Number.isFinite(Number(value))).map(Number);
+  }
+
+  function scoresForAllSubjectsAverage(student) {
+    return Object.values(student?.subjectStats || {}).map(scoreForAverageFromStat).filter((value) => Number.isFinite(Number(value))).map(Number);
+  }
+
+  function studentHasPresentedAnySubject(student) {
+    return Object.values(student?.subjectStats || {}).some((stat) => isPresentedStat(stat));
   }
 
   function responseSessions(record) {

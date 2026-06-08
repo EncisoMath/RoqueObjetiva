@@ -1,8 +1,8 @@
 {
-  "version": "v88",
-  "cache": "resultados-pwa-v88",
+  "version": "v90",
+  "cache": "resultados-pwa-v90",
   "updatedAt": "2026-06-08",
-  "note": "Incluye todos los estudiantes registrados en tablas de notas y muestra 0 rojo cuando no aparecen en la sesión correspondiente.",
+  "note": "Ajusta el 0 de estudiantes que no presentaron para que mantenga el estilo normal de nota, solo en rojo.",
   "builtAt": "2026-06-08T00:45:00Z",
   "date": "2026-06-08"
 }

@@ -9429,3 +9429,27 @@ select,
   align-items: center;
   justify-content: flex-end;
 }
+
+
+/* v90: el 0 de estudiantes que no presentaron conserva el estilo normal, solo cambia a rojo */
+.score-absent {
+  color: #dc2626 !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  letter-spacing: inherit !important;
+}
+.subject-score.score-absent,
+.subject-detail-score.score-absent,
+.teacher-score.score-absent {
+  display: inline !important;
+  line-height: inherit !important;
+}
+.subject-score.score-absent small,
+.subject-detail-score.score-absent small,
+.teacher-score.score-absent small {
+  color: #dc2626 !important;
+  opacity: 1 !important;
+}
