@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v118";
+  const APP_VERSION = "v119";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -39,7 +39,7 @@
   const DEFAULT_CONFIG = {
     title: "Roque Objetiva",
     subtitle: "Este reporte no se pasa ni se pierde. Es una herramienta para identificar fortalezas, habilidades y oportunidades de mejora.",
-    logoImage: "assets/logo-principal.png?v=118",
+    logoImage: "assets/logo-principal.png?v=119",
     appIcon: "icons/icon-512.png",
     bannerImage: "",
     footerText: "Consulta institucional de resultados",
@@ -95,6 +95,7 @@
     rankingFallbackRegistryByNationalId: new Map(),
     rankingFallbackLoaded: false,
     rankingSupplementLoaded: false,
+    sessionRankContextByRoll: new Map(),
     missingFiles: [],
     computedStudents: [],
     orphanExams: [],
@@ -232,6 +233,7 @@
       state.rankingFallbackRegistryByNationalId = new Map();
       state.rankingFallbackLoaded = false;
       state.rankingSupplementLoaded = false;
+      clearSessionRankContext();
       state.missingFiles = [];
       state.studentsRegistry = [];
       state.cargaRows = [];
@@ -251,6 +253,7 @@
     state.rankingFallbackRegistryByNationalId = new Map();
     state.rankingFallbackLoaded = false;
     state.rankingSupplementLoaded = false;
+    clearSessionRankContext();
     state.missingFiles = [];
 
     const studentText = await fetchText(state.manifest.estudiantes, true);
@@ -409,8 +412,8 @@
   }
 
   async function ensureRankingFallbackUniverse() {
-    // v118: si Supabase entrega solo el estudiante que inició sesión, se usa el paquete local
-    // únicamente como universo de ranking. No modifica las listas visibles ni la matrícula.
+    // v119: si Supabase entrega solo el estudiante que inició sesión, se puede usar el paquete local
+    // únicamente como universo temporal de ranking. No modifica las listas visibles ni la matrícula.
     if (!SUPABASE_CONFIG.enabled) return;
     if (hasUsableRankingUniverse() || hasPrecomputedRankMetadata()) return;
     await loadBundledRankingFallbackData();
@@ -471,6 +474,50 @@
     state.rankingFallbackResponsesByRoll = tempResponses;
   }
 
+
+  function clearRankingFallbackData() {
+    state.rankingFallbackResponsesByRoll = new Map();
+    state.rankingFallbackRegistryByExamId = new Map();
+    state.rankingFallbackRegistryByNationalId = new Map();
+    state.rankingFallbackLoaded = false;
+  }
+
+  function clearSessionRankContext() {
+    state.sessionRankContextByRoll = new Map();
+  }
+
+  function setSessionRankContext(roll, meta = {}) {
+    const key = cleanId(roll);
+    if (!key) return;
+    state.sessionRankContextByRoll.set(key, {
+      gradeRank: positiveIntOrNull(meta.gradeRank),
+      gradeCount: positiveIntOrNull(meta.gradeCount),
+      courseRank: positiveIntOrNull(meta.courseRank),
+      courseCount: positiveIntOrNull(meta.courseCount),
+      globalScore: numberOrNull(meta.globalScore),
+      rawGlobalScore: numberOrNull(meta.rawGlobalScore)
+    });
+  }
+
+  function applySessionRankContextToStudent(student) {
+    if (!student) return;
+    const roll = cleanId(student.roll || student.registry?.examId);
+    const meta = roll ? state.sessionRankContextByRoll?.get?.(roll) : null;
+    if (!meta) return;
+    const gradeRank = positiveIntOrNull(meta.gradeRank);
+    const gradeCount = positiveIntOrNull(meta.gradeCount);
+    const courseRank = positiveIntOrNull(meta.courseRank);
+    const courseCount = positiveIntOrNull(meta.courseCount);
+    if (gradeRank) student.gradeRank = gradeRank;
+    if (gradeCount) student.gradeCount = gradeCount;
+    if (courseRank) student.courseRank = courseRank;
+    if (courseCount) student.courseCount = courseCount;
+    if (Number.isFinite(Number(meta.globalScore))) student.globalScore = Number(meta.globalScore);
+    if (student.gradeRank && student.gradeCount) {
+      student.percentile = student.gradeCount > 1 ? Math.round(((student.gradeCount - student.gradeRank) / (student.gradeCount - 1)) * 100) : 100;
+    }
+  }
+
   function mergeSupplementalStudents(students = []) {
     if (!Array.isArray(students) || !students.length) return;
     const byExam = new Map((state.studentsRegistry || []).map((student) => [cleanId(student.examId), student]).filter(([id]) => id));
@@ -525,6 +572,7 @@
     state.rankingFallbackRegistryByNationalId = new Map();
     state.rankingFallbackLoaded = false;
     state.rankingSupplementLoaded = false;
+    clearSessionRankContext();
     state.missingFiles = [];
     state.orphanExams = [];
 
@@ -720,6 +768,7 @@
 
       if (session.role === "student") {
         const roll = cleanId(session.roll);
+        await prepareStudentRankingContext(roll);
         state.selectedSubject = null;
         state.metricTab = "components";
         state.zeroToleranceShown = false;
@@ -1286,14 +1335,14 @@
   }
 
   function assignRanks() {
-    // v118: ranking por PUNTAJE GLOBAL. Las listas visibles pueden estar filtradas por rol,
+    // v119: ranking por PUNTAJE GLOBAL. Las listas visibles pueden estar filtradas por rol,
     // pero los puestos se calculan con un universo independiente: resultados Supabase,
     // ranking precomputado o respaldo local empaquetado.
     const visibleStudents = state.computedStudents || [];
     visibleStudents.forEach((student) => resetRankFields(student));
 
     const rankedStudents = buildRankingStudentsPool()
-      .filter((student) => studentHasExistingResult(student) && Number.isFinite(rankBaseScore(student)));
+      .filter((student) => studentHasRankingResult(student) && Number.isFinite(rankBaseScore(student)));
 
     const byGrade = groupBy(rankedStudents, gradeRankKey);
     byGrade.forEach((gradeStudents, key) => {
@@ -1381,7 +1430,7 @@
     const byRoll = new Map();
     (state.computedStudents || []).forEach((student) => {
       const roll = cleanId(student?.roll || student?.registry?.examId);
-      if (!roll || !studentHasExistingResult(student)) return;
+      if (!roll || !studentHasRankingResult(student)) return;
       resetRankFields(student);
       byRoll.set(roll, student);
     });
@@ -1474,6 +1523,83 @@
         student.courseRank = rank;
       }
     });
+  }
+
+
+  function findRankingStudentByRoll(roll) {
+    const key = cleanId(roll);
+    if (!key) return null;
+    return state.computedByRoll?.get?.(key)
+      || state.computedByRoll?.get?.(state.studentLogin?.get?.(key))
+      || (state.computedStudents || []).find((student) => cleanId(student.roll) === key || (student.loginIds || []).some((id) => cleanId(id) === key))
+      || null;
+  }
+
+  function sameRankCourse(student, targetSede, targetGrade, targetGroup) {
+    if (!student || !targetGrade || !targetGroup) return false;
+    const grade = toInt(student.grade);
+    const sede = normalizeText(student.sede || student.registry?.sede || "");
+    const group = normalizeText(student.group || student.registry?.group || "");
+    return grade === targetGrade && sede === targetSede && group === targetGroup;
+  }
+
+  function rankInfoForRoll(rows, roll) {
+    const key = cleanId(roll);
+    const ordered = orderStudentsForRanking(rows || []);
+    const index = ordered.findIndex((student) => cleanId(student.roll || student.registry?.examId) === key || (student.loginIds || []).some((id) => cleanId(id) === key));
+    return { rank: index >= 0 ? index + 1 : null, count: ordered.length };
+  }
+
+  async function prepareStudentRankingContext(roll) {
+    // v119: ranking de estudiante por contexto temporal. No usa la lista visible como universo.
+    // 1) ubica sede/grado/curso del estudiante; 2) arma pool temporal; 3) calcula grado y curso;
+    // 4) guarda solo los dos puestos; 5) borra el pool local para liberar memoria.
+    const key = cleanId(roll);
+    if (!key) return;
+    clearSessionRankContext();
+
+    // Cargar respaldo local siempre para estudiante: sirve solo como universo temporal de ranking
+    // cuando Supabase entrega un payload filtrado por usuario.
+    try { await loadBundledRankingFallbackData(); } catch (error) { console.warn("No se pudo preparar universo local de ranking:", error?.message || error); }
+
+    let target = findRankingStudentByRoll(key);
+    if (!target && state.responsesByRoll?.has?.(key)) target = buildComputedStudentFromResultRecord({ ...state.responsesByRoll.get(key), roll: key }, 0);
+    if (!target) return;
+
+    // Si el payload no trajo sede/grupo, se completa desde ESTUDIANTES local solo para este cálculo.
+    const localRegistry = state.rankingFallbackRegistryByExamId?.get?.(key) || state.rankingFallbackRegistryByNationalId?.get?.(cleanId(target.registry?.nationalId));
+    const targetGrade = toInt(target.grade) || toInt(localRegistry?.grade);
+    const targetSede = normalizeText(target.sede || target.registry?.sede || localRegistry?.sede || "");
+    const targetGroup = normalizeText(target.group || target.registry?.group || localRegistry?.group || "");
+    if (!targetGrade) return;
+
+    const pool = buildRankingStudentsPool()
+      .filter((student) => studentHasRankingResult(student) && Number.isFinite(rankBaseScore(student)));
+
+    const gradeRows = pool.filter((student) => toInt(student.grade) === targetGrade);
+    const courseRows = gradeRows.filter((student) => sameRankCourse(student, targetSede, targetGrade, targetGroup));
+    const gradeInfo = rankInfoForRoll(gradeRows, key);
+    const courseInfo = rankInfoForRoll(courseRows, key);
+
+    const meta = {
+      globalScore: rankBaseScore(target),
+      rawGlobalScore: target.rawGlobalScore,
+      gradeRank: gradeInfo.rank,
+      gradeCount: gradeInfo.count,
+      courseRank: courseInfo.rank,
+      courseCount: courseInfo.count
+    };
+    setSessionRankContext(key, meta);
+
+    const visibleStudent = findRankingStudentByRoll(key);
+    if (visibleStudent) {
+      const visibleRoll = cleanId(visibleStudent.roll || visibleStudent.registry?.examId);
+      if (visibleRoll && visibleRoll !== key) setSessionRankContext(visibleRoll, meta);
+      applySessionRankContextToStudent(visibleStudent);
+    }
+
+    // La tabla temporal queda descartada. Se conservan solo las variables finales de ranking.
+    clearRankingFallbackData();
   }
 
   function openAdminStatsView(event = null) {
@@ -2007,6 +2133,7 @@
 
   function renderStudent(roll) {
     const student = state.computedByRoll.get(roll);
+    applySessionRankContextToStudent(student);
     if (!student) {
       const registry = state.registryByExamId.get(roll) || Array.from(state.registryByNationalId.values()).find((s) => s.examId === roll);
       renderShell(`
@@ -6826,6 +6953,8 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
   function clearSession() {
     state.activeSession = null;
     state.zeroToleranceShown = false;
+    clearSessionRankContext();
+    clearRankingFallbackData();
     localStorage.removeItem(STORAGE.session);
     sessionStorage.removeItem("po_supabase_admin_password");
   }
@@ -7064,6 +7193,19 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     const roll = cleanId(student.roll || student.registry?.examId);
     const examId = cleanId(student.registry?.examId || "");
     return !!((roll && state.responsesByRoll.has(roll)) || (examId && state.responsesByRoll.has(examId)));
+  }
+
+
+  function studentHasRankingResult(student) {
+    if (!student || student.missingExam) return false;
+    const roll = cleanId(student.roll || student.registry?.examId);
+    const examId = cleanId(student.registry?.examId || "");
+    return !!(
+      (roll && state.responsesByRoll.has(roll)) ||
+      (examId && state.responsesByRoll.has(examId)) ||
+      (roll && state.rankingFallbackResponsesByRoll?.has?.(roll)) ||
+      (examId && state.rankingFallbackResponsesByRoll?.has?.(examId))
+    );
   }
 
   function evaluatedStudentsOnly(students = []) {

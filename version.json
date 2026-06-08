@@ -1,8 +1,8 @@
 {
-  "version": "v118",
-  "cache": "resultados-pwa-v118",
+  "version": "v119",
+  "cache": "resultados-pwa-v119",
   "updatedAt": "2026-06-08",
-  "note": "Corrige rankings por puntaje global con universo completo; evita falsos 1/1 cuando Supabase entrega payload filtrado; mantiene Supabase sin cache.",
-  "builtAt": "2026-06-08T19:15:00Z",
+  "note": "Ranking de estudiante con tabla temporal por contexto: grado completo y curso sede+grado+curso; variables limpias al cerrar sesión; Supabase sin caché.",
+  "builtAt": "2026-06-08T19:35:00Z",
   "date": "2026-06-08"
 }
