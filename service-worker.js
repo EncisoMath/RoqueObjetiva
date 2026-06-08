@@ -1,5 +1,5 @@
-const APP_VERSION = "v90";
-const CACHE_VERSION = "resultados-pwa-v90";
+const APP_VERSION = "v91";
+const CACHE_VERSION = "resultados-pwa-v91";
 const CACHE_PREFIXES = ["resultados-pwa-", "resultados-pruebas-"];
 
 const APP_SHELL = [

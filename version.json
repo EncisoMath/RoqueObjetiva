@@ -1,8 +1,8 @@
 {
-  "version": "v90",
-  "cache": "resultados-pwa-v90",
+  "version": "v91",
+  "cache": "resultados-pwa-v91",
   "updatedAt": "2026-06-08",
-  "note": "Ajusta el 0 de estudiantes que no presentaron para que mantenga el estilo normal de nota, solo en rojo.",
-  "builtAt": "2026-06-08T00:45:00Z",
+  "note": "Agrega una animación guía en el login para explicar cómo formar el usuario personal con primer nombre + últimos 4 dígitos del documento.",
+  "builtAt": "2026-06-08T01:25:00Z",
   "date": "2026-06-08"
 }

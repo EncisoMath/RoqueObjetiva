@@ -9453,3 +9453,339 @@ select,
   color: #dc2626 !important;
   opacity: 1 !important;
 }
+
+
+/* v91: animación guía de acceso en el login */
+.login-access-guide {
+  position: relative;
+  min-height: 176px;
+  margin: 8px 0 16px;
+  border-radius: 22px;
+  border: 1px solid rgba(255,255,255,.14);
+  background: linear-gradient(145deg, rgba(255,255,255,.10), rgba(255,255,255,.05));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 16px 34px rgba(0,0,0,.16);
+  overflow: hidden;
+}
+
+.login-access-guide::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(255,255,255,.10), transparent 8rem),
+    radial-gradient(circle at 88% 80%, rgba(255,255,255,.07), transparent 10rem);
+  pointer-events: none;
+}
+
+.access-guide-stage {
+  position: absolute;
+  inset: 0;
+  padding: 16px 16px 14px;
+  display: grid;
+  align-content: center;
+  gap: 12px;
+  opacity: 0;
+  transform: translateY(10px) scale(.985);
+  pointer-events: none;
+}
+
+.access-guide-stage-card {
+  animation: loginGuideCardLoop 9.5s ease-in-out infinite;
+}
+
+.access-guide-stage-formula {
+  animation: loginGuideFormulaLoop 9.5s ease-in-out infinite;
+}
+
+@keyframes loginGuideCardLoop {
+  0%, 43% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  48%, 100% {
+    opacity: 0;
+    transform: translateY(-8px) scale(.98);
+  }
+}
+
+@keyframes loginGuideFormulaLoop {
+  0%, 46% {
+    opacity: 0;
+    transform: translateY(10px) scale(.985);
+  }
+  53%, 95% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-8px) scale(.98);
+  }
+}
+
+.access-guide-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: max-content;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.14);
+  color: rgba(255,255,255,.92);
+  font-size: .72rem;
+  font-weight: 900;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.access-id-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 54px 1fr;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 20px;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(9,24,50,.96), rgba(26,78,130,.90));
+  border: 1px solid rgba(255,255,255,.12);
+  box-shadow: 0 18px 36px rgba(0,0,0,.18);
+}
+
+.access-id-card-glow {
+  position: absolute;
+  inset: auto -10% -40% auto;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,204,77,.26), transparent 68%);
+  pointer-events: none;
+}
+
+.access-id-chip {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 28px;
+  height: 21px;
+  border-radius: 7px;
+  background: linear-gradient(145deg, rgba(255,218,126,.95), rgba(209,148,9,.92));
+  box-shadow: inset 0 1px 1px rgba(255,255,255,.35), 0 8px 18px rgba(0,0,0,.18);
+}
+
+.access-id-avatar {
+  position: relative;
+  z-index: 1;
+  width: 54px;
+  height: 54px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(145deg, rgba(255,255,255,.18), rgba(255,255,255,.07));
+  border: 1px solid rgba(255,255,255,.14);
+  color: #fff;
+  font-size: 1.25rem;
+  font-weight: 1000;
+  letter-spacing: -.04em;
+}
+
+.access-id-body {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 5px;
+}
+
+.access-id-label {
+  color: rgba(255,255,255,.68);
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+}
+
+.access-id-name,
+.access-id-number {
+  color: #fff;
+}
+
+.access-id-name {
+  font-size: 1.08rem;
+  line-height: 1.1;
+}
+
+.access-id-number {
+  font-size: .94rem;
+  font-weight: 900;
+  letter-spacing: .02em;
+}
+
+.access-id-body .is-dim {
+  opacity: .33;
+  filter: saturate(.82);
+}
+
+.access-id-body .is-focus {
+  color: #fff3ba;
+  text-shadow: 0 0 0 rgba(0,0,0,0), 0 0 14px rgba(255,208,94,.28);
+  font-weight: 1000;
+}
+
+.access-guide-copy {
+  margin: 0;
+  color: rgba(255,255,255,.92) !important;
+  line-height: 1.42;
+  font-size: .92rem;
+}
+
+.access-guide-copy strong {
+  color: #fff;
+}
+
+.access-guide-equation {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.access-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 7px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.14);
+  font-size: 1rem;
+  font-weight: 1000;
+  letter-spacing: -.01em;
+}
+
+.access-pill-name {
+  background: rgba(255,255,255,.10);
+  color: #fff3ba;
+}
+
+.access-pill-digits {
+  background: rgba(255,255,255,.10);
+  color: #ffd28e;
+}
+
+.access-equation-symbol {
+  color: rgba(255,255,255,.76);
+  font-size: 1.08rem;
+  font-weight: 900;
+}
+
+.access-guide-user {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 7px 14px;
+  border-radius: 15px;
+  background: linear-gradient(145deg, rgba(255,255,255,.18), rgba(255,255,255,.08));
+  color: #fff;
+  border: 1px solid rgba(255,255,255,.18);
+  box-shadow: 0 16px 24px rgba(0,0,0,.14);
+  font-size: 1.06rem;
+  font-weight: 1000;
+  letter-spacing: -.02em;
+}
+
+@media (max-width: 680px) {
+  .login-access-guide {
+    min-height: 164px;
+    margin: 6px 0 14px;
+    border-radius: 20px;
+  }
+
+  .access-guide-stage {
+    padding: 14px 14px 12px;
+    gap: 10px;
+  }
+
+  .access-id-card {
+    grid-template-columns: 46px 1fr;
+    gap: 10px;
+    padding: 12px;
+    border-radius: 18px;
+  }
+
+  .access-id-avatar {
+    width: 46px;
+    height: 46px;
+    border-radius: 15px;
+    font-size: 1.08rem;
+  }
+
+  .access-id-name {
+    font-size: .97rem;
+  }
+
+  .access-id-number {
+    font-size: .84rem;
+  }
+
+  .access-guide-copy {
+    font-size: .84rem;
+  }
+
+  .access-pill,
+  .access-guide-user {
+    min-height: 34px;
+    font-size: .92rem;
+    border-radius: 13px;
+  }
+}
+
+@media (max-width: 420px) {
+  .login-access-guide {
+    min-height: 154px;
+  }
+
+  .access-guide-kicker {
+    font-size: .64rem;
+    padding: 5px 9px;
+  }
+
+  .access-id-card {
+    grid-template-columns: 42px 1fr;
+    padding: 11px;
+  }
+
+  .access-id-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    font-size: .98rem;
+  }
+
+  .access-id-label {
+    font-size: .62rem;
+  }
+
+  .access-id-name {
+    font-size: .88rem;
+  }
+
+  .access-id-number {
+    font-size: .76rem;
+  }
+
+  .access-guide-copy {
+    font-size: .78rem;
+    line-height: 1.34;
+  }
+
+  .access-guide-equation {
+    gap: 6px;
+  }
+
+  .access-pill,
+  .access-guide-user {
+    min-height: 32px;
+    padding: 6px 10px;
+    font-size: .84rem;
+  }
+}

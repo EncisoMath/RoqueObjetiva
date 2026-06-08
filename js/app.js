@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v90";
+  const APP_VERSION = "v91";
 
   const app = document.getElementById("app");
   const toastEl = document.getElementById("toast");
@@ -866,6 +866,37 @@
     `;
   }
 
+  function renderLoginAccessGuide() {
+    return `
+      <div class="login-access-guide" aria-hidden="true">
+        <div class="access-guide-stage access-guide-stage-card">
+          <span class="access-guide-kicker">Así construyes tu usuario</span>
+          <div class="access-id-card">
+            <div class="access-id-card-glow"></div>
+            <div class="access-id-chip"></div>
+            <div class="access-id-avatar">R</div>
+            <div class="access-id-body">
+              <span class="access-id-label">Ejemplo de documento</span>
+              <strong class="access-id-name"><span class="is-focus">Ruben</span> <span class="is-dim">Andres Enciso Lopez</span></strong>
+              <span class="access-id-number"><span class="is-dim">ID</span> <span class="is-dim">102674</span><span class="is-focus">8525</span></span>
+            </div>
+          </div>
+        </div>
+        <div class="access-guide-stage access-guide-stage-formula">
+          <span class="access-guide-kicker">Tu usuario personal</span>
+          <p class="access-guide-copy">Combina tu <strong>primer nombre</strong> con los <strong>últimos 4 dígitos</strong> de tu documento.</p>
+          <div class="access-guide-equation" aria-label="ruben más 8525 igual a ruben8525">
+            <span class="access-pill access-pill-name">ruben</span>
+            <span class="access-equation-symbol">+</span>
+            <span class="access-pill access-pill-digits">8525</span>
+            <span class="access-equation-symbol">=</span>
+            <strong class="access-guide-user">ruben8525</strong>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
   function startRecentLogin(key) {
     const item = getRecentLogins().find((entry) => entry.key === key);
     if (!item || !item.session) return renderLogin("No se encontró ese ingreso reciente.");
@@ -938,12 +969,13 @@
             ${logo ? `<div class="login-main-logo"><img src="${escAttr(logo)}" alt="Logo institucional"></div>` : ""}
             <span class="login-eyebrow">Consulta de resultados</span>
             <h1>Bienvenido</h1>
-            <p>Ingresa con el ID del examen, el documento del estudiante o el ID docente.</p>
+            <p>Ingresa con el <strong>ID de tu prueba</strong> o con tu <strong>usuario personal</strong>.</p>
+            ${renderLoginAccessGuide()}
             ${error ? `<div class="admin-note login-error">${esc(error)}</div>` : ""}
             <form class="login-form" id="loginForm">
               <div class="field">
                 <label for="loginUser">Usuario o ID</label>
-                <input id="loginUser" autocomplete="username" placeholder="Ej. 2585, 1085111839, ID docente o admin" required />
+                <input id="loginUser" autocomplete="username" placeholder="Ej. ruben8525, 2585, ID docente o admin" required />
               </div>
               <div class="field login-password-field is-hidden" id="loginPasswordField">
                 <label for="loginPass">Contraseña</label>
