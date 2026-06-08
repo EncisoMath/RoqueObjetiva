@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v125";
+  const APP_VERSION = "v126";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -2284,7 +2284,7 @@
 
     if (state.activeSession.role === "student") {
       const roll = cleanId(state.activeSession.roll);
-      if (state.activeSession.rankingDebugRequested && (!state.activeSession.rankingDebugDone || state.activeSession.rankingDebugVersion !== "v125")) {
+      if (state.activeSession.rankingDebugRequested && (!state.activeSession.rankingDebugDone || state.activeSession.rankingDebugVersion !== "v126")) {
         return showStudentRankingDebugGate(roll, "Reconstruyendo diagnóstico de ranking...");
       }
       return renderStudent(roll);
@@ -2305,7 +2305,7 @@
       roll: cleanRoll,
       rankingDebugRequested: debug,
       rankingDebugDone: !debug,
-      rankingDebugVersion: "v125"
+      rankingDebugVersion: "v126"
     };
     state.activeSession = session;
     writeJSON(STORAGE.session, state.activeSession);
@@ -2316,7 +2316,7 @@
       try {
         await prepareStudentRankingContext(cleanRoll);
         if (debug) {
-          state.activeSession = { ...(state.activeSession || session), rankingDebugRequested: true, rankingDebugDone: false, rankingDebugVersion: "v125" };
+          state.activeSession = { ...(state.activeSession || session), rankingDebugRequested: true, rankingDebugDone: false, rankingDebugVersion: "v126" };
           writeJSON(STORAGE.session, state.activeSession);
           renderStudentRankingDebug(cleanRoll);
         } else {
@@ -2674,13 +2674,13 @@
           <div class="login-card login-card-dark">
             ${logo ? `<div class="login-main-logo"><img src="${escAttr(logo)}" alt="Logo institucional"></div>` : ""}
             <span class="login-eyebrow login-eyebrow-title">CONSULTA DE RESULTADOS</span>
-            <p>Ingresa con el <strong>ID de tu prueba</strong> o con tu <strong>usuario personal</strong>.</p>
-            ${renderLoginAccessGuide()}
+            <h1 class="login-intro-title">Bienvenido</h1>
+            <p class="login-intro-copy">Ingresa el <strong>ID de tu prueba</strong> o tu <strong>número de documento de identidad</strong>.</p>
             ${error ? `<div class="admin-note login-error">${esc(error)}</div>` : ""}
             <form class="login-form login-form-inline" id="loginForm">
               <div class="login-input-row">
                 <div class="field login-user-field">
-                  <label for="loginUser">Usuario o ID de tu examen</label>
+                  <label for="loginUser">Usuario o ID</label>
                   <input id="loginUser" autocomplete="username" placeholder="" required />
                 </div>
                 <div class="login-actions login-actions-inline">
@@ -2697,7 +2697,6 @@
         </div>
       </section>
     `;
-    initLoginAccessGuide();
     if (!window.matchMedia || !window.matchMedia("(max-width: 680px)").matches) {
       setTimeout(() => document.getElementById("loginUser")?.focus(), 50);
     }
@@ -4998,7 +4997,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     if (action === "student-ranking-debug-next") {
       const roll = cleanId(target.dataset.roll || state.activeSession?.roll || "");
       state.zeroToleranceShown = false;
-      state.activeSession = { ...(state.activeSession || {}), role: "student", roll, rankingDebugRequested: false, rankingDebugDone: true, rankingDebugVersion: "v125" };
+      state.activeSession = { ...(state.activeSession || {}), role: "student", roll, rankingDebugRequested: false, rankingDebugDone: true, rankingDebugVersion: "v126" };
       writeJSON(STORAGE.session, state.activeSession);
       return enterSessionWithLoader(state.activeSession, () => renderStudent(roll), "Abriendo tus resultados...");
     }
@@ -5008,7 +5007,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       if (state.activeSession?.role === "student") {
         state.activeSession.rankingDebugRequested = true;
         state.activeSession.rankingDebugDone = false;
-        state.activeSession.rankingDebugVersion = "v125";
+        state.activeSession.rankingDebugVersion = "v126";
         writeJSON(STORAGE.session, state.activeSession);
       }
       state.studentRankDebugByRoll?.delete?.(roll);

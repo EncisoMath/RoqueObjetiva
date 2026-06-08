@@ -12988,3 +12988,126 @@ select,
   .rank-debug-grid { grid-template-columns: 1fr; }
   .rank-debug-actions { justify-content: flex-start; }
 }
+
+
+/* v126: ajustes finales login y contraste de numeros de ranking */
+.login-card-dark .login-eyebrow-title {
+  width: 100% !important;
+  max-width: 100% !important;
+  font-size: .82rem !important;
+  letter-spacing: .14em !important;
+  line-height: 1.1 !important;
+  margin: 2px 0 10px !important;
+  color: rgba(227, 238, 251, .88) !important;
+}
+
+.login-card-dark .login-intro-title {
+  margin: 0 0 10px !important;
+  font-size: clamp(2.35rem, 7vw, 3.25rem) !important;
+  font-weight: 950 !important;
+  letter-spacing: -.05em !important;
+  line-height: .92 !important;
+  color: rgba(255,255,255,.98) !important;
+}
+
+.login-card-dark .login-intro-copy {
+  margin: 0 0 18px !important;
+  font-size: clamp(1rem, 2vw, 1.16rem) !important;
+  line-height: 1.5 !important;
+  color: rgba(232, 241, 252, .94) !important;
+  max-width: 30rem;
+}
+
+.login-card-dark .login-intro-copy strong {
+  color: #ffffff !important;
+  font-weight: 900 !important;
+}
+
+.login-card-dark > p:not(.login-intro-copy) {
+  margin-bottom: 10px !important;
+}
+
+@media (max-width: 680px) {
+  .login-shell-dark {
+    min-height: 100dvh;
+    place-items: start center;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding-top: max(18px, env(safe-area-inset-top));
+    padding-bottom: 18px;
+    animation: none;
+  }
+  .login-shell-dark .login-panel {
+    width: min(100%, 520px);
+    padding: 16px 14px 22px !important;
+    align-self: start;
+  }
+  .login-card-dark {
+    padding: 18px 18px 20px !important;
+    border-radius: 24px !important;
+  }
+  .login-main-logo {
+    margin-bottom: 12px !important;
+  }
+  .login-card-dark .login-eyebrow-title {
+    font-size: .76rem !important;
+    margin-bottom: 8px !important;
+  }
+  .login-card-dark .login-intro-title {
+    font-size: clamp(2.05rem, 10vw, 2.8rem) !important;
+    margin-bottom: 8px !important;
+  }
+  .login-card-dark .login-intro-copy {
+    font-size: .98rem !important;
+    line-height: 1.45 !important;
+    margin-bottom: 14px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-shell-dark .login-panel {
+    padding-top: 12px !important;
+  }
+  .login-main-logo {
+    width: min(116px, 30vw) !important;
+    height: min(116px, 30vw) !important;
+  }
+  .login-card-dark .login-intro-title {
+    font-size: 2rem !important;
+  }
+  .login-card-dark .login-intro-copy {
+    font-size: .95rem !important;
+  }
+}
+
+.ranking-box.rank-gold strong {
+  color: #ce9403 !important;
+  text-shadow: 0 3px 10px rgba(121, 76, 0, .16), 0 0 1px rgba(255, 240, 180, .95) !important;
+}
+
+.ranking-box.rank-gold strong::after {
+  background: linear-gradient(180deg,
+    #fff6c4 0%,
+    #ffe68b 16%,
+    #f4be33 34%,
+    #ce9403 52%,
+    #9f6a00 68%,
+    #f0c24f 82%,
+    #fff0ad 100%) !important;
+}
+
+.ranking-box.rank-bronze strong {
+  color: #b65b1e !important;
+  text-shadow: 0 3px 10px rgba(86, 35, 11, .15), 0 0 1px rgba(255, 219, 194, .9) !important;
+}
+
+.ranking-box.rank-bronze strong::after {
+  background: linear-gradient(180deg,
+    #ffe1cc 0%,
+    #f5a36d 18%,
+    #d97838 34%,
+    #b65b1e 52%,
+    #844019 68%,
+    #ea8f56 84%,
+    #ffd0af 100%) !important;
+}
