@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v116";
+  const APP_VERSION = "v117";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -39,7 +39,7 @@
   const DEFAULT_CONFIG = {
     title: "Roque Objetiva",
     subtitle: "Este reporte no se pasa ni se pierde. Es una herramienta para identificar fortalezas, habilidades y oportunidades de mejora.",
-    logoImage: "assets/logo-principal.png?v=116",
+    logoImage: "assets/logo-principal.png?v=117",
     appIcon: "icons/icon-512.png",
     bannerImage: "",
     footerText: "Consulta institucional de resultados",
@@ -89,6 +89,8 @@
     directorRows: [],
     teachers: new Map(),
     responsesByRoll: new Map(),
+    rankingMetadataByRoll: new Map(),
+    rankingSupplementLoaded: false,
     missingFiles: [],
     computedStudents: [],
     orphanExams: [],
@@ -220,6 +222,8 @@
     if (SUPABASE_CONFIG.enabled) {
       state.keys = [];
       state.responsesByRoll = new Map();
+      state.rankingMetadataByRoll = new Map();
+      state.rankingSupplementLoaded = false;
       state.missingFiles = [];
       state.studentsRegistry = [];
       state.cargaRows = [];
@@ -233,6 +237,8 @@
 
     state.keys = [];
     state.responsesByRoll = new Map();
+    state.rankingMetadataByRoll = new Map();
+    state.rankingSupplementLoaded = false;
     state.missingFiles = [];
 
     const studentText = await fetchText(state.manifest.estudiantes, true);
@@ -311,10 +317,125 @@
     return data;
   }
 
+  async function supabaseRestSelect(tableName) {
+    const baseUrl = cleanText(SUPABASE_CONFIG.url).replace(/\/$/, "");
+    const key = cleanText(SUPABASE_CONFIG.key);
+    if (!baseUrl || !key || !tableName) return null;
+    const response = await fetch(`${baseUrl}/rest/v1/${encodeURIComponent(tableName)}?select=*`, {
+      method: "GET",
+      cache: "no-store",
+      headers: {
+        "apikey": key,
+        "Authorization": `Bearer ${key}`,
+        "Cache-Control": "no-store, no-cache, max-age=0",
+        "Pragma": "no-cache"
+      }
+    });
+    if (!response.ok) return null;
+    const data = await response.json().catch(() => null);
+    return Array.isArray(data) ? data : null;
+  }
+
+  async function loadSupabaseRankingSupplement(payload = null) {
+    if (!SUPABASE_CONFIG.enabled || state.rankingSupplementLoaded) return;
+    state.rankingSupplementLoaded = true;
+
+    // Si el login ya trajo varios resultados por grado, no se necesita pedir nada más.
+    const currentGrades = groupBy(Array.from(state.responsesByRoll.values()), (record) => String(toInt(record?.grade) || ""));
+    const hasUsableUniverse = Array.from(currentGrades.values()).some((rows) => rows.length > 1);
+    const hasMetadata = state.rankingMetadataByRoll && state.rankingMetadataByRoll.size > 0;
+    if (hasUsableUniverse && hasMetadata) return;
+
+    const rpcNames = ["roque_get_rankings", "roque_get_ranking_dataset", "roque_ranking", "roque_get_resultados_publicos"];
+    for (const name of rpcNames) {
+      try {
+        const extra = await supabaseRpc(name, {});
+        const datasets = extra?.datasets || extra?.data?.datasets || extra?.data || extra || {};
+        if (Array.isArray(datasets?.ranking) || Array.isArray(datasets?.rankings) || Array.isArray(extra)) {
+          applyRankingMetadataRows(datasets.ranking || datasets.rankings || extra);
+        }
+        if (datasets?.estudiantes || datasets?.students) {
+          const parsed = parseStudents(JSON.stringify(datasets.estudiantes || datasets.students || []));
+          mergeSupplementalStudents(parsed);
+        }
+        if (datasets?.resultados || datasets?.results) {
+          hydrateSupplementalResultGroups(datasets.resultados || datasets.results);
+        }
+        if ((state.rankingMetadataByRoll?.size || 0) > 0 || state.responsesByRoll.size > 1) return;
+      } catch (error) {
+        // Las funciones opcionales pueden no existir en instalaciones anteriores.
+      }
+    }
+
+    // Respaldo: si las tablas son legibles por la publishable key, se usan solo para ranking.
+    try {
+      const students = await supabaseRestSelect("estudiantes");
+      if (students?.length) mergeSupplementalStudents(parseStudents(JSON.stringify(students)));
+    } catch (error) {}
+    try {
+      const rankings = await supabaseRestSelect("ranking");
+      if (rankings?.length) applyRankingMetadataRows(rankings);
+    } catch (error) {}
+    try {
+      const rankings = await supabaseRestSelect("rankings");
+      if (rankings?.length) applyRankingMetadataRows(rankings);
+    } catch (error) {}
+    try {
+      const results = await supabaseRestSelect("resultados");
+      if (results?.length) hydrateSupplementalResultGroups(results);
+    } catch (error) {}
+  }
+
+  function mergeSupplementalStudents(students = []) {
+    if (!Array.isArray(students) || !students.length) return;
+    const byExam = new Map((state.studentsRegistry || []).map((student) => [cleanId(student.examId), student]).filter(([id]) => id));
+    students.forEach((student) => {
+      const examId = cleanId(student?.examId);
+      if (!examId) return;
+      const existing = byExam.get(examId);
+      if (existing) {
+        existing.serverRank = mergeRankMeta(existing.serverRank, student.serverRank);
+        if (!existing.sede && student.sede) existing.sede = student.sede;
+        if (!existing.group && student.group) existing.group = student.group;
+        if (!existing.grade && student.grade) existing.grade = student.grade;
+        return;
+      }
+      state.studentsRegistry.push(student);
+      byExam.set(examId, student);
+    });
+  }
+
+  function hydrateSupplementalResultGroups(resultados = []) {
+    const groups = Array.isArray(resultados) ? resultados : [];
+    groups.forEach((group) => {
+      if (Array.isArray(group?.rows)) {
+        const grade = toInt(group.grade || group.grado);
+        const session = toInt(group.session || group.sesion);
+        parseResultFile(JSON.stringify(group.rows), {
+          grade,
+          session,
+          startItem: toInt(group.startItem || group.start_item) || (session === 2 ? 71 : 1),
+          path: group.path || `SUPABASE/${grade || ""}S${session || ""}.json`
+        });
+      } else if (group && typeof group === "object") {
+        const grade = toInt(group.grade || group.grado || group.GRADO || group.Grado);
+        const session = toInt(group.session || group.sesion || group.SESION || group.Sesion);
+        parseResultFile(JSON.stringify([group]), {
+          grade,
+          session,
+          startItem: toInt(group.startItem || group.start_item) || (session === 2 ? 71 : 1),
+          path: "SUPABASE/resultados"
+        });
+      }
+    });
+  }
+
   function hydrateSupabasePayload(payload) {
     const datasets = payload?.datasets || {};
     state.keys = [];
     state.responsesByRoll = new Map();
+    state.rankingMetadataByRoll = new Map();
+    state.rankingSupplementLoaded = false;
     state.missingFiles = [];
     state.orphanExams = [];
 
@@ -324,6 +445,7 @@
     const directores = datasets.directoresGrupo || datasets.directores_grupo || datasets.directores || directorRowsFromDocentes(docentes);
     const claves = datasets.keys || datasets.claves || [];
     const resultados = datasets.resultados || datasets.results || [];
+    const rankings = datasets.ranking || datasets.rankings || datasets.ranking_global || datasets.rankingGlobal || datasets.puestos || [];
     const mapeoAreas = datasets.mapeo_areas || datasets.mapeoAreas || datasets.subjectAreaMap || [];
     if (Array.isArray(mapeoAreas)) {
       mapeoAreas.forEach((row) => {
@@ -374,6 +496,25 @@
       }
     });
     applyResultOverrides();
+    applyRankingMetadataRows(rankings);
+  }
+
+  function applyRankingMetadataRows(rows = []) {
+    const list = Array.isArray(rows) ? rows : (Array.isArray(rows?.rows) ? rows.rows : []);
+    list.forEach((row) => {
+      if (!row || typeof row !== "object") return;
+      const normalized = {};
+      Object.entries(row).forEach(([key, value]) => { normalized[cleanText(key)] = cleanText(value); });
+      const roll = cleanId(normalized.ID_PRUEBA || normalized.id_prueba || normalized.roll || normalized.Roll || normalized["Roll No"] || normalized.ID || normalized.id);
+      if (!roll) return;
+      const meta = parseRankMeta(normalized);
+      if (!hasRankMeta(meta)) return;
+      state.rankingMetadataByRoll.set(roll, mergeRankMeta(state.rankingMetadataByRoll.get(roll), meta));
+      const registry = state.registryByExamId?.get?.(roll);
+      if (registry) registry.serverRank = mergeRankMeta(registry.serverRank, meta);
+      const record = state.responsesByRoll?.get?.(roll);
+      if (record) record.serverRank = mergeRankMeta(record.serverRank, meta);
+    });
   }
 
   function directorRowsFromDocentes(docentes = []) {
@@ -463,6 +604,7 @@
         return renderLogin(payload?.error || "No fue posible iniciar sesion.");
       }
       hydrateSupabasePayload(payload);
+      await loadSupabaseRankingSupplement(payload);
       buildRepository();
 
       const session = payload.session || {};
@@ -646,6 +788,68 @@
     return out;
   }
 
+  function firstPresent(row, keys = []) {
+    if (!row || typeof row !== "object") return "";
+    for (const key of keys) {
+      if (row[key] !== undefined && row[key] !== null && cleanText(row[key]) !== "") return row[key];
+    }
+    const normalizedKeys = keys.map(normalizeText);
+    const foundKey = Object.keys(row).find((key) => normalizedKeys.includes(normalizeText(key)));
+    return foundKey ? row[foundKey] : "";
+  }
+
+  function numberOrNull(value) {
+    if (value === null || value === undefined || value === "") return null;
+    const normalized = cleanText(value).replace(/,/g, ".").replace(/[^0-9.\-]+/g, "");
+    if (!normalized) return null;
+    const number = Number(normalized);
+    return Number.isFinite(number) ? number : null;
+  }
+
+  function positiveIntOrNull(value) {
+    const number = numberOrNull(value);
+    return Number.isFinite(number) && number > 0 ? Math.round(number) : null;
+  }
+
+  function parseRankMeta(row = {}) {
+    const meta = {
+      globalScore: numberOrNull(firstPresent(row, [
+        "PUNTAJE_GLOBAL", "Puntaje global", "puntaje_global", "globalScore", "global_score", "score_global", "saber_global", "SABER_GLOBAL"
+      ])),
+      rawGlobalScore: numberOrNull(firstPresent(row, [
+        "PUNTAJE_BRUTO", "PROMEDIO_GLOBAL", "rawGlobalScore", "raw_global_score", "promedio_global"
+      ])),
+      gradeRank: positiveIntOrNull(firstPresent(row, [
+        "PUESTO_GRADO", "Puesto grado", "puesto_grado", "ranking_grado", "rank_grado", "gradeRank", "grade_rank"
+      ])),
+      gradeCount: positiveIntOrNull(firstPresent(row, [
+        "TOTAL_GRADO", "Total grado", "total_grado", "conteo_grado", "gradeCount", "grade_count"
+      ])),
+      courseRank: positiveIntOrNull(firstPresent(row, [
+        "PUESTO_CURSO", "Puesto curso", "puesto_curso", "ranking_curso", "rank_curso", "courseRank", "course_rank"
+      ])),
+      courseCount: positiveIntOrNull(firstPresent(row, [
+        "TOTAL_CURSO", "Total curso", "total_curso", "conteo_curso", "courseCount", "course_count"
+      ]))
+    };
+    return Object.fromEntries(Object.entries(meta).filter(([, value]) => value !== null && value !== undefined && value !== ""));
+  }
+
+  function hasRankMeta(meta) {
+    return !!(meta && Object.values(meta).some((value) => value !== null && value !== undefined && value !== ""));
+  }
+
+  function mergeRankMeta(...metas) {
+    const out = {};
+    metas.forEach((meta) => {
+      if (!meta || typeof meta !== "object") return;
+      Object.entries(meta).forEach(([key, value]) => {
+        if (value !== null && value !== undefined && value !== "") out[key] = value;
+      });
+    });
+    return out;
+  }
+
   function parseStudents(text) {
     const objects = parseDataObjects(text, ["ID_PRUEBA", "NOMBRES"]);
     return objects.map((row) => {
@@ -653,6 +857,7 @@
       const nombres = cleanText(row.NOMBRES || row.Nombres || row.nombres || row.NOMBRE || row.Nombre || row.nombre);
       const fullFromParts = cleanText(nombres && apellidos ? `${nombres} ${apellidos}` : (nombres || apellidos));
       const fullName = cleanText(row.NOMBRE_COMPLETO || row.NombreCompleto || row.Name || row.name || fullFromParts);
+      const serverRank = parseRankMeta(row);
       return {
         examId: cleanId(row.ID_PRUEBA || row.id_prueba || row.IdPrueba || row.ID || row.Id || row.id),
         nationalId: cleanId(row.ID_ALUMNO || row.id_alumno || row.IdAlumno || row["Carné"] || row.Carne || row.Carnet || row.Documento || row.documento),
@@ -661,7 +866,8 @@
         name: fullName,
         sede: cleanText(row.SEDE || row.sede || row.Sede),
         grade: toInt(row.GRADO || row.grado || row.Grado),
-        group: cleanText(row.GRUPO || row.grupo || row.Grupo || row.CURSO || row.curso || row.Curso)
+        group: cleanText(row.GRUPO || row.grupo || row.Grupo || row.CURSO || row.curso || row.Curso),
+        serverRank: hasRankMeta(serverRank) ? serverRank : null
       };
     }).filter((s) => s.examId || s.nationalId || s.name);
   }
@@ -726,9 +932,11 @@
       const rowSede = cleanText(row.SEDE || row.sede || row.Sede || row.sede_nombre || row.sedeNombre);
       const rowGroup = cleanText(row.GRUPO || row.grupo || row.Grupo || row.CURSO || row.curso || row.Curso);
       const rowNationalId = cleanId(row.ID_ALUMNO || row.id_alumno || row.IdAlumno || row.Documento || row.documento || row.ID_ESTUDIANTE || row.id_estudiante);
+      const rowRankMeta = parseRankMeta(row);
       if (rowSede && !current.sede) current.sede = rowSede;
       if (rowGroup && !current.group) current.group = rowGroup;
       if (rowNationalId && !current.nationalId) current.nationalId = rowNationalId;
+      if (hasRankMeta(rowRankMeta)) current.serverRank = mergeRankMeta(current.serverRank, rowRankMeta);
 
       let foundAnswer = false;
       const rawAnswers = row.respuestas || row.Respuestas || row.RESPUESTAS || null;
@@ -843,6 +1051,7 @@
     const grade = toInt(registry?.grade) || toInt(record?.grade);
     const roll = examId || cleanId(registry?.nationalId) || `REG-${index + 1}`;
     const stats = calculateStudentStatsFromRecord(record, grade);
+    const serverRank = mergeRankMeta(registry?.serverRank, record?.serverRank, state.rankingMetadataByRoll?.get(examId));
 
     return {
       roll,
@@ -861,6 +1070,7 @@
       empty: stats.empty,
       globalScore: calculateSaberGlobal(stats.subjectStats),
       rawGlobalScore: stats.total ? (stats.anyAttempt ? calculateScore(stats.correct, stats.total) : 0) : null,
+      serverRank: hasRankMeta(serverRank) ? serverRank : null,
       percentile: 0,
       gradeRank: null,
       gradeCount: null,
@@ -876,6 +1086,7 @@
     const grade = toInt(registry?.grade) || toInt(record?.grade);
     if (!roll || !grade) return null;
     const stats = calculateStudentStatsFromRecord(record, grade);
+    const serverRank = mergeRankMeta(registry?.serverRank, record?.serverRank, state.rankingMetadataByRoll?.get(roll));
 
     return {
       roll,
@@ -894,6 +1105,7 @@
       empty: stats.empty,
       globalScore: calculateSaberGlobal(stats.subjectStats),
       rawGlobalScore: stats.total ? (stats.anyAttempt ? calculateScore(stats.correct, stats.total) : 0) : null,
+      serverRank: hasRankMeta(serverRank) ? serverRank : null,
       percentile: 0,
       gradeRank: null,
       gradeCount: null,
@@ -980,25 +1192,34 @@
   }
 
   function assignRanks() {
-    // v116: rankings calculados desde un universo independiente de resultados reales.
-    // La vista/lista puede estar filtrada por rol, pero los puestos se comparan contra todos
-    // los examenes disponibles en el payload de Supabase/RESULTADOS.
-    // Grado = solo grado. Curso = sede + grado + curso.
+    // v117: el ranking se calcula por PUNTAJE GLOBAL y con un universo independiente.
+    // Importante: si el login de Supabase llega recortado a un solo estudiante, NO se
+    // vuelve a marcar falsamente como 1/1. En ese caso se usan puestos precomputados
+    // si vienen del payload; si no existen, se deja sin puesto para no mentir.
     const visibleStudents = state.computedStudents || [];
     visibleStudents.forEach((student) => resetRankFields(student));
 
     const rankedStudents = buildRankingStudentsPool()
       .filter((student) => studentHasExistingResult(student) && Number.isFinite(rankBaseScore(student)));
 
+    const hasMultiStudentRankingUniverse = rankedStudents.length > 1;
     const byGrade = groupBy(rankedStudents, gradeRankKey);
     byGrade.forEach((gradeStudents, key) => {
       if (!key) return;
-      applyOrderedRanks(gradeStudents, "grade");
+      const orderedGrade = orderStudentsForRanking(gradeStudents);
+      if (orderedGrade.length > 1 || hasMultiStudentRankingUniverse) {
+        applyOrderedRanks(orderedGrade, "grade");
+      }
+      orderedGrade.forEach((student) => applyServerRankFallback(student, "grade", orderedGrade.length));
 
       const byCourse = groupBy(gradeStudents, courseRankKey);
       byCourse.forEach((courseStudents, courseKey) => {
         if (!courseKey) return;
-        applyOrderedRanks(courseStudents, "course");
+        const orderedCourse = orderStudentsForRanking(courseStudents);
+        if (orderedCourse.length > 1 || hasMultiStudentRankingUniverse) {
+          applyOrderedRanks(orderedCourse, "course");
+        }
+        orderedCourse.forEach((student) => applyServerRankFallback(student, "course", orderedCourse.length));
       });
 
       for (const subject of SUBJECTS) {
@@ -1015,12 +1236,14 @@
       }
     });
 
-    // Copia de vuelta los puestos al universo visible. Esto cubre sesiones donde Supabase
-    // manda muchos resultados para ranking, pero solo algunos estudiantes para la vista actual.
     const rankByRoll = new Map(rankedStudents.map((student) => [cleanId(student.roll), student]));
     visibleStudents.forEach((student) => {
       const ranked = rankByRoll.get(cleanId(student.roll || student.registry?.examId));
-      if (!ranked) return;
+      if (!ranked) {
+        applyServerRankFallback(student, "grade", 0);
+        applyServerRankFallback(student, "course", 0);
+        return;
+      }
       student.gradeRank = ranked.gradeRank;
       student.gradeCount = ranked.gradeCount;
       student.courseRank = ranked.courseRank;
@@ -1032,6 +1255,29 @@
         if (visibleStat && rankedStat) visibleStat.percentile = rankedStat.percentile;
       }
     });
+  }
+
+  function applyServerRankFallback(student, scope, localGroupSize = 0) {
+    if (!student) return;
+    const meta = mergeRankMeta(student.serverRank, state.rankingMetadataByRoll?.get(cleanId(student.roll || student.registry?.examId)));
+    if (!hasRankMeta(meta)) return;
+    if (scope === "grade") {
+      const serverRank = positiveIntOrNull(meta.gradeRank);
+      const serverCount = positiveIntOrNull(meta.gradeCount);
+      if (serverRank && (!student.gradeRank || (serverCount && serverCount > localGroupSize))) {
+        student.gradeRank = serverRank;
+        student.gradeCount = serverCount || student.gradeCount || localGroupSize || null;
+        student.percentile = student.gradeCount && student.gradeCount > 1 ? Math.round(((student.gradeCount - student.gradeRank) / (student.gradeCount - 1)) * 100) : 100;
+      }
+    }
+    if (scope === "course") {
+      const serverRank = positiveIntOrNull(meta.courseRank);
+      const serverCount = positiveIntOrNull(meta.courseCount);
+      if (serverRank && (!student.courseRank || (serverCount && serverCount > localGroupSize))) {
+        student.courseRank = serverRank;
+        student.courseCount = serverCount || student.courseCount || localGroupSize || null;
+      }
+    }
   }
 
   function resetRankFields(student) {
@@ -1085,6 +1331,10 @@
     const globalValue = student?.globalScore;
     if (globalValue !== null && globalValue !== undefined && globalValue !== "" && Number.isFinite(Number(globalValue))) {
       return Number(globalValue);
+    }
+    const serverGlobal = student?.serverRank?.globalScore ?? state.rankingMetadataByRoll?.get(cleanId(student?.roll || student?.registry?.examId))?.globalScore;
+    if (serverGlobal !== null && serverGlobal !== undefined && serverGlobal !== "" && Number.isFinite(Number(serverGlobal))) {
+      return Number(serverGlobal);
     }
     const raw = student?.rawGlobalScore;
     if (raw !== null && raw !== undefined && raw !== "" && Number.isFinite(Number(raw))) {
@@ -4658,6 +4908,33 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     };
   }
 
+  function exportRankingRows() {
+    const students = (state.computedStudents || [])
+      .filter((student) => studentHasExistingResult(student))
+      .slice()
+      .sort((a, b) => {
+        const gradeDiff = Number(a.grade || 0) - Number(b.grade || 0);
+        if (gradeDiff) return gradeDiff;
+        const courseDiff = courseRankKey(a).localeCompare(courseRankKey(b), "es", { numeric: true, sensitivity: "base" });
+        if (courseDiff) return courseDiff;
+        return (Number(a.gradeRank || 999999) - Number(b.gradeRank || 999999)) || displayListName(a).localeCompare(displayListName(b), "es", { numeric: true, sensitivity: "base" });
+      });
+    return students.map((student) => ({
+      ID_PRUEBA: student.roll || student.registry?.examId || "",
+      ID_ALUMNO: student.registry?.nationalId || "",
+      NOMBRE: displayListName(student),
+      SEDE: student.sede || student.registry?.sede || "",
+      GRADO: String(student.grade || ""),
+      GRUPO: student.group || student.registry?.group || "",
+      PUNTAJE_GLOBAL: student.globalScore ?? "",
+      PUNTAJE_BRUTO: student.rawGlobalScore ?? "",
+      PUESTO_GRADO: student.gradeRank ?? "",
+      TOTAL_GRADO: student.gradeCount ?? "",
+      PUESTO_CURSO: student.courseRank ?? "",
+      TOTAL_CURSO: student.courseCount ?? ""
+    }));
+  }
+
   function buildSupabaseSyncPayload() {
     state.studentsRegistry = state.studentsRegistry.map(normalizeStudentRow).filter((s) => s.examId || s.nationalId || s.name);
     normalizeCargaRows();
@@ -4686,6 +4963,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       };
     }).filter((group) => group.grade && group.session);
 
+    const rankingRows = exportRankingRows();
     return {
       version: APP_VERSION,
       savedAt: new Date().toISOString(),
@@ -4697,7 +4975,8 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
         carga: exportCargaRows(),
         directoresGrupo: exportDirectoresRows(),
         keys: keyGroups,
-        resultados: resultGroups
+        resultados: resultGroups,
+        ranking: rankingRows
       }
     };
   }
@@ -4894,6 +5173,15 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       const nombres = cleanText(row.nombres);
       const apellidos = cleanText(row.apellidos);
       const full = cleanText(row.name);
+      const computed = state.computedByRoll?.get?.(cleanId(row.examId));
+      const meta = mergeRankMeta(row.serverRank, computed ? {
+        globalScore: computed.globalScore,
+        rawGlobalScore: computed.rawGlobalScore,
+        gradeRank: computed.gradeRank,
+        gradeCount: computed.gradeCount,
+        courseRank: computed.courseRank,
+        courseCount: computed.courseCount
+      } : null);
       return {
         ID_ALUMNO: row.nationalId || "",
         ID_PRUEBA: row.examId || "",
@@ -4901,7 +5189,13 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
         NOMBRES: nombres || full || "",
         SEDE: row.sede || "",
         GRADO: String(row.grade || ""),
-        GRUPO: row.group || ""
+        GRUPO: row.group || "",
+        PUNTAJE_GLOBAL: meta.globalScore ?? "",
+        PUNTAJE_BRUTO: meta.rawGlobalScore ?? "",
+        PUESTO_GRADO: meta.gradeRank ?? "",
+        TOTAL_GRADO: meta.gradeCount ?? "",
+        PUESTO_CURSO: meta.courseRank ?? "",
+        TOTAL_CURSO: meta.courseCount ?? ""
       };
     });
   }
@@ -5603,7 +5897,24 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       const rows = Array.from(state.responsesByRoll.values())
         .filter((record) => Number(record.grade) === grade)
         .map((record) => {
-          const row = { "Roll No": record.roll };
+          const computed = state.computedByRoll?.get?.(cleanId(record.roll));
+          const meta = mergeRankMeta(record.serverRank, computed ? {
+            globalScore: computed.globalScore,
+            rawGlobalScore: computed.rawGlobalScore,
+            gradeRank: computed.gradeRank,
+            gradeCount: computed.gradeCount,
+            courseRank: computed.courseRank,
+            courseCount: computed.courseCount
+          } : null);
+          const row = {
+            "Roll No": record.roll,
+            PUNTAJE_GLOBAL: meta.globalScore ?? "",
+            PUNTAJE_BRUTO: meta.rawGlobalScore ?? "",
+            PUESTO_GRADO: meta.gradeRank ?? "",
+            TOTAL_GRADO: meta.gradeCount ?? "",
+            PUESTO_CURSO: meta.courseRank ?? "",
+            TOTAL_CURSO: meta.courseCount ?? ""
+          };
           for (let item = startItem; item <= endItem; item++) {
             const local = item - startItem + 1;
             row[`Q ${local} Options`] = record.answers?.[item] || "";
