@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v109";
+  const APP_VERSION = "v110";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -315,37 +315,88 @@
     state.missingFiles = [];
     state.orphanExams = [];
 
-    state.studentsRegistry = parseStudents(JSON.stringify(datasets.estudiantes || []));
-    state.cargaRows = parseCarga(JSON.stringify(datasets.carga || []));
-    state.directorRows = parseDirectoresGrupo(JSON.stringify(datasets.directoresGrupo || []));
+    const estudiantes = datasets.estudiantes || datasets.students || [];
+    const carga = datasets.carga || datasets.carga_docente || datasets.cargaDocente || [];
+    const docentes = datasets.docentes || datasets.teachers || [];
+    const directores = datasets.directoresGrupo || datasets.directores_grupo || datasets.directores || directorRowsFromDocentes(docentes);
+    const claves = datasets.keys || datasets.claves || [];
+    const resultados = datasets.resultados || datasets.results || [];
+
+    state.studentsRegistry = parseStudents(JSON.stringify(estudiantes || []));
+    state.cargaRows = parseCarga(JSON.stringify(carga || []));
+    state.directorRows = parseDirectoresGrupo(JSON.stringify(directores || []));
+    mergeTeacherMetaFromDocentes(docentes);
 
     const gradeValues = [];
     state.studentsRegistry.forEach((student) => { if (student.grade) gradeValues.push(student.grade); });
     state.cargaRows.forEach((row) => { if (row.grade) gradeValues.push(row.grade); });
     state.directorRows.forEach((row) => { if (row.grade) gradeValues.push(row.grade); });
-    (datasets.keys || []).forEach((group) => { if (group.grade) gradeValues.push(group.grade); });
-    (datasets.resultados || []).forEach((group) => { if (group.grade) gradeValues.push(group.grade); });
+    (claves || []).forEach((group) => { if (group.grade || group.grado) gradeValues.push(group.grade || group.grado); });
+    (resultados || []).forEach((group) => { if (group.grade || group.grado) gradeValues.push(group.grade || group.grado); });
     state.manifest = addGradesToManifest(normalizeManifest({ ...DEFAULT_MANIFEST, grades: DEFAULT_GRADES }), gradeValues);
 
-    (datasets.keys || []).forEach((group) => {
-      const grade = toInt(group.grade);
-      const rows = Array.isArray(group.rows) ? group.rows : [];
-      state.keys.push(...parseAnswerKey(JSON.stringify(rows), { grade, path: group.path || `SUPABASE/KEYS_${grade}.json` }));
+    (claves || []).forEach((group) => {
+      if (Array.isArray(group?.rows)) {
+        const grade = toInt(group.grade || group.grado);
+        state.keys.push(...parseAnswerKey(JSON.stringify(group.rows), { grade, path: group.path || `SUPABASE/KEYS_${grade}.json` }));
+      } else if (group && typeof group === "object") {
+        state.keys.push(...parseAnswerKey(JSON.stringify([group]), { grade: toInt(group.grade || group.grado), path: "SUPABASE/claves" }));
+      }
     });
     applyAnswerOverrides();
 
-    (datasets.resultados || []).forEach((group) => {
-      const grade = toInt(group.grade);
-      const session = toInt(group.session);
-      const rows = Array.isArray(group.rows) ? group.rows : [];
-      parseResultFile(JSON.stringify(rows), {
-        grade,
-        session,
-        startItem: toInt(group.startItem) || (session === 2 ? 71 : 1),
-        path: group.path || `SUPABASE/${grade}S${session}.json`
-      });
+    (resultados || []).forEach((group) => {
+      if (Array.isArray(group?.rows)) {
+        const grade = toInt(group.grade || group.grado);
+        const session = toInt(group.session || group.sesion);
+        const rows = Array.isArray(group.rows) ? group.rows : [];
+        parseResultFile(JSON.stringify(rows), {
+          grade,
+          session,
+          startItem: toInt(group.startItem || group.start_item) || (session === 2 ? 71 : 1),
+          path: group.path || `SUPABASE/${grade}S${session}.json`
+        });
+      } else if (group && typeof group === "object") {
+        parseResultFile(JSON.stringify([group]), { grade: toInt(group.grade || group.grado), session: 0, startItem: 1, path: "SUPABASE/resultados" });
+      }
     });
     applyResultOverrides();
+  }
+
+  function directorRowsFromDocentes(docentes = []) {
+    if (!Array.isArray(docentes)) return [];
+    return docentes.map((row) => ({
+      "Identificación": row.id_docente || row.ID_DOCENTE || row.ID || row.id || "",
+      "Sede": row.direccion_sede || row.DIRECCION_SEDE || row.Sede || row.SEDE || "",
+      "Grado": row.direccion_grado || row.DIRECCION_GRADO || row.Grado || row.GRADO || "",
+      "Grupo": row.direccion_grupo || row.DIRECCION_GRUPO || row.Grupo || row.GRUPO || ""
+    })).filter((row) => cleanId(row["Identificación"]) && cleanText(row.Sede) && cleanText(row.Grado) && cleanText(row.Grupo));
+  }
+
+  function mergeTeacherMetaFromDocentes(docentes = []) {
+    if (!Array.isArray(docentes) || !docentes.length) return;
+    const byId = new Map();
+    docentes.forEach((row) => {
+      const id = cleanId(row.id_docente || row.ID_DOCENTE || row.ID || row.Id || row.id);
+      if (!id) return;
+      byId.set(id, {
+        id,
+        name: cleanText(row.nombre || row.NOMBRE || row.Nombre || row.name),
+        coordinator: isTruthy(row.coordinador || row.COORDINADOR || row.Coordinador),
+        direccion_sede: cleanText(row.direccion_sede || row.DIRECCION_SEDE || row.Sede || row.SEDE),
+        direccion_grado: toInt(row.direccion_grado || row.DIRECCION_GRADO || row.Grado || row.GRADO),
+        direccion_grupo: cleanText(row.direccion_grupo || row.DIRECCION_GRUPO || row.Grupo || row.GRUPO)
+      });
+    });
+    state.cargaRows = (state.cargaRows || []).map((row) => {
+      const meta = byId.get(row.id);
+      return meta ? { ...row, name: row.name || meta.name, coordinator: row.coordinator || meta.coordinator } : row;
+    });
+    byId.forEach((meta, id) => {
+      if (!(state.cargaRows || []).some((row) => row.id === id) && meta.name) {
+        state.cargaRows.push({ id, name: meta.name, subjectRaw: "", subject: "", sede: "", grade: 0, group: "", coordinator: meta.coordinator });
+      }
+    });
   }
 
   const FUNNY_LOADER_COPIES = [
@@ -587,14 +638,14 @@
       const fullFromParts = cleanText(nombres && apellidos ? `${nombres} ${apellidos}` : (nombres || apellidos));
       const fullName = cleanText(row.NOMBRE_COMPLETO || row.NombreCompleto || row.Name || row.name || fullFromParts);
       return {
-        examId: cleanId(row.ID_PRUEBA || row.IdPrueba || row.ID || row.Id || row.id),
-        nationalId: cleanId(row.ID_ALUMNO || row.IdAlumno || row["Carné"] || row.Carne || row.Carnet || row.Documento || row.documento),
+        examId: cleanId(row.ID_PRUEBA || row.id_prueba || row.IdPrueba || row.ID || row.Id || row.id),
+        nationalId: cleanId(row.ID_ALUMNO || row.id_alumno || row.IdAlumno || row["Carné"] || row.Carne || row.Carnet || row.Documento || row.documento),
         nombres,
         apellidos,
         name: fullName,
-        sede: cleanText(row.SEDE || row.Sede),
-        grade: toInt(row.GRADO || row.Grado),
-        group: cleanText(row.GRUPO || row.Grupo || row.CURSO || row.Curso)
+        sede: cleanText(row.SEDE || row.sede || row.Sede),
+        grade: toInt(row.GRADO || row.grado || row.Grado),
+        group: cleanText(row.GRUPO || row.grupo || row.Grupo || row.CURSO || row.curso || row.Curso)
       };
     }).filter((s) => s.examId || s.nationalId || s.name);
   }
@@ -602,14 +653,14 @@
   function parseCarga(text) {
     const objects = parseDataObjects(text, ["ID", "ASIGNATURA"]);
     return objects.map((row) => ({
-      id: cleanId(row.ID || row.Id || row.id),
-      name: cleanText(row.NOMBRE || row.Nombre || row.Name),
-      subjectRaw: cleanText(row.ASIGNATURA || row.Asignatura || row.Area || row["Área"]),
-      subject: canonicalSubject(row.ASIGNATURA || row.Asignatura || row.Area || row["Área"]),
-      sede: cleanText(row.SEDE || row.Sede),
-      grade: toInt(row.GRADO || row.Grado),
-      group: cleanText(row.CURSO || row.Curso || row.GRUPO || row.Grupo),
-      coordinator: isTruthy(row.COORDINADOR || row.Coordinador || row.coordinador || row.COORD || row.coord)
+      id: cleanId(row.ID || row.id_docente || row.ID_DOCENTE || row.Id || row.id),
+      name: cleanText(row.NOMBRE || row.nombre || row.Nombre || row.Name),
+      subjectRaw: cleanText(row.ASIGNATURA || row.asignatura || row.Asignatura || row.Area || row.area || row["Área"]),
+      subject: canonicalSubject(row.ASIGNATURA || row.asignatura || row.Asignatura || row.Area || row.area || row["Área"]),
+      sede: cleanText(row.SEDE || row.sede || row.Sede),
+      grade: toInt(row.GRADO || row.grado || row.Grado),
+      group: cleanText(row.CURSO || row.curso || row.Curso || row.GRUPO || row.grupo || row.Grupo),
+      coordinator: isTruthy(row.COORDINADOR || row.coordinador || row.Coordinador || row.COORD || row.coord)
     })).filter((r) => r.id && r.subjectRaw && r.grade);
   }
 
@@ -625,12 +676,12 @@
       .map((row, idx) => ({
         sourcePath: fileInfo.path,
         grade,
-        areaRaw: cleanText(row["Área"] || row.Area || row.AREA || row.Asignatura || row.ASIGNATURA),
-        area: canonicalSubject(row["Área"] || row.Area || row.AREA || row.Asignatura || row.ASIGNATURA),
-        item: toInt(row["Número de ítem"] || row["Numero de item"] || row.Numero || row.Número || row.Item || row.ITEM || row["N°"]),
-        correct: cleanOption(row["Respuesta sugerida"] || row.Respuesta || row.RESPUESTA || row.Key),
-        component: cleanText(row["Componente / pensamiento / entorno / factor / enfoque"] || row.Componente || row.COMPONENTE || row.Pensamiento || row.Enfoque),
-        competence: cleanText(row.Competencia || row.COMPETENCIA || row.Competencias),
+        areaRaw: cleanText(row["Área"] || row.area || row.Area || row.AREA || row.Asignatura || row.ASIGNATURA),
+        area: canonicalSubject(row["Área"] || row.area || row.Area || row.AREA || row.Asignatura || row.ASIGNATURA),
+        item: toInt(row["Número de ítem"] || row.numero_item || row["Numero de item"] || row.Numero || row.Número || row.Item || row.ITEM || row["N°"]),
+        correct: cleanOption(row["Respuesta sugerida"] || row.respuesta_sugerida || row.Respuesta || row.RESPUESTA || row.Key),
+        component: cleanText(row["Componente / pensamiento / entorno / factor / enfoque"] || row.componente || row.Componente || row.COMPONENTE || row.Pensamiento || row.Enfoque),
+        competence: cleanText(row.competencia || row.Competencia || row.COMPETENCIA || row.Competencias),
         idx
       }))
       .filter((r) => r.grade && r.area && r.item && r.correct);
@@ -643,7 +694,7 @@
     const startItem = toInt(fileInfo.startItem) || (session === 2 ? 71 : 1);
 
     for (const row of objects) {
-      const roll = cleanId(row["Roll No"] || row.RollNo || row.Roll || row.ID || row.ID_PRUEBA);
+      const roll = cleanId(row["Roll No"] || row.RollNo || row.Roll || row.ID || row.ID_PRUEBA || row.id_prueba || row.id);
       if (!roll) continue;
 
       const current = state.responsesByRoll.get(roll) || {
@@ -656,16 +707,45 @@
 
       if (!current.name) current.name = cleanText(row.Name || row.Nombre || row.NOMBRE);
       if (!current.grade) current.grade = grade;
-      current.sessions.push({ session, path: fileInfo.path });
+
+      let foundAnswer = false;
+      const rawAnswers = row.respuestas || row.Respuestas || row.RESPUESTAS || null;
+      if (rawAnswers && typeof rawAnswers === "object" && !Array.isArray(rawAnswers)) {
+        Object.entries(rawAnswers).forEach(([item, value]) => {
+          const itemNumber = toInt(item);
+          if (!itemNumber) return;
+          const marked = cleanMarked(value);
+          if (marked) foundAnswer = true;
+          current.answers[itemNumber] = marked;
+        });
+      } else if (rawAnswers && typeof rawAnswers === "string" && rawAnswers.trim().startsWith("{")) {
+        try {
+          const parsed = JSON.parse(rawAnswers);
+          Object.entries(parsed || {}).forEach(([item, value]) => {
+            const itemNumber = toInt(item);
+            if (!itemNumber) return;
+            const marked = cleanMarked(value);
+            if (marked) foundAnswer = true;
+            current.answers[itemNumber] = marked;
+          });
+        } catch (error) {
+          // Si no es JSON válido, se ignora y se procesa como EvalBee tradicional.
+        }
+      }
 
       Object.entries(row).forEach(([key, value]) => {
         const match = String(key).match(/^Q\s*(\d+)\s*Options$/i) || String(key).match(/^q\s*(\d+)$/i);
         if (!match) return;
         const localItem = Number(match[1]);
         const globalItem = startItem + localItem - 1;
-        current.answers[globalItem] = cleanMarked(value);
+        const marked = cleanMarked(value);
+        if (marked) foundAnswer = true;
+        current.answers[globalItem] = marked;
       });
 
+      if (foundAnswer || !current.sessions.length) {
+        current.sessions.push({ session: session || 1, path: fileInfo.path });
+      }
       state.responsesByRoll.set(roll, current);
     }
   }
@@ -688,12 +768,14 @@
 
     state.teachers = new Map();
     for (const row of state.cargaRows) {
+      if (!row?.id) continue;
       if (!state.teachers.has(row.id)) {
         state.teachers.set(row.id, { id: row.id, name: row.name, assignments: [], directorGroups: [], coordinator: false });
       }
       const teacher = state.teachers.get(row.id);
       if (!teacher.name && row.name) teacher.name = row.name;
       if (row.coordinator) teacher.coordinator = true;
+      if (!row.subjectRaw || !row.grade) continue;
       const assignmentKey = assignmentKeyFor(row);
       if (!teacher.assignments.some((a) => a.key === assignmentKey)) {
         teacher.assignments.push({
@@ -737,13 +819,12 @@
       const keys = keysByGrade.get(String(grade)) || [];
       const subjectStats = {};
       const allDetails = [];
-      const presentSessions = responseSessions(record);
+
 
       for (const subject of SUBJECTS) {
         const subjectKeys = keys.filter((key) => sameSubject(key.area, subject.name));
         const total = subjectKeys.length;
-        const requiredSessions = requiredSessionsForKeys(subjectKeys);
-        const hasAttempt = !!record && (!requiredSessions.length || requiredSessions.some((session) => presentSessions.has(session)));
+        const hasAttempt = hasAnyMarkedAnswerForKeys(record, subjectKeys);
         const absent = total > 0 && !hasAttempt;
         const details = subjectKeys.map((key) => {
           const marked = absent ? "" : (record?.answers?.[key.item] || "");
@@ -2203,7 +2284,7 @@
   function statsSubjectRows(students) {
     return statsSubjectsFor(students).map((subject) => {
       const values = scoresForSubjectAverage(students, subject);
-      const evaluated = students.filter((student) => student.subjectStats?.[subject]?.total).length;
+      const evaluated = students.filter((student) => isPresentedStat(student.subjectStats?.[subject])).length;
       return { key: subject, label: shortSubjectName(subject), avg: values.length ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length) : null, count: evaluated, evaluations: values.length };
     }).filter((row) => row.avg !== null).sort((a, b) => b.avg - a.avg || a.label.localeCompare(b.label, "es"));
   }
@@ -6257,7 +6338,9 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
   }
 
   function scoreOf(subjectStats, subjectName) {
-    const value = subjectStats?.[subjectName]?.score;
+    const stat = subjectStats?.[subjectName];
+    if (!isPresentedStat(stat)) return null;
+    const value = stat?.score;
     if (value === null || value === undefined || value === "") return null;
     return Number.isFinite(Number(value)) ? Number(value) : null;
   }
@@ -6309,6 +6392,11 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
 
   function studentHasPresentedAnySubject(student) {
     return Object.values(student?.subjectStats || {}).some((stat) => isPresentedStat(stat));
+  }
+
+  function hasAnyMarkedAnswerForKeys(record, keys = []) {
+    if (!record || !record.answers || !Array.isArray(keys) || !keys.length) return false;
+    return keys.some((key) => cleanMarked(record.answers?.[key.item] || ""));
   }
 
   function responseSessions(record) {
@@ -6634,9 +6722,10 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
 
   function assignmentKeyFor(row) {
     const grade = toInt(row.grade);
-    const subject = normalizeText(canonicalSubject(row.subjectRaw || row.subject));
+    const subject = normalizeText(mappedSubject(row.subjectRaw || row.subject) || canonicalSubject(row.subjectRaw || row.subject));
+    const sede = normalizeText(row.sede || "");
     const group = normalizeText(row.group || "");
-    return `${grade}|${group}|${subject}`;
+    return `${sede}|${grade}|${group}|${subject}`;
   }
 
   function directorKeyFor(row) {
@@ -6682,7 +6771,12 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     if (!student || !assignment) return false;
     const sameGrade = String(student.grade) === String(assignment.grade);
     const sameGroup = !assignment.group || normalizeText(student.group) === normalizeText(assignment.group);
-    return sameGrade && sameGroup && student.subjectStats[assignment.subject]?.total;
+    const sameSede = !assignment.sede || normalizeText(student.sede) === normalizeText(assignment.sede);
+    const subjects = [assignment.subject, mappedSubject(assignment.subjectRaw), canonicalSubject(assignment.subjectRaw), canonicalSubject(assignment.subject)]
+      .map(cleanText)
+      .filter(Boolean);
+    const hasSubject = subjects.some((subject) => student.subjectStats?.[subject]?.total);
+    return sameGrade && sameGroup && sameSede && hasSubject;
   }
 
   function keyId(row) {

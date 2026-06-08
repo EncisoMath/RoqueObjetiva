@@ -12887,3 +12887,36 @@ select,
     top: 60% !important;
   }
 }
+
+/* v110: en celular, Director de grupo muestra tarjetas de asignaturas en 2 columnas compactas */
+@media (max-width: 940px) {
+  .director-subject-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+  .director-subject-card {
+    min-height: 86px !important;
+    padding: 10px 10px !important;
+  }
+  .director-card-main {
+    grid-template-columns: 38px minmax(0, 1fr) !important;
+    gap: 8px !important;
+  }
+  .director-card-main > .subject-icon {
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+  }
+  .director-card-title {
+    font-size: .78rem !important;
+    line-height: 1.05 !important;
+  }
+  .director-card-text .director-subject-score,
+  .director-subject-card .director-subject-score {
+    font-size: 1.24rem !important;
+  }
+  .director-mini-bar {
+    height: 6px !important;
+  }
+}
