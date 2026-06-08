@@ -1,0 +1,5 @@
+{
+  "config": "config/site-config.json",
+  "supabaseMode": true,
+  "note": "Los datos vivos se consultan desde Supabase. No se publican JSON de estudiantes, claves ni resultados en GitHub Pages."
+}
