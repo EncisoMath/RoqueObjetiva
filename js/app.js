@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v114";
+  const APP_VERSION = "v115";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -39,7 +39,7 @@
   const DEFAULT_CONFIG = {
     title: "Roque Objetiva",
     subtitle: "Este reporte no se pasa ni se pierde. Es una herramienta para identificar fortalezas, habilidades y oportunidades de mejora.",
-    logoImage: "assets/logo-principal.png?v=114",
+    logoImage: "assets/logo-principal.png?v=115",
     appIcon: "icons/icon-512.png",
     bannerImage: "",
     footerText: "Consulta institucional de resultados",
@@ -289,12 +289,15 @@
     const baseUrl = cleanText(SUPABASE_CONFIG.url).replace(/\/$/, "");
     const key = cleanText(SUPABASE_CONFIG.key);
     if (!baseUrl || !key) throw new Error("Falta configurar Supabase.");
-    const response = await fetch(`${baseUrl}/rest/v1/rpc/${functionName}`, {
+    const response = await fetch(`${baseUrl}/rest/v1/rpc/${functionName}?_ts=${Date.now()}`, {
       method: "POST",
+      cache: "no-store",
       headers: {
         "Content-Type": "application/json",
         "apikey": key,
-        "Authorization": `Bearer ${key}`
+        "Authorization": `Bearer ${key}`,
+        "Cache-Control": "no-store, no-cache, max-age=0",
+        "Pragma": "no-cache"
       },
       body: JSON.stringify(payload || {})
     });
@@ -720,6 +723,12 @@
 
       if (!current.name) current.name = cleanText(row.Name || row.Nombre || row.NOMBRE);
       if (!current.grade) current.grade = grade;
+      const rowSede = cleanText(row.SEDE || row.sede || row.Sede || row.sede_nombre || row.sedeNombre);
+      const rowGroup = cleanText(row.GRUPO || row.grupo || row.Grupo || row.CURSO || row.curso || row.Curso);
+      const rowNationalId = cleanId(row.ID_ALUMNO || row.id_alumno || row.IdAlumno || row.Documento || row.documento || row.ID_ESTUDIANTE || row.id_estudiante);
+      if (rowSede && !current.sede) current.sede = rowSede;
+      if (rowGroup && !current.group) current.group = rowGroup;
+      if (rowNationalId && !current.nationalId) current.nationalId = rowNationalId;
 
       let foundAnswer = false;
       const rawAnswers = row.respuestas || row.Respuestas || row.RESPUESTAS || null;
@@ -769,6 +778,130 @@
       const id = keyId(row);
       return overrides[id] ? { ...row, correct: cleanOption(overrides[id]) } : row;
     });
+  }
+
+  function calculateStudentStatsFromRecord(record, grade) {
+    const cleanGrade = toInt(grade || record?.grade);
+    const keys = (state.keys || []).filter((key) => String(key.grade) === String(cleanGrade));
+    const subjectStats = {};
+    const allDetails = [];
+
+    for (const subject of SUBJECTS) {
+      const subjectKeys = keys.filter((key) => sameSubject(key.area, subject.name));
+      const total = subjectKeys.length;
+      const hasAttempt = hasAnyMarkedAnswerForKeys(record, subjectKeys);
+      const absent = total > 0 && !hasAttempt;
+      const details = subjectKeys.map((key) => {
+        const marked = absent ? "" : (record?.answers?.[key.item] || "");
+        const status = absent ? "empty" : classifyAnswer(marked, key.correct);
+        return {
+          item: key.item,
+          subject: subject.name,
+          marked,
+          correct: key.correct,
+          status,
+          absent,
+          component: key.component,
+          competence: key.competence
+        };
+      });
+
+      const correct = details.filter((d) => d.status === "correct").length;
+      const wrong = details.filter((d) => d.status === "wrong").length;
+      const doubleMark = details.filter((d) => d.status === "double").length;
+      const empty = details.filter((d) => d.status === "empty").length;
+
+      subjectStats[subject.name] = {
+        subject: subject.name,
+        total,
+        correct,
+        wrong,
+        doubleMark,
+        empty,
+        absent,
+        score: total ? (absent ? 0 : calculateScore(correct, total)) : null,
+        percentile: 0,
+        details
+      };
+
+      allDetails.push(...details);
+    }
+
+    const total = allDetails.length;
+    const correct = allDetails.filter((d) => d.status === "correct").length;
+    const wrong = allDetails.filter((d) => d.status === "wrong").length;
+    const doubleMark = allDetails.filter((d) => d.status === "double").length;
+    const empty = allDetails.filter((d) => d.status === "empty").length;
+    const anyAttempt = Object.values(subjectStats).some((stat) => stat?.total && !stat.absent);
+
+    return { subjectStats, allDetails, total, correct, wrong, doubleMark, empty, anyAttempt };
+  }
+
+  function buildComputedStudentFromRegistry(registry, index = 0) {
+    const examId = cleanId(registry?.examId);
+    const record = examId ? state.responsesByRoll.get(examId) : null;
+    const grade = toInt(registry?.grade) || toInt(record?.grade);
+    const roll = examId || cleanId(registry?.nationalId) || `REG-${index + 1}`;
+    const stats = calculateStudentStatsFromRecord(record, grade);
+
+    return {
+      roll,
+      loginIds: [roll, registry?.nationalId].filter(Boolean),
+      name: cleanText(registry?.name) || cleanText(record?.name) || `Estudiante ${roll}`,
+      scannedName: cleanText(record?.name),
+      grade,
+      group: cleanText(registry?.group) || cleanText(record?.group) || `Grado ${grade}`,
+      sede: cleanText(registry?.sede) || cleanText(record?.sede),
+      registry,
+      missingExam: !record,
+      total: stats.total,
+      correct: stats.correct,
+      wrong: stats.wrong,
+      doubleMark: stats.doubleMark,
+      empty: stats.empty,
+      globalScore: calculateSaberGlobal(stats.subjectStats),
+      rawGlobalScore: stats.total ? (stats.anyAttempt ? calculateScore(stats.correct, stats.total) : 0) : null,
+      percentile: 0,
+      gradeRank: null,
+      gradeCount: null,
+      courseRank: null,
+      courseCount: null,
+      subjectStats: stats.subjectStats
+    };
+  }
+
+  function buildComputedStudentFromResultRecord(record, fallbackIndex = 0) {
+    const roll = cleanId(record?.roll) || `RESULT-${fallbackIndex + 1}`;
+    const registry = state.registryByExamId.get(roll) || state.registryByNationalId.get(cleanId(record?.nationalId)) || null;
+    const grade = toInt(registry?.grade) || toInt(record?.grade);
+    if (!roll || !grade) return null;
+    const stats = calculateStudentStatsFromRecord(record, grade);
+
+    return {
+      roll,
+      loginIds: [roll, registry?.nationalId, record?.nationalId].filter(Boolean),
+      name: cleanText(registry?.name) || cleanText(record?.name) || `Estudiante ${roll}`,
+      scannedName: cleanText(record?.name),
+      grade,
+      group: cleanText(registry?.group) || cleanText(record?.group) || `Grado ${grade}`,
+      sede: cleanText(registry?.sede) || cleanText(record?.sede),
+      registry,
+      missingExam: false,
+      total: stats.total,
+      correct: stats.correct,
+      wrong: stats.wrong,
+      doubleMark: stats.doubleMark,
+      empty: stats.empty,
+      globalScore: calculateSaberGlobal(stats.subjectStats),
+      rawGlobalScore: stats.total ? (stats.anyAttempt ? calculateScore(stats.correct, stats.total) : 0) : null,
+      percentile: 0,
+      gradeRank: null,
+      gradeCount: null,
+      courseRank: null,
+      courseCount: null,
+      subjectStats: stats.subjectStats,
+      rankingOnly: true
+    };
   }
 
   function buildRepository() {
@@ -824,89 +957,8 @@
     // esa asignatura queda con nota 0 y marcada como no presentada.
     state.computedStudents = state.studentsRegistry
       .filter((registry) => registry && (registry.examId || registry.nationalId || registry.name) && (toInt(registry.grade) || registry.examId))
-      .map((registry, index) => {
-      const examId = cleanId(registry.examId);
-      const record = examId ? state.responsesByRoll.get(examId) : null;
-      const grade = toInt(registry?.grade) || toInt(record?.grade);
-      const roll = examId || cleanId(registry?.nationalId) || `REG-${index + 1}`;
-      const keys = keysByGrade.get(String(grade)) || [];
-      const subjectStats = {};
-      const allDetails = [];
-
-
-      for (const subject of SUBJECTS) {
-        const subjectKeys = keys.filter((key) => sameSubject(key.area, subject.name));
-        const total = subjectKeys.length;
-        const hasAttempt = hasAnyMarkedAnswerForKeys(record, subjectKeys);
-        const absent = total > 0 && !hasAttempt;
-        const details = subjectKeys.map((key) => {
-          const marked = absent ? "" : (record?.answers?.[key.item] || "");
-          const status = absent ? "empty" : classifyAnswer(marked, key.correct);
-          return {
-            item: key.item,
-            subject: subject.name,
-            marked,
-            correct: key.correct,
-            status,
-            absent,
-            component: key.component,
-            competence: key.competence
-          };
-        });
-
-        const correct = details.filter((d) => d.status === "correct").length;
-        const wrong = details.filter((d) => d.status === "wrong").length;
-        const doubleMark = details.filter((d) => d.status === "double").length;
-        const empty = details.filter((d) => d.status === "empty").length;
-
-        subjectStats[subject.name] = {
-          subject: subject.name,
-          total,
-          correct,
-          wrong,
-          doubleMark,
-          empty,
-          absent,
-          score: total ? (absent ? 0 : calculateScore(correct, total)) : null,
-          percentile: 0,
-          details
-        };
-
-        allDetails.push(...details);
-      }
-
-      const total = allDetails.length;
-      const correct = allDetails.filter((d) => d.status === "correct").length;
-      const wrong = allDetails.filter((d) => d.status === "wrong").length;
-      const doubleMark = allDetails.filter((d) => d.status === "double").length;
-      const empty = allDetails.filter((d) => d.status === "empty").length;
-      const anyAttempt = Object.values(subjectStats).some((stat) => stat?.total && !stat.absent);
-
-      return {
-        roll,
-        loginIds: [roll, registry?.nationalId].filter(Boolean),
-        name: cleanText(registry?.name) || cleanText(record?.name) || `Estudiante ${roll}`,
-        scannedName: cleanText(record?.name),
-        grade,
-        group: cleanText(registry?.group) || `Grado ${grade}`,
-        sede: cleanText(registry?.sede),
-        registry,
-        missingExam: !record,
-        total,
-        correct,
-        wrong,
-        doubleMark,
-        empty,
-        globalScore: calculateSaberGlobal(subjectStats),
-        rawGlobalScore: total ? (anyAttempt ? calculateScore(correct, total) : 0) : null,
-        percentile: 0,
-        gradeRank: null,
-        gradeCount: null,
-        courseRank: null,
-        courseCount: null,
-        subjectStats
-      };
-    }).filter((student) => student.grade);
+      .map((registry, index) => buildComputedStudentFromRegistry(registry, index))
+      .filter((student) => student.grade);
 
     assignRanks();
 
@@ -928,19 +980,15 @@
   }
 
   function assignRanks() {
-    // v114: rankings calculados solo con estudiantes que sí tienen examen real.
-    // Grado agrupa únicamente por grado: 8, 9, 10...
-    // Curso agrupa por sede + grado + curso: por ejemplo PPAL|10|10-1ppal.
-    const students = state.computedStudents || [];
-    students.forEach((student) => {
-      student.gradeRank = null;
-      student.gradeCount = null;
-      student.courseRank = null;
-      student.courseCount = null;
-      student.percentile = 0;
-    });
+    // v115: rankings calculados desde un universo independiente de resultados reales.
+    // La vista/lista puede estar filtrada por rol, pero los puestos se comparan contra todos
+    // los examenes disponibles en el payload de Supabase/RESULTADOS.
+    // Grado = solo grado. Curso = sede + grado + curso.
+    const visibleStudents = state.computedStudents || [];
+    visibleStudents.forEach((student) => resetRankFields(student));
 
-    const rankedStudents = students.filter((student) => studentHasExistingResult(student) && Number.isFinite(rankBaseScore(student)));
+    const rankedStudents = buildRankingStudentsPool()
+      .filter((student) => studentHasExistingResult(student) && Number.isFinite(rankBaseScore(student)));
 
     const byGrade = groupBy(rankedStudents, gradeRankKey);
     byGrade.forEach((gradeStudents, key) => {
@@ -966,6 +1014,55 @@
         });
       }
     });
+
+    // Copia de vuelta los puestos al universo visible. Esto cubre sesiones donde Supabase
+    // manda muchos resultados para ranking, pero solo algunos estudiantes para la vista actual.
+    const rankByRoll = new Map(rankedStudents.map((student) => [cleanId(student.roll), student]));
+    visibleStudents.forEach((student) => {
+      const ranked = rankByRoll.get(cleanId(student.roll || student.registry?.examId));
+      if (!ranked) return;
+      student.gradeRank = ranked.gradeRank;
+      student.gradeCount = ranked.gradeCount;
+      student.courseRank = ranked.courseRank;
+      student.courseCount = ranked.courseCount;
+      student.percentile = ranked.percentile;
+      for (const subject of SUBJECTS) {
+        const visibleStat = student.subjectStats?.[subject.name];
+        const rankedStat = ranked.subjectStats?.[subject.name];
+        if (visibleStat && rankedStat) visibleStat.percentile = rankedStat.percentile;
+      }
+    });
+  }
+
+  function resetRankFields(student) {
+    if (!student) return;
+    student.gradeRank = null;
+    student.gradeCount = null;
+    student.courseRank = null;
+    student.courseCount = null;
+    student.percentile = 0;
+  }
+
+  function buildRankingStudentsPool() {
+    const byRoll = new Map();
+    (state.computedStudents || []).forEach((student) => {
+      const roll = cleanId(student?.roll || student?.registry?.examId);
+      if (!roll || !studentHasExistingResult(student)) return;
+      resetRankFields(student);
+      byRoll.set(roll, student);
+    });
+
+    let index = 0;
+    (state.responsesByRoll || new Map()).forEach((record, rollKey) => {
+      const roll = cleanId(record?.roll || rollKey);
+      if (!roll || byRoll.has(roll)) return;
+      const synthetic = buildComputedStudentFromResultRecord({ ...record, roll }, index++);
+      if (!synthetic) return;
+      resetRankFields(synthetic);
+      byRoll.set(roll, synthetic);
+    });
+
+    return [...byRoll.values()];
   }
 
   function gradeRankKey(student) {
@@ -981,10 +1078,22 @@
   }
 
   function rankBaseScore(student) {
-    const global = Number(student?.globalScore);
-    if (Number.isFinite(global)) return global;
+    // Ranking principal por puntaje global. Ojo: Number(null) da 0, por eso se valida
+    // explicitamente null/undefined antes de convertir. Si el global tipo Saber no puede
+    // calcularse por falta de alguna area, se usa un respaldo equivalente en escala /500
+    // basado en el puntaje bruto del examen o en el promedio de areas presentadas.
+    const globalValue = student?.globalScore;
+    if (globalValue !== null && globalValue !== undefined && globalValue !== "" && Number.isFinite(Number(globalValue))) {
+      return Number(globalValue);
+    }
+    const raw = student?.rawGlobalScore;
+    if (raw !== null && raw !== undefined && raw !== "" && Number.isFinite(Number(raw))) {
+      return Number(raw) * 5;
+    }
     const scores = scoresForAllSubjectsAverage(student);
-    return scores.length ? avg(scores) : NaN;
+    if (!scores.length) return NaN;
+    const total = scores.reduce((sum, value) => sum + Number(value), 0);
+    return (total / scores.length) * 5;
   }
 
   function orderStudentsForRanking(students, scoreGetter = rankBaseScore) {

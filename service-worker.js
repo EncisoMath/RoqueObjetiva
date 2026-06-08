@@ -1,23 +1,23 @@
-const APP_VERSION = "v114";
-const CACHE_VERSION = "resultados-pwa-v114";
+const APP_VERSION = "v115";
+const CACHE_VERSION = "resultados-pwa-v115";
 const CACHE_PREFIXES = ["resultados-pwa-", "resultados-pruebas-"];
 
 const APP_SHELL = [
   "./",
   "index.html",
-  "css/app.css?v=114",
-  "js/app.js?v=114",
+  "css/app.css?v=115",
+  "js/app.js?v=115",
   "version.json",
   "config/data-manifest.json",
   "config/site-config.json",
-  "config/supabase-config.js?v=114",
+  "config/supabase-config.js?v=115",
   "INTERNO/DIRECTORESGRUPO.json",
-  "manifest.webmanifest?v=114",
+  "manifest.webmanifest?v=115",
   "icons/icon-192.png",
   "icons/icon-512.png",
   "icons/maskable-512.png",
   "icons/apple-touch-icon.png",
-  "assets/logo-principal.png?v=114",
+  "assets/logo-principal.png?v=115",
   "icons/favicon-16.png",
   "icons/favicon-32.png",
   "assets/default-logo.svg",
@@ -68,9 +68,16 @@ self.addEventListener("message", (event) => {
 
 self.addEventListener("fetch", (event) => {
   const request = event.request;
-  if (request.method !== "GET") return;
-
   const url = new URL(request.url);
+
+  // v115: Supabase y cualquier API externa de datos vivos nunca se guardan ni se leen de CacheStorage.
+  // Esto aplica tambien a POST/RPC, para que la PWA instalada no reutilice una base de datos vieja.
+  if (isLiveDatabaseRequest(url)) {
+    event.respondWith(fetch(noStoreRequest(request)));
+    return;
+  }
+
+  if (request.method !== "GET") return;
   if (url.origin !== self.location.origin) return;
 
   const pathname = url.pathname;
@@ -88,6 +95,19 @@ self.addEventListener("fetch", (event) => {
 
   event.respondWith(cacheFirst(request));
 });
+
+function isLiveDatabaseRequest(url) {
+  const host = (url.hostname || "").toLowerCase();
+  return host.endsWith(".supabase.co") || host.includes("supabase");
+}
+
+function noStoreRequest(request) {
+  try {
+    return new Request(request, { cache: "no-store" });
+  } catch (error) {
+    return request;
+  }
+}
 
 function requestWithReload(request) {
   try {
