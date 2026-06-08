@@ -12920,3 +12920,43 @@ select,
     height: 6px !important;
   }
 }
+
+/* Ajustes v112: transiciones suaves de entrada/salida y navegación docente estable */
+#app {
+  opacity: 1;
+  transform: none;
+  transition: opacity .34s ease, transform .34s ease, filter .34s ease;
+}
+
+#app.route-view-leave {
+  opacity: 0;
+  transform: translateY(8px) scale(.992);
+  filter: blur(2px);
+}
+
+#app.route-view-enter {
+  opacity: 0;
+  transform: translateY(8px) scale(.992);
+  filter: blur(2px);
+}
+
+#app.route-view-enter.route-view-enter-active {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+
+.teacher-subject-nav .tab-btn,
+.teacher-group-nav .tab-btn {
+  background: #eaf6ff !important;
+  border-color: #b9dcf6 !important;
+  color: #176491 !important;
+}
+
+.teacher-subject-nav .tab-btn.active,
+.teacher-group-nav .tab-btn.active {
+  background: #1975ae !important;
+  border-color: #1975ae !important;
+  color: #fff !important;
+  box-shadow: 0 12px 28px rgba(25, 117, 174, .28) !important;
+}

@@ -1,8 +1,8 @@
 {
-  "version": "v111",
-  "cache": "resultados-pwa-v111",
+  "version": "v112",
+  "cache": "resultados-pwa-v112",
   "updatedAt": "2026-06-08",
-  "note": "Corrige lectura Supabase minimalista, cargas docentes, resultados y promedios excluyendo ausentes.",
-  "builtAt": "2026-06-08T16:30:00Z",
+  "note": "Fade en login/logout, navegación docente estable y promedios/gráficas calculados solo con exámenes existentes en RESULTADOS/Supabase.",
+  "builtAt": "2026-06-08T17:55:00Z",
   "date": "2026-06-08"
 }

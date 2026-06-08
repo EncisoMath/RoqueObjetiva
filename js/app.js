@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v111";
+  const APP_VERSION = "v112";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -39,7 +39,7 @@
   const DEFAULT_CONFIG = {
     title: "Roque Objetiva",
     subtitle: "Este reporte no se pasa ni se pierde. Es una herramienta para identificar fortalezas, habilidades y oportunidades de mejora.",
-    logoImage: "assets/logo-principal.png?v=85",
+    logoImage: "assets/logo-principal.png?v=112",
     appIcon: "icons/icon-512.png",
     bannerImage: "",
     footerText: "Consulta institucional de resultados",
@@ -445,6 +445,8 @@
   async function loginWithSupabase(user, pass = "") {
     try {
       const bootCopy = randomLoaderCopy();
+      fadeAppOut();
+      await wait(180);
       app.innerHTML = `
         <div class="boot">
           <div class="boot-mark"></div>
@@ -452,6 +454,7 @@
           <p>${esc(bootCopy.subtitle)}</p>
         </div>
       `;
+      fadeAppIn();
       const payload = await supabaseRpc("roque_login", { p_user: user, p_password: pass || "", p_device: deviceInfoText(), p_mode: appModeText() });
       if (!payload?.ok) {
         return renderLogin(payload?.error || "No fue posible iniciar sesion.");
@@ -1827,15 +1830,17 @@
     const activeResolvedSubject = active ? subjectNameForAssignment(active) : "";
     const groupedAssignments = groupAssignmentsBySubject(assignments);
     const activeSubject = activeResolvedSubject || active?.subject || groupedAssignments[0]?.subject || "";
+    const activeSubjectGroup = groupedAssignments.find((group) => sameSubject(group.subject, activeSubject)) || groupedAssignments[0] || null;
+    const visibleGradeAssignments = (activeSubjectGroup?.assignments || assignments.filter((assignment) => sameSubject(subjectNameForAssignment(assignment), activeSubject) || sameSubject(assignment.subject, activeSubject))).slice();
 
     const subjectButtons = groupedAssignments.map((group) => `
-      <button class="tab-btn teacher-subject-tab ${activeSubject === group.subject ? "active" : ""}" data-action="teacher-subject" data-subject="${escAttr(group.subject)}">
+      <button class="tab-btn teacher-subject-tab ${sameSubject(activeSubject, group.subject) ? "active" : ""}" data-action="teacher-subject" data-subject="${escAttr(group.subject)}">
         ${esc(group.subject)}
       </button>
     `).join("");
 
-    const groupButtons = (groupedAssignments.find((group) => group.subject === activeSubject)?.assignments || []).map((a) => `
-      <button class="tab-btn teacher-group-tab ${active?.key === a.key ? "active" : ""}" data-action="teacher-assignment" data-key="${escAttr(a.key)}" data-grade="${escAttr(a.grade)}" data-subject="${escAttr(a.subject)}" data-group="${escAttr(a.group || "")}" data-sede="${escAttr(a.sede || "")}">
+    const groupButtons = visibleGradeAssignments.map((a) => `
+      <button class="tab-btn teacher-group-tab ${active?.key === a.key ? "active" : ""}" data-action="teacher-assignment" data-key="${escAttr(a.key)}" data-grade="${escAttr(a.grade)}" data-subject="${escAttr(a.subjectRaw || a.subject)}" data-group="${escAttr(a.group || "")}" data-sede="${escAttr(a.sede || "")}">
         ${esc(a.grade)}°${a.group ? ` · ${esc(a.group)}` : ""}${a.sede ? ` · ${esc(a.sede)}` : ""}
       </button>
     `).join("");
@@ -1926,7 +1931,7 @@
     }
     const active = groups.find((group) => group.key === state.teacherDirectorActiveKey) || groups[0] || null;
     const baseStudents = active ? state.computedStudents.filter((student) => directorGroupMatches(student, active)) : [];
-    const subjects = SUBJECTS.filter((subject) => baseStudents.some((student) => student.subjectStats[subject.name]?.total));
+    const subjects = SUBJECTS.filter((subject) => baseStudents.some((student) => isExistingResultStat(student, statForSubject(student, subject.name))));
     const students = sortRowsByState(baseStudents, "director-group", (student, key) => {
       if (key === "name") return displayListName(student);
       const subject = subjects.find((s) => s.name === key || s.short === key);
@@ -2000,10 +2005,10 @@
     const directorGroup = (teacher?.directorGroups || []).find((group) => group.key === key);
     if (!directorGroup || !subject) return;
     const students = sortRowsByState(
-      state.computedStudents.filter((student) => directorGroupMatches(student, directorGroup) && student.subjectStats[subject]?.total),
+      state.computedStudents.filter((student) => directorGroupMatches(student, directorGroup) && isExistingResultStat(student, statForSubject(student, subject))),
       "director-detail",
       (student, key) => {
-        const stat = student.subjectStats[subject] || {};
+        const stat = statForSubject(student, subject) || {};
         if (key === "score") return stat.score;
         if (key === "correct") return stat.correct;
         return displayListName(student);
@@ -2012,7 +2017,7 @@
     const details = aggregateDetails(students, subject);
     const scores = scoresForSubjectAverage(students, subject);
     const rows = students.map((student, index) => {
-      const stat = student.subjectStats[subject];
+      const stat = statForSubject(student, subject) || {};
       return `
         <tr class="table-row-click" data-action="open-detail" data-roll="${escAttr(student.roll)}" data-subject="${escAttr(subject)}">
           <td class="teacher-index">${index + 1}</td>
@@ -2175,7 +2180,7 @@
 
   function adminStatsHtml() {
     const mode = state.adminStatsMode === "area" ? "area" : "estructura";
-    const allStudents = state.computedStudents.slice();
+    const allStudents = evaluatedStudentsOnly(state.computedStudents);
     const sedes = ["all", ...uniqueValues(allStudents.map((student) => student.sede || "—"))];
     const gradeBase = allStudents.filter((student) => state.adminStatsSede === "all" || (student.sede || "—") === state.adminStatsSede);
     const grades = ["all", ...uniqueValues(gradeBase.map((student) => student.grade).filter(Boolean))];
@@ -2297,7 +2302,7 @@
   function statsSubjectRows(students) {
     return statsSubjectsFor(students).map((subject) => {
       const values = scoresForSubjectAverage(students, subject);
-      const evaluated = students.filter((student) => isPresentedStat(student.subjectStats?.[subject])).length;
+      const evaluated = students.filter((student) => isExistingResultStat(student, statForSubject(student, subject))).length;
       return { key: subject, label: shortSubjectName(subject), avg: values.length ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length) : null, count: evaluated, evaluations: values.length };
     }).filter((row) => row.avg !== null).sort((a, b) => b.avg - a.avg || a.label.localeCompare(b.label, "es"));
   }
@@ -2306,12 +2311,12 @@
     const map = new Map();
     students.forEach((student) => {
       const key = cleanText(getKey(student)) || "Sin dato";
+      const studentScores = scoresForAllSubjectsAverage(student);
+      if (!studentScores.length) return;
       if (!map.has(key)) map.set(key, { key, label: getLabel(key), scores: [], students: new Set() });
       const row = map.get(key);
       row.students.add(student.roll || student.name || key);
-      Object.values(student.subjectStats || {}).forEach((stat) => {
-        if (isPresentedStat(stat)) row.scores.push(Number(stat.score));
-      });
+      studentScores.forEach((score) => row.scores.push(score));
     });
     return [...map.values()].map((row) => ({ key: row.key, label: row.label, avg: row.scores.length ? Math.round(row.scores.reduce((sum, value) => sum + value, 0) / row.scores.length) : null, count: row.students.size, evaluations: row.scores.length }))
       .filter((row) => row.avg !== null).sort((a, b) => b.avg - a.avg || String(a.label).localeCompare(String(b.label), "es", { numeric: true }));
@@ -2320,8 +2325,8 @@
   function subjectGroupRows(students, subject, getKey, getLabel) {
     const map = new Map();
     students.forEach((student) => {
-      const stat = student.subjectStats?.[subject];
-      if (!isPresentedStat(stat)) return;
+      const stat = statForSubject(student, subject);
+      if (!isExistingResultStat(student, stat)) return;
       const key = cleanText(getKey(student)) || "Sin dato";
       if (!map.has(key)) map.set(key, { key, label: getLabel(key), scores: [], students: new Set() });
       const row = map.get(key);
@@ -2333,7 +2338,8 @@
   }
 
   function statsPanelHtml(title, context, rows, withIcon = false, hint = "") {
-    const values = rows.map((row) => row.avg).filter((value) => Number.isFinite(value));
+    const weighted = rows.flatMap((row) => Array(Math.max(0, Number(row.evaluations || row.count || 0))).fill(Number(row.avg))).filter((value) => Number.isFinite(value));
+    const values = weighted.length ? weighted : rows.map((row) => row.avg).filter((value) => Number.isFinite(value));
     const general = values.length ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length) : "—";
     const totalStudents = rows.reduce((sum, row) => sum + (row.count || 0), 0);
     return `
@@ -2698,29 +2704,30 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
   }
 
   function adminResultsHtml() {
-    const sedes = ["all", ...uniqueValues(state.computedStudents.map((s) => s.sede))];
-    const grades = ["all", ...uniqueValues(state.computedStudents
+    const resultStudents = evaluatedStudentsOnly(state.computedStudents);
+    const sedes = ["all", ...uniqueValues(resultStudents.map((s) => s.sede))];
+    const grades = ["all", ...uniqueValues(resultStudents
       .filter((s) => state.adminResultSede === "all" || s.sede === state.adminResultSede)
       .map((s) => s.grade).filter(Boolean)).sort((a, b) => Number(a) - Number(b))];
-    const groups = ["all", ...uniqueValues(state.computedStudents
+    const groups = ["all", ...uniqueValues(resultStudents
       .filter((s) => state.adminResultSede === "all" || s.sede === state.adminResultSede)
       .filter((s) => state.adminResultGrade === "all" || String(s.grade) === String(state.adminResultGrade))
       .map((s) => s.group))];
-    const subjectBase = state.computedStudents
+    const subjectBase = resultStudents
       .filter((s) => state.adminResultSede === "all" || s.sede === state.adminResultSede)
       .filter((s) => state.adminResultGrade === "all" || String(s.grade) === String(state.adminResultGrade))
       .filter((s) => state.adminResultGroup === "all" || s.group === state.adminResultGroup);
     const subjectOptions = ["all", ...uniqueValues(subjectBase.flatMap((student) => Object.entries(student.subjectStats || {})
-      .filter(([, stat]) => stat?.total)
+      .filter(([name, stat]) => isExistingResultStat(student, statForSubject(student, name) || stat))
       .map(([name]) => name)))];
     const subject = state.adminResultSubject || "all";
     const isReady = state.adminResultSede !== "all" && state.adminResultGrade !== "all" && state.adminResultGroup !== "all" && subject !== "all";
 
-    const filtered = isReady ? state.computedStudents.filter((student) => {
+    const filtered = isReady ? resultStudents.filter((student) => {
       const okSede = student.sede === state.adminResultSede;
       const okGrade = String(student.grade) === String(state.adminResultGrade);
       const okGroup = student.group === state.adminResultGroup;
-      const okSubject = student.subjectStats[subject]?.total;
+      const okSubject = isExistingResultStat(student, statForSubject(student, subject));
       return okSede && okGrade && okGroup && okSubject;
     }) : [];
     const filteredSorted = sortRowsByState(filtered, "admin-results", (student, key) => {
@@ -2829,11 +2836,11 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
 
   function adminStudentSubjectStat(student, subject) {
     if (subject !== "all") {
-      const stat = student.subjectStats[subject] || {};
+      const stat = statForSubject(student, subject) || {};
       return { score: stat.score, correct: stat.correct || 0, total: stat.total || 0, absent: !!stat.absent };
     }
-    const stats = SUBJECTS.map((subjectInfo) => student.subjectStats[subjectInfo.name]).filter((stat) => stat?.total);
-    const scores = stats.map(scoreForAverageFromStat).filter((value) => Number.isFinite(value));
+    const stats = SUBJECTS.map((subjectInfo) => statForSubject(student, subjectInfo.name)).filter((stat) => stat?.total);
+    const scores = stats.map((stat) => scoreForAverageFromStudentStat(student, stat)).filter((value) => Number.isFinite(value));
     return {
       score: scores.length ? Math.round(scores.reduce((sum, value) => sum + value, 0) / scores.length) : null,
       correct: stats.reduce((sum, stat) => sum + (stat.correct || 0), 0),
@@ -3053,12 +3060,12 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
   function aggregateDetails(students, subject = "all") {
     return students.flatMap((student) => {
       if (subject !== "all") {
-        const stat = student.subjectStats?.[subject];
-        return isPresentedStat(stat) ? (stat.details || []) : [];
+        const stat = statForSubject(student, subject);
+        return isExistingResultStat(student, stat) ? (stat.details || []) : [];
       }
       return SUBJECTS.flatMap((s) => {
-        const stat = student.subjectStats?.[s.name];
-        return isPresentedStat(stat) ? (stat.details || []) : [];
+        const stat = statForSubject(student, s.name);
+        return isExistingResultStat(student, stat) ? (stat.details || []) : [];
       });
     });
   }
@@ -3648,9 +3655,8 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     }
 
     if (action === "logout") {
-      logSupabaseLogout(state.activeSession);
-      clearSession();
-      renderLogin();
+      logoutWithFade();
+      return;
     }
 
     if (action === "print") {
@@ -3717,7 +3723,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     if (action === "teacher-subject") {
       const teacher = state.teachers.get(state.activeSession?.id);
       const subject = canonicalSubject(target.dataset.subject);
-      const assignments = (teacher?.assignments || []).filter((assignment) => assignment.subject === subject);
+      const assignments = (teacher?.assignments || []).filter((assignment) => sameSubject(subjectNameForAssignment(assignment), subject) || sameSubject(assignment.subject, subject) || sameSubject(assignment.subjectRaw, subject));
       state.teacherActive = assignments.find((assignment) => state.computedStudents.some((student) => teacherAssignmentMatches(student, assignment))) || assignments[0] || null;
       renderBySession();
       return;
@@ -4969,8 +4975,9 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
   function openDetailModal(roll, subject) {
     const student = state.computedByRoll.get(roll);
     if (!student) return;
-    const realSubject = student.subjectStats[subject]?.total ? subject : SUBJECTS.find((s) => student.subjectStats[s.name]?.total)?.name;
-    const stat = student.subjectStats[realSubject];
+    const requestedStat = statForSubject(student, subject);
+    const realSubject = requestedStat?.total ? (requestedStat.subject || subject) : SUBJECTS.find((s) => statForSubject(student, s.name)?.total)?.name;
+    const stat = statForSubject(student, realSubject);
     modalRoot.innerHTML = `
       <div class="modal-backdrop" data-action="close-modal">
         <section class="modal">
@@ -4992,7 +4999,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
   function openAnswerInfo(roll, subject, item) {
     const student = state.computedByRoll.get(roll) || (state.activeSession?.role === "student" ? state.computedByRoll.get(state.activeSession.roll) : null);
     if (!student) return;
-    const stat = student.subjectStats[subject];
+    const stat = statForSubject(student, subject);
     const detail = stat?.details.find((d) => d.item === item);
     if (!detail) return;
 
@@ -5906,12 +5913,13 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
   function adminGraphicsHtml() {
     const mode = state.adminGraphMode === "area" ? "area" : "estructura";
     state.adminGraphMode = mode;
-    const sedes = ["all", ...uniqueValues(state.computedStudents.map((s) => s.sede || "—"))];
-    const grades = ["all", ...uniqueValues(state.computedStudents
+    const graphStudents = evaluatedStudentsOnly(state.computedStudents);
+    const sedes = ["all", ...uniqueValues(graphStudents.map((s) => s.sede || "—"))];
+    const grades = ["all", ...uniqueValues(graphStudents
       .filter((s) => state.adminGraphSede === "all" || (s.sede || "—") === state.adminGraphSede)
       .map((s) => s.grade).filter(Boolean)).sort((a, b) => Number(a) - Number(b))];
     const subjects = ["all", ...availableSubjects()];
-    const base = state.computedStudents
+    const base = graphStudents
       .filter((s) => state.adminGraphSede === "all" || (s.sede || "—") === state.adminGraphSede)
       .filter((s) => state.adminGraphGrade === "all" || String(s.grade) === String(state.adminGraphGrade));
     const content = mode === "area" ? graphByAreaHtml(base) : graphByStructureHtml(base);
@@ -6027,8 +6035,8 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       const scores = [];
       const ids = new Set();
       students.forEach((student) => {
-        const stat = student.subjectStats?.[subject];
-        if (isPresentedStat(stat)) {
+        const stat = statForSubject(student, subject);
+        if (isExistingResultStat(student, stat)) {
           scores.push(Number(stat.score));
           ids.add(student.roll);
         }
@@ -6039,14 +6047,14 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
 
   function graphScoresForStudent(student, subject = "all") {
     if (subject && subject !== "all") {
-      const stat = student.subjectStats?.[subject];
-      return isPresentedStat(stat) ? [Number(stat.score)] : [];
+      const stat = statForSubject(student, subject);
+      return isExistingResultStat(student, stat) ? [Number(stat.score)] : [];
     }
     return scoresForAllSubjectsAverage(student);
   }
 
   function graphMetricsFor(students, subject, depth = 0) {
-    const details = aggregateDetails(students.filter((s) => s.subjectStats?.[subject]?.total), subject);
+    const details = aggregateDetails(students.filter((s) => isExistingResultStat(s, statForSubject(s, subject))), subject);
     if (!hasMetricData(details)) return `<div class="graphics-level graphics-depth-${depth}"><div class="empty-state">${esc(shortSubjectName(subject))} no tiene componentes ni competencias registrados en las claves.</div></div>`;
     return `<div class="graphics-level graphics-depth-${depth} graphics-metrics"><div class="graphics-level-head"><h3>Componentes y competencias de ${esc(shortSubjectName(subject))}</h3></div><div class="teacher-metrics-row admin-results-metrics">${teacherAggregateMetricsHtmlForDetails(details)}</div></div>`;
   }
@@ -6054,13 +6062,14 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
   function adminAnalysisHtml() {
     const mode = state.adminAnalysisMode === "area" ? "area" : "estructura";
     state.adminAnalysisMode = mode;
-    const sedes = ["all", ...uniqueValues(state.computedStudents.map((s) => s.sede))];
-    const grades = ["all", ...uniqueValues(state.computedStudents
+    const analysisStudents = evaluatedStudentsOnly(state.computedStudents);
+    const sedes = ["all", ...uniqueValues(analysisStudents.map((s) => s.sede))];
+    const grades = ["all", ...uniqueValues(analysisStudents
       .filter((s) => state.adminAnalysisSede === "all" || s.sede === state.adminAnalysisSede)
       .map((s) => s.grade)).sort((a,b)=>Number(a)-Number(b))];
     const subjects = ["all", ...availableSubjects()];
     const path = state.adminAnalysisPath || {};
-    const base = state.computedStudents
+    const base = analysisStudents
       .filter((s) => state.adminAnalysisSede === "all" || s.sede === state.adminAnalysisSede)
       .filter((s) => state.adminAnalysisGrade === "all" || String(s.grade) === String(state.adminAnalysisGrade));
 
@@ -6142,8 +6151,9 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       if (!key) return;
       if (!map.has(key)) map.set(key, { key, label: labelFn(student), scores: [], students: new Set() });
       const item = map.get(key);
-      scoresForStudent(student, subject).forEach((score) => item.scores.push(score));
-      item.students.add(student.roll);
+      const scores = scoresForStudent(student, subject);
+      scores.forEach((score) => item.scores.push(score));
+      if (scores.length) item.students.add(student.roll);
     });
     return Array.from(map.values()).map((item) => ({ key: item.key, label: item.label, count: item.students.size, avg: avg(item.scores) })).filter((item) => item.avg !== "—").sort((a,b)=>(Number(b.avg)||0)-(Number(a.avg)||0));
   }
@@ -6152,7 +6162,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     const selected = state.adminAnalysisSubject !== "all" ? [state.adminAnalysisSubject] : availableSubjects();
     return selected.map((subject) => {
       const scores = scoresForSubjectAverage(students, subject);
-      const count = students.filter((student) => isPresentedStat(student.subjectStats[subject])).length;
+      const count = students.filter((student) => isExistingResultStat(student, statForSubject(student, subject))).length;
       return { key: subject, subject, label: shortSubjectName(subject), count, avg: avg(scores) };
     }).filter((item) => item.count && item.avg !== "—").sort((a,b)=>(Number(b.avg)||0)-(Number(a.avg)||0));
   }
@@ -6160,7 +6170,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
   function scoresForStudent(student, subject = "all") {
     if (subject && subject !== "all") {
       const stat = statForSubject(student, subject);
-      return isPresentedStat(stat) ? [Number(stat.score)] : [];
+      return isExistingResultStat(student, stat) ? [Number(stat.score)] : [];
     }
     return availableSubjects().flatMap((subject) => scoresForSubjectAverage([student], subject));
   }
@@ -6236,11 +6246,42 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     state.activeSession = session;
     writeJSON(STORAGE.session, state.activeSession);
     rememberRecentLogin(session);
+    fadeAppOut();
     showRouteLoader(message);
     window.setTimeout(() => {
       renderFn();
-      window.setTimeout(hideRouteLoader, 150);
+      fadeAppIn();
+      window.setTimeout(hideRouteLoader, 180);
     }, 620);
+  }
+
+  function logoutWithFade() {
+    const current = state.activeSession;
+    logSupabaseLogout(current);
+    fadeAppOut();
+    showRouteLoader("Cerrando sesión...");
+    window.setTimeout(() => {
+      clearSession();
+      renderLogin();
+      fadeAppIn();
+      window.setTimeout(hideRouteLoader, 180);
+    }, 420);
+  }
+
+  function fadeAppOut() {
+    app.classList.remove("route-view-enter", "route-view-enter-active");
+    app.classList.add("route-view-leave");
+  }
+
+  function fadeAppIn() {
+    app.classList.remove("route-view-leave");
+    app.classList.add("route-view-enter");
+    requestAnimationFrame(() => app.classList.add("route-view-enter-active"));
+    window.setTimeout(() => app.classList.remove("route-view-enter", "route-view-enter-active"), 460);
+  }
+
+  function wait(ms = 0) {
+    return new Promise((resolve) => window.setTimeout(resolve, ms));
   }
 
   function showRouteLoader(message) {
@@ -6425,9 +6466,28 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     return mappedSubject(assignment) || canonicalSubject(assignment) || cleanText(assignment);
   }
 
-  // v90: el 0 de "No presentó" se muestra en tablas, pero NO entra en promedios.
+  // v112: promedios y gráficas se calculan solo con exámenes que existen en RESULTADOS/Supabase.
   function isPresentedStat(stat) {
     return !!(stat && stat.total && !stat.absent && Number.isFinite(Number(stat.score)));
+  }
+
+  function studentHasExistingResult(student) {
+    if (!student || student.missingExam) return false;
+    const roll = cleanId(student.roll || student.registry?.examId);
+    const examId = cleanId(student.registry?.examId || "");
+    return !!((roll && state.responsesByRoll.has(roll)) || (examId && state.responsesByRoll.has(examId)));
+  }
+
+  function evaluatedStudentsOnly(students = []) {
+    return (students || []).filter((student) => studentHasExistingResult(student));
+  }
+
+  function isExistingResultStat(student, stat) {
+    return !!(studentHasExistingResult(student) && stat && stat.total && Number.isFinite(Number(stat.score)));
+  }
+
+  function scoreForAverageFromStudentStat(student, stat) {
+    return isExistingResultStat(student, stat) ? Number(stat.score) : null;
   }
 
   function scoreForAverageFromStat(stat) {
@@ -6435,15 +6495,15 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
   }
 
   function scoresForSubjectAverage(students, subject) {
-    return (students || []).map((student) => scoreForAverageFromStat(statForSubject(student, subject))).filter((value) => Number.isFinite(Number(value))).map(Number);
+    return (students || []).map((student) => scoreForAverageFromStudentStat(student, statForSubject(student, subject))).filter((value) => Number.isFinite(Number(value))).map(Number);
   }
 
   function scoresForAllSubjectsAverage(student) {
-    return Object.values(student?.subjectStats || {}).map(scoreForAverageFromStat).filter((value) => Number.isFinite(Number(value))).map(Number);
+    return Object.values(student?.subjectStats || {}).map((stat) => scoreForAverageFromStudentStat(student, stat)).filter((value) => Number.isFinite(Number(value))).map(Number);
   }
 
   function studentHasPresentedAnySubject(student) {
-    return Object.values(student?.subjectStats || {}).some((stat) => isPresentedStat(stat));
+    return studentHasExistingResult(student) && Object.values(student?.subjectStats || {}).some((stat) => stat?.total);
   }
 
   function hasAnyMarkedAnswerForKeys(record, keys = []) {
@@ -7103,7 +7163,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     state.adminGraphSubject = state.adminGraphSubject || "all";
     if (!state.adminGraphOpen) state.adminGraphOpen = {};
 
-    const allStudents = state.computedStudents || [];
+    const allStudents = evaluatedStudentsOnly(state.computedStudents || []);
     const sedes = ["all", ...uniqueValues(allStudents.map((s) => s.sede || "—"))];
     const gradeBase = allStudents.filter((s) => state.adminGraphSede === "all" || (s.sede || "—") === state.adminGraphSede);
     const grades = ["all", ...uniqueValues(gradeBase.map((s) => s.grade).filter(Boolean)).sort((a, b) => Number(a) - Number(b))];
@@ -7161,7 +7221,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     const subjects = graphSubjectRows(students, state.adminGraphSubject || "all");
     return graphLevelHtml("Áreas / asignaturas", subjects, 0, (subjectRow) => {
       const subject = subjectRow.subject;
-      const subjectStudents = students.filter((s) => s.subjectStats?.[subject]?.total);
+      const subjectStudents = students.filter((s) => isExistingResultStat(s, statForSubject(s, subject)));
       const sedes = graphGroupRows(subjectStudents, (s) => s.sede || "—", (key) => key, subject);
       return graphLevelHtml(`Sedes en ${shortSubjectName(subject)}`, sedes, 1, (sedeRow) => {
         const sedeStudents = subjectStudents.filter((s) => (s.sede || "—") === sedeRow.key);
