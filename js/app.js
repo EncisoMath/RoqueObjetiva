@@ -2,7 +2,8 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v105";
+  const APP_VERSION = "v106";
+  const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
   const toastEl = document.getElementById("toast");
@@ -3753,8 +3754,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       const subject = target.dataset.subject;
       const area = target.dataset.area;
       if (subject && area) {
-        state.subjectAreaMap[subject] = area;
-        state.subjectAreaMap[normalizeText(subject)] = area;
+        setSubjectAreaMap(subject, area);
         writeJSON(STORAGE.subjectAreas, state.subjectAreaMap);
         normalizeCargaRows();
         buildRepository();
@@ -3770,8 +3770,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
         toast("Selecciona asignatura y área.");
         return;
       }
-      state.subjectAreaMap[subject] = area;
-      state.subjectAreaMap[normalizeText(subject)] = area;
+      setSubjectAreaMap(subject, area);
       writeJSON(STORAGE.subjectAreas, state.subjectAreaMap);
       normalizeCargaRows();
       buildRepository();
@@ -3781,11 +3780,12 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     }
 
     if (action === "remove-subject-area-map") {
-      const subject = target.dataset.subject;
-      delete state.subjectAreaMap[subject];
-      delete state.subjectAreaMap[normalizeText(subject)];
+      const subject = target.dataset.subject || "";
+      removeSubjectAreaMap(subject);
       writeJSON(STORAGE.subjectAreas, state.subjectAreaMap);
+      normalizeCargaRows();
       buildRepository();
+      toast("Asignatura quitada del área. Quedará en pendientes hasta que la reasignes.");
       renderAdminContext();
       return;
     }
@@ -5463,19 +5463,50 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     renderAdminContext();
   }
 
+  function subjectAreaMapValue(subject) {
+    const raw = cleanText(subject);
+    const norm = normalizeText(raw);
+    if (!raw) return undefined;
+    if (Object.prototype.hasOwnProperty.call(state.subjectAreaMap || {}, raw)) return state.subjectAreaMap[raw];
+    if (Object.prototype.hasOwnProperty.call(state.subjectAreaMap || {}, norm)) return state.subjectAreaMap[norm];
+    return undefined;
+  }
+
+  function isSubjectAreaUnassigned(subject) {
+    return subjectAreaMapValue(subject) === SUBJECT_AREA_UNASSIGNED;
+  }
+
+  function setSubjectAreaMap(subject, area) {
+    const raw = cleanText(subject);
+    const norm = normalizeText(raw);
+    if (!raw) return;
+    state.subjectAreaMap[raw] = area;
+    state.subjectAreaMap[norm] = area;
+  }
+
+  function removeSubjectAreaMap(subject) {
+    const raw = cleanText(subject);
+    if (!raw) return;
+    setSubjectAreaMap(raw, SUBJECT_AREA_UNASSIGNED);
+  }
+
   function adminSubjectAreasHtml() {
     const areas = availableSubjects();
     const areaSet = new Set(areas.map((area) => canonicalSubject(area)));
     const rawSubjects = uniqueValues(state.cargaRows.map((row) => row.subjectRaw || row.subject)).filter(Boolean).sort((a, b) => a.localeCompare(b, "es"));
-    const subjectAssignedArea = (subject) => cleanText(state.subjectAreaMap[subject] || state.subjectAreaMap[normalizeText(subject)] || mappedSubject(subject));
-    const isSubjectAssigned = (subject) => areaSet.has(canonicalSubject(subjectAssignedArea(subject)));
+    const subjectAssignedArea = (subject) => {
+      const direct = subjectAreaMapValue(subject);
+      if (direct === SUBJECT_AREA_UNASSIGNED) return "";
+      return cleanText(direct || mappedSubject(subject));
+    };
+    const isSubjectAssigned = (subject) => !isSubjectAreaUnassigned(subject) && areaSet.has(canonicalSubject(subjectAssignedArea(subject)));
     const unassigned = rawSubjects.filter((subject) => !isSubjectAssigned(subject));
     const manualSubjectOptions = unassigned.map((subject) => `<option value="${escAttr(subject)}">${esc(subject)}</option>`).join("");
     const manualAreaOptions = areas.map((area) => `<option value="${escAttr(area)}">${esc(area)}</option>`).join("");
     const allOrganizedMessage = `<div class="empty-state subject-map-happy"><strong>😊 Todo está organizado</strong><span>No hay asignaturas pendientes por asignar a un área.</span></div>`;
-    return `<section class="toolbar"><div><span class="section-eyebrow">Asignaturas y áreas</span><h2 style="margin:8px 0 0;font-weight:900;">Cruce entre carga docente y áreas del examen</h2><p class="muted-copy">En PC puedes arrastrar una asignatura pendiente hacia su área. En celular usa los selectores de abajo para asignar las que falten.</p></div><div class="inline-actions"><button class="secondary-btn" data-action="save-carga">Guardar mapeos</button><button class="secondary-btn" data-action="publish-github">Publicar en GitHub</button></div></section>
+    return `<section class="toolbar"><div><span class="section-eyebrow">Asignaturas y áreas</span><h2 style="margin:8px 0 0;font-weight:900;">Cruce entre carga docente y áreas del examen</h2><p class="muted-copy">En PC puedes arrastrar una asignatura pendiente hacia su área. Usa la X para quitar una asignatura de un área y devolverla a pendientes. En celular usa los selectores de abajo para reasignar.</p></div><div class="inline-actions"><button class="secondary-btn" data-action="save-carga">Guardar mapeos</button><button class="secondary-btn" data-action="publish-github">Publicar en GitHub</button></div></section>
     <section class="subject-map-mobile card card-pad"><span class="section-eyebrow">Asignar desde celular</span><h3>Asignatura → área del examen</h3><p class="muted-copy">Solo aparecen asignaturas que todavía no están organizadas en un área.</p>${unassigned.length ? `<div class="form-grid compact subject-map-form"><div class="field"><label>Asignatura de la carga</label><select id="subjectAreaMapSubject" class="select-pill">${manualSubjectOptions}</select></div><div class="field"><label>Área del examen</label><select id="subjectAreaMapArea" class="select-pill">${manualAreaOptions}</select></div><div class="field subject-map-submit"><label>&nbsp;</label><button class="primary-btn" data-action="assign-subject-area-manual">Asignar</button></div></div>` : allOrganizedMessage}</section>
-    <section class="subject-map-layout"><aside class="card card-pad subject-source"><h3>Asignaturas pendientes</h3>${unassigned.map((subject) => `<button class="subject-chip" draggable="true" data-drag-subject="${escAttr(subject)}">${esc(subject)}</button>`).join("") || allOrganizedMessage}</aside><div class="subject-drop-grid">${areas.map((area) => { const assigned = rawSubjects.filter((subject) => sameSubject(subjectAssignedArea(subject), area)); return `<article class="subject-drop-zone" data-drop-area="${escAttr(area)}" style="--subject-color:${subjectAccent(area)};">${subjectIcon(area)}<h3>${esc(area)}</h3><div class="assigned-chip-list">${assigned.map((subject) => `<span class="assigned-chip">${esc(subject)} <button data-action="remove-subject-area-map" data-subject="${escAttr(subject)}">×</button></span>`).join("") || `<span class="muted-copy">Suelta aquí una asignatura</span>`}</div></article>`; }).join("")}</div></section>`;
+    <section class="subject-map-layout"><aside class="card card-pad subject-source"><h3>Asignaturas pendientes</h3>${unassigned.map((subject) => `<button class="subject-chip" draggable="true" data-drag-subject="${escAttr(subject)}">${esc(subject)}</button>`).join("") || allOrganizedMessage}</aside><div class="subject-drop-grid">${areas.map((area) => { const assigned = rawSubjects.filter((subject) => sameSubject(subjectAssignedArea(subject), area)); return `<article class="subject-drop-zone" data-drop-area="${escAttr(area)}" style="--subject-color:${subjectAccent(area)};">${subjectIcon(area)}<h3>${esc(area)}</h3><div class="assigned-chip-list">${assigned.map((subject) => `<span class="assigned-chip">${esc(subject)} <button type="button" title="Quitar esta asignatura del área" aria-label="Quitar ${escAttr(subject)}" data-action="remove-subject-area-map" data-subject="${escAttr(subject)}">×</button></span>`).join("") || `<span class="muted-copy">Suelta aquí una asignatura</span>`}</div></article>`; }).join("")}</div></section>`;
   }
 
   function handleDragStart(event) {
@@ -5493,8 +5524,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     const subject = event.dataTransfer.getData("text/plain");
     const area = zone.dataset.dropArea;
     if (!subject || !area) return;
-    state.subjectAreaMap[subject] = area;
-    state.subjectAreaMap[normalizeText(subject)] = area;
+    setSubjectAreaMap(subject, area);
     writeJSON(STORAGE.subjectAreas, state.subjectAreaMap);
     normalizeCargaRows();
     buildRepository();
@@ -6167,7 +6197,8 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
   }
 
   function canonicalSubject(value) {
-    const directMap = state?.subjectAreaMap?.[cleanText(value)] || state?.subjectAreaMap?.[normalizeText(value)];
+    const directMap = subjectAreaMapValue(value);
+    if (directMap === SUBJECT_AREA_UNASSIGNED) return "";
     if (directMap) return cleanText(directMap);
     const text = normalizeText(value);
     if (!text) return "";
@@ -6190,7 +6221,9 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
   function mappedSubject(value) {
     const raw = cleanText(value);
     if (!raw) return "";
-    return cleanText(state.subjectAreaMap?.[raw] || state.subjectAreaMap?.[normalizeText(raw)] || canonicalSubject(raw));
+    const directMap = subjectAreaMapValue(raw);
+    if (directMap === SUBJECT_AREA_UNASSIGNED) return "";
+    return cleanText(directMap || canonicalSubject(raw));
   }
 
   function shortAppName(name) {

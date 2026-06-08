@@ -1,8 +1,8 @@
 {
-  "version": "v105",
-  "cache": "resultados-pwa-v105",
+  "version": "v106",
+  "cache": "resultados-pwa-v106",
   "updatedAt": "2026-06-08",
-  "note": "Ajusta la animacion del login para que las plaquitas de usuario no se superpongan con el texto explicativo.",
+  "note": "Corrige el mapeo de Admin > Asignaturas y áreas para que la X quite una asignatura del área y la devuelva a pendientes.",
   "builtAt": "2026-06-08T04:05:00Z",
   "date": "2026-06-08"
 }
