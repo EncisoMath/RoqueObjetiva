@@ -112,6 +112,14 @@
     "GRUPO": "2PPAL"
   },
   {
+    "ID_PRUEBA": "5205",
+    "ID_ALUMNO": "1084735441",
+    "NOMBRE_COMPLETO": "Sofia Lara Marin",
+    "SEDE": "Municipal",
+    "GRADO": "10",
+    "GRUPO": "2PPAL"
+  },
+  {
     "ID_PRUEBA": "2459",
     "ID_ALUMNO": "3871636",
     "NOMBRE_COMPLETO": "Fabian Enrique Marin Molina",

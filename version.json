@@ -1,8 +1,8 @@
 {
-  "version": "v86",
-  "cache": "resultados-pwa-v86",
-  "updatedAt": "2026-06-07",
-  "note": "Mejora warnings, scroll de director de grupo, eliminacion rapida desde mapa por grado y edicion de docentes con boton guardar.",
-  "builtAt": "2026-06-07T23:20:00Z",
-  "date": "2026-06-07"
+  "version": "v87",
+  "cache": "resultados-pwa-v87",
+  "updatedAt": "2026-06-08",
+  "note": "Oculta por completo datos sin sede, excluye de reportes los examenes sin estudiante y agrega vista admin para vincularlos o crear estudiantes.",
+  "builtAt": "2026-06-08T00:45:00Z",
+  "date": "2026-06-08"
 }

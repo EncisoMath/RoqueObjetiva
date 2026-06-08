@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v86";
+  const APP_VERSION = "v87";
 
   const app = document.getElementById("app");
   const toastEl = document.getElementById("toast");
@@ -84,6 +84,7 @@
     responsesByRoll: new Map(),
     missingFiles: [],
     computedStudents: [],
+    orphanExams: [],
     computedByRoll: new Map(),
     studentLogin: new Map(),
     registryByExamId: new Map(),
@@ -543,7 +544,11 @@
     }
 
     const keysByGrade = groupBy(state.keys, (row) => String(row.grade));
-    state.computedStudents = Array.from(state.responsesByRoll.values()).map((record) => {
+    const responseRecords = Array.from(state.responsesByRoll.values());
+    state.orphanExams = buildOrphanExams(responseRecords);
+    state.computedStudents = responseRecords
+      .filter((record) => state.registryByExamId.has(cleanId(record.roll)))
+      .map((record) => {
       const registry = state.registryByExamId.get(record.roll);
       const grade = toInt(registry?.grade) || toInt(record.grade);
       const keys = keysByGrade.get(String(grade)) || [];
@@ -600,7 +605,7 @@
         scannedName: cleanText(record.name),
         grade,
         group: cleanText(registry?.group) || `Grado ${grade}`,
-        sede: cleanText(registry?.sede) || "Sin sede registrada",
+        sede: cleanText(registry?.sede),
         registry,
         total,
         correct,
@@ -726,7 +731,7 @@
   }
 
   function adminTabIds() {
-    return new Set(["resumen", "estudiantes", "resultados", "estadisticas", "docentes", "mapa-grado", "asignaturas-areas", "apariencia", "logos", "claves", "github"]);
+    return new Set(["resumen", "estudiantes", "resultados", "estadisticas", "docentes", "mapa-grado", "examenes-huerfanos", "asignaturas-areas", "apariencia", "logos", "claves", "github"]);
   }
 
   function handleHashRoute() {
@@ -1246,7 +1251,7 @@
           <div class="modal-head">
             <div>
               <h2>${esc(student.name)}</h2>
-              <span style="color:#7d8089;font-weight:600;">ID ${esc(student.roll)} · ${esc(student.sede || "Sin sede")} · ${esc(student.grade)}° ${esc(student.group || "")}</span>
+              <span style="color:#7d8089;font-weight:600;">ID ${esc(student.roll)} · ${esc(student.sede || "—")} · ${esc(student.grade)}° ${esc(student.group || "")}</span>
             </div>
             <button type="button" class="icon-btn" data-action="close-modal" aria-label="Cerrar">×</button>
           </div>
@@ -1648,6 +1653,7 @@
       ["estadisticas", "Estadísticas"],
       ["docentes", "Docentes"],
       ["mapa-grado", "Mapa por grado"],
+      ["examenes-huerfanos", "Exámenes sin estudiante"],
       ["asignaturas-areas", "Asignaturas y áreas"],
       ["apariencia", "Apariencia"],
       ["logos", "Logos"],
@@ -1681,6 +1687,7 @@
       case "estadisticas": return safeAdminStatsHtml();
       case "docentes": return adminDocentesHtml();
       case "mapa-grado": return adminGradeMapHtml();
+      case "examenes-huerfanos": return adminOrphanExamsHtml();
       case "asignaturas-areas": return adminSubjectAreasHtml();
       case "apariencia": return adminAppearanceHtml();
       case "logos": return adminLogosHtml();
@@ -1749,8 +1756,8 @@
   function adminStatsHtml() {
     const mode = state.adminStatsMode === "area" ? "area" : "estructura";
     const allStudents = state.computedStudents.slice();
-    const sedes = ["all", ...uniqueValues(allStudents.map((student) => student.sede || "Sin sede"))];
-    const gradeBase = allStudents.filter((student) => state.adminStatsSede === "all" || (student.sede || "Sin sede") === state.adminStatsSede);
+    const sedes = ["all", ...uniqueValues(allStudents.map((student) => student.sede || "—"))];
+    const gradeBase = allStudents.filter((student) => state.adminStatsSede === "all" || (student.sede || "—") === state.adminStatsSede);
     const grades = ["all", ...uniqueValues(gradeBase.map((student) => student.grade).filter(Boolean))];
     const groupBase = gradeBase.filter((student) => state.adminStatsGrade === "all" || String(student.grade) === String(state.adminStatsGrade));
     const groups = ["all", ...uniqueValues(groupBase.map((student) => student.group).filter(Boolean))];
@@ -1819,7 +1826,7 @@
       const rows = groupStatsRows(filtered, (student) => String(student.grade || "Sin grado"), (key) => key === "Sin grado" ? key : `${key}°`);
       return statsPanelHtml("Promedio por grado", statsContextText("estructura"), rows, false, "Selecciona un grado arriba para ver sus cursos.");
     }
-    const rows = groupStatsRows(filtered, (student) => student.sede || "Sin sede", (key) => key);
+    const rows = groupStatsRows(filtered, (student) => student.sede || "—", (key) => key);
     return statsPanelHtml("Promedio por sede", "Todas las sedes · todas las áreas", rows, false, "Selecciona una sede arriba para ver sus grados.");
   }
 
@@ -1841,7 +1848,7 @@
       const rows = subjectGroupRows(subjectStudents, subject, (student) => String(student.grade || "Sin grado"), (key) => key === "Sin grado" ? key : `${key}°`);
       return statsPanelHtml(`${esc(shortSubjectName(subject))} por grado`, statsContextText("area"), rows, false, "Selecciona un grado arriba para ver sus cursos.");
     }
-    const rows = subjectGroupRows(subjectStudents, subject, (student) => student.sede || "Sin sede", (key) => key);
+    const rows = subjectGroupRows(subjectStudents, subject, (student) => student.sede || "—", (key) => key);
     return statsPanelHtml(`${esc(shortSubjectName(subject))} por sede`, statsContextText("area"), rows, false, "Selecciona una sede arriba para ver sus grados.");
   }
 
@@ -1849,7 +1856,7 @@
     const includeSubject = options.subject !== false;
     const subject = state.adminStatsSubject === "all" ? "" : state.adminStatsSubject;
     return students.filter((student) => {
-      if (state.adminStatsSede !== "all" && (student.sede || "Sin sede") !== state.adminStatsSede) return false;
+      if (state.adminStatsSede !== "all" && (student.sede || "—") !== state.adminStatsSede) return false;
       if (state.adminStatsGrade !== "all" && String(student.grade) !== String(state.adminStatsGrade)) return false;
       if (state.adminStatsGroup !== "all" && student.group !== state.adminStatsGroup) return false;
       if (includeSubject && subject && !student.subjectStats?.[subject]?.total) return false;
@@ -2027,6 +2034,185 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     `;
   }
 
+
+  function buildOrphanExams(responseRecords = []) {
+    return responseRecords
+      .filter((record) => record?.roll && !state.registryByExamId.has(cleanId(record.roll)))
+      .map((record) => {
+        const grade = toInt(record.grade) || inferGradeFromPath(record.sessions?.[0]?.path || "") || "";
+        return {
+          roll: cleanId(record.roll),
+          name: cleanText(record.name) || `Examen ${cleanId(record.roll)}`,
+          grade,
+          sessions: Array.isArray(record.sessions) ? record.sessions : [],
+          answerCount: Object.keys(record.answers || {}).length
+        };
+      })
+      .sort((a, b) => (Number(a.grade) || 0) - (Number(b.grade) || 0) || String(a.roll).localeCompare(String(b.roll), "es", { numeric: true }));
+  }
+
+  function adminOrphanExamsHtml() {
+    const orphans = state.orphanExams || [];
+    const grades = ["all", ...uniqueValues(orphans.map((item) => item.grade).filter(Boolean)).sort((a,b)=>Number(a)-Number(b))];
+    const rows = orphans.filter((item) => state.adminGradeFilter === "all" || String(item.grade) === String(state.adminGradeFilter));
+    return `
+      <section class="toolbar">
+        <div>
+          <span class="section-eyebrow">Exámenes no vinculados</span>
+          <h2 style="margin:8px 0 0;font-weight:900;">Exámenes sin estudiante</h2>
+          <p class="muted-copy">Estos exámenes existen en RESULTADOS, pero su ID prueba no aparece en ESTUDIANTES.json. No entran en estadísticas, rankings, docentes ni reportes hasta que los vincules o crees el estudiante.</p>
+        </div>
+        <div class="toolbar-right">
+          <select class="select-pill" data-action="admin-grade-filter">
+            ${grades.map((g) => `<option value="${escAttr(g)}" ${String(state.adminGradeFilter) === String(g) ? "selected" : ""}>${g === "all" ? "Todos los grados" : `${esc(g)}°`}</option>`).join("")}
+          </select>
+        </div>
+      </section>
+      <div class="orphan-summary ${orphans.length ? "has-orphans" : "is-clear"}">
+        <strong>${orphans.length}</strong>
+        <span>${orphans.length === 1 ? "examen sin estudiante vinculado" : "exámenes sin estudiante vinculado"}</span>
+      </div>
+      <section class="card table-card admin-orphan-table">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>ID prueba</th><th>Nombre leído</th><th>Grado</th><th>Sesiones</th><th>Respuestas</th><th>Acciones</th></tr></thead>
+            <tbody>
+              ${rows.map((item, index) => `
+                <tr>
+                  <td><span class="badge gray">${index + 1}</span></td>
+                  <td><strong>${esc(item.roll)}</strong></td>
+                  <td>${esc(item.name || "—")}</td>
+                  <td>${item.grade ? `${esc(item.grade)}°` : "—"}</td>
+                  <td>${esc((item.sessions || []).map((s) => `S${s.session || "?"}`).join(" · ") || "—")}</td>
+                  <td>${esc(item.answerCount || 0)}</td>
+                  <td class="row-actions">
+                    <button class="secondary-btn mini-btn" data-action="link-orphan-exam" data-roll="${escAttr(item.roll)}">Vincular</button>
+                    <button class="primary-btn mini-btn" data-action="add-student-from-orphan" data-roll="${escAttr(item.roll)}">Crear estudiante</button>
+                  </td>
+                </tr>
+              `).join("") || `<tr><td colspan="7" class="empty-state">No hay exámenes sin estudiante. Todo está vinculado con ESTUDIANTES.json.</td></tr>`}
+            </tbody>
+          </table>
+        </div>
+      </section>
+      <div class="admin-note" style="margin-top:14px;">Al vincular o crear, se actualiza el registro local de estudiantes. Luego usa <strong>Guardar estudiantes</strong> o <strong>Publicar en GitHub</strong> si quieres dejarlo fijo en el repositorio.</div>
+      <div class="inline-actions admin-actions-line">
+        <button class="secondary-btn" data-action="save-students">Guardar estudiantes</button>
+        <button class="ghost-btn" data-action="export-students">Exportar ESTUDIANTES</button>
+        <button class="secondary-btn" data-action="publish-github">Publicar en GitHub</button>
+      </div>
+    `;
+  }
+
+  function orphanByRoll(roll) {
+    const clean = cleanId(roll);
+    return (state.orphanExams || []).find((item) => cleanId(item.roll) === clean) || null;
+  }
+
+  function studentOptionsForOrphan(selected = "") {
+    const active = cleanId(selected);
+    return state.studentsRegistry
+      .slice()
+      .sort(compareStudentsByName)
+      .map((student, index) => {
+        const realIndex = state.studentsRegistry.indexOf(student);
+        const label = `${displayListName(student)} · ${student.sede || ""} ${student.grade ? `· ${student.grade}°` : ""} ${student.group || ""} · ID prueba actual: ${student.examId || "—"}`;
+        return `<option value="${realIndex}" ${String(realIndex) === String(active) ? "selected" : ""}>${esc(label)}</option>`;
+      }).join("");
+  }
+
+  function openLinkOrphanExamModal(roll) {
+    const orphan = orphanByRoll(roll);
+    if (!orphan) return;
+    document.body.classList.add("modal-open");
+    modalRoot.innerHTML = `
+      <div class="modal-backdrop" data-action="close-modal">
+        <section class="modal orphan-modal" style="max-width:760px;">
+          <div class="modal-head">
+            <div><h2>Vincular examen a estudiante</h2><span style="color:#7d8089;font-weight:600;">ID prueba ${esc(orphan.roll)} · ${orphan.grade ? `${esc(orphan.grade)}°` : "Grado no detectado"}</span></div>
+            <button type="button" class="icon-btn" data-action="close-modal" aria-label="Cerrar">×</button>
+          </div>
+          <div class="modal-body">
+            <div class="orphan-card-inline"><strong>${esc(orphan.name)}</strong><span>${esc(orphan.answerCount || 0)} respuestas registradas en RESULTADOS</span></div>
+            <div class="field"><label>Estudiante existente en ESTUDIANTES.json</label><select id="orphanTargetStudent" class="select-pill">${studentOptionsForOrphan()}</select></div>
+            <div class="warning-note-soft">Esto reemplazará el <strong>ID prueba</strong> del estudiante seleccionado por <strong>${esc(orphan.roll)}</strong>. El examen quedará vinculado a ese estudiante y empezará a aparecer en reportes.</div>
+            <div class="inline-actions" style="margin-top:16px;">
+              <button class="primary-btn" data-action="confirm-link-orphan-exam" data-roll="${escAttr(orphan.roll)}">Vincular examen</button>
+              <button class="ghost-btn" data-action="close-modal">Cancelar</button>
+            </div>
+          </div>
+        </section>
+      </div>`;
+  }
+
+  function confirmLinkOrphanExam(roll) {
+    const orphan = orphanByRoll(roll);
+    const index = Number(document.getElementById("orphanTargetStudent")?.value);
+    const student = state.studentsRegistry[index];
+    if (!orphan || !student) { toast("Selecciona un estudiante válido."); return; }
+    student.examId = cleanId(orphan.roll);
+    if (!student.grade && orphan.grade) student.grade = toInt(orphan.grade);
+    state.studentsRegistry[index] = normalizeStudentRow(student);
+    writeJSON(STORAGE.students, { rows: state.studentsRegistry });
+    buildRepository();
+    toast("Examen vinculado al estudiante.");
+    closeModal();
+    renderAdminContext();
+  }
+
+  function openAddStudentFromOrphanModal(roll) {
+    const orphan = orphanByRoll(roll);
+    if (!orphan) return;
+    document.body.classList.add("modal-open");
+    modalRoot.innerHTML = `
+      <div class="modal-backdrop" data-action="close-modal">
+        <section class="modal orphan-modal" style="max-width:760px;">
+          <div class="modal-head">
+            <div><h2>Crear estudiante desde examen</h2><span style="color:#7d8089;font-weight:600;">Se usará el ID prueba ${esc(orphan.roll)}</span></div>
+            <button type="button" class="icon-btn" data-action="close-modal" aria-label="Cerrar">×</button>
+          </div>
+          <div class="modal-body">
+            <div class="form-grid compact">
+              <div class="field"><label>ID prueba</label><input id="newOrphanExamId" value="${escAttr(orphan.roll)}" readonly></div>
+              <div class="field"><label>ID nacional del estudiante</label><input id="newOrphanNationalId" placeholder="Documento / identificación"></div>
+              <div class="field span-2"><label>Nombre completo</label><input id="newOrphanName" value="${escAttr(orphan.name || "")}" placeholder="Nombres y apellidos"></div>
+              <div class="field"><label>Sede</label><select id="newOrphanSede" class="select-pill">${cargaSelectOptions("sede", "")}</select></div>
+              <div class="field"><label>Grado</label><select id="newOrphanGrade" class="select-pill">${cargaSelectOptions("grade", orphan.grade || "")}</select></div>
+              <div class="field"><label>Curso</label><select id="newOrphanGroup" class="select-pill">${cargaSelectOptions("group", "")}</select></div>
+            </div>
+            <div class="warning-note-soft">Al crear el estudiante, este examen deja de estar oculto y entra a estadísticas, rankings, docentes y reportes.</div>
+            <div class="inline-actions" style="margin-top:16px;">
+              <button class="primary-btn" data-action="confirm-add-student-from-orphan" data-roll="${escAttr(orphan.roll)}">Crear estudiante</button>
+              <button class="ghost-btn" data-action="close-modal">Cancelar</button>
+            </div>
+          </div>
+        </section>
+      </div>`;
+  }
+
+  function confirmAddStudentFromOrphan(roll) {
+    const orphan = orphanByRoll(roll);
+    if (!orphan) return;
+    const row = normalizeStudentRow({
+      examId: orphan.roll,
+      nationalId: document.getElementById("newOrphanNationalId")?.value || "",
+      name: document.getElementById("newOrphanName")?.value || "",
+      sede: document.getElementById("newOrphanSede")?.value || "",
+      grade: document.getElementById("newOrphanGrade")?.value || orphan.grade || "",
+      group: document.getElementById("newOrphanGroup")?.value || ""
+    });
+    if (!row.nationalId || !row.name || !row.sede || !row.grade || !row.group) {
+      toast("Completa ID nacional, nombre, sede, grado y curso.");
+      return;
+    }
+    state.studentsRegistry.unshift(row);
+    writeJSON(STORAGE.students, { rows: state.studentsRegistry });
+    buildRepository();
+    toast("Estudiante creado y examen vinculado.");
+    closeModal();
+    renderAdminContext();
+  }
+
   function adminStudentsHtml() {
     const canEditExam = state.activeSession?.role === "admin";
     const grades = [...new Set(state.studentsRegistry.map((s) => s.grade).filter(Boolean))].sort((a, b) => a - b);
@@ -2132,7 +2318,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       return `
         <tr class="table-row-click" data-action="open-detail" data-roll="${escAttr(student.roll)}" data-subject="${escAttr(subject)}">
           <td class="teacher-index">${index + 1}</td>
-          <td><strong>${esc(displayListName(student))}</strong><br><span class="student-subid">ID Prueba ${esc(student.roll)} · ${esc(student.sede || "Sin sede")} · ${esc(student.grade)}° ${esc(student.group || "")}</span></td>
+          <td><strong>${esc(displayListName(student))}</strong><br><span class="student-subid">ID Prueba ${esc(student.roll)} · ${esc(student.sede || "—")} · ${esc(student.grade)}° ${esc(student.group || "")}</span></td>
           <td><span class="teacher-score teacher-score-plain">${Number.isFinite(stat.score) ? stat.score : "—"}</span></td>
           <td><strong>${stat.total ? `${stat.correct}/${stat.total}` : "—"}</strong></td>
         </tr>
@@ -2513,7 +2699,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
         });
         return;
       }
-      add(student.sede || "Sin sede", student.sede || "Sin sede", "", subject, student);
+      add(student.sede || "—", student.sede || "—", "", subject, student);
     });
 
     return [...map.values()].map((group) => {
@@ -2584,7 +2770,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       <article class="carga-assignment-card" style="--subject-color:${escAttr(color)};">
         <div class="carga-card-title">
           ${subjectIcon(subjectName || "Matemáticas")}
-          <div><strong>${esc(row.subjectRaw || row.subject || "Carga sin asignatura")}</strong><span>${row.grade ? `${esc(row.grade)}°` : "Sin grado"} ${esc(row.group || "")} · ${esc(row.sede || "Sin sede")}</span></div>
+          <div><strong>${esc(row.subjectRaw || row.subject || "Carga sin asignatura")}</strong><span>${row.grade ? `${esc(row.grade)}°` : "Sin grado"} ${esc(row.group || "")} · ${esc(row.sede || "—")}</span></div>
         </div>
         <div class="form-grid compact">
           <div class="field"><label>Asignatura</label><select class="select-pill" data-carga-row="${row.index}" data-field="subjectRaw">${cargaSelectOptions("subject", row.subjectRaw || row.subject)}</select></div>
@@ -2707,7 +2893,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       <article class="carga-assignment-card director-assignment-card" style="--subject-color:var(--primary);">
         <div class="carga-card-title">
           <span class="director-card-icon">DG</span>
-          <div><strong>Dirección de grupo</strong><span>${row.grade ? `${esc(row.grade)}°` : "Sin grado"} ${esc(row.group || "")} · ${esc(row.sede || "Sin sede")}</span></div>
+          <div><strong>Dirección de grupo</strong><span>${row.grade ? `${esc(row.grade)}°` : "Sin grado"} ${esc(row.group || "")} · ${esc(row.sede || "—")}</span></div>
         </div>
         <div class="form-grid compact">
           <div class="field"><label>Sede</label><select class="select-pill" data-director-row="${row.index}" data-field="sede">${cargaSelectOptions("sede", row.sede)}</select></div>
@@ -3311,6 +3497,27 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
       writeJSON(STORAGE.logos, state.logos);
       toast("Logo eliminado.");
       renderAdmin();
+    }
+
+
+    if (action === "link-orphan-exam") {
+      openLinkOrphanExamModal(target.dataset.roll || "");
+      return;
+    }
+
+    if (action === "confirm-link-orphan-exam") {
+      confirmLinkOrphanExam(target.dataset.roll || "");
+      return;
+    }
+
+    if (action === "add-student-from-orphan") {
+      openAddStudentFromOrphanModal(target.dataset.roll || "");
+      return;
+    }
+
+    if (action === "confirm-add-student-from-orphan") {
+      confirmAddStudentFromOrphan(target.dataset.roll || "");
+      return;
     }
 
     if (action === "add-student") {
@@ -4404,7 +4611,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     warningModal({
       title: "Eliminar carga académica",
       message: "Vas a quitar esta asignación del docente. Revisa bien antes de confirmar.",
-      details: `<strong>${esc(row.name || teacherNameById(row.id))}</strong><span>${esc(row.subjectRaw || row.subject || "Sin asignatura")} · ${esc(row.grade || "—")}° ${esc(row.group || "")} · ${esc(row.sede || "Sin sede")}</span>`,
+      details: `<strong>${esc(row.name || teacherNameById(row.id))}</strong><span>${esc(row.subjectRaw || row.subject || "Sin asignatura")} · ${esc(row.grade || "—")}° ${esc(row.group || "")} · ${esc(row.sede || "—")}</span>`,
       confirmLabel: "Sí, eliminar carga",
       confirmAction: "confirm-delete-carga",
       attrs: `data-index="${escAttr(index)}"`
@@ -4417,7 +4624,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     warningModal({
       title: "Eliminar dirección de grupo",
       message: "Vas a quitar esta dirección asignada a un docente.",
-      details: `<strong>ID ${esc(row.id)}</strong><span>${esc(row.sede || "Sin sede")} · ${esc(row.grade || "—")}° ${esc(row.group || "")}</span>`,
+      details: `<strong>ID ${esc(row.id)}</strong><span>${esc(row.sede || "—")} · ${esc(row.grade || "—")}° ${esc(row.group || "")}</span>`,
       confirmLabel: "Sí, eliminar dirección",
       confirmAction: "confirm-delete-director",
       attrs: `data-index="${escAttr(index)}"`
@@ -4443,7 +4650,7 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     warningModal({
       title: severe ? "¡OJO! Eliminar estudiante" : "Eliminar estudiante",
       message: severe ? "Esta acción sacará al estudiante del grupo del director. Confirma solo si estás completamente seguro." : "Vas a eliminar este estudiante del registro local.",
-      details: `<strong>${esc(displayListName(student) || student.name || "Estudiante")}</strong><span>ID prueba ${esc(student.examId || "—")} · ID ${esc(student.nationalId || "—")} · ${esc(student.sede || "Sin sede")} · ${esc(student.grade || "—")}° ${esc(student.group || "")}</span>`,
+      details: `<strong>${esc(displayListName(student) || student.name || "Estudiante")}</strong><span>ID prueba ${esc(student.examId || "—")} · ID ${esc(student.nationalId || "—")} · ${esc(student.sede || "—")} · ${esc(student.grade || "—")}° ${esc(student.group || "")}</span>`,
       confirmLabel: severe ? "SÍ, ELIMINAR ESTUDIANTE" : "Sí, eliminar estudiante",
       confirmAction: severe ? "confirm-director-delete-student" : "confirm-delete-student",
       attrs: severe ? `data-roll="${escAttr(student.examId || student.nationalId || "")}"` : `data-index="${escAttr(index)}"`,
@@ -4782,13 +4989,13 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
 
   function cargaAssignmentTag(row) {
     return `<article class="carga-tag-card" style="--subject-color:${subjectAccent(row.subjectRaw || row.subject)};">
-      <div class="carga-tag-main">${subjectIcon(mappedSubject(row.subjectRaw || row.subject))}<div><strong>${esc(row.subjectRaw || row.subject || "Sin asignatura")}</strong><span>${esc(row.grade || "—")}° ${esc(row.group || "")} · ${esc(row.sede || "Sin sede")}</span></div></div>
+      <div class="carga-tag-main">${subjectIcon(mappedSubject(row.subjectRaw || row.subject))}<div><strong>${esc(row.subjectRaw || row.subject || "Sin asignatura")}</strong><span>${esc(row.grade || "—")}° ${esc(row.group || "")} · ${esc(row.sede || "—")}</span></div></div>
       <div class="tag-actions"><button class="ghost-btn mini-btn" data-action="edit-carga-assignment" data-index="${row.index}">Editar</button><button class="danger-btn mini-btn" data-action="delete-carga" data-index="${row.index}">Eliminar</button></div>
     </article>`;
   }
 
   function directorAssignmentTag(row) {
-    return `<article class="carga-tag-card director-tag-card" style="--subject-color:var(--primary);"><div class="carga-tag-main"><span class="director-card-icon">DG</span><div><strong>Dirección de grupo</strong><span>${esc(row.grade || "—")}° ${esc(row.group || "")} · ${esc(row.sede || "Sin sede")}</span></div></div><div class="tag-actions"><button class="ghost-btn mini-btn" data-action="edit-director-assignment" data-index="${row.index}">Editar</button><button class="danger-btn mini-btn" data-action="delete-director" data-index="${row.index}">Eliminar</button></div></article>`;
+    return `<article class="carga-tag-card director-tag-card" style="--subject-color:var(--primary);"><div class="carga-tag-main"><span class="director-card-icon">DG</span><div><strong>Dirección de grupo</strong><span>${esc(row.grade || "—")}° ${esc(row.group || "")} · ${esc(row.sede || "—")}</span></div></div><div class="tag-actions"><button class="ghost-btn mini-btn" data-action="edit-director-assignment" data-index="${row.index}">Editar</button><button class="danger-btn mini-btn" data-action="delete-director" data-index="${row.index}">Eliminar</button></div></article>`;
   }
 
   function subjectAccent(subject) {
@@ -5164,13 +5371,13 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
   function adminGraphicsHtml() {
     const mode = state.adminGraphMode === "area" ? "area" : "estructura";
     state.adminGraphMode = mode;
-    const sedes = ["all", ...uniqueValues(state.computedStudents.map((s) => s.sede || "Sin sede"))];
+    const sedes = ["all", ...uniqueValues(state.computedStudents.map((s) => s.sede || "—"))];
     const grades = ["all", ...uniqueValues(state.computedStudents
-      .filter((s) => state.adminGraphSede === "all" || (s.sede || "Sin sede") === state.adminGraphSede)
+      .filter((s) => state.adminGraphSede === "all" || (s.sede || "—") === state.adminGraphSede)
       .map((s) => s.grade).filter(Boolean)).sort((a, b) => Number(a) - Number(b))];
     const subjects = ["all", ...availableSubjects()];
     const base = state.computedStudents
-      .filter((s) => state.adminGraphSede === "all" || (s.sede || "Sin sede") === state.adminGraphSede)
+      .filter((s) => state.adminGraphSede === "all" || (s.sede || "—") === state.adminGraphSede)
       .filter((s) => state.adminGraphGrade === "all" || String(s.grade) === String(state.adminGraphGrade));
     const content = mode === "area" ? graphByAreaHtml(base) : graphByStructureHtml(base);
     const modeText = mode === "area"
@@ -5200,9 +5407,9 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
 
   function graphByStructureHtml(students) {
     const subject = state.adminGraphSubject || "all";
-    const sedeRows = graphGroupRows(students, (s) => s.sede || "Sin sede", (key) => key, subject);
+    const sedeRows = graphGroupRows(students, (s) => s.sede || "—", (key) => key, subject);
     return graphLevelHtml("Sedes", sedeRows, 0, (sedeRow) => {
-      const sedeStudents = students.filter((s) => (s.sede || "Sin sede") === sedeRow.key);
+      const sedeStudents = students.filter((s) => (s.sede || "—") === sedeRow.key);
       const gradeRows = graphGroupRows(sedeStudents, (s) => String(s.grade || "Sin grado"), (key) => key === "Sin grado" ? key : `${key}°`, subject);
       return graphLevelHtml(`Grados en ${sedeRow.label}`, gradeRows, 1, (gradeRow) => {
         const gradeStudents = sedeStudents.filter((s) => String(s.grade || "Sin grado") === String(gradeRow.key));
@@ -5221,9 +5428,9 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     return graphLevelHtml("Áreas / asignaturas", subjectRows, 0, (subjectRow) => {
       const subject = subjectRow.subject;
       const subjectStudents = students.filter((s) => s.subjectStats[subject]?.total);
-      const sedeRows = graphGroupRows(subjectStudents, (s) => s.sede || "Sin sede", (key) => key, subject);
+      const sedeRows = graphGroupRows(subjectStudents, (s) => s.sede || "—", (key) => key, subject);
       return graphLevelHtml(`Sedes en ${shortSubjectName(subject)}`, sedeRows, 1, (sedeRow) => {
-        const sedeStudents = subjectStudents.filter((s) => (s.sede || "Sin sede") === sedeRow.key);
+        const sedeStudents = subjectStudents.filter((s) => (s.sede || "—") === sedeRow.key);
         const gradeRows = graphGroupRows(sedeStudents, (s) => String(s.grade || "Sin grado"), (key) => key === "Sin grado" ? key : `${key}°`, subject);
         return graphLevelHtml(`Grados en ${sedeRow.label}`, gradeRows, 2, (gradeRow) => {
           const gradeStudents = sedeStudents.filter((s) => String(s.grade || "Sin grado") === String(gradeRow.key));
@@ -6228,12 +6435,12 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     if (!state.adminGraphOpen) state.adminGraphOpen = {};
 
     const allStudents = state.computedStudents || [];
-    const sedes = ["all", ...uniqueValues(allStudents.map((s) => s.sede || "Sin sede"))];
-    const gradeBase = allStudents.filter((s) => state.adminGraphSede === "all" || (s.sede || "Sin sede") === state.adminGraphSede);
+    const sedes = ["all", ...uniqueValues(allStudents.map((s) => s.sede || "—"))];
+    const gradeBase = allStudents.filter((s) => state.adminGraphSede === "all" || (s.sede || "—") === state.adminGraphSede);
     const grades = ["all", ...uniqueValues(gradeBase.map((s) => s.grade).filter(Boolean)).sort((a, b) => Number(a) - Number(b))];
     const subjects = ["all", ...availableSubjects()];
     const base = allStudents
-      .filter((s) => state.adminGraphSede === "all" || (s.sede || "Sin sede") === state.adminGraphSede)
+      .filter((s) => state.adminGraphSede === "all" || (s.sede || "—") === state.adminGraphSede)
       .filter((s) => state.adminGraphGrade === "all" || String(s.grade) === String(state.adminGraphGrade));
 
     const content = mode === "area" ? graphByAreaHtml(base) : graphByStructureHtml(base);
@@ -6265,9 +6472,9 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
 
   function graphByStructureHtml(students) {
     const subject = state.adminGraphSubject || "all";
-    const sedes = graphGroupRows(students, (s) => s.sede || "Sin sede", (key) => key, subject);
+    const sedes = graphGroupRows(students, (s) => s.sede || "—", (key) => key, subject);
     return graphLevelHtml("Sedes", sedes, 0, (sedeRow) => {
-      const sedeStudents = students.filter((s) => (s.sede || "Sin sede") === sedeRow.key);
+      const sedeStudents = students.filter((s) => (s.sede || "—") === sedeRow.key);
       const grades = graphGroupRows(sedeStudents, (s) => String(s.grade || "Sin grado"), (key) => key === "Sin grado" ? key : `${key}°`, subject);
       return graphLevelHtml(`Grados en ${sedeRow.label}`, grades, 1, (gradeRow) => {
         const gradeStudents = sedeStudents.filter((s) => String(s.grade || "Sin grado") === String(gradeRow.key));
@@ -6286,9 +6493,9 @@ Esta versión funciona en GitHub Pages como aplicación estática. Los cambios s
     return graphLevelHtml("Áreas / asignaturas", subjects, 0, (subjectRow) => {
       const subject = subjectRow.subject;
       const subjectStudents = students.filter((s) => s.subjectStats?.[subject]?.total);
-      const sedes = graphGroupRows(subjectStudents, (s) => s.sede || "Sin sede", (key) => key, subject);
+      const sedes = graphGroupRows(subjectStudents, (s) => s.sede || "—", (key) => key, subject);
       return graphLevelHtml(`Sedes en ${shortSubjectName(subject)}`, sedes, 1, (sedeRow) => {
-        const sedeStudents = subjectStudents.filter((s) => (s.sede || "Sin sede") === sedeRow.key);
+        const sedeStudents = subjectStudents.filter((s) => (s.sede || "—") === sedeRow.key);
         const grades = graphGroupRows(sedeStudents, (s) => String(s.grade || "Sin grado"), (key) => key === "Sin grado" ? key : `${key}°`, subject);
         return graphLevelHtml(`Grados en ${sedeRow.label}`, grades, 2, (gradeRow) => {
           const gradeStudents = sedeStudents.filter((s) => String(s.grade || "Sin grado") === String(gradeRow.key));

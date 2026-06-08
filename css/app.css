@@ -9311,3 +9311,90 @@ select,
     width: 100%;
   }
 }
+
+/* v87 - Exámenes no vinculados y eliminación total de categorías sin sede */
+.orphan-summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+  padding: 14px 16px;
+  border-radius: var(--corner-radius, 12px);
+  border: 1px solid rgba(17, 24, 39, .08);
+  background: #ffffff;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, .06);
+}
+.orphan-summary strong {
+  min-width: 52px;
+  height: 52px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 18px;
+  font-size: 1.4rem;
+  font-weight: 950;
+}
+.orphan-summary.has-orphans strong {
+  color: #ffffff;
+  background: linear-gradient(135deg, #dc2626, #991b1b);
+  box-shadow: 0 12px 28px rgba(220, 38, 38, .28);
+}
+.orphan-summary.is-clear strong {
+  color: #ffffff;
+  background: linear-gradient(135deg, #16a34a, #047857);
+  box-shadow: 0 12px 28px rgba(22, 163, 74, .24);
+}
+.orphan-summary span {
+  font-weight: 850;
+  color: #374151;
+}
+.admin-orphan-table td,
+.admin-orphan-table th {
+  white-space: nowrap;
+}
+.orphan-modal .modal-body {
+  display: grid;
+  gap: 14px;
+}
+.orphan-card-inline {
+  display: grid;
+  gap: 4px;
+  padding: 14px 16px;
+  border-radius: var(--corner-radius, 12px);
+  border: 1px solid rgba(25, 117, 174, .16);
+  background: linear-gradient(135deg, rgba(25, 117, 174, .08), rgba(255, 255, 255, .96));
+}
+.orphan-card-inline strong {
+  color: #1f2937;
+  font-weight: 950;
+}
+.orphan-card-inline span {
+  color: #64748b;
+  font-weight: 750;
+}
+.warning-note-soft {
+  padding: 12px 14px;
+  border-radius: var(--corner-radius, 12px);
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  color: #9a3412;
+  font-weight: 760;
+  line-height: 1.45;
+}
+@media (max-width: 640px) {
+  .orphan-summary {
+    align-items: flex-start;
+    padding: 12px;
+  }
+  .orphan-summary strong {
+    min-width: 44px;
+    height: 44px;
+    border-radius: 14px;
+  }
+  .admin-orphan-table .row-actions {
+    display: grid;
+    gap: 8px;
+  }
+  .orphan-modal .modal-body {
+    padding: 14px;
+  }
+}
