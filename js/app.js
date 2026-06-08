@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v96";
+  const APP_VERSION = "v97";
 
   const app = document.getElementById("app");
   const toastEl = document.getElementById("toast");
@@ -888,7 +888,7 @@
               <div class="access-v96-info">
                 <small>Nombre completo</small>
                 <div class="access-v96-name-line">
-                  <span class="access-v96-source-name">Ruben</span><span class="access-v96-muted-part"> Andres Enciso Lopez</span>
+                  <span class="access-v96-source-name">Ruben</span><span class="access-v96-muted-part">Andres Enciso Lopez</span>
                 </div>
                 <small>Documento / ID</small>
                 <div class="access-v96-id-line">

@@ -1,8 +1,8 @@
 {
-  "version": "v96",
-  "cache": "resultados-pwa-v96",
+  "version": "v97",
+  "cache": "resultados-pwa-v97",
   "updatedAt": "2026-06-08",
-  "note": "Ajusta la animación del login para que sea un loop continuo, extraiga ruben y 7890 desde el carné, agregue más rebote y use emoji 😎 como foto.",
-  "builtAt": "2026-06-08T02:50:00Z",
+  "note": "Ajusta la animación del login: elimina recuadro visible, compacta altura, separa Ruben/Andres, sube la composición ruben+7890 y mantiene ruben7890 visible por más tiempo.",
+  "builtAt": "2026-06-08T03:05:00Z",
   "date": "2026-06-08"
 }

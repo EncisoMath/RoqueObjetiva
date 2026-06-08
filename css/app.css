@@ -12070,3 +12070,278 @@ select,
   .access-v96-name-line { font-size: .74rem; }
   .access-v96-id-line { font-size: .78rem; }
 }
+
+
+/* v97: animación de login más compacta, sin recuadro visible y con extracción más clara */
+.login-access-guide.access-story-v96 {
+  --v96-cycle: 14s;
+  min-height: 198px !important;
+  margin: 0 auto 6px !important;
+  overflow: visible !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.login-access-guide.access-story-v96::before,
+.login-access-guide.access-story-v96::after {
+  content: "" !important;
+  position: absolute;
+  pointer-events: none;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.login-access-guide.access-story-v96::before {
+  inset: -34px -22px -26px;
+  opacity: .52;
+  background:
+    radial-gradient(circle at 17% 23%, rgba(255, 216, 89, .22), transparent 18%),
+    radial-gradient(circle at 85% 62%, rgba(0, 188, 230, .20), transparent 25%),
+    radial-gradient(ellipse at 50% 54%, rgba(6, 42, 91, .22), transparent 52%);
+  filter: blur(24px);
+  -webkit-mask-image: radial-gradient(ellipse at center, #000 0 54%, transparent 78%);
+  mask-image: radial-gradient(ellipse at center, #000 0 54%, transparent 78%);
+  z-index: 0;
+}
+
+.access-v96-stage {
+  inset: -3px 0 0 !important;
+}
+
+.access-v96-card {
+  left: 6.5% !important;
+  top: 8px !important;
+  width: 87% !important;
+  min-height: 132px !important;
+  padding: 16px 18px 12px !important;
+  border-radius: 24px !important;
+}
+
+.access-v96-card-head {
+  margin-bottom: 11px !important;
+  font-size: .58rem !important;
+}
+
+.access-v96-card-body {
+  grid-template-columns: 54px 1fr !important;
+  gap: 14px !important;
+}
+
+.access-v96-photo {
+  width: 54px !important;
+  height: 62px !important;
+  border-radius: 21px !important;
+}
+
+.access-v96-photo span {
+  font-size: 1.42rem !important;
+}
+
+.access-v96-info small {
+  font-size: .50rem !important;
+  margin-bottom: 2px !important;
+}
+
+.access-v96-name-line {
+  margin-bottom: 8px !important;
+  font-size: .94rem !important;
+  letter-spacing: -.025em !important;
+}
+
+.access-v96-id-line {
+  font-size: .94rem !important;
+}
+
+.access-v96-source-name {
+  margin-right: .28em !important;
+}
+
+.access-v96-muted-part {
+  margin-left: .02em !important;
+}
+
+.access-v96-card-foot {
+  margin-top: 10px !important;
+}
+
+.access-v96-caption {
+  top: 17px !important;
+  font-size: .66rem !important;
+  padding: 7px 13px !important;
+}
+
+.access-v96-token,
+.access-v96-plus,
+.access-v96-result {
+  top: 50% !important;
+}
+
+.access-v96-token {
+  min-width: 76px !important;
+  padding: 7px 13px !important;
+  font-size: .92rem !important;
+}
+
+.access-v96-result {
+  padding: 11px 24px !important;
+  font-size: 1.25rem !important;
+}
+
+@keyframes accessV96Card {
+  0%, 14% { opacity: 1; transform: translate3d(0, 0, 0) rotate(-1.6deg) scale(1); filter: saturate(1); }
+  20% { opacity: 1; transform: translate3d(0, 0, 0) rotate(-.9deg) scale(1.012); filter: saturate(1.08); }
+  27% { opacity: .42; transform: translate3d(-6px, 6px, -18px) rotate(-2.8deg) scale(.965); filter: saturate(.86) blur(.2px); }
+  34%, 82% { opacity: .12; transform: translate3d(-12px, 8px, -38px) rotate(-4deg) scale(.91); filter: saturate(.72) blur(.9px); }
+  88% { opacity: .42; transform: translate3d(-6px, 6px, -18px) rotate(-2.8deg) scale(.96); filter: saturate(.84) blur(.2px); }
+  95%, 100% { opacity: 1; transform: translate3d(0, 0, 0) rotate(-1.6deg) scale(1); filter: saturate(1); }
+}
+
+@keyframes accessV96SourceGlow {
+  0%, 12%, 90%, 100% { filter: none; opacity: 1; transform: translateY(0) scale(1); }
+  17%, 23% { filter: drop-shadow(0 0 10px rgba(255, 215, 86, .60)); opacity: 1; transform: translateY(-1px) scale(1.04); }
+  30%, 82% { opacity: .14; transform: translateY(-2px) scale(.98); }
+}
+
+@keyframes accessV96MutePart {
+  0%, 11%, 90%, 100% { opacity: 1; filter: none; transform: translateX(0); }
+  18% { opacity: .42; filter: blur(.3px); }
+  27%, 82% { opacity: 0; filter: blur(5px); transform: translateX(10px); }
+}
+
+@keyframes accessV96Caption {
+  0%, 24%, 86%, 100% { opacity: 0; transform: translate(-50%, 12px) scale(.94); }
+  30%, 80% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  84% { opacity: 0; transform: translate(-50%, -7px) scale(.98); }
+}
+
+@keyframes accessV96TokenName {
+  0%, 18%, 89%, 100% { opacity: 0; transform: translate(-78px, -26px) scale(.78); }
+  21% { opacity: 1; transform: translate(-78px, -26px) scale(.96); }
+  27% { opacity: 1; transform: translate(-78px, -26px) scale(1.05); }
+  36% { opacity: 1; transform: translate(-39px, -12px) scale(1.04); }
+  48% { opacity: 1; transform: translate(-39px, 6px) scale(1); }
+  56% { opacity: 1; transform: translate(-96px, 7px) scale(1.10); }
+  60% { opacity: 1; transform: translate(-73px, 7px) scale(.82); }
+  63% { opacity: 1; transform: translate(-91px, 7px) scale(1.22); }
+  66% { opacity: 1; transform: translate(-79px, 7px) scale(.92); }
+  69% { opacity: 1; transform: translate(-85px, 7px) scale(1.04); }
+  72%, 84% { opacity: 0; transform: translate(-85px, 7px) scale(.76); }
+}
+
+@keyframes accessV96TokenId {
+  0%, 18%, 89%, 100% { opacity: 0; transform: translate(34px, 9px) scale(.78); }
+  21% { opacity: 1; transform: translate(34px, 9px) scale(.96); }
+  27% { opacity: 1; transform: translate(34px, 9px) scale(1.05); }
+  36% { opacity: 1; transform: translate(-39px, 39px) scale(1.04); }
+  48% { opacity: 1; transform: translate(-39px, 57px) scale(1); }
+  56% { opacity: 1; transform: translate(16px, 7px) scale(1.10); }
+  60% { opacity: 1; transform: translate(-7px, 7px) scale(.82); }
+  63% { opacity: 1; transform: translate(11px, 7px) scale(1.22); }
+  66% { opacity: 1; transform: translate(-1px, 7px) scale(.92); }
+  69% { opacity: 1; transform: translate(5px, 7px) scale(1.04); }
+  72%, 84% { opacity: 0; transform: translate(5px, 7px) scale(.76); }
+}
+
+@keyframes accessV96Plus {
+  0%, 50%, 71%, 100% { opacity: 0; transform: translate(-50%, -12px) scale(.45) rotate(-45deg); }
+  55% { opacity: 1; transform: translate(-50%, 7px) scale(1.22) rotate(0deg); }
+  60% { opacity: 1; transform: translate(-50%, 7px) scale(.78) rotate(0deg); }
+  63% { opacity: 1; transform: translate(-50%, 7px) scale(1.16) rotate(0deg); }
+  67% { opacity: 0; transform: translate(-50%, 7px) scale(.35) rotate(18deg); }
+}
+
+@keyframes accessV96Result {
+  0%, 63%, 91%, 100% { opacity: 0; transform: translate(-50%, 7px) scale(.52); filter: blur(2px); }
+  66% { opacity: 1; transform: translate(-50%, 7px) scale(1.52); filter: blur(0); }
+  69% { opacity: 1; transform: translate(-50%, 7px) scale(.74); }
+  72% { opacity: 1; transform: translate(-50%, 7px) scale(1.30); }
+  75% { opacity: 1; transform: translate(-50%, 7px) scale(.96); }
+  78% { opacity: 1; transform: translate(-50%, 7px) scale(1.12); }
+  82%, 87% { opacity: 1; transform: translate(-50%, 7px) scale(1.08); filter: blur(0); }
+  90% { opacity: 0; transform: translate(-50%, 7px) scale(.82); filter: blur(2px); }
+}
+
+@media (max-width: 480px) {
+  .login-access-guide.access-story-v96 {
+    min-height: 184px !important;
+    width: min(100%, 392px) !important;
+    margin-bottom: 4px !important;
+  }
+  .access-v96-card {
+    left: 5.5% !important;
+    top: 8px !important;
+    width: 89% !important;
+    min-height: 126px !important;
+    padding: 14px 14px 11px !important;
+    border-radius: 22px !important;
+  }
+  .access-v96-card-head { font-size: .50rem !important; margin-bottom: 9px !important; }
+  .access-v96-card-head strong { padding: 4px 8px !important; }
+  .access-v96-card-body { grid-template-columns: 46px 1fr !important; gap: 10px !important; }
+  .access-v96-photo { width: 46px !important; height: 56px !important; border-radius: 18px !important; }
+  .access-v96-photo span { font-size: 1.26rem !important; }
+  .access-v96-info small { font-size: .45rem !important; }
+  .access-v96-name-line { font-size: .76rem !important; margin-bottom: 7px !important; letter-spacing: -.018em !important; }
+  .access-v96-id-line { font-size: .78rem !important; }
+  .access-v96-card-foot { margin-top: 8px !important; }
+  .access-v96-card-foot i:nth-child(1) { width: 44px !important; }
+  .access-v96-card-foot i:nth-child(2) { width: 22px !important; }
+  .access-v96-card-foot i:nth-child(3) { width: 68px !important; }
+  .access-v96-caption { top: 14px !important; font-size: .52rem !important; padding: 6px 10px !important; }
+  .access-v96-token { min-width: 62px !important; padding: 6px 10px !important; font-size: .78rem !important; border-radius: 15px !important; }
+  .access-v96-plus { width: 26px !important; height: 26px !important; font-size: .94rem !important; }
+  .access-v96-result { padding: 9px 17px !important; border-radius: 18px !important; font-size: 1rem !important; }
+  @keyframes accessV96TokenName {
+    0%, 18%, 89%, 100% { opacity: 0; transform: translate(-67px, -22px) scale(.78); }
+    21% { opacity: 1; transform: translate(-67px, -22px) scale(.96); }
+    27% { opacity: 1; transform: translate(-67px, -22px) scale(1.05); }
+    36% { opacity: 1; transform: translate(-32px, -12px) scale(1.04); }
+    48% { opacity: 1; transform: translate(-32px, 1px) scale(1); }
+    56% { opacity: 1; transform: translate(-76px, 3px) scale(1.10); }
+    60% { opacity: 1; transform: translate(-57px, 3px) scale(.82); }
+    63% { opacity: 1; transform: translate(-73px, 3px) scale(1.22); }
+    66% { opacity: 1; transform: translate(-63px, 3px) scale(.92); }
+    69% { opacity: 1; transform: translate(-68px, 3px) scale(1.04); }
+    72%, 84% { opacity: 0; transform: translate(-68px, 3px) scale(.76); }
+  }
+  @keyframes accessV96TokenId {
+    0%, 18%, 89%, 100% { opacity: 0; transform: translate(24px, 7px) scale(.78); }
+    21% { opacity: 1; transform: translate(24px, 7px) scale(.96); }
+    27% { opacity: 1; transform: translate(24px, 7px) scale(1.05); }
+    36% { opacity: 1; transform: translate(-32px, 32px) scale(1.04); }
+    48% { opacity: 1; transform: translate(-32px, 45px) scale(1); }
+    56% { opacity: 1; transform: translate(8px, 3px) scale(1.10); }
+    60% { opacity: 1; transform: translate(-10px, 3px) scale(.82); }
+    63% { opacity: 1; transform: translate(4px, 3px) scale(1.22); }
+    66% { opacity: 1; transform: translate(-5px, 3px) scale(.92); }
+    69% { opacity: 1; transform: translate(0px, 3px) scale(1.04); }
+    72%, 84% { opacity: 0; transform: translate(0px, 3px) scale(.76); }
+  }
+  @keyframes accessV96Plus {
+    0%, 50%, 71%, 100% { opacity: 0; transform: translate(-50%, -13px) scale(.45) rotate(-45deg); }
+    55% { opacity: 1; transform: translate(-50%, 3px) scale(1.22) rotate(0deg); }
+    60% { opacity: 1; transform: translate(-50%, 3px) scale(.78) rotate(0deg); }
+    63% { opacity: 1; transform: translate(-50%, 3px) scale(1.16) rotate(0deg); }
+    67% { opacity: 0; transform: translate(-50%, 3px) scale(.35) rotate(18deg); }
+  }
+  @keyframes accessV96Result {
+    0%, 63%, 91%, 100% { opacity: 0; transform: translate(-50%, 3px) scale(.52); filter: blur(2px); }
+    66% { opacity: 1; transform: translate(-50%, 3px) scale(1.46); filter: blur(0); }
+    69% { opacity: 1; transform: translate(-50%, 3px) scale(.74); }
+    72% { opacity: 1; transform: translate(-50%, 3px) scale(1.26); }
+    75% { opacity: 1; transform: translate(-50%, 3px) scale(.96); }
+    78% { opacity: 1; transform: translate(-50%, 3px) scale(1.10); }
+    82%, 87% { opacity: 1; transform: translate(-50%, 3px) scale(1.06); filter: blur(0); }
+    90% { opacity: 0; transform: translate(-50%, 3px) scale(.82); filter: blur(2px); }
+  }
+}
+
+@media (max-width: 360px) {
+  .login-access-guide.access-story-v96 { min-height: 172px !important; }
+  .access-v96-card { top: 7px !important; padding: 13px 12px 10px !important; }
+  .access-v96-card-body { grid-template-columns: 42px 1fr !important; gap: 9px !important; }
+  .access-v96-photo { width: 42px !important; height: 52px !important; }
+  .access-v96-name-line { font-size: .70rem !important; }
+  .access-v96-id-line { font-size: .74rem !important; }
+}

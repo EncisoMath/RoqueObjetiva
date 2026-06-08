@@ -324,3 +324,7 @@ El `service-worker.js` usa estrategia de red primero para archivos JSON, para ev
 
 ## v96
 - Mejora la animación del login: loop continuo, extracción desde el carné, rebote más fuerte y emoji 😎 como foto de perfil.
+
+
+## v97
+- Ajusta la animación del login para que sea más compacta, sin recuadro visible, con separación entre Ruben y Andres, composición más arriba y resultado `ruben7890` visible por más tiempo.
