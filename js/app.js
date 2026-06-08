@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v117";
+  const APP_VERSION = "v118";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -39,7 +39,7 @@
   const DEFAULT_CONFIG = {
     title: "Roque Objetiva",
     subtitle: "Este reporte no se pasa ni se pierde. Es una herramienta para identificar fortalezas, habilidades y oportunidades de mejora.",
-    logoImage: "assets/logo-principal.png?v=117",
+    logoImage: "assets/logo-principal.png?v=118",
     appIcon: "icons/icon-512.png",
     bannerImage: "",
     footerText: "Consulta institucional de resultados",
@@ -90,6 +90,10 @@
     teachers: new Map(),
     responsesByRoll: new Map(),
     rankingMetadataByRoll: new Map(),
+    rankingFallbackResponsesByRoll: new Map(),
+    rankingFallbackRegistryByExamId: new Map(),
+    rankingFallbackRegistryByNationalId: new Map(),
+    rankingFallbackLoaded: false,
     rankingSupplementLoaded: false,
     missingFiles: [],
     computedStudents: [],
@@ -223,6 +227,10 @@
       state.keys = [];
       state.responsesByRoll = new Map();
       state.rankingMetadataByRoll = new Map();
+      state.rankingFallbackResponsesByRoll = new Map();
+      state.rankingFallbackRegistryByExamId = new Map();
+      state.rankingFallbackRegistryByNationalId = new Map();
+      state.rankingFallbackLoaded = false;
       state.rankingSupplementLoaded = false;
       state.missingFiles = [];
       state.studentsRegistry = [];
@@ -238,6 +246,10 @@
     state.keys = [];
     state.responsesByRoll = new Map();
     state.rankingMetadataByRoll = new Map();
+    state.rankingFallbackResponsesByRoll = new Map();
+    state.rankingFallbackRegistryByExamId = new Map();
+    state.rankingFallbackRegistryByNationalId = new Map();
+    state.rankingFallbackLoaded = false;
     state.rankingSupplementLoaded = false;
     state.missingFiles = [];
 
@@ -386,6 +398,79 @@
     } catch (error) {}
   }
 
+  function hasUsableRankingUniverse() {
+    const responseRows = Array.from(state.responsesByRoll?.values?.() || []);
+    const byGrade = groupBy(responseRows, (record) => String(toInt(record?.grade) || ""));
+    return Array.from(byGrade.values()).some((rows) => rows.length > 1);
+  }
+
+  function hasPrecomputedRankMetadata() {
+    return !!(state.rankingMetadataByRoll && state.rankingMetadataByRoll.size > 0);
+  }
+
+  async function ensureRankingFallbackUniverse() {
+    // v118: si Supabase entrega solo el estudiante que inició sesión, se usa el paquete local
+    // únicamente como universo de ranking. No modifica las listas visibles ni la matrícula.
+    if (!SUPABASE_CONFIG.enabled) return;
+    if (hasUsableRankingUniverse() || hasPrecomputedRankMetadata()) return;
+    await loadBundledRankingFallbackData();
+  }
+
+  async function loadBundledRankingFallbackData() {
+    if (state.rankingFallbackLoaded) return;
+    state.rankingFallbackLoaded = true;
+    state.rankingFallbackResponsesByRoll = new Map();
+    state.rankingFallbackRegistryByExamId = new Map();
+    state.rankingFallbackRegistryByNationalId = new Map();
+
+    try {
+      const studentText = await fetchText(state.manifest.estudiantes || DEFAULT_MANIFEST.estudiantes, false);
+      const students = studentText ? parseStudents(studentText) : [];
+      students.forEach((student) => {
+        const examId = cleanId(student?.examId);
+        const nationalId = cleanId(student?.nationalId);
+        if (examId) state.rankingFallbackRegistryByExamId.set(examId, student);
+        if (nationalId) state.rankingFallbackRegistryByNationalId.set(nationalId, student);
+      });
+    } catch (error) {
+      console.warn("No se pudo cargar estudiantes locales para ranking:", error?.message || error);
+    }
+
+    try {
+      const currentKeyIds = new Set((state.keys || []).map((key) => keyId(key)));
+      for (const keyFile of state.manifest.keys || []) {
+        const text = await fetchText(keyFile.path, false);
+        if (!text) continue;
+        const rows = parseAnswerKey(text, keyFile);
+        rows.forEach((row) => {
+          const id = keyId(row);
+          if (!currentKeyIds.has(id)) {
+            state.keys.push(row);
+            currentKeyIds.add(id);
+          }
+        });
+      }
+    } catch (error) {
+      console.warn("No se pudieron cargar claves locales para ranking:", error?.message || error);
+    }
+
+    const originalResponses = state.responsesByRoll;
+    const tempResponses = new Map();
+    try {
+      state.responsesByRoll = tempResponses;
+      for (const resultFile of state.manifest.resultados || []) {
+        const text = await fetchText(resultFile.path, false);
+        if (!text) continue;
+        parseResultFile(text, resultFile);
+      }
+    } catch (error) {
+      console.warn("No se pudieron cargar resultados locales para ranking:", error?.message || error);
+    } finally {
+      state.responsesByRoll = originalResponses;
+    }
+    state.rankingFallbackResponsesByRoll = tempResponses;
+  }
+
   function mergeSupplementalStudents(students = []) {
     if (!Array.isArray(students) || !students.length) return;
     const byExam = new Map((state.studentsRegistry || []).map((student) => [cleanId(student.examId), student]).filter(([id]) => id));
@@ -435,6 +520,10 @@
     state.keys = [];
     state.responsesByRoll = new Map();
     state.rankingMetadataByRoll = new Map();
+    state.rankingFallbackResponsesByRoll = new Map();
+    state.rankingFallbackRegistryByExamId = new Map();
+    state.rankingFallbackRegistryByNationalId = new Map();
+    state.rankingFallbackLoaded = false;
     state.rankingSupplementLoaded = false;
     state.missingFiles = [];
     state.orphanExams = [];
@@ -605,6 +694,7 @@
       }
       hydrateSupabasePayload(payload);
       await loadSupabaseRankingSupplement(payload);
+      await ensureRankingFallbackUniverse();
       buildRepository();
 
       const session = payload.session || {};
@@ -1082,7 +1172,11 @@
 
   function buildComputedStudentFromResultRecord(record, fallbackIndex = 0) {
     const roll = cleanId(record?.roll) || `RESULT-${fallbackIndex + 1}`;
-    const registry = state.registryByExamId.get(roll) || state.registryByNationalId.get(cleanId(record?.nationalId)) || null;
+    const registry = state.registryByExamId.get(roll)
+      || state.rankingFallbackRegistryByExamId?.get?.(roll)
+      || state.registryByNationalId.get(cleanId(record?.nationalId))
+      || state.rankingFallbackRegistryByNationalId?.get?.(cleanId(record?.nationalId))
+      || null;
     const grade = toInt(registry?.grade) || toInt(record?.grade);
     if (!roll || !grade) return null;
     const stats = calculateStudentStatsFromRecord(record, grade);
@@ -1192,33 +1286,27 @@
   }
 
   function assignRanks() {
-    // v117: el ranking se calcula por PUNTAJE GLOBAL y con un universo independiente.
-    // Importante: si el login de Supabase llega recortado a un solo estudiante, NO se
-    // vuelve a marcar falsamente como 1/1. En ese caso se usan puestos precomputados
-    // si vienen del payload; si no existen, se deja sin puesto para no mentir.
+    // v118: ranking por PUNTAJE GLOBAL. Las listas visibles pueden estar filtradas por rol,
+    // pero los puestos se calculan con un universo independiente: resultados Supabase,
+    // ranking precomputado o respaldo local empaquetado.
     const visibleStudents = state.computedStudents || [];
     visibleStudents.forEach((student) => resetRankFields(student));
 
     const rankedStudents = buildRankingStudentsPool()
       .filter((student) => studentHasExistingResult(student) && Number.isFinite(rankBaseScore(student)));
 
-    const hasMultiStudentRankingUniverse = rankedStudents.length > 1;
     const byGrade = groupBy(rankedStudents, gradeRankKey);
     byGrade.forEach((gradeStudents, key) => {
       if (!key) return;
       const orderedGrade = orderStudentsForRanking(gradeStudents);
-      if (orderedGrade.length > 1 || hasMultiStudentRankingUniverse) {
-        applyOrderedRanks(orderedGrade, "grade");
-      }
+      applyOrderedRanks(orderedGrade, "grade");
       orderedGrade.forEach((student) => applyServerRankFallback(student, "grade", orderedGrade.length));
 
       const byCourse = groupBy(gradeStudents, courseRankKey);
       byCourse.forEach((courseStudents, courseKey) => {
         if (!courseKey) return;
         const orderedCourse = orderStudentsForRanking(courseStudents);
-        if (orderedCourse.length > 1 || hasMultiStudentRankingUniverse) {
-          applyOrderedRanks(orderedCourse, "course");
-        }
+        applyOrderedRanks(orderedCourse, "course");
         orderedCourse.forEach((student) => applyServerRankFallback(student, "course", orderedCourse.length));
       });
 
@@ -1300,6 +1388,15 @@
 
     let index = 0;
     (state.responsesByRoll || new Map()).forEach((record, rollKey) => {
+      const roll = cleanId(record?.roll || rollKey);
+      if (!roll || byRoll.has(roll)) return;
+      const synthetic = buildComputedStudentFromResultRecord({ ...record, roll }, index++);
+      if (!synthetic) return;
+      resetRankFields(synthetic);
+      byRoll.set(roll, synthetic);
+    });
+
+    (state.rankingFallbackResponsesByRoll || new Map()).forEach((record, rollKey) => {
       const roll = cleanId(record?.roll || rollKey);
       if (!roll || byRoll.has(roll)) return;
       const synthetic = buildComputedStudentFromResultRecord({ ...record, roll }, index++);

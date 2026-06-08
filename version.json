@@ -1,6 +1,6 @@
 {
-  "version": "v117",
-  "cache": "resultados-pwa-v117",
+  "version": "v118",
+  "cache": "resultados-pwa-v118",
   "updatedAt": "2026-06-08",
   "note": "Corrige rankings por puntaje global con universo completo; evita falsos 1/1 cuando Supabase entrega payload filtrado; mantiene Supabase sin cache.",
   "builtAt": "2026-06-08T19:15:00Z",
