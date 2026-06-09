@@ -13664,3 +13664,38 @@ select,
     #aa4d1a 82%,
     #74300d 100%) !important;
 }
+
+
+/* v131: vista admin de alertas por sesiones incompletas */
+.session-audit-summary article strong {
+  color: var(--primary, #1975ae);
+}
+.session-audit-note {
+  margin: 12px 0 18px;
+}
+.audit-card-head {
+  padding-bottom: 8px !important;
+}
+.admin-session-audit-table {
+  margin-top: 18px;
+}
+.audit-source-card {
+  display: grid;
+  gap: 4px;
+  padding: 14px 16px;
+  border: 1px solid rgba(25, 117, 174, .18);
+  border-radius: 16px;
+  background: rgba(25, 117, 174, .06);
+  margin: 14px 0;
+}
+.audit-source-card span,
+.warning-text {
+  color: #9a5b16 !important;
+  font-weight: 700;
+}
+.session-audit-search-field {
+  margin: 14px 0;
+}
+.session-audit-search-results {
+  margin-top: 10px;
+}

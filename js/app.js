@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v130";
+  const APP_VERSION = "v131";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -39,7 +39,7 @@
   const DEFAULT_CONFIG = {
     title: "Roque Objetiva",
     subtitle: "Este reporte no se pasa ni se pierde. Es una herramienta para identificar fortalezas, habilidades y oportunidades de mejora.",
-    logoImage: "assets/logo-principal.png?v=130",
+    logoImage: "assets/logo-principal.png?v=131",
     appIcon: "icons/icon-512.png",
     bannerImage: "",
     footerText: "Consulta institucional de resultados",
@@ -138,6 +138,8 @@
     adminGraphSubject: "all",
     adminGraphOpen: {},
     adminTableSort: {},
+    sessionAuditStudentSearch: "",
+    sessionAuditAssignRoll: "",
     subjectAreaMap: {},
     adminCargaTeacherId: "",
     adminDirectorTeacherId: "",
@@ -2284,7 +2286,7 @@
 
     if (state.activeSession.role === "student") {
       const roll = cleanId(state.activeSession.roll);
-      if (state.activeSession.rankingDebugRequested && (!state.activeSession.rankingDebugDone || state.activeSession.rankingDebugVersion !== "v130")) {
+      if (state.activeSession.rankingDebugRequested && (!state.activeSession.rankingDebugDone || state.activeSession.rankingDebugVersion !== "v131")) {
         return showStudentRankingDebugGate(roll, "Reconstruyendo diagnóstico de ranking...");
       }
       return renderStudent(roll);
@@ -2305,7 +2307,7 @@
       roll: cleanRoll,
       rankingDebugRequested: debug,
       rankingDebugDone: !debug,
-      rankingDebugVersion: "v130"
+      rankingDebugVersion: "v131"
     };
     state.activeSession = session;
     writeJSON(STORAGE.session, state.activeSession);
@@ -2316,7 +2318,7 @@
       try {
         await prepareStudentRankingContext(cleanRoll);
         if (debug) {
-          state.activeSession = { ...(state.activeSession || session), rankingDebugRequested: true, rankingDebugDone: false, rankingDebugVersion: "v130" };
+          state.activeSession = { ...(state.activeSession || session), rankingDebugRequested: true, rankingDebugDone: false, rankingDebugVersion: "v131" };
           writeJSON(STORAGE.session, state.activeSession);
           renderStudentRankingDebug(cleanRoll);
         } else {
@@ -2353,7 +2355,7 @@
   }
 
   function adminTabIds() {
-    return new Set(["resumen", "estudiantes", "resultados", "estadisticas", "docentes", "mapa-grado", "examenes-huerfanos", "asignaturas-areas", "apariencia", "logos", "claves", "github"]);
+    return new Set(["resumen", "estudiantes", "resultados", "estadisticas", "docentes", "mapa-grado", "examenes-huerfanos", "alerta-sesiones", "asignaturas-areas", "apariencia", "logos", "claves", "github"]);
   }
 
   function handleHashRoute() {
@@ -2691,7 +2693,6 @@
               </div>
             </form>
             ${recentLoginsHtml}
-            <span class="login-version">Versión ${esc(APP_VERSION)}</span>
           </div>
         </div>
       </section>
@@ -3416,6 +3417,7 @@
       ["docentes", "Docentes"],
       ["mapa-grado", "Mapa por grado"],
       ["examenes-huerfanos", "Exámenes sin estudiante"],
+      ["alerta-sesiones", "Alertas sesiones"],
       ["asignaturas-areas", "Asignaturas y áreas"],
       ["apariencia", "Apariencia"],
       ["logos", "Logos"],
@@ -3451,6 +3453,7 @@
       case "docentes": return adminDocentesHtml();
       case "mapa-grado": return adminGradeMapHtml();
       case "examenes-huerfanos": return adminOrphanExamsHtml();
+      case "alerta-sesiones": return adminSessionAuditHtml();
       case "asignaturas-areas": return adminSubjectAreasHtml();
       case "apariencia": return adminAppearanceHtml();
       case "logos": return adminLogosHtml();
@@ -3974,6 +3977,217 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     buildRepository();
     toast("Estudiante creado y examen vinculado.");
     closeModal();
+    renderAdminContext();
+  }
+
+
+  function detectedSessionsForRecord(record) {
+    const sessions = responseSessions(record);
+    Object.entries(record?.answers || {}).forEach(([item, value]) => {
+      if (!cleanMarked(value)) return;
+      const session = sessionForItem(Number(item));
+      if (session) sessions.add(Number(session));
+    });
+    return sessions;
+  }
+
+  function sessionAuditRowForRoll(roll) {
+    const clean = cleanId(roll);
+    return buildSessionAuditRows().find((row) => cleanId(row.roll) === clean) || null;
+  }
+
+  function buildSessionAuditRows() {
+    const rows = [];
+    const required = (state.manifest.sessions || DEFAULT_MANIFEST.sessions || [])
+      .map((item) => Number(item.session || item))
+      .filter(Boolean);
+    const sessionOne = required.includes(1) ? 1 : (required[0] || 1);
+    const sessionTwo = required.includes(2) ? 2 : (required[1] || 2);
+
+    (state.responsesByRoll || new Map()).forEach((record, rollKey) => {
+      const roll = cleanId(record?.roll || rollKey);
+      if (!roll) return;
+      const sessions = detectedSessionsForRecord(record);
+      const hasOne = sessions.has(sessionOne);
+      const hasTwo = sessions.has(sessionTwo);
+      if (hasOne === hasTwo) return;
+      const registry = state.registryByExamId.get(roll) || state.registryByNationalId.get(cleanId(record?.nationalId)) || null;
+      const computed = state.computedByRoll.get(roll) || null;
+      const studentName = cleanText(registry?.name) || cleanText(computed?.name) || cleanText(record?.name) || "Sin estudiante vinculado";
+      const grade = toInt(registry?.grade) || toInt(computed?.grade) || toInt(record?.grade) || "";
+      const group = cleanText(registry?.group) || cleanText(computed?.group) || cleanText(record?.group) || "";
+      const sede = cleanText(registry?.sede) || cleanText(computed?.sede) || cleanText(record?.sede) || "";
+      rows.push({
+        roll,
+        type: hasOne ? "s1_only" : "s2_only",
+        missing: hasOne ? sessionTwo : sessionOne,
+        present: hasOne ? sessionOne : sessionTwo,
+        sessions: [...sessions].sort((a, b) => a - b),
+        name: studentName,
+        grade,
+        group,
+        sede,
+        registry,
+        record,
+        answerCount: Object.values(record?.answers || {}).filter((value) => !!cleanMarked(value)).length
+      });
+    });
+
+    return rows.sort((a, b) => {
+      const type = String(a.type).localeCompare(String(b.type));
+      if (type) return type;
+      const gradeDiff = Number(a.grade || 999) - Number(b.grade || 999);
+      if (gradeDiff) return gradeDiff;
+      const groupDiff = String(a.group || "").localeCompare(String(b.group || ""), "es", { numeric: true, sensitivity: "base" });
+      if (groupDiff) return groupDiff;
+      return String(a.name || "").localeCompare(String(b.name || ""), "es", { numeric: true, sensitivity: "base" });
+    });
+  }
+
+  function adminSessionAuditRowsTable(rows = [], title = "", subtitle = "") {
+    return `
+      <section class="card table-card admin-session-audit-table">
+        <div class="card-pad audit-card-head">
+          <span class="section-eyebrow">${esc(title)}</span>
+          <p class="muted-copy">${esc(subtitle)}</p>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>ID prueba</th><th>Estudiante detectado</th><th>Sede</th><th>Grado</th><th>Curso</th><th>Sesión encontrada</th><th>Falta</th><th>Acciones</th></tr></thead>
+            <tbody>
+              ${rows.map((row, index) => `
+                <tr>
+                  <td><span class="badge gray">${index + 1}</span></td>
+                  <td><strong>${esc(row.roll)}</strong><br><span class="student-subid">${esc(row.answerCount || 0)} respuestas</span></td>
+                  <td><strong>${esc(row.name || "—")}</strong>${row.registry ? `<br><span class="student-subid">Vinculado en estudiantes</span>` : `<br><span class="student-subid warning-text">No aparece vinculado en estudiantes</span>`}</td>
+                  <td>${esc(row.sede || "—")}</td>
+                  <td>${row.grade ? `${esc(row.grade)}°` : "—"}</td>
+                  <td>${esc(row.group || "—")}</td>
+                  <td><span class="badge ${row.present === 1 ? "blue" : "purple"}">S${esc(row.present)}</span></td>
+                  <td><span class="badge red">S${esc(row.missing)}</span></td>
+                  <td class="row-actions">
+                    <button class="secondary-btn mini-btn" data-action="open-session-audit-assign" data-roll="${escAttr(row.roll)}">Asignar ID</button>
+                    <button class="ghost-btn mini-btn" data-action="edit-student-exam" data-roll="${escAttr(row.roll)}">Ver/editar examen</button>
+                  </td>
+                </tr>
+              `).join("") || `<tr><td colspan="9" class="empty-state">No hay casos en este grupo.</td></tr>`}
+            </tbody>
+          </table>
+        </div>
+      </section>`;
+  }
+
+  function adminSessionAuditHtml() {
+    const rows = buildSessionAuditRows();
+    const onlyS1 = rows.filter((row) => row.type === "s1_only");
+    const onlyS2 = rows.filter((row) => row.type === "s2_only");
+    return `
+      <section class="toolbar">
+        <div>
+          <span class="section-eyebrow">Control administrativo</span>
+          <h2 style="margin:8px 0 0;font-weight:900;">Alertas de sesiones incompletas</h2>
+          <p class="muted-copy">Detecta estudiantes o ID prueba que aparecen solo en primera sesión o solo en segunda sesión. Sirve para ubicar errores de lectura, ausencias o ID asignados al estudiante equivocado.</p>
+        </div>
+        <div class="toolbar-right">
+          <button class="secondary-btn" data-action="save-students">Guardar estudiantes</button>
+          <button class="primary-btn" data-action="publish-supabase">Subir a Supabase</button>
+        </div>
+      </section>
+      <section class="teacher-stat-strip teacher-stat-strip-two session-audit-summary">
+        <article><span>Solo 1ra sesión</span><strong>${esc(onlyS1.length)}</strong><small>tienen S1, falta S2</small></article>
+        <article><span>Solo 2da sesión</span><strong>${esc(onlyS2.length)}</strong><small>tienen S2, falta S1</small></article>
+      </section>
+      <div class="admin-note session-audit-note">Si asignas un ID prueba a otro estudiante, se modifica el registro de estudiantes local. Para dejarlo fijo en Supabase, usa <strong>Guardar estudiantes</strong> y luego <strong>Subir a Supabase</strong>.</div>
+      ${adminSessionAuditRowsTable(onlyS1, "Examen en 1ra sesión, falta 2da", "Casos con respuestas detectadas en S1 pero sin respuestas de S2.")}
+      ${adminSessionAuditRowsTable(onlyS2, "Examen en 2da sesión, falta 1ra", "Casos con respuestas detectadas en S2 pero sin respuestas de S1.")}
+    `;
+  }
+
+  function sessionAuditStudentMatches(query = "") {
+    const clean = normalizeText(query);
+    const rows = state.studentsRegistry
+      .map((student, index) => ({ student, index }))
+      .filter(({ student }) => {
+        if (!clean) return true;
+        return normalizeText(`${student.name} ${student.nombres} ${student.apellidos} ${student.examId} ${student.nationalId} ${student.sede} ${student.grade} ${student.group}`).includes(clean);
+      })
+      .sort((a, b) => compareStudentsByName(a.student, b.student));
+    return rows.slice(0, clean ? 30 : 15);
+  }
+
+  function openSessionAuditAssignModal(roll) {
+    if (state.activeSession?.role !== "admin") { toast("Solo el administrador puede asignar ID prueba."); return; }
+    const row = sessionAuditRowForRoll(roll);
+    if (!row) { toast("No se encontró la alerta de sesión."); return; }
+    state.sessionAuditAssignRoll = cleanId(roll);
+    const query = state.sessionAuditStudentSearch || "";
+    const matches = sessionAuditStudentMatches(query);
+    document.body.classList.add("modal-open");
+    modalRoot.innerHTML = `
+      <div class="modal-backdrop" data-action="close-modal">
+        <section class="modal session-audit-modal" style="max-width:980px;">
+          <div class="modal-head">
+            <div><h2>Asignar ID prueba a estudiante</h2><span style="color:#7d8089;font-weight:600;">ID prueba ${esc(row.roll)} · encontrado en S${esc(row.present)} · falta S${esc(row.missing)}</span></div>
+            <button type="button" class="icon-btn" data-action="close-modal" aria-label="Cerrar">×</button>
+          </div>
+          <div class="modal-body">
+            <div class="warning-note-soft">Busca el estudiante correcto por nombre, documento, sede, grado o curso. Al elegirlo, su <strong>ID_PRUEBA</strong> quedará como <strong>${esc(row.roll)}</strong>.</div>
+            <div class="audit-source-card">
+              <strong>${esc(row.name || "Examen sin estudiante")}</strong>
+              <span>ID prueba detectado: ${esc(row.roll)} · ${row.grade ? `${esc(row.grade)}°` : "grado no detectado"} ${esc(row.group || "")} · ${esc(row.sede || "sede no detectada")}</span>
+            </div>
+            <div class="field session-audit-search-field"><label>Buscar estudiante destino</label><input id="sessionAuditStudentSearch" data-action="session-audit-student-search" data-roll="${escAttr(row.roll)}" value="${escAttr(query)}" placeholder="Escribe nombre, documento, sede, grado o curso"></div>
+            <section class="card table-card session-audit-search-results">
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Estudiante</th><th>Sede</th><th>Grado</th><th>Curso</th><th>ID prueba actual</th><th>Acción</th></tr></thead>
+                  <tbody>
+                    ${matches.map(({ student, index }) => `
+                      <tr>
+                        <td><strong>${esc(displayListName(student))}</strong><br><span class="student-subid">Documento: ${esc(student.nationalId || "—")}</span></td>
+                        <td>${esc(student.sede || "—")}</td>
+                        <td>${student.grade ? `${esc(student.grade)}°` : "—"}</td>
+                        <td>${esc(student.group || "—")}</td>
+                        <td><strong>${esc(student.examId || "—")}</strong></td>
+                        <td><button class="primary-btn mini-btn" data-action="confirm-session-audit-assign" data-roll="${escAttr(row.roll)}" data-index="${escAttr(index)}">Asignar aquí</button></td>
+                      </tr>
+                    `).join("") || `<tr><td colspan="6" class="empty-state">No hay coincidencias. Intenta con otro nombre o documento.</td></tr>`}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+            <div class="inline-actions" style="margin-top:16px;"><button class="ghost-btn" data-action="close-modal">Cancelar</button></div>
+          </div>
+        </section>
+      </div>`;
+    setTimeout(() => {
+      const input = document.getElementById("sessionAuditStudentSearch");
+      if (input) {
+        input.focus();
+        try { input.setSelectionRange(input.value.length, input.value.length); } catch (error) {}
+      }
+    }, 30);
+  }
+
+  function confirmSessionAuditAssign(roll, index) {
+    if (state.activeSession?.role !== "admin") { toast("Solo el administrador puede asignar ID prueba."); return; }
+    const cleanRoll = cleanId(roll);
+    const studentIndex = Number(index);
+    const student = state.studentsRegistry[studentIndex];
+    if (!cleanRoll || !student) { toast("Selecciona un estudiante válido."); return; }
+    const previous = cleanId(student.examId);
+    state.studentsRegistry.forEach((row, idx) => {
+      if (idx !== studentIndex && cleanId(row.examId) === cleanRoll) row.examId = "";
+    });
+    student.examId = cleanRoll;
+    state.studentsRegistry[studentIndex] = normalizeStudentRow(student);
+    state.studentsRegistry = state.studentsRegistry.map(normalizeStudentRow).filter((s) => s.examId || s.nationalId || s.name);
+    writeJSON(STORAGE.students, { rows: state.studentsRegistry });
+    buildRepository();
+    state.sessionAuditStudentSearch = "";
+    toast(previous && previous !== cleanRoll ? `ID prueba cambiado: ${previous} → ${cleanRoll}` : "ID prueba asignado al estudiante.");
+    closeModal();
+    state.adminTab = "alerta-sesiones";
     renderAdminContext();
   }
 
@@ -4996,7 +5210,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     if (action === "student-ranking-debug-next") {
       const roll = cleanId(target.dataset.roll || state.activeSession?.roll || "");
       state.zeroToleranceShown = false;
-      state.activeSession = { ...(state.activeSession || {}), role: "student", roll, rankingDebugRequested: false, rankingDebugDone: true, rankingDebugVersion: "v130" };
+      state.activeSession = { ...(state.activeSession || {}), role: "student", roll, rankingDebugRequested: false, rankingDebugDone: true, rankingDebugVersion: "v131" };
       writeJSON(STORAGE.session, state.activeSession);
       return enterSessionWithLoader(state.activeSession, () => renderStudent(roll), "Abriendo tus resultados...");
     }
@@ -5006,7 +5220,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       if (state.activeSession?.role === "student") {
         state.activeSession.rankingDebugRequested = true;
         state.activeSession.rankingDebugDone = false;
-        state.activeSession.rankingDebugVersion = "v130";
+        state.activeSession.rankingDebugVersion = "v131";
         writeJSON(STORAGE.session, state.activeSession);
       }
       state.studentRankDebugByRoll?.delete?.(roll);
@@ -5274,6 +5488,17 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       renderAdmin();
     }
 
+
+
+    if (action === "open-session-audit-assign") {
+      openSessionAuditAssignModal(target.dataset.roll || "");
+      return;
+    }
+
+    if (action === "confirm-session-audit-assign") {
+      confirmSessionAuditAssign(target.dataset.roll || "", target.dataset.index);
+      return;
+    }
 
     if (action === "link-orphan-exam") {
       openLinkOrphanExamModal(target.dataset.roll || "");
@@ -5625,6 +5850,14 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       state.adminStudentSearch = target.value;
       clearTimeout(state._studentSearchTimer);
       state._studentSearchTimer = setTimeout(() => renderAdminContext(), 220);
+    }
+
+
+    if (target.dataset.action === "session-audit-student-search") {
+      state.sessionAuditStudentSearch = target.value;
+      const roll = target.dataset.roll || state.sessionAuditAssignRoll || "";
+      clearTimeout(state._sessionAuditSearchTimer);
+      state._sessionAuditSearchTimer = setTimeout(() => openSessionAuditAssignModal(roll), 160);
     }
 
     if (target.dataset.configField) {
