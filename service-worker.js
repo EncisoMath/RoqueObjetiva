@@ -1,24 +1,24 @@
-const APP_VERSION = "v131";
-const CACHE_VERSION = "resultados-pwa-v131-session-audit";
+const APP_VERSION = "v133";
+const CACHE_VERSION = "resultados-pwa-v133-normalizacion-areas";
 const CACHE_PREFIXES = ["resultados-pwa-", "resultados-pruebas-"];
 
 const APP_SHELL = [
   "./",
   "index.html",
-  "css/app.css?v=131",
-  "js/app.js?v=131",
+  "css/app.css?v=133",
+  "js/app.js?v=133",
   "version.json",
   "config/data-manifest.json",
   "config/site-config.json",
-  "config/supabase-config.js?v=131",
-  "manifest.webmanifest?v=131",
+  "config/supabase-config.js?v=133",
+  "manifest.webmanifest?v=133",
   "icons/icon-192.png",
   "icons/icon-512.png",
   "icons/maskable-512.png",
   "icons/apple-touch-icon.png",
   "icons/favicon-16.png",
   "icons/favicon-32.png",
-  "assets/logo-principal.png?v=131",
+  "assets/logo-principal.png?v=133",
   "assets/ZERO.png",
   "ICONOS/artistica.png",
   "ICONOS/ciencias-naturales.png",
@@ -68,7 +68,7 @@ self.addEventListener("fetch", (event) => {
   const request = event.request;
   const url = new URL(request.url);
 
-  // v131: Supabase y cualquier API externa de datos vivos nunca se guardan ni se leen de CacheStorage.
+  // v133: Supabase y cualquier API externa de datos vivos nunca se guardan ni se leen de CacheStorage.
   // Esto aplica tambien a POST/RPC, para que la PWA instalada no reutilice una base de datos vieja.
   if (isLiveDatabaseRequest(url)) {
     event.respondWith(fetch(noStoreRequest(request)));

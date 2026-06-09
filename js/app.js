@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v131";
+  const APP_VERSION = "v133";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -39,7 +39,7 @@
   const DEFAULT_CONFIG = {
     title: "Roque Objetiva",
     subtitle: "Este reporte no se pasa ni se pierde. Es una herramienta para identificar fortalezas, habilidades y oportunidades de mejora.",
-    logoImage: "assets/logo-principal.png?v=131",
+    logoImage: "assets/logo-principal.png?v=133",
     appIcon: "icons/icon-512.png",
     bannerImage: "",
     footerText: "Consulta institucional de resultados",
@@ -2286,7 +2286,7 @@
 
     if (state.activeSession.role === "student") {
       const roll = cleanId(state.activeSession.roll);
-      if (state.activeSession.rankingDebugRequested && (!state.activeSession.rankingDebugDone || state.activeSession.rankingDebugVersion !== "v131")) {
+      if (state.activeSession.rankingDebugRequested && (!state.activeSession.rankingDebugDone || state.activeSession.rankingDebugVersion !== "v133")) {
         return showStudentRankingDebugGate(roll, "Reconstruyendo diagnóstico de ranking...");
       }
       return renderStudent(roll);
@@ -2307,7 +2307,7 @@
       roll: cleanRoll,
       rankingDebugRequested: debug,
       rankingDebugDone: !debug,
-      rankingDebugVersion: "v131"
+      rankingDebugVersion: "v133"
     };
     state.activeSession = session;
     writeJSON(STORAGE.session, state.activeSession);
@@ -2318,7 +2318,7 @@
       try {
         await prepareStudentRankingContext(cleanRoll);
         if (debug) {
-          state.activeSession = { ...(state.activeSession || session), rankingDebugRequested: true, rankingDebugDone: false, rankingDebugVersion: "v131" };
+          state.activeSession = { ...(state.activeSession || session), rankingDebugRequested: true, rankingDebugDone: false, rankingDebugVersion: "v133" };
           writeJSON(STORAGE.session, state.activeSession);
           renderStudentRankingDebug(cleanRoll);
         } else {
@@ -4149,7 +4149,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
                         <td>${student.grade ? `${esc(student.grade)}°` : "—"}</td>
                         <td>${esc(student.group || "—")}</td>
                         <td><strong>${esc(student.examId || "—")}</strong></td>
-                        <td><button class="primary-btn mini-btn" data-action="confirm-session-audit-assign" data-roll="${escAttr(row.roll)}" data-index="${escAttr(index)}">Asignar aquí</button></td>
+                        <td class="row-actions"><button class="primary-btn mini-btn" data-action="confirm-session-audit-assign-upload" data-roll="${escAttr(row.roll)}" data-index="${escAttr(index)}">Asignar y subir</button><button class="ghost-btn mini-btn" data-action="confirm-session-audit-assign" data-roll="${escAttr(row.roll)}" data-index="${escAttr(index)}">Solo asignar</button></td>
                       </tr>
                     `).join("") || `<tr><td colspan="6" class="empty-state">No hay coincidencias. Intenta con otro nombre o documento.</td></tr>`}
                   </tbody>
@@ -4169,7 +4169,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     }, 30);
   }
 
-  function confirmSessionAuditAssign(roll, index) {
+  async function confirmSessionAuditAssign(roll, index, upload = false) {
     if (state.activeSession?.role !== "admin") { toast("Solo el administrador puede asignar ID prueba."); return; }
     const cleanRoll = cleanId(roll);
     const studentIndex = Number(index);
@@ -4185,10 +4185,15 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     writeJSON(STORAGE.students, { rows: state.studentsRegistry });
     buildRepository();
     state.sessionAuditStudentSearch = "";
-    toast(previous && previous !== cleanRoll ? `ID prueba cambiado: ${previous} → ${cleanRoll}` : "ID prueba asignado al estudiante.");
-    closeModal();
     state.adminTab = "alerta-sesiones";
-    renderAdminContext();
+    closeModal();
+    if (upload) {
+      toast(previous && previous !== cleanRoll ? `ID prueba cambiado: ${previous} → ${cleanRoll}. Subiendo a Supabase...` : "ID prueba asignado. Subiendo a Supabase...");
+      await publishAllToSupabase();
+    } else {
+      toast(previous && previous !== cleanRoll ? `ID prueba cambiado: ${previous} → ${cleanRoll}. Usa Subir a Supabase para dejarlo fijo.` : "ID prueba asignado localmente. Usa Subir a Supabase para dejarlo fijo.");
+      renderAdminContext();
+    }
   }
 
   function adminStudentsHtml() {
@@ -4403,6 +4408,20 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
 
   function uniqueValues(values) {
     return [...new Set(values.map((value) => cleanText(value)).filter(Boolean))].sort((a, b) => String(a).localeCompare(String(b), "es", { numeric: true, sensitivity: "base" }));
+  }
+
+  function uniqueDisplayValues(values) {
+    const map = new Map();
+    (values || []).forEach((value) => {
+      const clean = cleanText(value);
+      const key = normalizeText(clean);
+      if (!clean || !key) return;
+      const current = map.get(key);
+      const cleanIsAllCaps = clean === clean.toUpperCase() && /[A-ZÁÉÍÓÚÑ]/.test(clean);
+      const currentIsAllCaps = current && current === current.toUpperCase() && /[A-ZÁÉÍÓÚÑ]/.test(current);
+      if (!current || (currentIsAllCaps && !cleanIsAllCaps) || clean.length < current.length) map.set(key, clean);
+    });
+    return [...map.values()].sort((a, b) => String(a).localeCompare(String(b), "es", { numeric: true, sensitivity: "base" }));
   }
 
   function availableSubjects() {
@@ -5210,7 +5229,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     if (action === "student-ranking-debug-next") {
       const roll = cleanId(target.dataset.roll || state.activeSession?.roll || "");
       state.zeroToleranceShown = false;
-      state.activeSession = { ...(state.activeSession || {}), role: "student", roll, rankingDebugRequested: false, rankingDebugDone: true, rankingDebugVersion: "v131" };
+      state.activeSession = { ...(state.activeSession || {}), role: "student", roll, rankingDebugRequested: false, rankingDebugDone: true, rankingDebugVersion: "v133" };
       writeJSON(STORAGE.session, state.activeSession);
       return enterSessionWithLoader(state.activeSession, () => renderStudent(roll), "Abriendo tus resultados...");
     }
@@ -5220,7 +5239,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       if (state.activeSession?.role === "student") {
         state.activeSession.rankingDebugRequested = true;
         state.activeSession.rankingDebugDone = false;
-        state.activeSession.rankingDebugVersion = "v131";
+        state.activeSession.rankingDebugVersion = "v133";
         writeJSON(STORAGE.session, state.activeSession);
       }
       state.studentRankDebugByRoll?.delete?.(roll);
@@ -5399,13 +5418,18 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       return;
     }
 
-    if (action === "save-student-exam") {
+    if (action === "save-student-exam" || action === "save-student-exam-upload") {
       if (state.activeSession?.role !== "admin") { toast("Solo el administrador puede guardar exámenes."); return; }
       persistResultOverrides();
       buildRepository();
-      toast("Examen actualizado localmente.");
       closeModal();
-      renderAdminContext();
+      if (action === "save-student-exam-upload") {
+        toast("Examen actualizado. Subiendo a Supabase...");
+        await publishAllToSupabase();
+      } else {
+        toast("Examen actualizado localmente. Usa Subir a Supabase para dejarlo fijo.");
+        renderAdminContext();
+      }
       return;
     }
 
@@ -5495,8 +5519,8 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       return;
     }
 
-    if (action === "confirm-session-audit-assign") {
-      confirmSessionAuditAssign(target.dataset.roll || "", target.dataset.index);
+    if (action === "confirm-session-audit-assign" || action === "confirm-session-audit-assign-upload") {
+      await confirmSessionAuditAssign(target.dataset.roll || "", target.dataset.index, action === "confirm-session-audit-assign-upload");
       return;
     }
 
@@ -6975,39 +6999,114 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     return sameSubject(subject, "Inglés") ? ["A","B","C","D","E","F","G","H"] : ["A","B","C","D"];
   }
 
+  function sessionRangeForExamEdit(session) {
+    const sessionNumber = Number(session || 1);
+    const sessions = (state.manifest.sessions || DEFAULT_MANIFEST.sessions || [])
+      .slice()
+      .sort((a, b) => Number(a.startItem || 0) - Number(b.startItem || 0));
+    const current = sessions.find((item) => Number(item.session) === sessionNumber) || { session: sessionNumber, startItem: sessionNumber === 2 ? 71 : 1 };
+    const index = sessions.findIndex((item) => Number(item.session) === sessionNumber);
+    const next = index >= 0 ? sessions[index + 1] : null;
+    const start = Number(current.startItem || (sessionNumber === 2 ? 71 : 1));
+    const end = next ? Number(next.startItem || start + 70) - 1 : start + 69;
+    return { start, end };
+  }
+
+  function examEditSectionsForRecord(record, student) {
+    const grade = toInt(student?.grade || student?.registry?.grade || record?.grade);
+    const keys = (state.keys || []).filter((key) => Number(key.grade) === Number(grade));
+    const sections = [];
+
+    if (keys.length) {
+      for (const subject of SUBJECTS) {
+        const subjectKeys = keys.filter((key) => sameSubject(key.area, subject.name));
+        if (!subjectKeys.length) continue;
+        const statDetails = student?.subjectStats?.[subject.name]?.details || [];
+        const details = (statDetails.length ? statDetails : subjectKeys.map((key) => ({
+          item: key.item,
+          subject: subject.name,
+          marked: record?.answers?.[key.item] || "",
+          correct: key.correct,
+          component: key.component,
+          competence: key.competence
+        }))).slice().sort((a, b) => Number(a.item) - Number(b.item));
+        sections.push({
+          id: subject.name,
+          label: subject.short || subject.name,
+          subject: subject.name,
+          fallback: false,
+          details
+        });
+      }
+    }
+
+    if (sections.length) return sections;
+
+    const answerItems = Object.keys(record?.answers || {}).map((item) => Number(item)).filter(Boolean).sort((a, b) => a - b);
+    const sessions = detectedSessionsForRecord(record);
+    if (!sessions.size && answerItems.length) answerItems.forEach((item) => sessions.add(sessionForItem(item)));
+    if (!sessions.size) sessions.add(1);
+
+    return [...sessions].sort((a, b) => Number(a) - Number(b)).map((session) => {
+      const range = sessionRangeForExamEdit(session);
+      const itemsInRange = [];
+      for (let item = range.start; item <= range.end; item++) itemsInRange.push(item);
+      return {
+        id: `session-${session}`,
+        label: `Sesión ${session}`,
+        subject: "",
+        fallback: true,
+        details: itemsInRange.map((item) => ({ item, subject: `Sesión ${session}`, marked: record?.answers?.[item] || "", correct: "" }))
+      };
+    });
+  }
+
+  function examEditOptionsForDetail(detail, section) {
+    if (section?.fallback) return ["A","B","C","D","E","F","G","H"];
+    return answerOptionsForSubject(detail?.subject || section?.subject || "");
+  }
+
   function openEditStudentExamModal(roll, subject = "") {
-    const record = state.responsesByRoll.get(cleanId(roll));
-    const student = state.computedByRoll.get(cleanId(roll));
-    if (!record || !student) return;
-    const subjects = SUBJECTS.filter((s) => student.subjectStats[s.name]?.total);
-    const activeSubject = canonicalSubject(subject || subjects[0]?.name || "");
-    const stat = student.subjectStats[activeSubject] || { details: [] };
-    const tabs = subjects.map((s) => `<button class="tab-btn ${s.name === activeSubject ? "active" : ""}" data-action="exam-edit-tab" data-roll="${escAttr(roll)}" data-subject="${escAttr(s.name)}">${esc(s.short || s.name)}</button>`).join("");
-    const rows = (stat.details || []).slice().sort((a,b)=>Number(a.item)-Number(b.item)).map((detail) => {
-      const marked = cleanMarked(record.answers[detail.item] ?? detail.marked ?? "");
-      const options = answerOptionsForSubject(activeSubject);
+    const cleanRoll = cleanId(roll);
+    const record = state.responsesByRoll.get(cleanRoll);
+    if (!record) { toast("No encontré respuestas cargadas para ese ID prueba."); return; }
+    const student = state.computedByRoll.get(cleanRoll) || state.computedStudents.find((item) => cleanId(item?.registry?.examId) === cleanRoll) || null;
+    const registry = state.registryByExamId.get(cleanRoll) || state.registryByNationalId.get(cleanId(record?.nationalId)) || null;
+    const displayName = displayListName(student || registry || record) || cleanText(record?.name) || cleanText(registry?.name) || "Examen sin estudiante vinculado";
+    const sections = examEditSectionsForRecord(record, student || registry);
+    const activeId = cleanText(subject || sections[0]?.id || "");
+    const activeSection = sections.find((section) => section.id === activeId || sameSubject(section.subject, activeId)) || sections[0] || { details: [], label: "Examen", fallback: true };
+    const tabs = sections.map((section) => `<button class="tab-btn ${section.id === activeSection.id ? "active" : ""}" data-action="exam-edit-tab" data-roll="${escAttr(cleanRoll)}" data-subject="${escAttr(section.id)}">${esc(section.label)}</button>`).join("");
+    const rows = (activeSection.details || []).slice().sort((a,b)=>Number(a.item)-Number(b.item)).map((detail) => {
+      const marked = cleanMarked(record.answers?.[detail.item] ?? detail.marked ?? "");
+      const options = examEditOptionsForDetail(detail, activeSection);
+      const correct = cleanOption(detail.correct || "");
       return `<div class="exam-option-row">
-        <div class="exam-item-num">${esc(detail.item)}</div>
+        <div class="exam-item-num">${esc(detail.item)}${correct ? `<small title="Respuesta correcta">${esc(correct)}</small>` : ""}</div>
         <div class="exam-option-buttons">
-          ${options.map((op) => `<button type="button" class="exam-option-btn ${marked === op ? "active" : ""}" data-action="set-student-answer" data-roll="${escAttr(roll)}" data-item="${escAttr(detail.item)}" data-option="${op}">${op}</button>`).join("")}
-          <button type="button" class="exam-option-btn clear" data-action="clear-student-answer" data-roll="${escAttr(roll)}" data-item="${escAttr(detail.item)}">—</button>
+          ${options.map((op) => `<button type="button" class="exam-option-btn ${marked === op ? "active" : ""}" data-action="set-student-answer" data-roll="${escAttr(cleanRoll)}" data-item="${escAttr(detail.item)}" data-option="${op}">${op}</button>`).join("")}
+          <button type="button" class="exam-option-btn clear" data-action="clear-student-answer" data-roll="${escAttr(cleanRoll)}" data-item="${escAttr(detail.item)}">—</button>
         </div>
       </div>`;
     }).join("");
+    const fallbackNote = activeSection.fallback
+      ? "No hay claves de asignatura disponibles para este examen en la carga actual. Por eso se muestran las respuestas por sesión para que el administrador pueda corregirlas y subirlas a Supabase."
+      : "Los ítems usan la numeración real del examen según las claves cargadas. Selecciona una opción o usa <strong>—</strong> para dejarla sin marcar.";
     document.body.classList.add("modal-open");
     modalRoot.innerHTML = `
       <div class="modal-backdrop" data-action="close-modal">
         <section class="modal exam-edit-modal" style="max-width:980px;">
           <div class="modal-head">
-            <div><h2>Editar examen</h2><span style="color:#7d8089;font-weight:600;">${esc(displayListName(student))} · ID ${esc(roll)}</span></div>
+            <div><h2>Editar examen</h2><span style="color:#7d8089;font-weight:600;">${esc(displayName)} · ID ${esc(cleanRoll)}</span></div>
             <button type="button" class="icon-btn" data-action="close-modal" aria-label="Cerrar">×</button>
           </div>
           <div class="modal-body">
             <nav class="teacher-assignment-nav exam-edit-tabs">${tabs}</nav>
-            <div class="admin-note">Los ítems usan la numeración real del examen según <strong>KEYS</strong>. Selecciona una opción o usa <strong>—</strong> para dejarla sin marcar.</div>
-            <div class="exam-edit-grid">${rows || `<div class="empty-state">No hay ítems para esta asignatura.</div>`}</div>
+            <div class="admin-note">${fallbackNote}</div>
+            <div class="exam-edit-grid">${rows || `<div class="empty-state">No hay respuestas detectadas para editar.</div>`}</div>
             <div class="inline-actions" style="margin-top:16px;">
-              <button class="primary-btn" data-action="save-student-exam">Guardar examen</button>
+              <button class="primary-btn" data-action="save-student-exam-upload">Guardar y subir a Supabase</button>
+              <button class="secondary-btn" data-action="save-student-exam">Guardar sin subir</button>
               <button class="ghost-btn" data-action="close-modal">Cancelar</button>
             </div>
           </div>
@@ -7478,9 +7577,12 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     const raw = cleanText(subject);
     const norm = normalizeText(raw);
     if (!raw) return undefined;
-    if (Object.prototype.hasOwnProperty.call(state.subjectAreaMap || {}, raw)) return state.subjectAreaMap[raw];
-    if (Object.prototype.hasOwnProperty.call(state.subjectAreaMap || {}, norm)) return state.subjectAreaMap[norm];
-    return undefined;
+    const map = state.subjectAreaMap || {};
+    const hasRaw = Object.prototype.hasOwnProperty.call(map, raw);
+    const hasNorm = Object.prototype.hasOwnProperty.call(map, norm);
+    const value = hasRaw ? map[raw] : (hasNorm ? map[norm] : undefined);
+    if (value === SUBJECT_AREA_UNASSIGNED) return SUBJECT_AREA_UNASSIGNED;
+    return value ? canonicalAreaName(value) : undefined;
   }
 
   function isSubjectAreaUnassigned(subject) {
@@ -7491,8 +7593,9 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     const raw = cleanText(subject);
     const norm = normalizeText(raw);
     if (!raw) return;
-    state.subjectAreaMap[raw] = area;
-    state.subjectAreaMap[norm] = area;
+    const mappedArea = cleanText(area) === SUBJECT_AREA_UNASSIGNED ? SUBJECT_AREA_UNASSIGNED : canonicalAreaName(area);
+    state.subjectAreaMap[raw] = mappedArea;
+    state.subjectAreaMap[norm] = mappedArea;
   }
 
   function removeSubjectAreaMap(subject) {
@@ -7504,7 +7607,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
   function adminSubjectAreasHtml() {
     const areas = availableSubjects();
     const areaSet = new Set(areas.map((area) => canonicalSubject(area)));
-    const rawSubjects = uniqueValues(state.cargaRows.map((row) => row.subjectRaw || row.subject)).filter(Boolean).sort((a, b) => a.localeCompare(b, "es"));
+    const rawSubjects = uniqueDisplayValues(state.cargaRows.map((row) => row.subjectRaw || row.subject)).filter(Boolean).sort((a, b) => a.localeCompare(b, "es", { sensitivity: "base" }));
     const subjectAssignedArea = (subject) => {
       const direct = subjectAreaMapValue(subject);
       if (direct === SUBJECT_AREA_UNASSIGNED) return "";
@@ -8358,10 +8461,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     return map;
   }
 
-  function canonicalSubject(value) {
-    const directMap = subjectAreaMapValue(value);
-    if (directMap === SUBJECT_AREA_UNASSIGNED) return "";
-    if (directMap) return cleanText(directMap);
+  function canonicalAreaName(value) {
     const text = normalizeText(value);
     if (!text) return "";
 
@@ -8380,12 +8480,19 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     return exact ? exact.name : cleanText(value);
   }
 
+  function canonicalSubject(value) {
+    const directMap = subjectAreaMapValue(value);
+    if (directMap === SUBJECT_AREA_UNASSIGNED) return "";
+    if (directMap) return canonicalAreaName(directMap);
+    return canonicalAreaName(value);
+  }
+
   function mappedSubject(value) {
     const raw = cleanText(value);
     if (!raw) return "";
     const directMap = subjectAreaMapValue(raw);
     if (directMap === SUBJECT_AREA_UNASSIGNED) return "";
-    return cleanText(directMap || canonicalSubject(raw));
+    return canonicalAreaName(directMap || raw);
   }
 
   function shortAppName(name) {
