@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v134";
+  const APP_VERSION = "v135";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -2289,7 +2289,7 @@
 
     if (state.activeSession.role === "student") {
       const roll = cleanId(state.activeSession.roll);
-      if (state.activeSession.rankingDebugRequested && (!state.activeSession.rankingDebugDone || state.activeSession.rankingDebugVersion !== "v134")) {
+      if (state.activeSession.rankingDebugRequested && (!state.activeSession.rankingDebugDone || state.activeSession.rankingDebugVersion !== "v135")) {
         return showStudentRankingDebugGate(roll, "Reconstruyendo diagnóstico de ranking...");
       }
       return renderStudent(roll);
@@ -2310,7 +2310,7 @@
       roll: cleanRoll,
       rankingDebugRequested: debug,
       rankingDebugDone: !debug,
-      rankingDebugVersion: "v134"
+      rankingDebugVersion: "v135"
     };
     state.activeSession = session;
     writeJSON(STORAGE.session, state.activeSession);
@@ -2321,7 +2321,7 @@
       try {
         await prepareStudentRankingContext(cleanRoll);
         if (debug) {
-          state.activeSession = { ...(state.activeSession || session), rankingDebugRequested: true, rankingDebugDone: false, rankingDebugVersion: "v134" };
+          state.activeSession = { ...(state.activeSession || session), rankingDebugRequested: true, rankingDebugDone: false, rankingDebugVersion: "v135" };
           writeJSON(STORAGE.session, state.activeSession);
           renderStudentRankingDebug(cleanRoll);
         } else {
@@ -2358,7 +2358,7 @@
   }
 
   function adminTabIds() {
-    return new Set(["resumen", "estudiantes", "resultados", "estadisticas", "docentes", "mapa-grado", "examenes-huerfanos", "alerta-sesiones", "asignaturas-areas", "apariencia", "logos", "claves", "github"]);
+    return new Set(["resumen", "estudiantes", "resultados", "estadisticas", "docentes", "mapa-grado", "examenes-huerfanos", "alerta-sesiones", "matriz-estudiantes", "asignaturas-areas", "apariencia", "logos", "claves", "github"]);
   }
 
   function handleHashRoute() {
@@ -5347,7 +5347,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     if (action === "student-ranking-debug-next") {
       const roll = cleanId(target.dataset.roll || state.activeSession?.roll || "");
       state.zeroToleranceShown = false;
-      state.activeSession = { ...(state.activeSession || {}), role: "student", roll, rankingDebugRequested: false, rankingDebugDone: true, rankingDebugVersion: "v134" };
+      state.activeSession = { ...(state.activeSession || {}), role: "student", roll, rankingDebugRequested: false, rankingDebugDone: true, rankingDebugVersion: "v135" };
       writeJSON(STORAGE.session, state.activeSession);
       return enterSessionWithLoader(state.activeSession, () => renderStudent(roll), "Abriendo tus resultados...");
     }
@@ -5357,7 +5357,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       if (state.activeSession?.role === "student") {
         state.activeSession.rankingDebugRequested = true;
         state.activeSession.rankingDebugDone = false;
-        state.activeSession.rankingDebugVersion = "v134";
+        state.activeSession.rankingDebugVersion = "v135";
         writeJSON(STORAGE.session, state.activeSession);
       }
       state.studentRankDebugByRoll?.delete?.(roll);

@@ -1,5 +1,5 @@
-const APP_VERSION = "v134";
-const CACHE_VERSION = "resultados-pwa-v134-matriz-estudiantes";
+const APP_VERSION = "v135";
+const CACHE_VERSION = "resultados-pwa-v135-fix-matriz-estudiantes";
 const CACHE_PREFIXES = ["resultados-pwa-", "resultados-pruebas-"];
 
 const APP_SHELL = [
@@ -68,7 +68,7 @@ self.addEventListener("fetch", (event) => {
   const request = event.request;
   const url = new URL(request.url);
 
-  // v134: Supabase y cualquier API externa de datos vivos nunca se guardan ni se leen de CacheStorage.
+  // v135: Supabase y cualquier API externa de datos vivos nunca se guardan ni se leen de CacheStorage.
   // Esto aplica tambien a POST/RPC, para que la PWA instalada no reutilice una base de datos vieja.
   if (isLiveDatabaseRequest(url)) {
     event.respondWith(fetch(noStoreRequest(request)));

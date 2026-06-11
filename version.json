@@ -1,6 +1,6 @@
 {
-  "version": "v134",
-  "cache": "resultados-pwa-v134-matriz-estudiantes",
+  "version": "v135",
+  "cache": "resultados-pwa-v135-fix-matriz-estudiantes",
   "updatedAt": "2026-06-09",
   "note": "Normaliza y deduplica nombres de áreas/asignaturas para evitar tarjetas repetidas por mayúsculas, tildes o mapeos de Supabase.",
   "builtAt": "2026-06-09T19:35:00Z",
