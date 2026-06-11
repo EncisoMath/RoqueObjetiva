@@ -13699,3 +13699,62 @@ select,
 .session-audit-search-results {
   margin-top: 10px;
 }
+
+
+/* v134: matriz administrativa de estudiantes y notas */
+.admin-roster-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+}
+.admin-roster-summary {
+  margin: 0 0 16px;
+}
+.admin-roster-table-wrap {
+  overflow: auto;
+  max-height: calc(100vh - 260px);
+}
+.admin-roster-table {
+  min-width: 1320px;
+  font-size: .86rem;
+}
+.admin-roster-table th,
+.admin-roster-table td {
+  padding: 10px 12px;
+  vertical-align: middle;
+}
+.admin-roster-table th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: rgba(255,255,255,.96);
+  backdrop-filter: blur(10px);
+  font-size: .72rem;
+  letter-spacing: .02em;
+  white-space: nowrap;
+}
+.admin-roster-table .student-name-cell {
+  min-width: 220px;
+}
+.admin-roster-table .score-cell {
+  text-align: center;
+  white-space: nowrap;
+}
+.admin-roster-score {
+  font-size: .9rem;
+}
+.admin-roster-table .row-actions {
+  white-space: nowrap;
+}
+@media (max-width: 860px) {
+  .admin-roster-filters {
+    justify-content: stretch;
+  }
+  .admin-roster-filters .select-pill {
+    width: 100%;
+  }
+  .admin-roster-table-wrap {
+    max-height: none;
+  }
+}

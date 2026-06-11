@@ -1,7 +1,7 @@
 {
   "title": "Roque Objetiva",
   "subtitle": "Consulta tu desempeño académico por áreas, componentes y competencias.",
-  "logoImage": "assets/logo-principal.png?v=133",
+  "logoImage": "assets/logo-principal.png?v=134",
   "appIcon": "icons/icon-512.png",
   "bannerImage": "",
   "footerText": "Consulta institucional de resultados",
@@ -24,5 +24,5 @@
     "Filosofía": "Ciencias Sociales y Ciudadanía",
     "filosofia": "Ciencias Sociales y Ciudadanía"
   },
-  "version": "v133"
+  "version": "v134"
 }

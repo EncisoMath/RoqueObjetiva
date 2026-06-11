@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v133";
+  const APP_VERSION = "v134";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -39,7 +39,7 @@
   const DEFAULT_CONFIG = {
     title: "Roque Objetiva",
     subtitle: "Este reporte no se pasa ni se pierde. Es una herramienta para identificar fortalezas, habilidades y oportunidades de mejora.",
-    logoImage: "assets/logo-principal.png?v=133",
+    logoImage: "assets/logo-principal.png?v=134",
     appIcon: "icons/icon-512.png",
     bannerImage: "",
     footerText: "Consulta institucional de resultados",
@@ -127,6 +127,9 @@
     adminResultGroup: "all",
     adminResultSubject: "all",
     adminResultStudent: "all",
+    adminRosterSede: "all",
+    adminRosterGrade: "all",
+    adminRosterGroup: "all",
     adminAnalysisMode: "grado",
     adminAnalysisSede: "all",
     adminAnalysisGrade: "all",
@@ -2286,7 +2289,7 @@
 
     if (state.activeSession.role === "student") {
       const roll = cleanId(state.activeSession.roll);
-      if (state.activeSession.rankingDebugRequested && (!state.activeSession.rankingDebugDone || state.activeSession.rankingDebugVersion !== "v133")) {
+      if (state.activeSession.rankingDebugRequested && (!state.activeSession.rankingDebugDone || state.activeSession.rankingDebugVersion !== "v134")) {
         return showStudentRankingDebugGate(roll, "Reconstruyendo diagnóstico de ranking...");
       }
       return renderStudent(roll);
@@ -2307,7 +2310,7 @@
       roll: cleanRoll,
       rankingDebugRequested: debug,
       rankingDebugDone: !debug,
-      rankingDebugVersion: "v133"
+      rankingDebugVersion: "v134"
     };
     state.activeSession = session;
     writeJSON(STORAGE.session, state.activeSession);
@@ -2318,7 +2321,7 @@
       try {
         await prepareStudentRankingContext(cleanRoll);
         if (debug) {
-          state.activeSession = { ...(state.activeSession || session), rankingDebugRequested: true, rankingDebugDone: false, rankingDebugVersion: "v133" };
+          state.activeSession = { ...(state.activeSession || session), rankingDebugRequested: true, rankingDebugDone: false, rankingDebugVersion: "v134" };
           writeJSON(STORAGE.session, state.activeSession);
           renderStudentRankingDebug(cleanRoll);
         } else {
@@ -3418,6 +3421,7 @@
       ["mapa-grado", "Mapa por grado"],
       ["examenes-huerfanos", "Exámenes sin estudiante"],
       ["alerta-sesiones", "Alertas sesiones"],
+      ["matriz-estudiantes", "Matriz estudiantes"],
       ["asignaturas-areas", "Asignaturas y áreas"],
       ["apariencia", "Apariencia"],
       ["logos", "Logos"],
@@ -3454,6 +3458,7 @@
       case "mapa-grado": return adminGradeMapHtml();
       case "examenes-huerfanos": return adminOrphanExamsHtml();
       case "alerta-sesiones": return adminSessionAuditHtml();
+      case "matriz-estudiantes": return adminRosterMatrixHtml();
       case "asignaturas-areas": return adminSubjectAreasHtml();
       case "apariencia": return adminAppearanceHtml();
       case "logos": return adminLogosHtml();
@@ -4194,6 +4199,119 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       toast(previous && previous !== cleanRoll ? `ID prueba cambiado: ${previous} → ${cleanRoll}. Usa Subir a Supabase para dejarlo fijo.` : "ID prueba asignado localmente. Usa Subir a Supabase para dejarlo fijo.");
       renderAdminContext();
     }
+  }
+
+
+  const ADMIN_ROSTER_SUBJECTS = [
+    { key: "matematicas", label: "MATEMÁTICAS", subject: "Matemáticas" },
+    { key: "lenguaje", label: "LENGUAJE", subject: "Lenguaje" },
+    { key: "naturales", label: "NATURALES", subject: "Ciencias Naturales" },
+    { key: "sociales", label: "SOCIALES", subject: "Ciencias Sociales y Ciudadanía" },
+    { key: "ingles", label: "INGLÉS", subject: "Inglés" },
+    { key: "artistica", label: "ARTÍSTICA", subject: "Artística" },
+    { key: "etica", label: "ÉTICA", subject: "Ética y Valores" },
+    { key: "informatica", label: "INFORMÁTICA", subject: "Informática" },
+    { key: "edufisica", label: "EDUFÍSICA", subject: "Educación Física" }
+  ];
+
+  function adminRosterBaseRows() {
+    return (state.computedStudents || []).slice().sort((a, b) => {
+      const sedeDiff = String(a.sede || "").localeCompare(String(b.sede || ""), "es", { numeric: true, sensitivity: "base" });
+      if (sedeDiff) return sedeDiff;
+      const gradeDiff = Number(a.grade || 0) - Number(b.grade || 0);
+      if (gradeDiff) return gradeDiff;
+      const groupDiff = String(a.group || "").localeCompare(String(b.group || ""), "es", { numeric: true, sensitivity: "base" });
+      if (groupDiff) return groupDiff;
+      return displayListName(a).localeCompare(displayListName(b), "es", { numeric: true, sensitivity: "base" });
+    });
+  }
+
+  function adminRosterFilteredRows() {
+    return adminRosterBaseRows()
+      .filter((student) => state.adminRosterSede === "all" || String(student.sede || "") === String(state.adminRosterSede))
+      .filter((student) => state.adminRosterGrade === "all" || String(student.grade || "") === String(state.adminRosterGrade))
+      .filter((student) => state.adminRosterGroup === "all" || String(student.group || "") === String(state.adminRosterGroup));
+  }
+
+  function adminRosterFilterOptions() {
+    const base = adminRosterBaseRows();
+    const sedes = ["all", ...uniqueValues(base.map((student) => student.sede).filter(Boolean))];
+    const grades = ["all", ...uniqueValues(base
+      .filter((student) => state.adminRosterSede === "all" || String(student.sede || "") === String(state.adminRosterSede))
+      .map((student) => student.grade).filter(Boolean)).sort((a, b) => Number(a) - Number(b))];
+    const groups = ["all", ...uniqueValues(base
+      .filter((student) => state.adminRosterSede === "all" || String(student.sede || "") === String(state.adminRosterSede))
+      .filter((student) => state.adminRosterGrade === "all" || String(student.grade || "") === String(state.adminRosterGrade))
+      .map((student) => student.group).filter(Boolean))];
+    return { sedes, grades, groups };
+  }
+
+  function adminRosterScoreCell(student, subjectName) {
+    const stat = student?.subjectStats?.[subjectName] || null;
+    return scoreDisplayHtml(stat, "teacher-score teacher-score-plain admin-roster-score", false);
+  }
+
+  function adminRosterMatrixHtml() {
+    const options = adminRosterFilterOptions();
+    const rows = adminRosterFilteredRows();
+    const totalMissing = rows.reduce((sum, student) => sum + ADMIN_ROSTER_SUBJECTS.filter((subject) => {
+      const stat = student?.subjectStats?.[subject.subject];
+      return stat?.total && stat.absent && Number(stat.score) === 0;
+    }).length, 0);
+    return `
+      <section class="toolbar">
+        <div>
+          <span class="section-eyebrow">Control administrativo</span>
+          <h2 style="margin:8px 0 0;font-weight:900;">Matriz de estudiantes y notas</h2>
+          <p class="muted-copy">Muestra todos los estudiantes registrados en ESTUDIANTES. El <strong>0 rojo</strong> indica que el estudiante no presentó esa asignatura o no aparece en la sesión correspondiente.</p>
+        </div>
+        <div class="toolbar-right admin-roster-filters">
+          <select class="select-pill" data-admin-roster-field="sede">
+            ${options.sedes.map((value) => `<option value="${escAttr(value)}" ${String(state.adminRosterSede) === String(value) ? "selected" : ""}>${value === "all" ? "Todas las sedes" : esc(value)}</option>`).join("")}
+          </select>
+          <select class="select-pill" data-admin-roster-field="grade">
+            ${options.grades.map((value) => `<option value="${escAttr(value)}" ${String(state.adminRosterGrade) === String(value) ? "selected" : ""}>${value === "all" ? "Todos los grados" : `${esc(value)}°`}</option>`).join("")}
+          </select>
+          <select class="select-pill" data-admin-roster-field="group">
+            ${options.groups.map((value) => `<option value="${escAttr(value)}" ${String(state.adminRosterGroup) === String(value) ? "selected" : ""}>${value === "all" ? "Todos los cursos" : esc(value)}</option>`).join("")}
+          </select>
+        </div>
+      </section>
+      <section class="teacher-stat-strip teacher-stat-strip-two admin-roster-summary">
+        <article><span>Estudiantes visibles</span><strong>${esc(rows.length)}</strong><small>según filtros activos</small></article>
+        <article><span>Notas faltantes</span><strong>${esc(totalMissing)}</strong><small>ceros rojos detectados</small></article>
+      </section>
+      <section class="card table-card admin-roster-table-card">
+        <div class="table-wrap admin-roster-table-wrap">
+          <table class="admin-roster-table">
+            <thead>
+              <tr>
+                <th>SEDE</th><th>GRADO</th><th>CURSO</th><th>ID_PRUEBA</th><th>ALUMNO</th>
+                ${ADMIN_ROSTER_SUBJECTS.map((subject) => `<th>${esc(subject.label)}</th>`).join("")}
+                <th>ACCIÓN</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows.map((student) => {
+                const roll = cleanId(student?.registry?.examId || student?.roll || "");
+                const hasExam = !!roll && state.responsesByRoll.has(roll);
+                return `
+                  <tr>
+                    <td>${esc(student.sede || "—")}</td>
+                    <td class="tiny-cell">${student.grade ? `${esc(student.grade)}°` : "—"}</td>
+                    <td class="tiny-cell">${esc(student.group || "—")}</td>
+                    <td><strong>${esc(roll || "—")}</strong></td>
+                    <td class="student-name-cell"><strong>${esc(displayListName(student))}</strong></td>
+                    ${ADMIN_ROSTER_SUBJECTS.map((subject) => `<td class="score-cell">${adminRosterScoreCell(student, subject.subject)}</td>`).join("")}
+                    <td class="row-actions"><button class="secondary-btn mini-btn" data-action="edit-student-exam" data-roll="${escAttr(roll)}" ${hasExam ? "" : "disabled title=\"No hay respuestas cargadas para este ID prueba\""}>Ver examen</button></td>
+                  </tr>
+                `;
+              }).join("") || `<tr><td colspan="15" class="empty-state">No hay estudiantes con los filtros actuales.</td></tr>`}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    `;
   }
 
   function adminStudentsHtml() {
@@ -5229,7 +5347,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     if (action === "student-ranking-debug-next") {
       const roll = cleanId(target.dataset.roll || state.activeSession?.roll || "");
       state.zeroToleranceShown = false;
-      state.activeSession = { ...(state.activeSession || {}), role: "student", roll, rankingDebugRequested: false, rankingDebugDone: true, rankingDebugVersion: "v133" };
+      state.activeSession = { ...(state.activeSession || {}), role: "student", roll, rankingDebugRequested: false, rankingDebugDone: true, rankingDebugVersion: "v134" };
       writeJSON(STORAGE.session, state.activeSession);
       return enterSessionWithLoader(state.activeSession, () => renderStudent(roll), "Abriendo tus resultados...");
     }
@@ -5239,7 +5357,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       if (state.activeSession?.role === "student") {
         state.activeSession.rankingDebugRequested = true;
         state.activeSession.rankingDebugDone = false;
-        state.activeSession.rankingDebugVersion = "v133";
+        state.activeSession.rankingDebugVersion = "v134";
         writeJSON(STORAGE.session, state.activeSession);
       }
       state.studentRankDebugByRoll?.delete?.(roll);
@@ -5884,6 +6002,12 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       state._sessionAuditSearchTimer = setTimeout(() => openSessionAuditAssignModal(roll), 160);
     }
 
+    if (target.dataset.adminRosterField) {
+      setAdminRosterField(target.dataset.adminRosterField, target.value);
+      renderAdminContext();
+      return;
+    }
+
     if (target.dataset.configField) {
       state.config[target.dataset.configField] = target.value;
     }
@@ -5923,6 +6047,21 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     }
   }
 
+
+  function setAdminRosterField(field, value) {
+    const clean = value || "all";
+    if (field === "sede") {
+      state.adminRosterSede = clean;
+      state.adminRosterGrade = "all";
+      state.adminRosterGroup = "all";
+    } else if (field === "grade") {
+      state.adminRosterGrade = clean;
+      state.adminRosterGroup = "all";
+    } else if (field === "group") {
+      state.adminRosterGroup = clean;
+    }
+  }
+
   function handleChange(event) {
     const target = event.target;
 
@@ -5936,6 +6075,12 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       updateDirectorRowField(target);
       buildRepository();
       renderAdmin();
+      return;
+    }
+
+    if (target.dataset.adminRosterField) {
+      setAdminRosterField(target.dataset.adminRosterField, target.value);
+      renderAdminContext();
       return;
     }
 
