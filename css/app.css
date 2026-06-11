@@ -13701,7 +13701,7 @@ select,
 }
 
 
-/* v143: matriz administrativa compacta con Religion */
+/* v144: matriz administrativa compacta con Religion y puntaje global */
 .admin-roster-filters {
   display: flex;
   flex-wrap: wrap;
@@ -13745,19 +13745,19 @@ select,
   white-space: nowrap;
 }
 .admin-roster-table th:nth-child(1),
-.admin-roster-table td:nth-child(1) { width: 8%; }
+.admin-roster-table td:nth-child(1) { width: 7%; }
 .admin-roster-table th:nth-child(2),
-.admin-roster-table td:nth-child(2) { width: 4%; text-align:center; }
+.admin-roster-table td:nth-child(2) { width: 3.5%; text-align:center; }
 .admin-roster-table th:nth-child(3),
-.admin-roster-table td:nth-child(3) { width: 5%; text-align:center; }
+.admin-roster-table td:nth-child(3) { width: 4.5%; text-align:center; }
 .admin-roster-table th:nth-child(4),
-.admin-roster-table td:nth-child(4) { width: 7%; }
+.admin-roster-table td:nth-child(4) { width: 6.5%; }
 .admin-roster-table th:nth-child(5),
-.admin-roster-table td:nth-child(5) { width: 17%; }
-.admin-roster-table th:nth-child(n+6):nth-child(-n+15),
-.admin-roster-table td:nth-child(n+6):nth-child(-n+15) { width: 4.4%; text-align:center; }
-.admin-roster-table th:nth-child(16),
-.admin-roster-table td:nth-child(16) { width: 8%; text-align:center; }
+.admin-roster-table td:nth-child(5) { width: 14%; }
+.admin-roster-table th:nth-child(n+6):nth-child(-n+16),
+.admin-roster-table td:nth-child(n+6):nth-child(-n+16) { width: 4.25%; text-align:center; }
+.admin-roster-table th:nth-child(17),
+.admin-roster-table td:nth-child(17) { width: 7%; text-align:center; }
 .admin-roster-table .student-name-cell strong,
 .admin-roster-table td:nth-child(1),
 .admin-roster-table td:nth-child(4) strong {
@@ -13772,10 +13772,18 @@ select,
 }
 .admin-roster-score {
   min-width: 0 !important;
-  padding: 2px 4px !important;
+  padding: 2px 3px !important;
   border-radius: 8px !important;
-  font-size: .7rem !important;
+  font-size: .66rem !important;
   line-height: 1.1 !important;
+}
+.admin-roster-global-score {
+  font-weight: 950 !important;
+  border-color: rgba(25,117,174,.25) !important;
+}
+.admin-roster-table .global-head,
+.admin-roster-table .global-cell {
+  background: rgba(25,117,174,.035);
 }
 .admin-roster-table .row-actions {
   white-space: normal;

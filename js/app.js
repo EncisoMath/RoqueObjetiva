@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v143";
+  const APP_VERSION = "v144";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -4283,6 +4283,13 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     return scoreDisplayHtml(stat, "teacher-score teacher-score-plain admin-roster-score", false);
   }
 
+  function adminRosterGlobalCell(student) {
+    const value = Number.isFinite(Number(student?.globalScore)) ? Math.round(Number(student.globalScore)) : null;
+    const missing = value === null;
+    const title = missing ? ' title="Faltan una o más áreas principales: Matemáticas, Lenguaje, Naturales, Sociales o Inglés"' : ' title="Puntaje global: ((MAT*3 + LEN*3 + NAT*3 + SOC*3 + ING) * 5) / 13"';
+    return `<span class="teacher-score teacher-score-plain admin-roster-score admin-roster-global-score${missing ? " score-absent" : ""}"${title}>${missing ? "0" : value}</span>`;
+  }
+
   function adminRosterMatrixHtml() {
     const options = adminRosterFilterOptions();
     const rows = adminRosterFilteredRows();
@@ -4320,6 +4327,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
               <tr>
                 <th>SEDE</th><th>GRADO</th><th>CURSO</th><th>ID_PRUEBA</th><th>ALUMNO</th>
                 ${ADMIN_ROSTER_SUBJECTS.map((subject) => `<th class="score-head" title="${escAttr(subject.title || subject.label)}">${esc(subject.label)}</th>`).join("")}
+                <th class="score-head global-head" title="PUNTAJE GLOBAL">GLOB</th>
                 <th>ACCIÓN</th>
               </tr>
             </thead>
@@ -4335,10 +4343,11 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
                     <td><strong>${esc(roll || "—")}</strong></td>
                     <td class="student-name-cell"><strong>${esc(displayListName(student))}</strong></td>
                     ${ADMIN_ROSTER_SUBJECTS.map((subject) => `<td class="score-cell">${adminRosterScoreCell(student, subject.subject)}</td>`).join("")}
+                    <td class="score-cell global-cell">${adminRosterGlobalCell(student)}</td>
                     <td class="row-actions"><button class="secondary-btn mini-btn" data-action="edit-student-exam" data-roll="${escAttr(roll)}" ${hasExam ? "" : "disabled title=\"No hay respuestas cargadas para este ID prueba\""}>Ver examen</button></td>
                   </tr>
                 `;
-              }).join("") || `<tr><td colspan="16" class="empty-state">No hay estudiantes con los filtros actuales.</td></tr>`}
+              }).join("") || `<tr><td colspan="17" class="empty-state">No hay estudiantes con los filtros actuales.</td></tr>`}
             </tbody>
           </table>
         </div>
