@@ -1,5 +1,5 @@
-const APP_VERSION = "v139";
-const CACHE_VERSION = "resultados-pwa-v139_protege_resultados";
+const APP_VERSION = "v140";
+const CACHE_VERSION = "resultados-pwa-v140_guardado_examen_sin_pantalla_blanca";
 const CACHE_PREFIXES = ["resultados-pwa-", "resultados-pruebas-"];
 
 const APP_SHELL = [

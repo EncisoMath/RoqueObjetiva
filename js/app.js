@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v139";
+  const APP_VERSION = "v140";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -193,8 +193,8 @@
   }
 
   function loadLocalState() {
-    // v139: limpia overrides antiguos de versiones que podían dejar notas en cero.
-    const cleanFlag = "po_result_overrides_cleaned_v139";
+    // v140: limpia overrides antiguos de versiones que podían dejar notas en cero.
+    const cleanFlag = "po_result_overrides_cleaned_v140";
     if (localStorage.getItem(cleanFlag) !== "1") {
       localStorage.removeItem(STORAGE.resultOverrides);
       localStorage.setItem(cleanFlag, "1");
@@ -2296,7 +2296,7 @@
 
     if (state.activeSession.role === "student") {
       const roll = cleanId(state.activeSession.roll);
-      if (state.activeSession.rankingDebugRequested && (!state.activeSession.rankingDebugDone || state.activeSession.rankingDebugVersion !== "v139")) {
+      if (state.activeSession.rankingDebugRequested && (!state.activeSession.rankingDebugDone || state.activeSession.rankingDebugVersion !== "v140")) {
         return showStudentRankingDebugGate(roll, "Reconstruyendo diagnóstico de ranking...");
       }
       return renderStudent(roll);
@@ -2317,7 +2317,7 @@
       roll: cleanRoll,
       rankingDebugRequested: debug,
       rankingDebugDone: !debug,
-      rankingDebugVersion: "v139"
+      rankingDebugVersion: "v140"
     };
     state.activeSession = session;
     writeJSON(STORAGE.session, state.activeSession);
@@ -2328,7 +2328,7 @@
       try {
         await prepareStudentRankingContext(cleanRoll);
         if (debug) {
-          state.activeSession = { ...(state.activeSession || session), rankingDebugRequested: true, rankingDebugDone: false, rankingDebugVersion: "v139" };
+          state.activeSession = { ...(state.activeSession || session), rankingDebugRequested: true, rankingDebugDone: false, rankingDebugVersion: "v140" };
           writeJSON(STORAGE.session, state.activeSession);
           renderStudentRankingDebug(cleanRoll);
         } else {
@@ -3454,6 +3454,27 @@
   function renderAdminContext() {
     if (state.activeSession?.role === "teacher") renderBySession();
     else renderAdmin();
+  }
+
+  function safeRenderAdminContext(source = "") {
+    try {
+      renderAdminContext();
+    } catch (error) {
+      console.error(`Error renderizando Admin ${source}`.trim(), error);
+      try {
+        state.adminTab = state.adminTab || "resumen";
+        renderShell(`
+          <div class="card card-pad empty-state">
+            <h2>No se pudo refrescar la vista administrativa</h2>
+            <p>El cambio quedó aplicado localmente, pero la pantalla no se refrescó completa. Cierra este aviso y vuelve a abrir la pestaña del Admin.</p>
+            <pre class="debug-box">${esc(error?.message || String(error))}</pre>
+            <button class="primary-btn" data-action="admin-tab" data-tab="resumen">Volver al resumen</button>
+          </div>
+        `, `<nav class="app-nav admin-top-tabs"><button class="nav-chip active" data-action="admin-tab" data-tab="resumen">Resumen</button><button class="nav-chip logout" data-action="logout">Salir</button></nav>`);
+      } catch (fallbackError) {
+        console.error("Fallo también el render de respaldo", fallbackError);
+      }
+    }
   }
 
   function renderAdminTab() {
@@ -5354,7 +5375,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     if (action === "student-ranking-debug-next") {
       const roll = cleanId(target.dataset.roll || state.activeSession?.roll || "");
       state.zeroToleranceShown = false;
-      state.activeSession = { ...(state.activeSession || {}), role: "student", roll, rankingDebugRequested: false, rankingDebugDone: true, rankingDebugVersion: "v139" };
+      state.activeSession = { ...(state.activeSession || {}), role: "student", roll, rankingDebugRequested: false, rankingDebugDone: true, rankingDebugVersion: "v140" };
       writeJSON(STORAGE.session, state.activeSession);
       return enterSessionWithLoader(state.activeSession, () => renderStudent(roll), "Abriendo tus resultados...");
     }
@@ -5364,7 +5385,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       if (state.activeSession?.role === "student") {
         state.activeSession.rankingDebugRequested = true;
         state.activeSession.rankingDebugDone = false;
-        state.activeSession.rankingDebugVersion = "v139";
+        state.activeSession.rankingDebugVersion = "v140";
         writeJSON(STORAGE.session, state.activeSession);
       }
       state.studentRankDebugByRoll?.delete?.(roll);
@@ -5561,12 +5582,19 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       if (roll) state.editedExamRolls.add(roll);
       persistResultOverrides();
       buildRepository();
-      closeModal();
       if (action === "save-student-exam-upload") {
-        await publishSingleExamToSupabase(roll);
+        const originalText = target.textContent;
+        target.disabled = true;
+        target.textContent = "Guardando...";
+        const ok = await publishSingleExamToSupabase(roll, { noLoader: true, renderAfter: false });
+        target.disabled = false;
+        target.textContent = originalText || "Guardar y subir a Supabase";
+        updateExamEditSummary(roll);
+        if (ok) toast("Examen guardado y subido a Supabase.");
       } else {
-        toast("Examen actualizado localmente. Usa Subir a Supabase para dejarlo fijo.");
-        renderAdminContext();
+        closeModal();
+        toast("Examen actualizado localmente. Usa Guardar y subir a Supabase para dejarlo fijo.");
+        safeRenderAdminContext("guardar examen local");
       }
       return;
     }
@@ -6297,7 +6325,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
         rows: exportKeyRows(state.keys.filter((row) => Number(row.grade) === grade))
       }));
 
-    // v139: proteger la tabla resultados.
+    // v140: proteger la tabla resultados.
     // El botón general "Subir cambios a Supabase" NO debe enviar resultados completos,
     // porque la RPC roque_admin_sync reemplaza datasets completos y puede vaciar la tabla
     // si el estado local no contiene todo el universo de exámenes.
@@ -6419,33 +6447,36 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     else localStorage.removeItem(STORAGE.resultOverrides);
   }
 
-  async function publishSingleExamToSupabase(roll) {
+  async function publishSingleExamToSupabase(roll, options = {}) {
     const cleanRoll = cleanId(roll);
     if (!SUPABASE_CONFIG.enabled) {
       toast("Supabase no está habilitado en esta versión.");
-      return;
+      return false;
     }
     if (state.activeSession?.role !== "admin") {
       toast("Solo el administrador puede subir cambios a Supabase.");
-      return;
+      return false;
     }
     const record = state.responsesByRoll.get(cleanRoll);
     if (!record) {
       toast("No encontré respuestas cargadas para este ID_PRUEBA.");
-      return;
+      return false;
     }
     const password = getSupabaseAdminPassword();
-    if (!password) return;
+    if (!password) return false;
     const answers = normalizeAnswersForSupabase(record);
     try {
       validateSingleExamPayload(cleanRoll, answers);
     } catch (error) {
       toast(error.message || "No se pudo validar el examen.");
-      return;
+      return false;
     }
 
-    showRouteLoader("Guardando este examen en Supabase...");
-    await delayFrame();
+    const useLoader = !options.noLoader;
+    if (useLoader) {
+      showRouteLoader("Guardando este examen en Supabase...");
+      await delayFrame();
+    }
     const rpcPayload = { p_password: password, p_id_prueba: cleanRoll, p_respuestas: answers, p_activo: true };
     const rpcNames = ["roque_admin_update_resultado", "roque_admin_upsert_resultado", "roque_admin_save_resultado"];
     const errors = [];
@@ -6456,9 +6487,8 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
           if (result && result.ok === false) throw new Error(result.error || `Supabase rechazó ${fn}.`);
           clearResultOverrideForRoll(cleanRoll);
           buildRepository();
-          toast("Examen guardado y subido a Supabase.");
-          renderAdminContext();
-          return;
+          if (options.renderAfter !== false) safeRenderAdminContext("guardar examen RPC");
+          return true;
         } catch (error) {
           errors.push(`${fn}: ${error?.message || error}`);
         }
@@ -6468,9 +6498,8 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
         await supabaseRestPatchResultado(cleanRoll, answers);
         clearResultOverrideForRoll(cleanRoll);
         buildRepository();
-        toast("Examen guardado y subido a Supabase.");
-        renderAdminContext();
-        return;
+        if (options.renderAfter !== false) safeRenderAdminContext("guardar examen REST PATCH");
+        return true;
       } catch (error) {
         errors.push(`REST PATCH resultados: ${error?.message || error}`);
       }
@@ -6479,9 +6508,8 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
         await supabaseRestUpsertResultado(cleanRoll, answers);
         clearResultOverrideForRoll(cleanRoll);
         buildRepository();
-        toast("Examen guardado y subido a Supabase.");
-        renderAdminContext();
-        return;
+        if (options.renderAfter !== false) safeRenderAdminContext("guardar examen REST UPSERT");
+        return true;
       } catch (error) {
         errors.push(`REST UPSERT resultados: ${error?.message || error}`);
       }
@@ -6493,8 +6521,9 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       console.error(error);
       toast(error.message || "No se pudo subir el examen a Supabase.");
       if (/contrase/i.test(error.message || "")) sessionStorage.removeItem("po_supabase_admin_password");
+      return false;
     } finally {
-      hideRouteLoader();
+      if (useLoader) hideRouteLoader();
     }
   }
 
@@ -6522,7 +6551,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       localStorage.removeItem(STORAGE.answers);
       localStorage.removeItem(STORAGE.resultOverrides);
       localStorage.removeItem(STORAGE.subjectAreas);
-      renderAdminContext();
+      safeRenderAdminContext("subir cambios a Supabase");
     } catch (error) {
       console.error(error);
       toast(error.message || "No se pudo subir a Supabase.");
