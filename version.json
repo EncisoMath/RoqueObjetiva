@@ -1,9 +1,9 @@
 {
-  "version": "v135",
-  "cache": "resultados-pwa-v135-fix-matriz-estudiantes",
-  "updatedAt": "2026-06-09",
-  "note": "Normaliza y deduplica nombres de áreas/asignaturas para evitar tarjetas repetidas por mayúsculas, tildes o mapeos de Supabase.",
-  "builtAt": "2026-06-09T19:35:00Z",
-  "date": "2026-06-09",
-  "build": "134"
+  "version": "v136",
+  "cache": "resultados-pwa-v136-editor-examen-clave-rapido",
+  "updatedAt": "2026-06-11",
+  "note": "Editor de examen con clave visible, calculo en vivo de nota y subida rapida del examen a Supabase.",
+  "builtAt": "2026-06-11T11:30:00Z",
+  "date": "2026-06-11",
+  "build": "136"
 }

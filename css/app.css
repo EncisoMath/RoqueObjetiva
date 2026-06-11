@@ -13758,3 +13758,92 @@ select,
     max-height: none;
   }
 }
+
+/* v136: editor de examen con clave visible, calculo en vivo y subida rapida */
+.exam-score-card {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 10px;
+  margin: 12px 0 14px;
+}
+.exam-score-card > div {
+  border: 1px solid #dfe7f2;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  border-radius: 10px;
+  padding: 11px 12px;
+  box-shadow: 0 8px 20px rgba(17, 35, 64, .06);
+}
+.exam-score-card span {
+  display: block;
+  color: #737987;
+  font-size: .78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.exam-score-card strong {
+  display: block;
+  color: #1d2b3a;
+  font-size: 1.48rem;
+  font-weight: 950;
+  line-height: 1.05;
+  margin-top: 4px;
+}
+.exam-score-card small,
+.exam-score-muted {
+  display: block;
+  color: #7d8390;
+  font-size: .8rem;
+  font-weight: 700;
+  margin-top: 4px;
+}
+.exam-item-num {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+.exam-correct-badge {
+  display: inline-flex;
+  justify-content: center;
+  min-width: 54px;
+  padding: 3px 5px;
+  border-radius: 999px;
+  background: #eaf7ef;
+  color: #1f7a43;
+  font-size: .68rem;
+  font-weight: 900;
+  white-space: nowrap;
+}
+.exam-row-feedback {
+  margin-top: 5px;
+  color: #6f7581;
+  font-size: .76rem;
+  font-weight: 700;
+}
+.exam-option-btn.correct-key {
+  border-color: #23a455;
+  box-shadow: inset 0 0 0 2px rgba(35,164,85,.16);
+}
+.exam-option-btn.correct-key:not(.active)::after {
+  content: "";
+  position: absolute;
+}
+.exam-option-btn.active.correct-key {
+  background: #20894c;
+  border-color: #20894c;
+  color: #fff;
+  box-shadow: 0 8px 18px rgba(32,137,76,.25);
+}
+.exam-option-btn.active:not(.correct-key):not(.clear) {
+  background: #c22f2f;
+  border-color: #c22f2f;
+  color: #fff;
+  box-shadow: 0 8px 18px rgba(194,47,47,.2);
+}
+.exam-option-btn.active-empty {
+  border-color: #9aa2af;
+  background: #eef1f5;
+  color: #5e6570;
+}
+.exam-option-btn { position: relative; }

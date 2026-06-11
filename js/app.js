@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v135";
+  const APP_VERSION = "v136";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -2289,7 +2289,7 @@
 
     if (state.activeSession.role === "student") {
       const roll = cleanId(state.activeSession.roll);
-      if (state.activeSession.rankingDebugRequested && (!state.activeSession.rankingDebugDone || state.activeSession.rankingDebugVersion !== "v135")) {
+      if (state.activeSession.rankingDebugRequested && (!state.activeSession.rankingDebugDone || state.activeSession.rankingDebugVersion !== "v136")) {
         return showStudentRankingDebugGate(roll, "Reconstruyendo diagnóstico de ranking...");
       }
       return renderStudent(roll);
@@ -2310,7 +2310,7 @@
       roll: cleanRoll,
       rankingDebugRequested: debug,
       rankingDebugDone: !debug,
-      rankingDebugVersion: "v135"
+      rankingDebugVersion: "v136"
     };
     state.activeSession = session;
     writeJSON(STORAGE.session, state.activeSession);
@@ -2321,7 +2321,7 @@
       try {
         await prepareStudentRankingContext(cleanRoll);
         if (debug) {
-          state.activeSession = { ...(state.activeSession || session), rankingDebugRequested: true, rankingDebugDone: false, rankingDebugVersion: "v135" };
+          state.activeSession = { ...(state.activeSession || session), rankingDebugRequested: true, rankingDebugDone: false, rankingDebugVersion: "v136" };
           writeJSON(STORAGE.session, state.activeSession);
           renderStudentRankingDebug(cleanRoll);
         } else {
@@ -5347,7 +5347,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     if (action === "student-ranking-debug-next") {
       const roll = cleanId(target.dataset.roll || state.activeSession?.roll || "");
       state.zeroToleranceShown = false;
-      state.activeSession = { ...(state.activeSession || {}), role: "student", roll, rankingDebugRequested: false, rankingDebugDone: true, rankingDebugVersion: "v135" };
+      state.activeSession = { ...(state.activeSession || {}), role: "student", roll, rankingDebugRequested: false, rankingDebugDone: true, rankingDebugVersion: "v136" };
       writeJSON(STORAGE.session, state.activeSession);
       return enterSessionWithLoader(state.activeSession, () => renderStudent(roll), "Abriendo tus resultados...");
     }
@@ -5357,7 +5357,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       if (state.activeSession?.role === "student") {
         state.activeSession.rankingDebugRequested = true;
         state.activeSession.rankingDebugDone = false;
-        state.activeSession.rankingDebugVersion = "v135";
+        state.activeSession.rankingDebugVersion = "v136";
         writeJSON(STORAGE.session, state.activeSession);
       }
       state.studentRankDebugByRoll?.delete?.(roll);
@@ -5524,27 +5524,40 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     if (action === "set-student-answer") {
       if (state.activeSession?.role !== "admin") { toast("Solo el administrador puede editar exámenes."); return; }
       setStudentAnswer(target.dataset.roll, Number(target.dataset.item), target.dataset.option);
-      target.closest(".exam-option-row")?.querySelectorAll(".exam-option-btn").forEach((btn) => btn.classList.remove("active"));
+      const row = target.closest(".exam-option-row");
+      row?.querySelectorAll(".exam-option-btn").forEach((btn) => btn.classList.remove("active", "active-empty"));
       target.classList.add("active");
+      const feedback = row?.querySelector(".exam-row-feedback");
+      const correct = cleanOption(row?.dataset.correct || "");
+      const marked = cleanMarked(target.dataset.option || "");
+      if (feedback && correct) feedback.innerHTML = `Correcta: <strong>${esc(correct)}</strong> · Marcada: <strong>${esc(marked)}</strong>`;
+      updateExamEditSummary(target.dataset.roll);
       return;
     }
 
     if (action === "clear-student-answer") {
       if (state.activeSession?.role !== "admin") { toast("Solo el administrador puede editar exámenes."); return; }
       setStudentAnswer(target.dataset.roll, Number(target.dataset.item), "");
-      target.closest(".exam-option-row")?.querySelectorAll(".exam-option-btn").forEach((btn) => btn.classList.remove("active"));
+      const row = target.closest(".exam-option-row");
+      row?.querySelectorAll(".exam-option-btn").forEach((btn) => btn.classList.remove("active", "active-empty"));
+      target.classList.add("active-empty");
+      const feedback = row?.querySelector(".exam-row-feedback");
+      const correct = cleanOption(row?.dataset.correct || "");
+      if (feedback && correct) feedback.innerHTML = `Correcta: <strong>${esc(correct)}</strong> · Sin marcar`;
+      updateExamEditSummary(target.dataset.roll);
       return;
     }
 
     if (action === "save-student-exam" || action === "save-student-exam-upload") {
       if (state.activeSession?.role !== "admin") { toast("Solo el administrador puede guardar exámenes."); return; }
+      const roll = cleanId(target.dataset.roll || document.querySelector(".exam-edit-modal")?.dataset.roll || "");
       persistResultOverrides();
-      buildRepository();
-      closeModal();
       if (action === "save-student-exam-upload") {
-        toast("Examen actualizado. Subiendo a Supabase...");
-        await publishAllToSupabase();
+        closeModal();
+        await publishSingleExamToSupabase(roll);
       } else {
+        buildRepository();
+        closeModal();
         toast("Examen actualizado localmente. Usa Subir a Supabase para dejarlo fijo.");
         renderAdminContext();
       }
@@ -6315,6 +6328,121 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       if (password) sessionStorage.setItem("po_supabase_admin_password", password);
     }
     return password;
+  }
+
+  function delayFrame() {
+    return new Promise((resolve) => setTimeout(resolve, 0));
+  }
+
+  function parseMaybeJson(text) {
+    try { return text ? JSON.parse(text) : null; } catch (error) { return text; }
+  }
+
+  async function supabaseRestUpsertResultado(roll, answers) {
+    const baseUrl = cleanText(SUPABASE_CONFIG.url).replace(/\/$/, "");
+    const key = cleanText(SUPABASE_CONFIG.key);
+    if (!baseUrl || !key) throw new Error("Falta configurar Supabase.");
+    const headers = {
+      "Content-Type": "application/json",
+      "apikey": key,
+      "Authorization": `Bearer ${key}`,
+      "Cache-Control": "no-store, no-cache, max-age=0",
+      "Pragma": "no-cache",
+      "Prefer": "return=representation"
+    };
+    const body = JSON.stringify({ respuestas: answers || {}, activo: true });
+    const patch = await fetch(`${baseUrl}/rest/v1/resultados?id_prueba=eq.${encodeURIComponent(roll)}`, {
+      method: "PATCH",
+      cache: "no-store",
+      headers,
+      body
+    });
+    const patchText = await patch.text();
+    const patchData = parseMaybeJson(patchText);
+    if (!patch.ok) throw new Error(patchData?.message || patchData?.error || patchText || `Error ${patch.status}`);
+    if (patchData === null || patchData === "" || (Array.isArray(patchData) && patchData.length)) return { ok: true, mode: "patch" };
+
+    const insert = await fetch(`${baseUrl}/rest/v1/resultados`, {
+      method: "POST",
+      cache: "no-store",
+      headers: { ...headers, "Prefer": "return=representation" },
+      body: JSON.stringify({ id_prueba: roll, respuestas: answers || {}, activo: true })
+    });
+    const insertText = await insert.text();
+    const insertData = parseMaybeJson(insertText);
+    if (!insert.ok) throw new Error(insertData?.message || insertData?.error || insertText || `Error ${insert.status}`);
+    return { ok: true, mode: "insert" };
+  }
+
+  function clearResultOverrideForRoll(roll) {
+    const cleanRoll = cleanId(roll);
+    if (!cleanRoll) return;
+    const data = readJSON(STORAGE.resultOverrides, {});
+    if (!data || typeof data !== "object") return;
+    delete data[cleanRoll];
+    if (Object.keys(data).length) writeJSON(STORAGE.resultOverrides, data);
+    else localStorage.removeItem(STORAGE.resultOverrides);
+  }
+
+  async function publishSingleExamToSupabase(roll) {
+    const cleanRoll = cleanId(roll);
+    if (!SUPABASE_CONFIG.enabled) {
+      toast("Supabase no está habilitado en esta versión.");
+      return;
+    }
+    if (state.activeSession?.role !== "admin") {
+      toast("Solo el administrador puede subir cambios a Supabase.");
+      return;
+    }
+    if (!cleanRoll) {
+      toast("No pude identificar el ID_PRUEBA para subir este examen.");
+      return;
+    }
+    const record = state.responsesByRoll.get(cleanRoll);
+    if (!record) {
+      toast("No encontré respuestas cargadas para este ID_PRUEBA.");
+      return;
+    }
+    const password = getSupabaseAdminPassword();
+    if (!password) return;
+
+    const answers = { ...(record.answers || {}) };
+    showRouteLoader("Subiendo este examen a Supabase...");
+    await delayFrame();
+    const rpcPayload = { p_password: password, p_id_prueba: cleanRoll, p_respuestas: answers, p_activo: true };
+    const rpcNames = ["roque_admin_update_resultado", "roque_admin_upsert_resultado", "roque_admin_save_resultado"];
+    const errors = [];
+    try {
+      for (const fn of rpcNames) {
+        try {
+          const result = await supabaseRpc(fn, rpcPayload);
+          if (result && result.ok === false) throw new Error(result.error || `Supabase rechazó ${fn}.`);
+          clearResultOverrideForRoll(cleanRoll);
+          buildRepository();
+          toast("Examen guardado y subido a Supabase.");
+          renderAdminContext();
+          return;
+        } catch (error) {
+          errors.push(`${fn}: ${error?.message || error}`);
+        }
+      }
+
+      try {
+        await supabaseRestUpsertResultado(cleanRoll, answers);
+        clearResultOverrideForRoll(cleanRoll);
+        buildRepository();
+        toast("Examen guardado y subido a Supabase.");
+        renderAdminContext();
+        return;
+      } catch (error) {
+        errors.push(`REST resultados: ${error?.message || error}`);
+      }
+
+      console.warn("No se pudo hacer subida rápida de examen", errors);
+      toast("No se pudo subir solo este examen. Usa Subir a Supabase general si la base no permite edición rápida.");
+    } finally {
+      hideRouteLoader();
+    }
   }
 
   async function publishAllToSupabase() {
@@ -7211,6 +7339,55 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     return answerOptionsForSubject(detail?.subject || section?.subject || "");
   }
 
+  function examEditScoreForSection(record, section) {
+    const details = (section?.details || []).filter((detail) => cleanOption(detail?.correct));
+    const total = details.length;
+    const correct = details.filter((detail) => classifyAnswer(record?.answers?.[detail.item], detail.correct) === "correct").length;
+    const wrong = details.filter((detail) => classifyAnswer(record?.answers?.[detail.item], detail.correct) === "wrong").length;
+    const doubleMark = details.filter((detail) => classifyAnswer(record?.answers?.[detail.item], detail.correct) === "double").length;
+    const empty = details.filter((detail) => classifyAnswer(record?.answers?.[detail.item], detail.correct) === "empty").length;
+    const score = total ? calculateScore(correct, total) : null;
+    return { total, correct, wrong, doubleMark, empty, score };
+  }
+
+  function examEditGlobalPreview(record, student, registry) {
+    const grade = toInt(student?.grade || student?.registry?.grade || registry?.grade || record?.grade);
+    if (!grade) return { score: null, canCalculate: false, missing: [] };
+    const stats = calculateStudentStatsFromRecord(record, grade);
+    const breakdown = saberGlobalBreakdown(stats.subjectStats);
+    const missing = (breakdown.areas || []).filter((area) => !Number.isFinite(area.score)).map((area) => area.label);
+    return { score: breakdown.score, canCalculate: breakdown.canCalculate, missing, stats };
+  }
+
+  function examEditSummaryHtml(record, section, student, registry) {
+    const summary = examEditScoreForSection(record, section);
+    const global = examEditGlobalPreview(record, student, registry);
+    const areaScore = summary.score === null ? "Sin clave" : `${summary.score}`;
+    const globalScore = global.canCalculate ? `${global.score}` : "Incompleto";
+    const missingText = !global.canCalculate && global.missing?.length ? `<span class="exam-score-muted">Faltan: ${esc(global.missing.join(", "))}</span>` : "";
+    return `
+      <div class="exam-score-card">
+        <div><span>Área actual</span><strong>${esc(areaScore)}</strong><small>${summary.total ? `${summary.correct}/${summary.total} correctas` : "No hay respuestas correctas cargadas"}</small></div>
+        <div><span>Incorrectas</span><strong>${esc(summary.wrong)}</strong><small>Doble marca: ${esc(summary.doubleMark)} · Vacías: ${esc(summary.empty)}</small></div>
+        <div><span>Global ponderado</span><strong>${esc(globalScore)}</strong>${missingText || `<small>Con áreas principales completas</small>`}</div>
+      </div>`;
+  }
+
+  function updateExamEditSummary(roll) {
+    const modal = document.querySelector(".exam-edit-modal");
+    if (!modal) return;
+    const cleanRoll = cleanId(roll || modal.dataset.roll);
+    const record = state.responsesByRoll.get(cleanRoll);
+    if (!record) return;
+    const student = state.computedByRoll.get(cleanRoll) || state.computedStudents.find((item) => cleanId(item?.registry?.examId) === cleanRoll) || null;
+    const registry = state.registryByExamId.get(cleanRoll) || state.registryByNationalId.get(cleanId(record?.nationalId)) || null;
+    const sections = examEditSectionsForRecord(record, student || registry);
+    const activeId = cleanText(modal.dataset.subject || sections[0]?.id || "");
+    const activeSection = sections.find((section) => section.id === activeId || sameSubject(section.subject, activeId)) || sections[0] || { details: [], label: "Examen", fallback: true };
+    const summaryEl = modal.querySelector("[data-exam-edit-summary]");
+    if (summaryEl) summaryEl.innerHTML = examEditSummaryHtml(record, activeSection, student, registry);
+  }
+
   function openEditStudentExamModal(roll, subject = "") {
     const cleanRoll = cleanId(roll);
     const record = state.responsesByRoll.get(cleanRoll);
@@ -7226,21 +7403,25 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       const marked = cleanMarked(record.answers?.[detail.item] ?? detail.marked ?? "");
       const options = examEditOptionsForDetail(detail, activeSection);
       const correct = cleanOption(detail.correct || "");
-      return `<div class="exam-option-row">
-        <div class="exam-item-num">${esc(detail.item)}${correct ? `<small title="Respuesta correcta">${esc(correct)}</small>` : ""}</div>
-        <div class="exam-option-buttons">
-          ${options.map((op) => `<button type="button" class="exam-option-btn ${marked === op ? "active" : ""}" data-action="set-student-answer" data-roll="${escAttr(cleanRoll)}" data-item="${escAttr(detail.item)}" data-option="${op}">${op}</button>`).join("")}
-          <button type="button" class="exam-option-btn clear" data-action="clear-student-answer" data-roll="${escAttr(cleanRoll)}" data-item="${escAttr(detail.item)}">—</button>
+      const status = correct ? classifyAnswer(marked, correct) : "";
+      return `<div class="exam-option-row ${status ? `exam-row-${status}` : ""}" data-item="${escAttr(detail.item)}" data-correct="${escAttr(correct)}">
+        <div class="exam-item-num"><span>${esc(detail.item)}</span><small class="exam-correct-badge" title="Respuesta correcta">Clave: ${esc(correct || "—")}</small></div>
+        <div>
+          <div class="exam-option-buttons">
+            ${options.map((op) => `<button type="button" class="exam-option-btn ${correct === op ? "correct-key" : ""} ${marked === op ? "active" : ""}" data-action="set-student-answer" data-roll="${escAttr(cleanRoll)}" data-item="${escAttr(detail.item)}" data-option="${op}" title="${correct === op ? "Respuesta correcta" : "Opción"}">${op}</button>`).join("")}
+            <button type="button" class="exam-option-btn clear ${!marked ? "active-empty" : ""}" data-action="clear-student-answer" data-roll="${escAttr(cleanRoll)}" data-item="${escAttr(detail.item)}">—</button>
+          </div>
+          <div class="exam-row-feedback">${correct ? `Correcta: <strong>${esc(correct)}</strong>${marked ? ` · Marcada: <strong>${esc(marked)}</strong>` : " · Sin marcar"}` : "Sin clave para calcular esta fila"}</div>
         </div>
       </div>`;
     }).join("");
     const fallbackNote = activeSection.fallback
-      ? "No hay claves de asignatura disponibles para este examen en la carga actual. Por eso se muestran las respuestas por sesión para que el administrador pueda corregirlas y subirlas a Supabase."
-      : "Los ítems usan la numeración real del examen según las claves cargadas. Selecciona una opción o usa <strong>—</strong> para dejarla sin marcar.";
+      ? "No hay claves de asignatura disponibles para este examen en la carga actual. Se muestran respuestas por sesión, pero no se puede calcular nota ni mostrar respuesta correcta por ítem."
+      : "Cada fila muestra la clave correcta. Al cambiar una respuesta se recalcula la nota estimada del área y el global ponderado.";
     document.body.classList.add("modal-open");
     modalRoot.innerHTML = `
       <div class="modal-backdrop" data-action="close-modal">
-        <section class="modal exam-edit-modal" style="max-width:980px;">
+        <section class="modal exam-edit-modal" style="max-width:1060px;" data-roll="${escAttr(cleanRoll)}" data-subject="${escAttr(activeSection.id || "")}">
           <div class="modal-head">
             <div><h2>Editar examen</h2><span style="color:#7d8089;font-weight:600;">${esc(displayName)} · ID ${esc(cleanRoll)}</span></div>
             <button type="button" class="icon-btn" data-action="close-modal" aria-label="Cerrar">×</button>
@@ -7248,10 +7429,11 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
           <div class="modal-body">
             <nav class="teacher-assignment-nav exam-edit-tabs">${tabs}</nav>
             <div class="admin-note">${fallbackNote}</div>
+            <div data-exam-edit-summary>${examEditSummaryHtml(record, activeSection, student, registry)}</div>
             <div class="exam-edit-grid">${rows || `<div class="empty-state">No hay respuestas detectadas para editar.</div>`}</div>
             <div class="inline-actions" style="margin-top:16px;">
-              <button class="primary-btn" data-action="save-student-exam-upload">Guardar y subir a Supabase</button>
-              <button class="secondary-btn" data-action="save-student-exam">Guardar sin subir</button>
+              <button class="primary-btn" data-action="save-student-exam-upload" data-roll="${escAttr(cleanRoll)}">Guardar y subir a Supabase</button>
+              <button class="secondary-btn" data-action="save-student-exam" data-roll="${escAttr(cleanRoll)}">Guardar sin subir</button>
               <button class="ghost-btn" data-action="close-modal">Cancelar</button>
             </div>
           </div>
