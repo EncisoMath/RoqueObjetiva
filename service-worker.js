@@ -1,24 +1,24 @@
-const APP_VERSION = "v140";
-const CACHE_VERSION = "resultados-pwa-v140_guardado_examen_sin_pantalla_blanca";
+const APP_VERSION = "v141";
+const CACHE_VERSION = "resultados-pwa-v141_no_borrado_resultados";
 const CACHE_PREFIXES = ["resultados-pwa-", "resultados-pruebas-"];
 
 const APP_SHELL = [
   "./",
   "index.html",
-  "css/app.css?v=137",
-  "js/app.js?v=137",
+  "css/app.css?v=141",
+  "js/app.js?v=141",
   "version.json",
   "config/data-manifest.json",
   "config/site-config.json",
-  "config/supabase-config.js?v=137",
-  "manifest.webmanifest?v=137",
+  "config/supabase-config.js?v=141",
+  "manifest.webmanifest?v=141",
   "icons/icon-192.png",
   "icons/icon-512.png",
   "icons/maskable-512.png",
   "icons/apple-touch-icon.png",
   "icons/favicon-16.png",
   "icons/favicon-32.png",
-  "assets/logo-principal.png?v=137",
+  "assets/logo-principal.png?v=141",
   "assets/ZERO.png",
   "ICONOS/artistica.png",
   "ICONOS/ciencias-naturales.png",

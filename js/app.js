@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v140";
+  const APP_VERSION = "v141";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -39,7 +39,7 @@
   const DEFAULT_CONFIG = {
     title: "Roque Objetiva",
     subtitle: "Este reporte no se pasa ni se pierde. Es una herramienta para identificar fortalezas, habilidades y oportunidades de mejora.",
-    logoImage: "assets/logo-principal.png?v=137",
+    logoImage: "assets/logo-principal.png?v=141",
     appIcon: "icons/icon-512.png",
     bannerImage: "",
     footerText: "Consulta institucional de resultados",
@@ -320,6 +320,9 @@
   }
 
   async function supabaseRpc(functionName, payload = {}) {
+    if (String(functionName || "").toLowerCase() === "roque_admin_sync") {
+      throw new Error("roque_admin_sync está bloqueada en v141 para proteger la tabla RESULTADOS.");
+    }
     const baseUrl = cleanText(SUPABASE_CONFIG.url).replace(/\/$/, "");
     const key = cleanText(SUPABASE_CONFIG.key);
     if (!baseUrl || !key) throw new Error("Falta configurar Supabase.");
@@ -4685,25 +4688,23 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       <section class="toolbar">
         <div>
           <span class="section-eyebrow">Supabase</span>
-          <h2 style="margin:8px 0 0;font-weight:900;">Subir cambios a la base privada</h2>
-          <p class="muted-copy">Sin JSON públicos: los cambios administrativos se sincronizan con Supabase.</p>
+          <h2 style="margin:8px 0 0;font-weight:900;">Subida segura a Supabase</h2>
+          <p class="muted-copy">Por seguridad, la subida general está bloqueada. Los exámenes se guardan uno por uno desde Ver examen.</p>
         </div>
-        <div class="inline-actions"><button class="primary-btn" type="button" data-action="publish-supabase">Subir cambios a Supabase</button></div>
+        <div class="inline-actions"><button class="primary-btn" type="button" data-action="publish-supabase">Subida general bloqueada</button></div>
       </section>
       <div class="admin-note github-note">
-        Esta acción sincroniza estudiantes, docentes, carga_docente, claves, mapeo_areas y configuracion_app. Por seguridad, no reemplaza ni borra la tabla RESULTADOS.
+        La subida general está deshabilitada para impedir cualquier borrado masivo de RESULTADOS. Usa Ver examen para reescribir solo un ID_PRUEBA.
       </div>
       <section class="card card-pad github-panel supabase-panel">
         <div class="github-publish-box">
           <h3>Qué se sube</h3>
           <ul style="margin:0;padding-left:18px;color:#4d5260;line-height:1.65;">
-            <li>ESTUDIANTES</li>
-            <li>DOCENTES y CARGA_DOCENTE</li>
-            <li>KEYS / claves editadas</li>
-            <li>RESULTADOS no se tocan desde esta subida general; cada examen se guarda individualmente desde Ver examen</li>
-            <li>Configuración pública de apariencia y mapeos de áreas</li>
+            <li>No se ejecuta sincronización general.</li>
+            <li>RESULTADOS no se borran ni se reemplazan masivamente.</li>
+            <li>Cada examen se guarda individualmente por ID_PRUEBA desde Ver examen.</li>
           </ul>
-          <button class="primary-btn" type="button" data-action="publish-supabase">Subir cambios a Supabase</button>
+          <button class="primary-btn" type="button" data-action="publish-supabase">Subida general bloqueada</button>
         </div>
       </section>
     `;
@@ -6477,28 +6478,17 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       showRouteLoader("Guardando este examen en Supabase...");
       await delayFrame();
     }
-    const rpcPayload = { p_password: password, p_id_prueba: cleanRoll, p_respuestas: answers, p_activo: true };
-    const rpcNames = ["roque_admin_update_resultado", "roque_admin_upsert_resultado", "roque_admin_save_resultado"];
+
+    // v141: guardado blindado. Nunca llama roque_admin_sync ni ninguna sincronización masiva.
+    // Solo reescribe la fila de resultados correspondiente al ID_PRUEBA actual.
     const errors = [];
     try {
-      for (const fn of rpcNames) {
-        try {
-          const result = await supabaseRpc(fn, rpcPayload);
-          if (result && result.ok === false) throw new Error(result.error || `Supabase rechazó ${fn}.`);
-          clearResultOverrideForRoll(cleanRoll);
-          buildRepository();
-          if (options.renderAfter !== false) safeRenderAdminContext("guardar examen RPC");
-          return true;
-        } catch (error) {
-          errors.push(`${fn}: ${error?.message || error}`);
-        }
-      }
-
       try {
         await supabaseRestPatchResultado(cleanRoll, answers);
         clearResultOverrideForRoll(cleanRoll);
         buildRepository();
         if (options.renderAfter !== false) safeRenderAdminContext("guardar examen REST PATCH");
+        toast("Examen reescrito en Supabase sin tocar los demás RESULTADOS.");
         return true;
       } catch (error) {
         errors.push(`REST PATCH resultados: ${error?.message || error}`);
@@ -6509,14 +6499,15 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
         clearResultOverrideForRoll(cleanRoll);
         buildRepository();
         if (options.renderAfter !== false) safeRenderAdminContext("guardar examen REST UPSERT");
+        toast("Examen guardado en Supabase sin tocar los demás RESULTADOS.");
         return true;
       } catch (error) {
         errors.push(`REST UPSERT resultados: ${error?.message || error}`);
       }
 
-      console.warn("No se pudo guardar solo el examen. No se ejecuta sincronización general para proteger RESULTADOS.", errors);
-      toast("No pude guardar solo este examen en Supabase. No ejecuté Subir todo para proteger RESULTADOS. Revisa la RPC roque_admin_update_resultado / permisos REST.");
-      throw new Error("Supabase no permitió guardar este examen individual. RESULTADOS quedó protegido: no se ejecutó sincronización general.");
+      console.warn("No se pudo guardar solo este examen. No se ejecutó ninguna subida general para proteger RESULTADOS.", errors);
+      toast("No pude guardar este examen en Supabase. No se ejecutó Subir todo ni se tocó RESULTADOS.");
+      return false;
     } catch (error) {
       console.error(error);
       toast(error.message || "No se pudo subir el examen a Supabase.");
@@ -6528,37 +6519,33 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
   }
 
   async function publishAllToSupabase(options = {}) {
-    if (!SUPABASE_CONFIG.enabled) {
-      toast("Supabase no está habilitado en esta versión.");
-      return;
-    }
+    // v141: bloqueo total de la sincronización masiva desde el navegador.
+    // La RPC roque_admin_sync puede reemplazar datasets completos y, según la configuración
+    // de Supabase, terminar vaciando la tabla resultados. Por seguridad, esta ruta queda
+    // deshabilitada: solo se permite guardar un examen puntual desde Ver examen.
     if (state.activeSession?.role !== "admin") {
       toast("Solo el administrador puede subir cambios a Supabase.");
-      return;
+      return false;
     }
-    const password = options.alreadyConfirmedPassword || getSupabaseAdminPassword();
-    if (!password) return;
-    showRouteLoader("Subiendo cambios a Supabase sin tocar RESULTADOS...");
-    await delayFrame();
-    const payload = buildSupabaseSyncPayload();
-    try {
-      const result = await supabaseRpc("roque_admin_sync", { p_password: password, p_payload: payload });
-      if (!result?.ok) throw new Error(result?.error || "Supabase rechazó la sincronización.");
-      toast("Cambios subidos a Supabase. RESULTADOS no se tocó.");
-      localStorage.removeItem(STORAGE.students);
-      localStorage.removeItem(STORAGE.carga);
-      localStorage.removeItem(STORAGE.directores);
-      localStorage.removeItem(STORAGE.answers);
-      localStorage.removeItem(STORAGE.resultOverrides);
-      localStorage.removeItem(STORAGE.subjectAreas);
-      safeRenderAdminContext("subir cambios a Supabase");
-    } catch (error) {
-      console.error(error);
-      toast(error.message || "No se pudo subir a Supabase.");
-      if (/contrase/i.test(error.message || "")) sessionStorage.removeItem("po_supabase_admin_password");
-    } finally {
-      hideRouteLoader();
-    }
+    toast("Subida general deshabilitada para proteger RESULTADOS. Usa Ver examen > Guardar y subir para reescribir solo ese ID_PRUEBA.");
+    modalRoot.innerHTML = `
+      <div class="modal-backdrop" data-action="close-modal">
+        <section class="modal" style="max-width:720px;">
+          <div class="modal-head">
+            <div><h2>Subida general deshabilitada</h2><span style="color:#7d8089;font-weight:600;">Protección de RESULTADOS</span></div>
+            <button class="icon-btn" data-action="close-modal">×</button>
+          </div>
+          <div class="modal-body">
+            <div class="admin-note danger-note" style="margin-bottom:12px;">
+              Esta versión bloquea <strong>Subir todo a Supabase</strong> para evitar que se borre la tabla <strong>RESULTADOS</strong>.
+            </div>
+            <p>Para modificar un examen, abre <strong>Matriz estudiantes</strong> o <strong>Estudiantes</strong>, entra en <strong>Ver examen</strong> y usa <strong>Guardar y subir a Supabase</strong>. Ese botón solo reescribe el registro del <strong>ID_PRUEBA</strong> seleccionado.</p>
+            <p>No se ejecutó ninguna sincronización masiva.</p>
+          </div>
+        </section>
+      </div>
+    `;
+    return false;
   }
 
   function getGithubSettings() {
