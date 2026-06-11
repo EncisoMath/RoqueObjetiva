@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v138";
+  const APP_VERSION = "v139";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -193,8 +193,8 @@
   }
 
   function loadLocalState() {
-    // v138: limpia overrides antiguos de versiones que podían dejar notas en cero.
-    const cleanFlag = "po_result_overrides_cleaned_v138";
+    // v139: limpia overrides antiguos de versiones que podían dejar notas en cero.
+    const cleanFlag = "po_result_overrides_cleaned_v139";
     if (localStorage.getItem(cleanFlag) !== "1") {
       localStorage.removeItem(STORAGE.resultOverrides);
       localStorage.setItem(cleanFlag, "1");
@@ -2296,7 +2296,7 @@
 
     if (state.activeSession.role === "student") {
       const roll = cleanId(state.activeSession.roll);
-      if (state.activeSession.rankingDebugRequested && (!state.activeSession.rankingDebugDone || state.activeSession.rankingDebugVersion !== "v138")) {
+      if (state.activeSession.rankingDebugRequested && (!state.activeSession.rankingDebugDone || state.activeSession.rankingDebugVersion !== "v139")) {
         return showStudentRankingDebugGate(roll, "Reconstruyendo diagnóstico de ranking...");
       }
       return renderStudent(roll);
@@ -2317,7 +2317,7 @@
       roll: cleanRoll,
       rankingDebugRequested: debug,
       rankingDebugDone: !debug,
-      rankingDebugVersion: "v138"
+      rankingDebugVersion: "v139"
     };
     state.activeSession = session;
     writeJSON(STORAGE.session, state.activeSession);
@@ -2328,7 +2328,7 @@
       try {
         await prepareStudentRankingContext(cleanRoll);
         if (debug) {
-          state.activeSession = { ...(state.activeSession || session), rankingDebugRequested: true, rankingDebugDone: false, rankingDebugVersion: "v138" };
+          state.activeSession = { ...(state.activeSession || session), rankingDebugRequested: true, rankingDebugDone: false, rankingDebugVersion: "v139" };
           writeJSON(STORAGE.session, state.activeSession);
           renderStudentRankingDebug(cleanRoll);
         } else {
@@ -4670,7 +4670,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
         <div class="inline-actions"><button class="primary-btn" type="button" data-action="publish-supabase">Subir cambios a Supabase</button></div>
       </section>
       <div class="admin-note github-note">
-        Esta acción reemplaza en Supabase la estructura minimalista: estudiantes, docentes, carga_docente, claves, resultados, mapeo_areas y configuracion_app usando lo que tienes cargado en este panel.
+        Esta acción sincroniza estudiantes, docentes, carga_docente, claves, mapeo_areas y configuracion_app. Por seguridad, no reemplaza ni borra la tabla RESULTADOS.
       </div>
       <section class="card card-pad github-panel supabase-panel">
         <div class="github-publish-box">
@@ -4679,7 +4679,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
             <li>ESTUDIANTES</li>
             <li>DOCENTES y CARGA_DOCENTE</li>
             <li>KEYS / claves editadas</li>
-            <li>RESULTADOS con cambios hechos desde Admin</li>
+            <li>RESULTADOS no se tocan desde esta subida general; cada examen se guarda individualmente desde Ver examen</li>
             <li>Configuración pública de apariencia y mapeos de áreas</li>
           </ul>
           <button class="primary-btn" type="button" data-action="publish-supabase">Subir cambios a Supabase</button>
@@ -5354,7 +5354,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     if (action === "student-ranking-debug-next") {
       const roll = cleanId(target.dataset.roll || state.activeSession?.roll || "");
       state.zeroToleranceShown = false;
-      state.activeSession = { ...(state.activeSession || {}), role: "student", roll, rankingDebugRequested: false, rankingDebugDone: true, rankingDebugVersion: "v138" };
+      state.activeSession = { ...(state.activeSession || {}), role: "student", roll, rankingDebugRequested: false, rankingDebugDone: true, rankingDebugVersion: "v139" };
       writeJSON(STORAGE.session, state.activeSession);
       return enterSessionWithLoader(state.activeSession, () => renderStudent(roll), "Abriendo tus resultados...");
     }
@@ -5364,7 +5364,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       if (state.activeSession?.role === "student") {
         state.activeSession.rankingDebugRequested = true;
         state.activeSession.rankingDebugDone = false;
-        state.activeSession.rankingDebugVersion = "v138";
+        state.activeSession.rankingDebugVersion = "v139";
         writeJSON(STORAGE.session, state.activeSession);
       }
       state.studentRankDebugByRoll?.delete?.(roll);
@@ -6297,19 +6297,12 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
         rows: exportKeyRows(state.keys.filter((row) => Number(row.grade) === grade))
       }));
 
-    const resultGroups = exportResultFilesForRepo().map((file) => {
-      const match = String(file.path || "").match(/(\d{1,2})S(\d)/i);
-      const rows = JSON.parse(file.content || "[]");
-      const grade = match ? Number(match[1]) : inferGradeFromPath(file.path);
-      const session = match ? Number(match[2]) : inferSessionFromPath(file.path);
-      return {
-        grade,
-        session,
-        startItem: session === 2 ? 71 : 1,
-        rows
-      };
-    }).filter((group) => group.grade && group.session);
-
+    // v139: proteger la tabla resultados.
+    // El botón general "Subir cambios a Supabase" NO debe enviar resultados completos,
+    // porque la RPC roque_admin_sync reemplaza datasets completos y puede vaciar la tabla
+    // si el estado local no contiene todo el universo de exámenes.
+    // Las respuestas editadas se suben únicamente desde "Guardar y subir a Supabase"
+    // mediante RPC/upsert de un solo ID_PRUEBA.
     const rankingRows = exportRankingRows();
     return {
       version: APP_VERSION,
@@ -6322,7 +6315,6 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
         carga: exportCargaRows(),
         directoresGrupo: exportDirectoresRows(),
         keys: keyGroups,
-        resultados: resultGroups,
         ranking: rankingRows
       }
     };
@@ -6363,6 +6355,33 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     if (count < 5 && !window.confirm(`Este examen solo tiene ${count} respuesta(s) marcada(s). ¿Seguro que quieres subirlo así?`)) {
       throw new Error("Subida cancelada para evitar guardar un examen incompleto.");
     }
+  }
+
+  async function supabaseRestPatchResultado(roll, answers) {
+    const baseUrl = cleanText(SUPABASE_CONFIG.url).replace(/\/$/, "");
+    const key = cleanText(SUPABASE_CONFIG.key);
+    const cleanRoll = cleanId(roll);
+    if (!baseUrl || !key) throw new Error("Falta configurar Supabase.");
+    if (!cleanRoll) throw new Error("Falta ID_PRUEBA para actualizar resultados.");
+    const headers = {
+      "Content-Type": "application/json",
+      "apikey": key,
+      "Authorization": `Bearer ${key}`,
+      "Cache-Control": "no-store, no-cache, max-age=0",
+      "Pragma": "no-cache",
+      "Prefer": "return=minimal"
+    };
+    const payload = { respuestas: answers || {}, activo: true };
+    const response = await fetch(`${baseUrl}/rest/v1/resultados?id_prueba=eq.${encodeURIComponent(cleanRoll)}`, {
+      method: "PATCH",
+      cache: "no-store",
+      headers,
+      body: JSON.stringify(payload)
+    });
+    const text = await response.text();
+    const data = parseMaybeJson(text);
+    if (!response.ok) throw new Error(data?.message || data?.error || text || `Error ${response.status}`);
+    return { ok: true, mode: "rest-patch" };
   }
 
   async function supabaseRestUpsertResultado(roll, answers) {
@@ -6446,6 +6465,17 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       }
 
       try {
+        await supabaseRestPatchResultado(cleanRoll, answers);
+        clearResultOverrideForRoll(cleanRoll);
+        buildRepository();
+        toast("Examen guardado y subido a Supabase.");
+        renderAdminContext();
+        return;
+      } catch (error) {
+        errors.push(`REST PATCH resultados: ${error?.message || error}`);
+      }
+
+      try {
         await supabaseRestUpsertResultado(cleanRoll, answers);
         clearResultOverrideForRoll(cleanRoll);
         buildRepository();
@@ -6453,14 +6483,12 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
         renderAdminContext();
         return;
       } catch (error) {
-        errors.push(`REST resultados: ${error?.message || error}`);
+        errors.push(`REST UPSERT resultados: ${error?.message || error}`);
       }
 
-      console.warn("No se pudo guardar solo el examen; se usará sincronización general segura.", errors);
-      toast("La base no permitió guardar solo este examen. Haré la sincronización general automáticamente.");
-      hideRouteLoader();
-      await delayFrame();
-      await publishAllToSupabase({ alreadyConfirmedPassword: password, fromSingleExamFallback: true });
+      console.warn("No se pudo guardar solo el examen. No se ejecuta sincronización general para proteger RESULTADOS.", errors);
+      toast("No pude guardar solo este examen en Supabase. No ejecuté Subir todo para proteger RESULTADOS. Revisa la RPC roque_admin_update_resultado / permisos REST.");
+      throw new Error("Supabase no permitió guardar este examen individual. RESULTADOS quedó protegido: no se ejecutó sincronización general.");
     } catch (error) {
       console.error(error);
       toast(error.message || "No se pudo subir el examen a Supabase.");
@@ -6481,13 +6509,13 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     }
     const password = options.alreadyConfirmedPassword || getSupabaseAdminPassword();
     if (!password) return;
-    showRouteLoader(options.fromSingleExamFallback ? "Sincronizando cambios del examen con Supabase..." : "Subiendo cambios a Supabase...");
+    showRouteLoader("Subiendo cambios a Supabase sin tocar RESULTADOS...");
     await delayFrame();
     const payload = buildSupabaseSyncPayload();
     try {
       const result = await supabaseRpc("roque_admin_sync", { p_password: password, p_payload: payload });
       if (!result?.ok) throw new Error(result?.error || "Supabase rechazó la sincronización.");
-      toast(options.fromSingleExamFallback ? "Examen guardado mediante sincronización general." : "Cambios subidos a Supabase.");
+      toast("Cambios subidos a Supabase. RESULTADOS no se tocó.");
       localStorage.removeItem(STORAGE.students);
       localStorage.removeItem(STORAGE.carga);
       localStorage.removeItem(STORAGE.directores);

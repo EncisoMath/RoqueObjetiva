@@ -1,9 +1,5 @@
 {
-  "version": "v138",
-  "cache": "resultados-pwa-v138_restauracion_notas_editor",
-  "updatedAt": "2026-06-11",
-  "note": "Restaura lectura de notas reales, limpia overrides corruptos de examenes y mantiene editor con clave visible y recalculo en vivo.",
-  "builtAt": "2026-06-11T11:37:00Z",
-  "date": "2026-06-11",
-  "build": "137"
+  "version": "v139",
+  "cache": "resultados-pwa-v139_protege_resultados",
+  "updatedAt": "2026-06-11T00:00:00-05:00"
 }

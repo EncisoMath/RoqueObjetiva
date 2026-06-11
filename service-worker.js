@@ -1,5 +1,5 @@
-const APP_VERSION = "v138";
-const CACHE_VERSION = "resultados-pwa-v138_restauracion_notas_editor";
+const APP_VERSION = "v139";
+const CACHE_VERSION = "resultados-pwa-v139_protege_resultados";
 const CACHE_PREFIXES = ["resultados-pwa-", "resultados-pruebas-"];
 
 const APP_SHELL = [
