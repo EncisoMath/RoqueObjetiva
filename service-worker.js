@@ -1,24 +1,24 @@
-const APP_VERSION = "v141";
-const CACHE_VERSION = "resultados-pwa-v141_no_borrado_resultados";
+const APP_VERSION = "v142";
+const CACHE_VERSION = "resultados-pwa-v142-rpc-examen-puntual";
 const CACHE_PREFIXES = ["resultados-pwa-", "resultados-pruebas-"];
 
 const APP_SHELL = [
   "./",
   "index.html",
-  "css/app.css?v=141",
-  "js/app.js?v=141",
+  "css/app.css?v=142",
+  "js/app.js?v=142",
   "version.json",
   "config/data-manifest.json",
   "config/site-config.json",
-  "config/supabase-config.js?v=141",
-  "manifest.webmanifest?v=141",
+  "config/supabase-config.js?v=142",
+  "manifest.webmanifest?v=142",
   "icons/icon-192.png",
   "icons/icon-512.png",
   "icons/maskable-512.png",
   "icons/apple-touch-icon.png",
   "icons/favicon-16.png",
   "icons/favicon-32.png",
-  "assets/logo-principal.png?v=141",
+  "assets/logo-principal.png?v=142",
   "assets/ZERO.png",
   "ICONOS/artistica.png",
   "ICONOS/ciencias-naturales.png",

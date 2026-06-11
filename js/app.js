@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v141";
+  const APP_VERSION = "v142";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -6479,10 +6479,26 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       await delayFrame();
     }
 
-    // v141: guardado blindado. Nunca llama roque_admin_sync ni ninguna sincronización masiva.
-    // Solo reescribe la fila de resultados correspondiente al ID_PRUEBA actual.
+    // v142: guardado puntual. Nunca llama roque_admin_sync ni ninguna sincronización masiva.
+    // Primero usa una RPC segura de un solo examen. Si la RPC no existe o falla, prueba REST puntual.
     const errors = [];
     try {
+      const rpcPayload = { p_password: password, p_id_prueba: cleanRoll, p_respuestas: answers, p_activo: true };
+      const rpcNames = ["roque_admin_update_resultado", "roque_admin_upsert_resultado", "roque_admin_save_resultado"];
+      for (const fn of rpcNames) {
+        try {
+          const result = await supabaseRpc(fn, rpcPayload);
+          if (result && result.ok === false) throw new Error(result.error || result.message || `Supabase rechazó ${fn}.`);
+          clearResultOverrideForRoll(cleanRoll);
+          buildRepository();
+          if (options.renderAfter !== false) safeRenderAdminContext(`guardar examen ${fn}`);
+          toast("Examen guardado en Supabase por RPC, sin tocar los demás RESULTADOS.");
+          return true;
+        } catch (error) {
+          errors.push(`${fn}: ${error?.message || error}`);
+        }
+      }
+
       try {
         await supabaseRestPatchResultado(cleanRoll, answers);
         clearResultOverrideForRoll(cleanRoll);
@@ -6506,7 +6522,8 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       }
 
       console.warn("No se pudo guardar solo este examen. No se ejecutó ninguna subida general para proteger RESULTADOS.", errors);
-      toast("No pude guardar este examen en Supabase. No se ejecutó Subir todo ni se tocó RESULTADOS.");
+      const detail = errors.slice(0, 4).join(" | ");
+      toast(`No pude guardar este examen. Falta instalar la RPC puntual o Supabase bloquea UPDATE. Detalle: ${detail}`);
       return false;
     } catch (error) {
       console.error(error);
