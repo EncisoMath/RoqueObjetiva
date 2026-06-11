@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v136";
+  const APP_VERSION = "v138";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -39,7 +39,7 @@
   const DEFAULT_CONFIG = {
     title: "Roque Objetiva",
     subtitle: "Este reporte no se pasa ni se pierde. Es una herramienta para identificar fortalezas, habilidades y oportunidades de mejora.",
-    logoImage: "assets/logo-principal.png?v=134",
+    logoImage: "assets/logo-principal.png?v=137",
     appIcon: "icons/icon-512.png",
     bannerImage: "",
     footerText: "Consulta institucional de resultados",
@@ -89,6 +89,7 @@
     directorRows: [],
     teachers: new Map(),
     responsesByRoll: new Map(),
+    editedExamRolls: new Set(),
     rankingMetadataByRoll: new Map(),
     rankingFallbackResponsesByRoll: new Map(),
     rankingFallbackRegistryByExamId: new Map(),
@@ -192,6 +193,12 @@
   }
 
   function loadLocalState() {
+    // v138: limpia overrides antiguos de versiones que podían dejar notas en cero.
+    const cleanFlag = "po_result_overrides_cleaned_v138";
+    if (localStorage.getItem(cleanFlag) !== "1") {
+      localStorage.removeItem(STORAGE.resultOverrides);
+      localStorage.setItem(cleanFlag, "1");
+    }
     state.config = { ...DEFAULT_CONFIG, ...readJSON(STORAGE.config, {}) };
     state.logos = readJSON(STORAGE.logos, {});
     state.subjectAreaMap = readJSON(STORAGE.subjectAreas, {}) || {};
@@ -2289,7 +2296,7 @@
 
     if (state.activeSession.role === "student") {
       const roll = cleanId(state.activeSession.roll);
-      if (state.activeSession.rankingDebugRequested && (!state.activeSession.rankingDebugDone || state.activeSession.rankingDebugVersion !== "v136")) {
+      if (state.activeSession.rankingDebugRequested && (!state.activeSession.rankingDebugDone || state.activeSession.rankingDebugVersion !== "v138")) {
         return showStudentRankingDebugGate(roll, "Reconstruyendo diagnóstico de ranking...");
       }
       return renderStudent(roll);
@@ -2310,7 +2317,7 @@
       roll: cleanRoll,
       rankingDebugRequested: debug,
       rankingDebugDone: !debug,
-      rankingDebugVersion: "v136"
+      rankingDebugVersion: "v138"
     };
     state.activeSession = session;
     writeJSON(STORAGE.session, state.activeSession);
@@ -2321,7 +2328,7 @@
       try {
         await prepareStudentRankingContext(cleanRoll);
         if (debug) {
-          state.activeSession = { ...(state.activeSession || session), rankingDebugRequested: true, rankingDebugDone: false, rankingDebugVersion: "v136" };
+          state.activeSession = { ...(state.activeSession || session), rankingDebugRequested: true, rankingDebugDone: false, rankingDebugVersion: "v138" };
           writeJSON(STORAGE.session, state.activeSession);
           renderStudentRankingDebug(cleanRoll);
         } else {
@@ -5347,7 +5354,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     if (action === "student-ranking-debug-next") {
       const roll = cleanId(target.dataset.roll || state.activeSession?.roll || "");
       state.zeroToleranceShown = false;
-      state.activeSession = { ...(state.activeSession || {}), role: "student", roll, rankingDebugRequested: false, rankingDebugDone: true, rankingDebugVersion: "v136" };
+      state.activeSession = { ...(state.activeSession || {}), role: "student", roll, rankingDebugRequested: false, rankingDebugDone: true, rankingDebugVersion: "v138" };
       writeJSON(STORAGE.session, state.activeSession);
       return enterSessionWithLoader(state.activeSession, () => renderStudent(roll), "Abriendo tus resultados...");
     }
@@ -5357,7 +5364,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       if (state.activeSession?.role === "student") {
         state.activeSession.rankingDebugRequested = true;
         state.activeSession.rankingDebugDone = false;
-        state.activeSession.rankingDebugVersion = "v136";
+        state.activeSession.rankingDebugVersion = "v138";
         writeJSON(STORAGE.session, state.activeSession);
       }
       state.studentRankDebugByRoll?.delete?.(roll);
@@ -5551,13 +5558,13 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     if (action === "save-student-exam" || action === "save-student-exam-upload") {
       if (state.activeSession?.role !== "admin") { toast("Solo el administrador puede guardar exámenes."); return; }
       const roll = cleanId(target.dataset.roll || document.querySelector(".exam-edit-modal")?.dataset.roll || "");
+      if (roll) state.editedExamRolls.add(roll);
       persistResultOverrides();
+      buildRepository();
+      closeModal();
       if (action === "save-student-exam-upload") {
-        closeModal();
         await publishSingleExamToSupabase(roll);
       } else {
-        buildRepository();
-        closeModal();
         toast("Examen actualizado localmente. Usa Subir a Supabase para dejarlo fijo.");
         renderAdminContext();
       }
@@ -6338,6 +6345,26 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     try { return text ? JSON.parse(text) : null; } catch (error) { return text; }
   }
 
+  function normalizeAnswersForSupabase(record) {
+    const answers = {};
+    Object.entries(record?.answers || {}).forEach(([item, value]) => {
+      const number = Number(item);
+      if (!Number.isFinite(number) || number <= 0) return;
+      const marked = cleanMarked(value || "");
+      if (marked) answers[String(number)] = marked;
+    });
+    return answers;
+  }
+
+  function validateSingleExamPayload(roll, answers) {
+    const count = Object.keys(answers || {}).length;
+    if (!cleanId(roll)) throw new Error("No pude identificar el ID_PRUEBA del examen.");
+    if (!count) throw new Error("No hay respuestas marcadas para subir en este examen.");
+    if (count < 5 && !window.confirm(`Este examen solo tiene ${count} respuesta(s) marcada(s). ¿Seguro que quieres subirlo así?`)) {
+      throw new Error("Subida cancelada para evitar guardar un examen incompleto.");
+    }
+  }
+
   async function supabaseRestUpsertResultado(roll, answers) {
     const baseUrl = cleanText(SUPABASE_CONFIG.url).replace(/\/$/, "");
     const key = cleanText(SUPABASE_CONFIG.key);
@@ -6348,30 +6375,19 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       "Authorization": `Bearer ${key}`,
       "Cache-Control": "no-store, no-cache, max-age=0",
       "Pragma": "no-cache",
-      "Prefer": "return=representation"
+      "Prefer": "resolution=merge-duplicates,return=minimal"
     };
-    const body = JSON.stringify({ respuestas: answers || {}, activo: true });
-    const patch = await fetch(`${baseUrl}/rest/v1/resultados?id_prueba=eq.${encodeURIComponent(roll)}`, {
-      method: "PATCH",
-      cache: "no-store",
-      headers,
-      body
-    });
-    const patchText = await patch.text();
-    const patchData = parseMaybeJson(patchText);
-    if (!patch.ok) throw new Error(patchData?.message || patchData?.error || patchText || `Error ${patch.status}`);
-    if (patchData === null || patchData === "" || (Array.isArray(patchData) && patchData.length)) return { ok: true, mode: "patch" };
-
-    const insert = await fetch(`${baseUrl}/rest/v1/resultados`, {
+    const payload = [{ id_prueba: cleanId(roll), respuestas: answers || {}, activo: true }];
+    const response = await fetch(`${baseUrl}/rest/v1/resultados?on_conflict=id_prueba`, {
       method: "POST",
       cache: "no-store",
-      headers: { ...headers, "Prefer": "return=representation" },
-      body: JSON.stringify({ id_prueba: roll, respuestas: answers || {}, activo: true })
+      headers,
+      body: JSON.stringify(payload)
     });
-    const insertText = await insert.text();
-    const insertData = parseMaybeJson(insertText);
-    if (!insert.ok) throw new Error(insertData?.message || insertData?.error || insertText || `Error ${insert.status}`);
-    return { ok: true, mode: "insert" };
+    const text = await response.text();
+    const data = parseMaybeJson(text);
+    if (!response.ok) throw new Error(data?.message || data?.error || text || `Error ${response.status}`);
+    return { ok: true, mode: "rest-upsert" };
   }
 
   function clearResultOverrideForRoll(roll) {
@@ -6394,10 +6410,6 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       toast("Solo el administrador puede subir cambios a Supabase.");
       return;
     }
-    if (!cleanRoll) {
-      toast("No pude identificar el ID_PRUEBA para subir este examen.");
-      return;
-    }
     const record = state.responsesByRoll.get(cleanRoll);
     if (!record) {
       toast("No encontré respuestas cargadas para este ID_PRUEBA.");
@@ -6405,9 +6417,15 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     }
     const password = getSupabaseAdminPassword();
     if (!password) return;
+    const answers = normalizeAnswersForSupabase(record);
+    try {
+      validateSingleExamPayload(cleanRoll, answers);
+    } catch (error) {
+      toast(error.message || "No se pudo validar el examen.");
+      return;
+    }
 
-    const answers = { ...(record.answers || {}) };
-    showRouteLoader("Subiendo este examen a Supabase...");
+    showRouteLoader("Guardando este examen en Supabase...");
     await delayFrame();
     const rpcPayload = { p_password: password, p_id_prueba: cleanRoll, p_respuestas: answers, p_activo: true };
     const rpcNames = ["roque_admin_update_resultado", "roque_admin_upsert_resultado", "roque_admin_save_resultado"];
@@ -6438,14 +6456,21 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
         errors.push(`REST resultados: ${error?.message || error}`);
       }
 
-      console.warn("No se pudo hacer subida rápida de examen", errors);
-      toast("No se pudo subir solo este examen. Usa Subir a Supabase general si la base no permite edición rápida.");
+      console.warn("No se pudo guardar solo el examen; se usará sincronización general segura.", errors);
+      toast("La base no permitió guardar solo este examen. Haré la sincronización general automáticamente.");
+      hideRouteLoader();
+      await delayFrame();
+      await publishAllToSupabase({ alreadyConfirmedPassword: password, fromSingleExamFallback: true });
+    } catch (error) {
+      console.error(error);
+      toast(error.message || "No se pudo subir el examen a Supabase.");
+      if (/contrase/i.test(error.message || "")) sessionStorage.removeItem("po_supabase_admin_password");
     } finally {
       hideRouteLoader();
     }
   }
 
-  async function publishAllToSupabase() {
+  async function publishAllToSupabase(options = {}) {
     if (!SUPABASE_CONFIG.enabled) {
       toast("Supabase no está habilitado en esta versión.");
       return;
@@ -6454,14 +6479,15 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       toast("Solo el administrador puede subir cambios a Supabase.");
       return;
     }
-    const password = getSupabaseAdminPassword();
+    const password = options.alreadyConfirmedPassword || getSupabaseAdminPassword();
     if (!password) return;
+    showRouteLoader(options.fromSingleExamFallback ? "Sincronizando cambios del examen con Supabase..." : "Subiendo cambios a Supabase...");
+    await delayFrame();
     const payload = buildSupabaseSyncPayload();
-    showRouteLoader("Subiendo cambios a Supabase...");
     try {
       const result = await supabaseRpc("roque_admin_sync", { p_password: password, p_payload: payload });
       if (!result?.ok) throw new Error(result?.error || "Supabase rechazó la sincronización.");
-      toast("Cambios subidos a Supabase.");
+      toast(options.fromSingleExamFallback ? "Examen guardado mediante sincronización general." : "Cambios subidos a Supabase.");
       localStorage.removeItem(STORAGE.students);
       localStorage.removeItem(STORAGE.carga);
       localStorage.removeItem(STORAGE.directores);
@@ -7448,14 +7474,21 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     if (!record) return;
     record.answers[item] = cleanMarked(option || "");
     state.responsesByRoll.set(cleanRoll, record);
+    state.editedExamRolls.add(cleanRoll);
   }
 
   function persistResultOverrides() {
-    const data = {};
-    state.responsesByRoll.forEach((record, roll) => {
-      data[roll] = { grade: record.grade, name: record.name, answers: record.answers || {} };
+    const previous = readJSON(STORAGE.resultOverrides, {}) || {};
+    const data = { ...previous };
+    const edited = state.editedExamRolls instanceof Set ? Array.from(state.editedExamRolls) : [];
+    edited.forEach((roll) => {
+      const cleanRoll = cleanId(roll);
+      const record = state.responsesByRoll.get(cleanRoll);
+      if (!record) return;
+      data[cleanRoll] = { grade: record.grade, name: record.name, answers: record.answers || {} };
     });
-    writeJSON(STORAGE.resultOverrides, data);
+    if (Object.keys(data).length) writeJSON(STORAGE.resultOverrides, data);
+    else localStorage.removeItem(STORAGE.resultOverrides);
   }
 
   function applyResultOverrides() {
