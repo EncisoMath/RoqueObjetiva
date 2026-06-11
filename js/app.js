@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v142";
+  const APP_VERSION = "v143";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -4234,15 +4234,16 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
 
 
   const ADMIN_ROSTER_SUBJECTS = [
-    { key: "matematicas", label: "MATEMÁTICAS", subject: "Matemáticas" },
-    { key: "lenguaje", label: "LENGUAJE", subject: "Lenguaje" },
-    { key: "naturales", label: "NATURALES", subject: "Ciencias Naturales" },
-    { key: "sociales", label: "SOCIALES", subject: "Ciencias Sociales y Ciudadanía" },
-    { key: "ingles", label: "INGLÉS", subject: "Inglés" },
-    { key: "artistica", label: "ARTÍSTICA", subject: "Artística" },
-    { key: "etica", label: "ÉTICA", subject: "Ética y Valores" },
-    { key: "informatica", label: "INFORMÁTICA", subject: "Informática" },
-    { key: "edufisica", label: "EDUFÍSICA", subject: "Educación Física" }
+    { key: "matematicas", label: "MAT", title: "MATEMÁTICAS", subject: "Matemáticas" },
+    { key: "lenguaje", label: "LEN", title: "LENGUAJE", subject: "Lenguaje" },
+    { key: "naturales", label: "NAT", title: "NATURALES", subject: "Ciencias Naturales" },
+    { key: "sociales", label: "SOC", title: "SOCIALES", subject: "Ciencias Sociales y Ciudadanía" },
+    { key: "ingles", label: "ING", title: "INGLÉS", subject: "Inglés" },
+    { key: "artistica", label: "ART", title: "ARTÍSTICA", subject: "Artística" },
+    { key: "etica", label: "ÉTI", title: "ÉTICA", subject: "Ética y Valores" },
+    { key: "informatica", label: "INF", title: "INFORMÁTICA", subject: "Informática" },
+    { key: "edufisica", label: "E.FIS", title: "EDUFÍSICA", subject: "Educación Física" },
+    { key: "religion", label: "REL", title: "RELIGIÓN", subject: "Religión" }
   ];
 
   function adminRosterBaseRows() {
@@ -4318,7 +4319,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
             <thead>
               <tr>
                 <th>SEDE</th><th>GRADO</th><th>CURSO</th><th>ID_PRUEBA</th><th>ALUMNO</th>
-                ${ADMIN_ROSTER_SUBJECTS.map((subject) => `<th>${esc(subject.label)}</th>`).join("")}
+                ${ADMIN_ROSTER_SUBJECTS.map((subject) => `<th class="score-head" title="${escAttr(subject.title || subject.label)}">${esc(subject.label)}</th>`).join("")}
                 <th>ACCIÓN</th>
               </tr>
             </thead>
@@ -4337,7 +4338,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
                     <td class="row-actions"><button class="secondary-btn mini-btn" data-action="edit-student-exam" data-roll="${escAttr(roll)}" ${hasExam ? "" : "disabled title=\"No hay respuestas cargadas para este ID prueba\""}>Ver examen</button></td>
                   </tr>
                 `;
-              }).join("") || `<tr><td colspan="15" class="empty-state">No hay estudiantes con los filtros actuales.</td></tr>`}
+              }).join("") || `<tr><td colspan="16" class="empty-state">No hay estudiantes con los filtros actuales.</td></tr>`}
             </tbody>
           </table>
         </div>

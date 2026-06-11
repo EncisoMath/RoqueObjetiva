@@ -13701,51 +13701,104 @@ select,
 }
 
 
-/* v134: matriz administrativa de estudiantes y notas */
+/* v143: matriz administrativa compacta con Religion */
 .admin-roster-filters {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
   justify-content: flex-end;
 }
 .admin-roster-summary {
-  margin: 0 0 16px;
+  margin: 0 0 12px;
+}
+.admin-roster-table-card {
+  padding: 10px !important;
 }
 .admin-roster-table-wrap {
-  overflow: auto;
-  max-height: calc(100vh - 260px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: calc(100vh - 245px);
 }
 .admin-roster-table {
-  min-width: 1320px;
-  font-size: .86rem;
+  width: 100%;
+  min-width: 0;
+  table-layout: fixed;
+  font-size: .68rem;
+  border-collapse: separate;
+  border-spacing: 0;
 }
 .admin-roster-table th,
 .admin-roster-table td {
-  padding: 10px 12px;
+  padding: 5px 4px;
   vertical-align: middle;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .admin-roster-table th {
   position: sticky;
   top: 0;
   z-index: 2;
-  background: rgba(255,255,255,.96);
+  background: rgba(255,255,255,.97);
   backdrop-filter: blur(10px);
-  font-size: .72rem;
-  letter-spacing: .02em;
+  font-size: .6rem;
+  letter-spacing: 0;
   white-space: nowrap;
 }
-.admin-roster-table .student-name-cell {
-  min-width: 220px;
+.admin-roster-table th:nth-child(1),
+.admin-roster-table td:nth-child(1) { width: 8%; }
+.admin-roster-table th:nth-child(2),
+.admin-roster-table td:nth-child(2) { width: 4%; text-align:center; }
+.admin-roster-table th:nth-child(3),
+.admin-roster-table td:nth-child(3) { width: 5%; text-align:center; }
+.admin-roster-table th:nth-child(4),
+.admin-roster-table td:nth-child(4) { width: 7%; }
+.admin-roster-table th:nth-child(5),
+.admin-roster-table td:nth-child(5) { width: 17%; }
+.admin-roster-table th:nth-child(n+6):nth-child(-n+15),
+.admin-roster-table td:nth-child(n+6):nth-child(-n+15) { width: 4.4%; text-align:center; }
+.admin-roster-table th:nth-child(16),
+.admin-roster-table td:nth-child(16) { width: 8%; text-align:center; }
+.admin-roster-table .student-name-cell strong,
+.admin-roster-table td:nth-child(1),
+.admin-roster-table td:nth-child(4) strong {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .admin-roster-table .score-cell {
   text-align: center;
   white-space: nowrap;
 }
 .admin-roster-score {
-  font-size: .9rem;
+  min-width: 0 !important;
+  padding: 2px 4px !important;
+  border-radius: 8px !important;
+  font-size: .7rem !important;
+  line-height: 1.1 !important;
 }
 .admin-roster-table .row-actions {
-  white-space: nowrap;
+  white-space: normal;
+}
+.admin-roster-table .row-actions .mini-btn {
+  padding: 4px 5px;
+  font-size: .62rem;
+  line-height: 1.05;
+  border-radius: 8px;
+  max-width: 100%;
+}
+@media (max-width: 1100px) {
+  .admin-roster-table {
+    font-size: .62rem;
+  }
+  .admin-roster-table th,
+  .admin-roster-table td {
+    padding: 4px 3px;
+  }
+  .admin-roster-score {
+    font-size: .64rem !important;
+    padding: 2px 3px !important;
+  }
 }
 @media (max-width: 860px) {
   .admin-roster-filters {
@@ -13755,7 +13808,11 @@ select,
     width: 100%;
   }
   .admin-roster-table-wrap {
+    overflow-x: auto;
     max-height: none;
+  }
+  .admin-roster-table {
+    min-width: 980px;
   }
 }
 

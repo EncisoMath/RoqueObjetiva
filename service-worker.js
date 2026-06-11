@@ -1,5 +1,5 @@
-const APP_VERSION = "v142";
-const CACHE_VERSION = "resultados-pwa-v142-rpc-examen-puntual";
+const APP_VERSION = "v143";
+const CACHE_VERSION = "resultados-pwa-v143-matriz-compacta-religion";
 const CACHE_PREFIXES = ["resultados-pwa-", "resultados-pruebas-"];
 
 const APP_SHELL = [
