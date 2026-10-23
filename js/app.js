@@ -2790,7 +2790,7 @@
     const recentLoginsHtml = renderRecentLoginsHtml();
     const safeError = esc(error);
     const errorHtml = String(error || "").startsWith("Ingresar códigos uno tras otro")
-      ? safeError.replace(/\\*\\*([^*]+)\\*\\*/g, "<strong>$1</strong>").replace(/\\n/g, "<br>")
+      ? safeError.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>").replace(/\n/g, "<br>")
       : safeError;
     app.innerHTML = `
       <section class="login-shell login-shell-dark" style="--login-primary:${primary};--login-dark:${primaryDark};--login-deep:${primaryDeep};">
