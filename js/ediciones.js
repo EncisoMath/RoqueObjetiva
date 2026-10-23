@@ -192,13 +192,26 @@
     view += itemSection(frozen) + '</section>';
     return view;
   }
+  function generatorPanel() {
+    if (!editAllowed() || items().length || !sessions().length) return "";
+    const available = areas().filter((a) => a.activo && num(a.cantidad_preguntas) > 0);
+    if (!available.length) return "";
+    return '<section class="card card-pad ed-editor"><h3>Generar preguntas automáticamente</h3>' +
+      '<p class="ed-note">Solo para grados sin ítems. Se genera la numeración por sesión y área en una única operación, sin claves correctas. Requiere instalar SQL 11 en Supabase.</p>' +
+      '<form data-ed-form="generate" class="ed-form">' +
+      available.map((a) => select(a.area + " · " + a.cantidad_preguntas + " preguntas", "sesion:" + a.area,
+        sessions()[0].numero, sessions().map((s) => [s.numero, s.numero + " · " + (s.nombre || "")]))).join("") +
+      '<div class="ed-actions"><button type="submit" class="ed-btn ed-primary">Generar ' +
+      available.reduce((sum, a) => sum + num(a.cantidad_preguntas), 0) +
+      ' preguntas del grado</button></div></form></section>';
+  }
   function itemSection(frozen) {
     const list = items().slice().sort((a, b) => num(a.numero_item) - num(b.numero_item));
     const pageSize = 15;
     const pages = Math.max(1, Math.ceil(list.length / pageSize));
     S.page = Math.max(0, Math.min(S.page, pages - 1));
     const page = list.slice(S.page * pageSize, (S.page + 1) * pageSize);
-    return '<div class="ed-section-head ed-subhead"><div><h3>Preguntas e ítems</h3><p>' +
+    return generatorPanel() + '<div class="ed-section-head ed-subhead"><div><h3>Preguntas e ítems</h3><p>' +
       HTML(list.length) + ' ítems en este grado · página ' + (S.page + 1) + " de " + pages +
       '</p></div>' + (frozen ? "" : button("Añadir ítem", "new-item")) + '</div>' +
       '<div class="ed-table-wrap"><table class="ed-table"><thead><tr><th>Ítem</th><th>Sesión</th><th>N.º sesión</th><th>Área</th><th>Clave</th><th></th></tr></thead><tbody>' +
@@ -328,6 +341,19 @@
       return;
     }
     if (!editAllowed() && kind !== "edition") { S.error = "Solo puedes editar borradores."; redraw(); return; }
+    if (kind === "generate") {
+      const map = {};
+      Object.entries(values).forEach(([name, value]) => {
+        if (name.startsWith("sesion:")) map[name.slice(7)] = num(value);
+      });
+      return task(async () => {
+        const result = await rpc("roque_v2_admin_generar_items",
+          { p_edicion: S.edition, p_grado: S.grade, p_sesiones: map });
+        if (result && result.ok === false) throw new Error(result.error || "No se generaron preguntas.");
+        await loadConfiguration(S.edition);
+        await loadEditions(S.edition);
+      }, "Preguntas generadas. Ahora configura las claves correctas.");
+    }
     if (kind === "edition") {
       const data = { codigo: String(values.codigo || "").trim(), titulo: String(values.titulo || "").trim(),
         plantilla: values.plantilla || null };
