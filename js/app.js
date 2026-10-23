@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v149";
+  const APP_VERSION = "v150";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -1141,21 +1141,11 @@
       throw error;
     }
   }
-  const CONSULTATION_BLOCK_MESSAGE = "Ingresar códigos uno tras otro, como si la plataforma tuviera que satisfacer cada impulso de consulta, constituye un uso abusivo del servicio.\n\nPor eso, se ha restringido temporalmente el acceso desde este dispositivo. **Aprende a distinguir entre una consulta necesaria y una insistencia innecesaria.**\n\nLa próxima vez, dedica esa misma insistencia a estudiar y preocuparte por tus propios resultados. **Estar pendiente de las calificaciones ajenas no va a mejorar las tuyas.**\n\nPodrás realizar nuevas consultas cuando finalice el bloqueo.";
+  const CONSULTATION_BLOCK_MESSAGE = "Ingresar códigos uno tras otro, como si la plataforma tuviera que satisfacer cada impulso de consulta, constituye un uso abusivo del servicio.\n\nPor eso, se ha restringido temporalmente el acceso desde este dispositivo. **Aprende a distinguir entre una consulta necesaria y una insistencia innecesaria.**\n\nLa próxima vez, dedica esa misma insistencia a estudiar y preocuparte por tus propios resultados. **Estar pendiente de las calificaciones ajenas no va a mejorar las tuyas.**";
   function readableLimitMessage(payload) {
-    let message = payload?.motivo === "bloqueo_por_consultas_rapidas"
-      ? CONSULTATION_BLOCK_MESSAGE : (payload?.error || "No fue posible iniciar sesión.");
-    if (payload?.bloqueado_hasta) {
-      const until = new Date(payload.bloqueado_hasta);
-      if (Number.isFinite(until.getTime())) {
-        const date = new Intl.DateTimeFormat("es-CO", {
-          timeZone: "America/Bogota", day: "numeric", month: "short",
-          hour: "numeric", minute: "2-digit"
-        }).format(until);
-        message += "\n\nFin de la restricción: " + date + " (hora de Colombia).";
-      }
-    }
-    return message;
+    return payload?.motivo === "bloqueo_por_consultas_rapidas"
+      ? CONSULTATION_BLOCK_MESSAGE
+      : (payload?.error || "No fue posible iniciar sesión.");
   }
   async function loginWithSupabase(user, pass = "", options = {}) {
     const parsedLogin = parseRankingLoginInput(user);
