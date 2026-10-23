@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v145";
+  const APP_VERSION = "v146";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -343,7 +343,10 @@
     try { data = text ? JSON.parse(text) : null; } catch (error) { data = text; }
     if (!response.ok) {
       const message = data?.message || data?.error || text || `Error ${response.status}`;
-      throw new Error(message);
+      const rpcError = new Error(message);
+      rpcError.status = response.status;
+      rpcError.code = data?.code || "";
+      throw rpcError;
     }
     return data;
   }
@@ -408,9 +411,9 @@
     if (!key) return false;
     let data = null;
     try {
-      data = await supabaseRpc("roque_get_student_ranking_context", { p_login: key });
+      data = await supabaseRpc("roque_v2_ranking_controlado", { p_login: key, p_terminal: terminalIdForConsultation() });
     } catch (error) {
-      warnings.push(`RPC roque_get_student_ranking_context no disponible o falló: ${error?.message || error}`);
+      warnings.push(`RPC de ranking protegido no disponible o falló: ${error?.message || error}`);
       return false;
     }
 
@@ -483,7 +486,7 @@
         gradeRows: gradeRows.length,
         courseRows: courseRows.length
       },
-      warnings: [`Ranking calculado por Supabase RPC roque_get_student_ranking_context.`, ...warnings],
+      warnings: [`Ranking calculado por Supabase RPC protegido.`, ...warnings],
       errors,
       gradeRows,
       courseRows
@@ -1061,6 +1064,57 @@
     }
   }
 
+  // Identificador aleatorio de esta instalación del navegador. No es una MAC,
+  // no rastrea redes ni IP y no permite identificar un aparato físico infaliblemente.
+  const CONSULTATION_TERMINAL_KEY = "roque_terminal_instalacion_v146";
+  function terminalIdForConsultation() {
+    try {
+      const oldId = localStorage.getItem(CONSULTATION_TERMINAL_KEY);
+      if (oldId && /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(oldId)) {
+        return oldId;
+      }
+      const id = crypto.randomUUID();
+      localStorage.setItem(CONSULTATION_TERMINAL_KEY, id);
+      return localStorage.getItem(CONSULTATION_TERMINAL_KEY) === id ? id : null;
+    } catch (error) {
+      console.warn("Identificador local de consultas no disponible.", error);
+      return null;
+    }
+  }
+  async function studentLoginRpc(user, pass = "") {
+    const params = {
+      p_user: user, p_password: pass || "",
+      p_terminal: terminalIdForConsultation(),
+      p_device: deviceInfoText(), p_mode: appModeText()
+    };
+    try {
+      return await supabaseRpc("roque_v2_login_controlado", params);
+    } catch (error) {
+      // Compatibilidad temporal durante despliegue: solo si el RPC nuevo TODAVÍA
+      // no existe. No intentar saltar bloqueos ni errores de autorización.
+      if (error?.status === 404 && error?.code === "PGRST202") {
+        return supabaseRpc("roque_login", {
+          p_user: user, p_password: pass || "",
+          p_device: deviceInfoText(), p_mode: appModeText()
+        });
+      }
+      throw error;
+    }
+  }
+  function readableLimitMessage(payload) {
+    let message = payload?.error || "No fue posible iniciar sesión.";
+    if (payload?.bloqueado_hasta) {
+      const until = new Date(payload.bloqueado_hasta);
+      if (Number.isFinite(until.getTime())) {
+        const date = new Intl.DateTimeFormat("es-CO", {
+          timeZone: "America/Bogota", day: "numeric", month: "short",
+          hour: "numeric", minute: "2-digit"
+        }).format(until);
+        message += " Podrás consultar perfiles nuevos después del " + date + " (hora de Colombia).";
+      }
+    }
+    return message;
+  }
   async function loginWithSupabase(user, pass = "", options = {}) {
     const parsedLogin = parseRankingLoginInput(user);
     const cleanUser = parsedLogin.login;
@@ -1077,9 +1131,9 @@
         </div>
       `;
       fadeAppIn();
-      const payload = await supabaseRpc("roque_login", { p_user: cleanUser, p_password: pass || "", p_device: deviceInfoText(), p_mode: appModeText() });
+      const payload = await studentLoginRpc(cleanUser, pass);
       if (!payload?.ok) {
-        return renderLogin(payload?.error || "No fue posible iniciar sesion.");
+        return renderLogin(readableLimitMessage(payload));
       }
       hydrateSupabasePayload(payload);
       // v124: no se hacen consultas exploratorias de ranking aquí.
