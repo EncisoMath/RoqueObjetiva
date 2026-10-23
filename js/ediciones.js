@@ -372,5 +372,6 @@
       if (kind === "grade") S.grade = num(data.grado);
     }, "Cambios guardados en " + S.edition + ".");
   });
-  window.RoqueEdiciones = { render, logout };
+  async function adoptAuthSession(session) { applyToken(session); await loadEditions(); }
+  window.RoqueEdiciones = { render, logout, adoptAuthSession };
 })();
