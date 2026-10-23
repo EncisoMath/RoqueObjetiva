@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v148";
+  const APP_VERSION = "v149";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -1141,8 +1141,10 @@
       throw error;
     }
   }
+  const CONSULTATION_BLOCK_MESSAGE = "Ingresar códigos uno tras otro, como si la plataforma tuviera que satisfacer cada impulso de consulta, constituye un uso abusivo del servicio.\n\nPor eso, se ha restringido temporalmente el acceso desde este dispositivo. **Aprende a distinguir entre una consulta necesaria y una insistencia innecesaria.**\n\nLa próxima vez, dedica esa misma insistencia a estudiar y preocuparte por tus propios resultados. **Estar pendiente de las calificaciones ajenas no va a mejorar las tuyas.**\n\nPodrás realizar nuevas consultas cuando finalice el bloqueo.";
   function readableLimitMessage(payload) {
-    let message = payload?.error || "No fue posible iniciar sesión.";
+    let message = payload?.motivo === "bloqueo_por_consultas_rapidas"
+      ? CONSULTATION_BLOCK_MESSAGE : (payload?.error || "No fue posible iniciar sesión.");
     if (payload?.bloqueado_hasta) {
       const until = new Date(payload.bloqueado_hasta);
       if (Number.isFinite(until.getTime())) {
@@ -1150,7 +1152,7 @@
           timeZone: "America/Bogota", day: "numeric", month: "short",
           hour: "numeric", minute: "2-digit"
         }).format(until);
-        message += " Podrás consultar perfiles nuevos después del " + date + " (hora de Colombia).";
+        message += "\n\nFin de la restricción: " + date + " (hora de Colombia).";
       }
     }
     return message;
@@ -1172,7 +1174,7 @@
       `;
       fadeAppIn();
       let payload;
-      if (cleanUser === "admin") return renderLogin("El usuario genérico «admin» está deshabilitado. Usa tu correo de Supabase Auth.");
+      if (cleanUser === "admin") return renderLogin("No se encontró ese usuario.");
       if (cleanUser.includes("@")) {
         const auth = await signInAdmin(cleanUser, pass);
         payload = await studentLoginRpc("admin", "");
@@ -2786,6 +2788,10 @@
     applyAppMeta(primaryDark);
     const logo = state.config.logoImage || "assets/logo-principal.png";
     const recentLoginsHtml = renderRecentLoginsHtml();
+    const safeError = esc(error);
+    const errorHtml = String(error || "").startsWith("Ingresar códigos uno tras otro")
+      ? safeError.replace(/\\*\\*([^*]+)\\*\\*/g, "<strong>$1</strong>").replace(/\\n/g, "<br>")
+      : safeError;
     app.innerHTML = `
       <section class="login-shell login-shell-dark" style="--login-primary:${primary};--login-dark:${primaryDark};--login-deep:${primaryDeep};">
         <div class="login-bg-shapes" aria-hidden="true">
@@ -2797,7 +2803,7 @@
             <span class="login-eyebrow">Consulta de resultados</span>
             <h1>Bienvenido</h1>
             <p>Ingresa con el ID de tu prueba o tu número de documento de identidad.</p>
-            ${error ? `<div class="admin-note login-error">${esc(error)}</div>` : ""}
+            ${error ? `<div class="admin-note login-error">${errorHtml}</div>` : ""}
             <form class="login-form" id="loginForm">
               <div class="field">
                 <label for="loginUser">Usuario o ID</label>
