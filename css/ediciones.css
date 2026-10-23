@@ -1,0 +1,45 @@
+/* RoqueObjetiva v145 — panel multiedicion, aislado del CSS heredado */
+#roque-ediciones-root {max-width:1340px;margin:0 auto;color:var(--text,#252735)}
+#roque-ediciones-root * {box-sizing:border-box}
+#roque-ediciones-root .ed-heading {margin:0 0 20px}
+#roque-ediciones-root h2 {font-size:clamp(1.35rem,2.6vw,2rem);font-weight:900;letter-spacing:-.035em;margin:0 0 6px}
+#roque-ediciones-root h3 {font-size:1.06rem;margin:0 0 8px;font-weight:850}
+#roque-ediciones-root p {margin:0 0 10px;line-height:1.55}
+#roque-ediciones-root .ed-heading p,#roque-ediciones-root .ed-note,#roque-ediciones-root .ed-section-head p {color:#697382;font-size:.86rem}
+#roque-ediciones-root .ed-card {margin:12px 0 20px;padding:22px}
+#roque-ediciones-root .ed-controls {display:flex;align-items:end;flex-wrap:wrap;gap:10px;margin:14px 0}
+#roque-ediciones-root .ed-field {display:flex;flex-direction:column;gap:6px;min-width:145px;flex:1;font-size:.83rem;font-weight:750}
+#roque-ediciones-root .ed-field input,#roque-ediciones-root .ed-field select {border:1px solid #ccd4e0;border-radius:9px;background:white;color:#252735;padding:10px 12px;font:inherit;font-size:.91rem;min-height:42px;width:100%}
+#roque-ediciones-root .ed-field input:focus-visible,#roque-ediciones-root .ed-field select:focus-visible {outline:2px solid #1975ae;outline-offset:1px}
+#roque-ediciones-root .ed-form {display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}
+#roque-ediciones-root .ed-actions {grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+#roque-ediciones-root .ed-btn {border:1px solid #cdd8e3;border-radius:9px;background:#f6f9fb;color:#23536e;padding:10px 14px;font:inherit;font-size:.84rem;font-weight:780;cursor:pointer;white-space:normal;min-height:38px}
+#roque-ediciones-root .ed-btn:hover {background:#e8f1f8}
+#roque-ediciones-root .ed-btn.ed-primary {background:#1975ae;color:white;border-color:#1975ae}
+#roque-ediciones-root .ed-btn.ed-primary:hover {background:#115d8c}
+#roque-ediciones-root .ed-btn:disabled {opacity:.4;cursor:not-allowed}
+#roque-ediciones-root .ed-metrics,#roque-ediciones-root .ed-summary {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:16px 0}
+#roque-ediciones-root .ed-metric {background:#f2f6fa;border:1px solid #dfebf3;border-radius:10px;padding:14px;min-width:0}
+#roque-ediciones-root .ed-metric span {display:block;color:#68758a;font-size:.77rem;margin-bottom:5px}
+#roque-ediciones-root .ed-metric strong {display:block;font-size:1.08rem;word-break:break-word}
+#roque-ediciones-root .ed-section {border:1px solid #dce5ef;background:#fff;border-radius:13px;padding:18px;margin:18px 0}
+#roque-ediciones-root .ed-section-head {display:flex;gap:16px;justify-content:space-between;align-items:start;flex-wrap:wrap}
+#roque-ediciones-root .ed-subhead {margin:25px 0 10px}
+#roque-ediciones-root .ed-table-wrap {overflow-x:auto;max-width:100%}
+#roque-ediciones-root .ed-table {width:100%;border-collapse:collapse;font-size:.84rem}
+#roque-ediciones-root .ed-table th {background:#eff4f8;color:#425c73;text-align:left;padding:10px}
+#roque-ediciones-root .ed-table td {padding:10px;border-bottom:1px solid #e5edf3;vertical-align:middle}
+#roque-ediciones-root .ed-table .ed-btn {font-size:.77rem;padding:6px 10px}
+#roque-ediciones-root .ed-tag {background:#edf2f7;border-radius:12px;padding:6px 10px;color:#596b7f;font-size:.78rem;font-weight:800}
+#roque-ediciones-root .ed-message {padding:12px 15px;background:#eef5fb;border:1px solid #c3ddeb;border-radius:9px}
+#roque-ediciones-root .ed-error {background:#fff0f0;color:#922d31;border-color:#f1c1c3}
+#roque-ediciones-root .ed-ok {background:#edfaf2;color:#176b39;border-color:#bce4cb}
+#roque-ediciones-root .ed-editor {border:2px solid #a7cee8}
+#roque-ediciones-root .ed-check {align-self:end;min-height:40px;display:flex;align-items:center;gap:6px;font-size:.84rem}
+@media (max-width:680px) {
+  #roque-ediciones-root .ed-metrics,#roque-ediciones-root .ed-summary {grid-template-columns:repeat(2,minmax(0,1fr))}
+  #roque-ediciones-root .ed-section {padding:12px}
+  #roque-ediciones-root .ed-card {padding:16px}
+  #roque-ediciones-root .ed-controls {align-items:stretch}
+  #roque-ediciones-root .ed-controls .ed-field {flex-basis:100%}
+}

@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v144";
+  const APP_VERSION = "v145";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -2368,7 +2368,7 @@
   }
 
   function adminTabIds() {
-    return new Set(["resumen", "estudiantes", "resultados", "estadisticas", "docentes", "mapa-grado", "examenes-huerfanos", "alerta-sesiones", "matriz-estudiantes", "asignaturas-areas", "apariencia", "logos", "claves", "github"]);
+    return new Set(["resumen", "ediciones", "estudiantes", "resultados", "estadisticas", "docentes", "mapa-grado", "examenes-huerfanos", "alerta-sesiones", "matriz-estudiantes", "asignaturas-areas", "apariencia", "logos", "claves", "github"]);
   }
 
   function handleHashRoute() {
@@ -3424,6 +3424,7 @@
     if (state.adminTab === "graficas") state.adminTab = "resumen";
     const tabs = [
       ["resumen", "Resumen"],
+      ["ediciones", "Ediciones y pruebas"],
       ["estudiantes", "Estudiantes"],
       ["resultados", "Resultados"],
       ["estadisticas", "Estadísticas"],
@@ -3482,6 +3483,7 @@
 
   function renderAdminTab() {
     switch (state.adminTab) {
+      case "ediciones": return window.RoqueEdiciones ? window.RoqueEdiciones.render() : '<div class="card card-pad">No se pudo cargar el módulo de ediciones. Actualiza la aplicación.</div>';
       case "estudiantes": return adminStudentsHtml();
       case "resultados": return adminResultsHtml();
       case "estadisticas": return safeAdminStatsHtml();
@@ -8419,6 +8421,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
   }
 
   function clearSession() {
+    if (window.RoqueEdiciones) window.RoqueEdiciones.logout();
     state.activeSession = null;
     state.zeroToleranceShown = false;
     clearSessionRankContext();
