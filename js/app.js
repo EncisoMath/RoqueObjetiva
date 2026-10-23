@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v147";
+  const APP_VERSION = "v148";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -168,6 +168,13 @@
 
   async function init() {
     try {
+      // Limpieza automática de secretos y sesiones administrativas heredadas.
+      // Esta aplicación no debe conservar contraseñas administrativas en ningún almacenamiento.
+      try {
+        sessionStorage.removeItem("po_supabase_admin_password");
+        const former = readJSON(STORAGE.session, null);
+        if (former?.role === "admin") localStorage.removeItem(STORAGE.session);
+      } catch (error) { /* No impedir el arranque cuando el almacenamiento esté bloqueado. */ }
       if (window.location.hash) history.replaceState(null, "", window.location.pathname + window.location.search);
       loadLocalState();
       await loadAllData();
@@ -1216,6 +1223,7 @@
 
       return renderLogin("No se pudo identificar el tipo de usuario.");
     } catch (error) {
+      if (cleanUser.includes("@")) adminAuthSession = null;
       console.error(error);
       return renderLogin(error.message || "No fue posible conectar con Supabase.");
     }
@@ -5387,7 +5395,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       const loginParsed = parseRankingLoginInput(document.getElementById("loginUser").value);
       const user = loginParsed.login;
       const wantsRankingDebug = loginParsed.rankingDebug;
-      const pass = String(document.getElementById("loginPass").value || "").trim();
+      const pass = String(document.getElementById("loginPass").value || "");
 
       if (!user) return renderLogin("Ingresa un usuario o ID.");
 
