@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v146";
+  const APP_VERSION = "v147";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -173,7 +173,7 @@
       await loadAllData();
       buildRepository();
       const saved = readJSON(STORAGE.session, null);
-      if (saved && saved.role) {
+      if (saved && saved.role && saved.role !== "admin") {
         state.activeSession = saved;
         renderBySession();
       } else {
@@ -319,6 +319,38 @@
     applyResultOverrides();
   }
 
+  // Administrador: JWT de Supabase Auth, conservado solamente en memoria.
+  let adminAuthSession = null;
+  async function getAdminBearer() {
+    if (!adminAuthSession) return null;
+    if (Date.now() >= adminAuthSession.expiresAt) {
+      const url = cleanText(SUPABASE_CONFIG.url).replace(/\/$/, "");
+      const r = await fetch(url + "/auth/v1/token?grant_type=refresh_token", {
+        method: "POST", cache: "no-store",
+        headers: { "Content-Type": "application/json", apikey: SUPABASE_CONFIG.key },
+        body: JSON.stringify({ refresh_token: adminAuthSession.refresh_token })
+      });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || !j.access_token) {
+        adminAuthSession = null;
+        throw new Error("Sesión administrativa vencida; vuelve a iniciar sesión.");
+      }
+      adminAuthSession = { ...j, expiresAt: Date.now() + Math.max(30, Number(j.expires_in || 3600) - 40) * 1000 };
+    }
+    return adminAuthSession.access_token;
+  }
+  async function signInAdmin(email,password) {
+    const url=cleanText(SUPABASE_CONFIG.url).replace(/\/$/, "");
+    const r=await fetch(url + "/auth/v1/token?grant_type=password",{
+      method:"POST",cache:"no-store",
+      headers:{"Content-Type":"application/json",apikey:SUPABASE_CONFIG.key},
+      body:JSON.stringify({email,password})
+    });
+    const j=await r.json().catch(()=>({}));
+    if (!r.ok || !j.access_token) throw new Error(j.error_description || j.msg || "Correo o contraseña incorrectos.");
+    adminAuthSession={...j,expiresAt:Date.now()+Math.max(30,Number(j.expires_in||3600)-40)*1000};
+    return j;
+  }
   async function supabaseRpc(functionName, payload = {}) {
     if (String(functionName || "").toLowerCase() === "roque_admin_sync") {
       throw new Error("roque_admin_sync está bloqueada en v141 para proteger la tabla RESULTADOS.");
@@ -326,13 +358,14 @@
     const baseUrl = cleanText(SUPABASE_CONFIG.url).replace(/\/$/, "");
     const key = cleanText(SUPABASE_CONFIG.key);
     if (!baseUrl || !key) throw new Error("Falta configurar Supabase.");
+    const bearer = await getAdminBearer() || key;
     const response = await fetch(`${baseUrl}/rest/v1/rpc/${functionName}`, {
       method: "POST",
       cache: "no-store",
       headers: {
         "Content-Type": "application/json",
         "apikey": key,
-        "Authorization": `Bearer ${key}`,
+        "Authorization": `Bearer ${bearer}`,
         "Cache-Control": "no-store, no-cache, max-age=0",
         "Pragma": "no-cache"
       },
@@ -1131,7 +1164,22 @@
         </div>
       `;
       fadeAppIn();
-      const payload = await studentLoginRpc(cleanUser, pass);
+      let payload;
+      if (cleanUser === "admin") return renderLogin("El usuario genérico «admin» está deshabilitado. Usa tu correo de Supabase Auth.");
+      if (cleanUser.includes("@")) {
+        const auth = await signInAdmin(cleanUser, pass);
+        payload = await studentLoginRpc("admin", "");
+        if (!payload?.ok || payload?.session?.role !== "admin") {
+          adminAuthSession = null;
+          return renderLogin("Esta cuenta no está autorizada como administrador.");
+        }
+        if (window.RoqueEdiciones?.adoptAuthSession) {
+          try { await window.RoqueEdiciones.adoptAuthSession(auth); }
+          catch (error) { console.warn("No se pudo precargar las ediciones:",error); }
+        }
+      } else {
+        payload = await studentLoginRpc(cleanUser, pass);
+      }
       if (!payload?.ok) {
         return renderLogin(readableLimitMessage(payload));
       }
@@ -1142,7 +1190,7 @@
 
       const session = payload.session || {};
       if (session.role === "admin") {
-        sessionStorage.setItem("po_supabase_admin_password", pass || "");
+        // Autorización mediante Supabase Auth, sin contraseña incrustada.
         state.adminTab = "resumen";
         state.zeroToleranceShown = false;
         return enterSessionWithLoader({ role: "admin", id: "admin" }, () => renderAdmin(), "Abriendo panel de administración...");
@@ -2675,16 +2723,12 @@
     const session = item.session;
 
     if (SUPABASE_CONFIG.enabled) {
-      if (session.role === "admin") return renderLogin("Por seguridad, vuelve a escribir la contraseña de administrador.");
+      if (session.role === "admin") return renderLogin("Ingresa con tu correo de Supabase Auth.");
       if (session.role === "teacher") return loginWithSupabase(cleanId(session.id), "");
       if (session.role === "student") return loginWithSupabase(cleanId(session.roll), "");
     }
 
-    if (session.role === "admin") {
-      state.adminTab = "resumen";
-      state.zeroToleranceShown = false;
-      return enterSessionWithLoader({ role: "admin", id: "admin" }, () => renderAdmin(), "Abriendo panel de administración...");
-    }
+    if (session.role === "admin") return renderLogin("Reingresa con Supabase Auth para administrar.");
 
     if (session.role === "teacher") {
       const id = cleanId(session.id);
@@ -2749,7 +2793,7 @@
             <form class="login-form" id="loginForm">
               <div class="field">
                 <label for="loginUser">Usuario o ID</label>
-                <input id="loginUser" autocomplete="username" placeholder="Ej. 2585, 1085111839, ID docente o admin" required />
+                <input id="loginUser" autocomplete="username" placeholder="ID de prueba, documento, ID docente o correo admin" required />
               </div>
               <div class="field login-password-field is-hidden" id="loginPasswordField">
                 <label for="loginPass">Contraseña</label>
@@ -5352,15 +5396,8 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
         return;
       }
 
-      if (normalizeText(user) === "admin") {
-        if (pass === "Nintendo64!") {
-          state.adminTab = "resumen";
-          state.zeroToleranceShown = false;
-        enterSessionWithLoader({ role: "admin", id: "admin" }, () => renderAdmin(), "Abriendo panel de administración...");
-        } else {
-          renderLogin("Contraseña de administrador incorrecta.");
-        }
-        return;
+      if (normalizeText(user) === "admin" || String(user).includes("@")) {
+        return renderLogin("El administrador requiere Supabase Auth; acceso sin conexión deshabilitado.");
       }
 
       if (state.teachers.has(user)) {
@@ -6093,7 +6130,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     if (target.id === "loginUser") {
       const passField = document.getElementById("loginPasswordField");
       const passInput = document.getElementById("loginPass");
-      const isAdmin = normalizeText(target.value) === "admin";
+      const isAdmin = String(target.value || "").trim().includes("@");
       passField?.classList.toggle("is-hidden", !isAdmin);
       if (!isAdmin && passInput) passInput.value = "";
     }
@@ -6415,15 +6452,6 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     };
   }
 
-  function getSupabaseAdminPassword() {
-    let password = sessionStorage.getItem("po_supabase_admin_password") || "";
-    if (!password) {
-      password = window.prompt("Confirma la contraseña de administrador para subir a Supabase:") || "";
-      if (password) sessionStorage.setItem("po_supabase_admin_password", password);
-    }
-    return password;
-  }
-
   function delayFrame() {
     return new Promise((resolve) => setTimeout(resolve, 0));
   }
@@ -6529,8 +6557,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       toast("No encontré respuestas cargadas para este ID_PRUEBA.");
       return false;
     }
-    const password = getSupabaseAdminPassword();
-    if (!password) return false;
+    if (!adminAuthSession) { toast("Inicia sesión como administrador de Supabase Auth."); return false; }
     const answers = normalizeAnswersForSupabase(record);
     try {
       validateSingleExamPayload(cleanRoll, answers);
@@ -6545,56 +6572,19 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       await delayFrame();
     }
 
-    // v142: guardado puntual. Nunca llama roque_admin_sync ni ninguna sincronización masiva.
-    // Primero usa una RPC segura de un solo examen. Si la RPC no existe o falla, prueba REST puntual.
-    const errors = [];
     try {
-      const rpcPayload = { p_password: password, p_id_prueba: cleanRoll, p_respuestas: answers, p_activo: true };
-      const rpcNames = ["roque_admin_update_resultado", "roque_admin_upsert_resultado", "roque_admin_save_resultado"];
-      for (const fn of rpcNames) {
-        try {
-          const result = await supabaseRpc(fn, rpcPayload);
-          if (result && result.ok === false) throw new Error(result.error || result.message || `Supabase rechazó ${fn}.`);
-          clearResultOverrideForRoll(cleanRoll);
-          buildRepository();
-          if (options.renderAfter !== false) safeRenderAdminContext(`guardar examen ${fn}`);
-          toast("Examen guardado en Supabase por RPC, sin tocar los demás RESULTADOS.");
-          return true;
-        } catch (error) {
-          errors.push(`${fn}: ${error?.message || error}`);
-        }
-      }
-
-      try {
-        await supabaseRestPatchResultado(cleanRoll, answers);
-        clearResultOverrideForRoll(cleanRoll);
-        buildRepository();
-        if (options.renderAfter !== false) safeRenderAdminContext("guardar examen REST PATCH");
-        toast("Examen reescrito en Supabase sin tocar los demás RESULTADOS.");
-        return true;
-      } catch (error) {
-        errors.push(`REST PATCH resultados: ${error?.message || error}`);
-      }
-
-      try {
-        await supabaseRestUpsertResultado(cleanRoll, answers);
-        clearResultOverrideForRoll(cleanRoll);
-        buildRepository();
-        if (options.renderAfter !== false) safeRenderAdminContext("guardar examen REST UPSERT");
-        toast("Examen guardado en Supabase sin tocar los demás RESULTADOS.");
-        return true;
-      } catch (error) {
-        errors.push(`REST UPSERT resultados: ${error?.message || error}`);
-      }
-
-      console.warn("No se pudo guardar solo este examen. No se ejecutó ninguna subida general para proteger RESULTADOS.", errors);
-      const detail = errors.slice(0, 4).join(" | ");
-      toast(`No pude guardar este examen. Falta instalar la RPC puntual o Supabase bloquea UPDATE. Detalle: ${detail}`);
-      return false;
+      const response = await supabaseRpc("roque_v3_admin_guardar_resultado", {
+        p_id_prueba: cleanRoll, p_respuestas: answers, p_activo: true
+      });
+      if (!response || response.ok !== true) throw new Error(response?.error || "Guardado no autorizado.");
+      clearResultOverrideForRoll(cleanRoll);
+      buildRepository();
+      if (options.renderAfter !== false) safeRenderAdminContext("guardar examen seguro");
+      toast("Examen guardado mediante Supabase Auth.");
+      return true;
     } catch (error) {
       console.error(error);
-      toast(error.message || "No se pudo subir el examen a Supabase.");
-      if (/contrase/i.test(error.message || "")) sessionStorage.removeItem("po_supabase_admin_password");
+      toast(error?.message || "No fue posible guardar el examen.");
       return false;
     } finally {
       if (useLoader) hideRouteLoader();
@@ -8481,6 +8471,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     clearSessionRankContext();
     clearRankingFallbackData();
     localStorage.removeItem(STORAGE.session);
+    adminAuthSession = null;
     sessionStorage.removeItem("po_supabase_admin_password");
   }
 
