@@ -15,6 +15,13 @@ REVOKE ALL ON FUNCTION public.roque_get_student_ranking_context_v123(text)
 REVOKE ALL ON FUNCTION public.roque_get_student_ranking_context_v124(text)
   FROM PUBLIC,anon,authenticated;
 
+-- Desactivar dos rutas de sustitución MASIVA heredadas que v145 ya no utiliza.
+-- NO afecta las funciones de guardar/corregir un resultado individual.
+REVOKE ALL ON FUNCTION public.roque_admin_sync(text,jsonb)
+  FROM PUBLIC,anon,authenticated;
+REVOKE ALL ON FUNCTION public.roque_upload_resultados_v109(text,jsonb)
+  FROM PUBLIC,anon,authenticated;
+
 COMMIT;
 NOTIFY pgrst, 'reload schema';
 
@@ -26,3 +33,8 @@ SELECT
   has_function_privilege('anon','public.roque_get_student_ranking_context_v124(text)','EXECUTE') AS ranking_v124_expuesto,
   has_function_privilege('anon','public.roque_v2_login_controlado(text,text,uuid,text,text)','EXECUTE') AS login_controlado_disponible,
   has_function_privilege('anon','public.roque_v2_ranking_controlado(text,uuid)','EXECUTE') AS ranking_controlado_disponible;
+
+-- Ambas deben devolver false para anon, al igual que las rutas antiguas:
+SELECT
+  has_function_privilege('anon','public.roque_admin_sync(text,jsonb)','EXECUTE') AS admin_sync_masivo_expuesto,
+  has_function_privilege('anon','public.roque_upload_resultados_v109(text,jsonb)','EXECUTE') AS carga_masiva_expuesta;
