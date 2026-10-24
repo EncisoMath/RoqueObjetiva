@@ -84,514 +84,342 @@
   .adm151-link { transition:none; }
 }
 
-/* === v158 / navegación móvil: carbón azulado flat, blur 3px y radio 4px ===
-   Mismo tono azul oscuro del login; blur de 3px, radios <= 4px. No hay velo sobre el contenido de fondo.
-   La columna lateral de escritorio conserva su diseño v151. */
-@media (max-width: 1000px) {
-  .adm151-dock,
-  .adm151-sheet {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  /* Dock flat azul nocturno, translúcido y sin degradados. */
-  .adm151-dock {
-    gap: 4px;
-    padding: 7px 8px calc(7px + env(safe-area-inset-bottom));
-    border: 1px solid rgba(125, 174, 208, .32);
-    border-bottom: 0;
-    border-radius: 4px 4px 0 0;
-    background: rgba(4, 12, 24, .90);
-    -webkit-backdrop-filter: blur(3px);
-    backdrop-filter: blur(3px);
-    box-shadow: 0 -4px 16px rgba(0, 8, 20, .24);
-    isolation: isolate;
-  }
-  .adm151-dock::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 7%;
-    right: 7%;
-    height: 1px;
-    background: rgba(180, 220, 245, .20);
-    pointer-events: none;
-  }
-  .adm151-dock-item {
-    position: relative;
-    min-height: 52px;
-    gap: 4px;
-    padding: 7px 4px 5px;
-    border: 1px solid transparent;
-    border-radius: 4px;
-    background: transparent;
-    color: #d3e2ee;
-    font-weight: 660;
-    font-size: .68rem;
-    letter-spacing: -.012em;
-    transition:
-      background .21s cubic-bezier(.2,.8,.2,1),
-      border-color .21s ease,
-      color .21s ease,
-      transform .19s cubic-bezier(.2,.8,.2,1),
-      box-shadow .21s ease;
-    animation: adm155DockEnter .35s cubic-bezier(.18,.84,.25,1) both;
-  }
-  .adm151-dock-item:nth-child(2) { animation-delay: 32ms; }
-  .adm151-dock-item:nth-child(3) { animation-delay: 64ms; }
-  .adm151-dock-item:nth-child(4) { animation-delay: 96ms; }
-  .adm151-dock-item .adm151-icon {
-    width: 21px;
-    height: 21px;
-    flex-basis: 21px;
-    stroke-width: 1.7px;
-    transition: transform .23s cubic-bezier(.2,.8,.2,1);
-  }
-  .adm151-dock-item:hover {
-    background: rgba(74, 138, 182, .14);
-    color: #e9f6ff;
-  }
-  .adm151-dock-item:active {
-    transform: scale(.95);
-  }
-  .adm151-dock-item:active .adm151-icon {
-    transform: scale(.91);
-  }
-  .adm151-dock-item.is-active {
-    color: #ffffff;
-    border-color: rgba(112, 182, 224, .32);
-    background: rgba(28, 92, 140, .58);
-    box-shadow: inset 0 0 0 1px rgba(190, 228, 249, .10);
-  }
-  .adm151-dock-item.is-active::after {
-    content: "";
-    position: absolute;
-    bottom: 0;
-    left: 33%;
-    right: 33%;
-    height: 2px;
-    border-radius: 2px;
-    background: #69c7fc;
-    animation: adm155AccentEnter .3s ease-out both;
-  }
-
-  /* El panel se conserva compacto; no se deja altura vacia. */
-  .adm151-overlay.is-visible { display: block; position: fixed; inset: 0; z-index: 211; }
-  .adm151-overlay .adm151-backdrop {
-    background: transparent;
-    opacity: 0;
-    transition: opacity .25s ease;
-  }
-  /* Se conserva la superficie invisible para cerrar tocando fuera, sin oscurecer la página. */
-  .adm151-overlay.is-open .adm151-backdrop { opacity: 0; }
-  .adm151-overlay.is-closing .adm151-backdrop { opacity: 0; transition-duration: .22s; }
-
-  .adm151-overlay .adm151-sheet {
-    max-height: min(84dvh, 650px);
-    height: auto;
-    border: 1px solid rgba(101, 161, 204, .26);
-    border-bottom: 0;
-    border-radius: 4px 4px 0 0;
-    background: rgba(5, 14, 28, .90);
-    -webkit-backdrop-filter: blur(3px);
-    backdrop-filter: blur(3px);
-    box-shadow: 0 -10px 26px rgba(0, 8, 20, .28);
-    transform: translate3d(0, calc(100% + 16px), 0);
-    opacity: .98;
-    transition:
-      transform .35s cubic-bezier(.19,1,.22,1),
-      opacity .25s ease;
-    will-change: transform;
-    padding-bottom: env(safe-area-inset-bottom);
-  }
-  .adm151-overlay.is-open .adm151-sheet {
-    transform: translate3d(0,0,0);
-    opacity: 1;
-  }
-  .adm151-overlay.is-closing .adm151-sheet {
-    transform: translate3d(0, calc(100% + 16px), 0);
-    opacity: .97;
-    transition-duration: .22s;
-    transition-timing-function: cubic-bezier(.4,0,.7,.4);
-  }
-
-  .adm151-sheet-head {
-    padding: 14px 16px 12px;
-    background: rgba(8, 22, 40, .82);
-    border-bottom: 1px solid rgba(120, 171, 210, .20);
-  }
-  .adm151-sheet-head .adm151-kicker {
-    color: #93cbe9;
-    font-size: .6rem;
-    font-weight: 730;
-    letter-spacing: .12em;
-  }
-  .adm151-sheet-title {
-    color: #f1f8ff;
-    font-size: 1.07rem;
-    font-weight: 750;
-    letter-spacing: -.025em;
-  }
-  .adm151-close {
-    width: 36px;
-    height: 36px;
-    border: 1px solid rgba(149,193,224,.32);
-    border-radius: 4px;
-    background: rgba(77, 127, 165, .22);
-    color: #edf7ff;
-    transition: transform .19s ease, background .19s ease, color .19s ease;
-  }
-  .adm151-close:hover { background: rgba(106, 169, 212, .34); color: #ffffff; }
-  .adm151-close:active { transform: scale(.92); }
-
-  .adm151-sheet-scroll {
-    padding: 9px 12px 11px;
-  }
-  .adm151-sheet-scroll .adm151-group { margin: 2px 0 9px; }
-  .adm151-sheet-scroll .adm151-group-heading {
-    padding: 9px 10px 6px;
-    font-size: .63rem;
-    font-weight: 740;
-    letter-spacing: .075em;
-    color: #a7c4db;
-  }
-  .adm151-sheet-scroll .adm151-group-links { gap: 3px; }
-  .adm151-sheet-scroll .adm151-link {
-    min-height: 43px;
-    padding: 10px 12px;
-    border: 1px solid transparent;
-    border-radius: 4px;
-    background: transparent;
-    color: #d9eaf7;
-    font-size: .81rem;
-    font-weight: 680;
-    letter-spacing: -.01em;
-    transition:
-      background .2s ease,
-      color .2s ease,
-      transform .2s cubic-bezier(.2,.8,.2,1),
-      border-color .2s ease;
-  }
-  .adm151-sheet-scroll .adm151-link:hover {
-    background: rgba(72, 130, 170, .16);
-    color: #ffffff;
-  }
-  .adm151-sheet-scroll .adm151-link:active {
-    transform: scale(.986);
-  }
-  .adm151-sheet-scroll .adm151-link.is-active {
-    color: #ffffff;
-    border-color: rgba(101, 166, 208, .28);
-    background: rgba(28, 92, 140, .52);
-    font-weight: 750;
-  }
-  .adm151-sheet-scroll .adm151-link .adm151-current-mark {
-    width: 3px;
-    height: 17px;
-    background: #71c9f6;
-    border-radius: 2px;
-  }
-  .adm151-overlay.is-open .adm151-sheet-scroll .adm151-link {
-    animation: adm155RowEnter .35s cubic-bezier(.18,.8,.2,1) both;
-    animation-delay: calc(55ms + var(--adm155-item-index, 0) * 42ms);
-  }
-  .adm151-overlay.is-closing .adm151-sheet-scroll .adm151-link { animation: none; }
-
-  .adm151-sheet-foot {
-    padding: 7px 13px;
-    color: #a8bfd1;
-    border-top-color: rgba(120,171,210,.20);
-    background: rgba(8, 22, 40, .82);
-  }
-  .adm151-sheet-foot .adm151-exit {
-    border-radius: 4px;
-    min-height: 38px;
-    font-size: .79rem;
-    font-weight: 740;
-    color: #ffacb4;
-  }
-  .adm151-sheet-foot .adm151-exit:hover { background: rgba(158, 75, 89, .25); color: #ffe5e8; }
-  .adm151-sheet .adm151-link:focus-visible,
-  .adm151-dock-item:focus-visible,
-  .adm151-close:focus-visible {
-    outline: 2px solid #8bdaff;
-    outline-offset: 1px;
-  }
-}
-
-@keyframes adm155DockEnter {
-  from { opacity: 0; transform: translate3d(0,7px,0); }
-  to { opacity: 1; transform: translate3d(0,0,0); }
-}
-@keyframes adm155RowEnter {
-  from { opacity: 0; transform: translate3d(0,9px,0); }
-  to { opacity: 1; transform: translate3d(0,0,0); }
-}
-@keyframes adm155AccentEnter {
-  from { transform: scaleX(.15); opacity: 0; }
-  to { transform: scaleX(1); opacity: 1; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .adm151-dock-item,
-  .adm151-dock-item .adm151-icon,
-  .adm151-sheet-scroll .adm151-link,
-  .adm151-close,
-  .adm151-overlay .adm151-sheet,
-  .adm151-overlay .adm151-backdrop,
-  .adm151-dock-item.is-active::after {
-    animation: none !important;
-    transition: none !important;
-  }
-  .adm151-overlay.is-visible:not(.is-open) .adm151-sheet { transform: translate3d(0,100%,0); }
-  .adm151-overlay.is-open .adm151-sheet { transform: translate3d(0,0,0); }
-}
-
-
-/* v159 — referencia móvil: panel anclado JUSTO ENCIMA del dock.
-   Flat azul nocturno, filas separadas, grabber y dock visible/clicable. */
+/* v164 · Dock administrativo con el MISMO lenguaje visual del docente v163.
+   Mantiene sidebar de escritorio y organización Inicio / Pruebas / Personas / Menú.
+   Sin degradado, transparencia, blur, sombras decorativas ni oscurecimiento del fondo. */
 @media (max-width: 1000px) {
   .adm151-shell {
-    --adm159-dock-height: calc(67px + env(safe-area-inset-bottom));
+    --adm164-line: #dce3e9;
+    --adm164-soft: color-mix(in srgb, var(--orange, #1975ae) 9%, white);
+    --adm164-dock-height: calc(62px + env(safe-area-inset-bottom));
   }
-  /* El dock queda POR DELANTE del overlay y conserva todas sus acciones. */
+  .adm151-workspace {
+    padding-bottom: calc(86px + env(safe-area-inset-bottom));
+  }
+
+  /* La misma barra blanca compacta: 52px, cuatro accesos, radios <=4px. */
   .adm151-dock {
+    position: fixed;
     z-index: 230;
+    bottom: 0;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 4px;
+    width: min(100%, 760px);
+    padding: 4px 6px calc(5px + env(safe-area-inset-bottom));
+    border: 1px solid var(--adm164-line);
+    border-bottom: 0;
     border-radius: 4px 4px 0 0;
-    background: rgba(3, 12, 26, .96);
-    border-top: 1px solid rgba(111, 165, 205, .25);
-    box-shadow: 0 -2px 8px rgba(2, 12, 26, .14);
+    background: #fff;
+    background-image: none;
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
   .adm151-dock-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    min-width: 0;
+    height: 52px;
     min-height: 52px;
-    font-size: .68rem;
-    color: #b9cde0;
-  }
-  .adm151-dock-item.is-selected {
-    color: #f5fbff;
-    border: 1px solid rgba(52, 142, 201, .48);
-    background: rgba(15, 95, 156, .67);
-  }
-  .adm151-dock-item.is-selected .adm151-icon {
-    stroke: #f4fbff;
-  }
-  /* Al abrir un grupo, solo se resalta el botón que se acaba de tocar. */
-  body.adm151-menu-open .adm151-dock-item.is-active:not(.is-selected) {
-    color: #b9cde0;
-    border-color: transparent;
-    background: transparent;
+    gap: 2px;
+    padding: 3px 2px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    background: #fff;
+    color: #5b6771;
+    cursor: pointer;
+    font: inherit;
+    font-size: .67rem;
+    font-weight: 750;
+    line-height: 1.08;
     box-shadow: none;
+    letter-spacing: 0;
+    animation: none;
+    transition: color .22s ease, background-color .22s ease, border-color .22s ease, transform .18s ease;
+    -webkit-tap-highlight-color: transparent;
   }
-  body.adm151-menu-open .adm151-dock-item.is-active:not(.is-selected)::after {
-    opacity: 0;
+  .adm151-dock-item .adm151-icon {
+    width: 19px;
+    height: 19px;
+    flex: 0 0 19px;
+    stroke: currentColor;
+    stroke-width: 1.85px;
+    transition: transform .23s cubic-bezier(.2,.8,.2,1);
   }
+  .adm151-dock-item span {
+    display: block;
+    min-width: 0;
+    max-width: 100%;
+    line-height: 1.08;
+    text-align: center;
+  }
+  .adm151-dock-item:active { transform: scale(.965); }
+  .adm151-dock-item:hover .adm151-icon { transform: translateY(-1px); }
+  .adm151-dock-item:hover:not(.is-active):not(.is-selected) {
+    background: var(--adm164-soft);
+    color: var(--orange);
+  }
+  /* Azul sólido en el acceso actual y en el que despliega un menú. */
+  .adm151-dock-item.is-active,
+  .adm151-dock-item.is-selected {
+    background: var(--orange);
+    color: #fff;
+    border-color: var(--orange);
+  }
+  .adm151-dock-item.is-active .adm151-icon,
+  .adm151-dock-item.is-selected .adm151-icon { stroke: currentColor; }
+  body.adm151-menu-open .adm151-dock-item.is-active:not(.is-selected) {
+    background: #fff;
+    color: #5b6771;
+    border-color: transparent;
+  }
+  .adm151-dock-item:focus-visible,
+  .adm151-sheet .adm151-link:focus-visible,
+  .adm151-sheet .adm151-close:focus-visible {
+    outline: 2px solid var(--orange);
+    outline-offset: 2px;
+  }
+
+  /* Panel tipo docente: tarjeta BLANCA que flota encima del dock, sin velo. */
+  .adm151-overlay,
   .adm151-overlay.is-visible {
+    position: fixed;
+    inset: 0;
     z-index: 211;
     background: transparent;
   }
+  .adm151-overlay { display: none; }
+  .adm151-overlay.is-visible { display: block; }
   .adm151-overlay .adm151-backdrop,
-  .adm151-overlay.is-open .adm151-backdrop {
-    background: transparent;
-    opacity: 0;
-  }
-
-  /* No tapa el dock: se detiene exactamente en su borde superior. */
-  .adm151-overlay .adm151-sheet {
-    left: 4px;
-    right: 4px;
-    bottom: var(--adm159-dock-height);
-    width: auto;
-    max-width: 550px;
-    height: auto;
-    max-height: calc(100dvh - var(--adm159-dock-height) - 12px);
-    margin: 0 auto;
-    padding: 0;
-    border: 1px solid rgba(85, 142, 182, .26);
-    border-bottom: 1px solid rgba(89, 149, 190, .26);
-    border-radius: 4px 4px 0 0;
-    background: rgba(6, 20, 38, .96);
-    box-shadow: 0 -4px 18px rgba(0, 9, 23, .20);
-    -webkit-backdrop-filter: blur(3px);
-    backdrop-filter: blur(3px);
-  }
-
-  .adm159-grabber {
-    display: flex;
-    flex-shrink: 0;
-    align-items: center;
-    justify-content: center;
+  .adm151-overlay.is-open .adm151-backdrop,
+  .adm151-overlay.is-closing .adm151-backdrop {
+    position: absolute;
+    inset: 0;
     width: 100%;
-    height: 22px;
-    padding: 7px 0 9px;
     border: 0;
-    border-radius: 4px 4px 0 0;
+    opacity: 0;
     background: transparent;
-    cursor: pointer;
-    touch-action: manipulation;
+    box-shadow: none;
+    backdrop-filter: none;
+    cursor: default;
   }
-  .adm159-grabber span {
-    display: block;
-    flex: 0 0 33px;
-    width: 33px;
-    height: 4px;
-    border-radius: 3px;
-    background: rgba(143, 176, 202, .55);
+  body.adm151-menu-open { overflow: hidden; }
+  .adm151-overlay .adm151-sheet {
+    position: absolute;
+    left: 50%;
+    right: auto;
+    bottom: calc(66px + env(safe-area-inset-bottom));
+    width: min(400px, calc(100% - 24px));
+    max-width: 400px;
+    max-height: min(62dvh, 490px);
+    height: auto;
+    margin: 0;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--orange);
+    border-radius: 4px;
+    background: #fff;
+    background-image: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow: none;
+    opacity: 0;
+    transform: translate(-50%, 13px) scale(.985);
+    transition: opacity .23s ease, transform .25s cubic-bezier(.18,.82,.25,1);
+    will-change: auto;
   }
-  .adm159-grabber:focus-visible {
-    outline: 2px solid #91d5fc;
-    outline-offset: -2px;
+  .adm151-overlay.is-open .adm151-sheet {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
   }
+  .adm151-overlay.is-closing .adm151-sheet {
+    opacity: 0;
+    transform: translate(-50%, 13px) scale(.985);
+    transition-duration: .22s;
+  }
+  /* En v159 había un tirador extra: ahora un botón de cierre como el docente. */
+  .adm151-sheet .adm159-grabber { display: none; }
   .adm151-sheet-head {
-    padding: 0 16px 9px;
-    background: transparent;
-    border-bottom: 1px solid rgba(116, 163, 196, .13);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex: 0 0 auto;
+    gap: 10px;
+    padding: 7px 8px 10px;
+    border-bottom: 0;
+    background: #fff;
   }
+  .adm151-sheet-head > div { display: flex; flex-direction: column; gap: 2px; }
   .adm151-sheet-head .adm151-kicker {
-    color: #8dc4e6;
-    font-size: .61rem;
-    letter-spacing: .1em;
+    color: var(--orange);
+    font-size: .58rem;
+    font-weight: 700;
+    letter-spacing: .08em;
   }
   .adm151-sheet-title {
-    color: #f4f8ff;
-    font-size: 1.02rem;
-    line-height: 1.18;
-    font-weight: 750;
+    color: #253d50;
+    font-size: .86rem;
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: 0;
+  }
+  .adm151-sheet .adm151-close {
+    display: grid;
+    place-items: center;
+    flex: 0 0 30px;
+    width: 30px;
+    height: 30px;
+    border: 0;
+    border-radius: 4px;
+    background: #f1f4f6;
+    color: #365065;
+    box-shadow: none;
+    cursor: pointer;
+    font: inherit;
+    font-size: 1.15rem;
+    transition: color .18s ease, background-color .18s ease;
+  }
+  .adm151-sheet .adm151-close:hover {
+    color: var(--orange);
+    background: var(--adm164-soft);
   }
 
   .adm151-sheet-scroll {
-    padding: 0 12px 8px;
-    max-height: none;
+    flex: 0 1 auto;
     min-height: 0;
+    max-height: none;
+    overflow-y: auto;
+    overscroll-behavior: contain;
     scrollbar-width: thin;
+    padding: 0 4px 5px;
   }
-  .adm151-sheet-scroll .adm151-group {
-    margin: 0;
-  }
-  .adm151-sheet-scroll .adm151-group + .adm151-group {
-    margin-top: 8px;
-  }
+  .adm151-sheet-scroll .adm151-group { margin: 0 0 6px; }
+  .adm151-sheet-scroll .adm151-group + .adm151-group { margin-top: 8px; }
   .adm151-sheet-scroll .adm151-group-heading {
-    padding: 8px 9px 5px;
-    font-size: .64rem;
-    color: #99bdd5;
+    margin: 0;
+    padding: 9px 10px 6px;
+    color: #617181;
+    font-size: .65rem;
+    font-weight: 750;
+    letter-spacing: .04em;
   }
   .adm151-overlay[data-mode="pruebas"] .adm151-group-heading,
-  .adm151-overlay[data-mode="personas"] .adm151-group-heading {
-    display: none;
-  }
+  .adm151-overlay[data-mode="personas"] .adm151-group-heading { display: none; }
   .adm151-sheet-scroll .adm151-group-links {
     display: flex;
     flex-direction: column;
     gap: 0;
   }
   .adm151-sheet-scroll .adm151-link {
+    position: relative;
     display: flex;
     align-items: center;
     width: 100%;
-    min-height: 37px;
-    padding: 8px 11px;
+    min-height: 45px;
+    gap: 11px;
     margin: 0;
-    border: 0;
-    border-right: 1px solid rgba(115, 165, 201, .10);
-    border-left: 1px solid rgba(115, 165, 201, .10);
-    border-bottom: 1px solid rgba(144, 189, 220, .13);
-    border-radius: 0;
-    color: #e2effa;
-    background: rgba(20, 43, 65, .47);
-    font-size: .78rem;
-    font-weight: 610;
-    line-height: 1.2;
-    letter-spacing: -.006em;
+    padding: 12px 10px;
+    border: 1px solid transparent;
+    border-bottom-color: var(--adm164-line);
+    border-radius: 4px;
+    background: #fff;
+    color: #253d50;
     box-shadow: none;
+    text-align: left;
+    font: inherit;
+    font-size: .85rem;
+    font-weight: 750;
+    line-height: 1.15;
+    letter-spacing: 0;
+    cursor: pointer;
+    opacity: 1;
+    transform: translateY(0);
+    transition: color .18s ease, background-color .18s ease, opacity .2s ease, transform .23s cubic-bezier(.18,.82,.25,1);
   }
+  .adm151-sheet-scroll .adm151-link:last-child { border-bottom-color: transparent; }
   .adm151-sheet-scroll .adm151-link .adm151-icon {
-    width: 17px;
-    height: 17px;
-    flex: 0 0 17px;
-    margin-right: 1px;
-    stroke-width: 1.65px;
-    color: #b9d9ec;
+    flex: 0 0 19px;
+    width: 19px;
+    height: 19px;
+    margin: 0;
+    stroke: currentColor;
+    stroke-width: 1.85px;
+    color: inherit;
   }
-  /* Flecha fina, sin iconos añadidos por red ni dependencias. */
+  .adm151-sheet-scroll .adm151-link span:not(.adm151-current-mark) {
+    flex: 1;
+    min-width: 0;
+  }
   .adm151-sheet-scroll .adm151-link::after {
     content: "";
     display: block;
-    width: 6px;
-    height: 6px;
-    flex: 0 0 6px;
-    margin-left: 9px;
-    margin-right: 3px;
+    width: 7px;
+    height: 7px;
+    flex: 0 0 7px;
+    margin: 0 2px 0 7px;
     border-top: 1.5px solid currentColor;
     border-right: 1.5px solid currentColor;
     transform: rotate(45deg);
-    opacity: .6;
   }
-  .adm151-sheet-scroll .adm151-group .adm151-link:first-child {
-    border-top: 1px solid rgba(144, 189, 220, .13);
-    border-radius: 4px 4px 0 0;
-  }
-  .adm151-sheet-scroll .adm151-group .adm151-link:last-child {
-    border-bottom: 1px solid rgba(144, 189, 220, .13);
-    border-radius: 0 0 4px 4px;
-  }
-  .adm151-sheet-scroll .adm151-group .adm151-link:only-child {
-    border-radius: 4px;
-  }
-  .adm151-sheet-scroll .adm151-link:hover {
-    color: #fff;
-    background: rgba(35, 86, 127, .44);
-  }
-  .adm151-sheet-scroll .adm151-link:active {
-    background: rgba(34, 104, 160, .56);
-    transform: scale(.992);
+  .adm151-sheet-scroll .adm151-link:hover,
+  .adm151-sheet-scroll .adm151-link.is-active {
+    color: var(--orange);
+    background: var(--adm164-soft);
   }
   .adm151-sheet-scroll .adm151-link.is-active {
-    color: #ecf7ff;
-    background: rgba(27, 67, 103, .49);
-    border-color: rgba(144, 189, 220, .13);
-    font-weight: 680;
+    font-weight: 750;
+    border-bottom-color: var(--adm164-line);
   }
-  .adm151-sheet-scroll .adm151-link .adm151-current-mark {
-    display: none;
-  }
+  .adm151-sheet-scroll .adm151-link .adm151-current-mark { display: none; }
 
-  /* Cerrar sesión también es una fila, no un pie separado. */
-  .adm159-menu-exit {
-    margin-top: 8px;
+  .adm151-overlay.is-open .adm151-sheet-scroll .adm151-link {
+    animation: adm164RowEnter .25s cubic-bezier(.18,.82,.25,1) both;
+    animation-delay: calc(30ms + var(--adm155-item-index, 0) * 28ms);
   }
+  .adm151-overlay.is-closing .adm151-sheet-scroll .adm151-link { animation: none; }
+
+  /* Cerrar sesión como última fila clara, igual que Cuenta en dock docente. */
+  .adm159-menu-exit { margin-top: 9px; }
   .adm151-sheet-scroll .adm159-menu-exit .adm151-exit {
-    border: 1px solid rgba(144, 189, 220, .13);
+    min-height: 45px;
+    border: 1px solid transparent;
     border-radius: 4px;
-    min-height: 37px;
-    color: #ff9aa8;
-    background: rgba(19, 37, 57, .61);
-    font-size: .78rem;
-  }
-  .adm151-sheet-scroll .adm159-menu-exit .adm151-exit .adm151-icon {
-    color: #ff91a0;
+    background: #fff;
+    color: #af3342;
+    font-size: .85rem;
+    font-weight: 750;
   }
   .adm151-sheet-scroll .adm159-menu-exit .adm151-exit:hover {
-    color: #ffdce1;
-    background: rgba(103, 43, 64, .33);
+    color: #af3342;
+    background: #fff2f2;
   }
-
-  /* Animaciones v155 se conservan, con el panel ahora anclado sobre el dock. */
   .adm151-overlay.is-open .adm151-sheet-scroll .adm159-menu-exit .adm151-link {
-    animation: adm155RowEnter .35s cubic-bezier(.18,.8,.2,1) both;
-    animation-delay: 255ms;
+    animation-delay: .16s;
   }
-  .adm151-overlay.is-closing .adm151-sheet-scroll .adm159-menu-exit .adm151-link {
-    animation: none;
-  }
+}
+@keyframes adm164RowEnter {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 @media (max-width: 390px) {
-  .adm151-sheet-scroll .adm151-link {
-    font-size: .75rem;
-    padding-left: 9px;
-    padding-right: 9px;
-  }
+  .adm151-dock-item { font-size: .62rem; }
+  .adm151-sheet-scroll .adm151-link { font-size: .8rem; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .adm151-overlay.is-open .adm151-sheet-scroll .adm159-menu-exit .adm151-link {
+  .adm151-dock-item, .adm151-dock-item .adm151-icon,
+  .adm151-sheet, .adm151-sheet-scroll .adm151-link,
+  .adm151-sheet .adm151-close {
+    transition: none !important;
     animation: none !important;
   }
+  .adm151-overlay.is-open .adm151-sheet-scroll .adm151-link { animation: none !important; }
 }
