@@ -13904,3 +13904,16 @@ select,
   color: #5e6570;
 }
 .exam-option-btn { position: relative; }
+
+/* v170: puesto por asignatura sin alterar la jerarquía del reporte. */
+.subject-rank-note {
+  margin: 0 0 14px;
+  padding: 8px 10px;
+  border: 1px solid #dce3e9;
+  border-radius: 4px;
+  background: #f8fafc;
+  color: #46596b;
+  font-size: .77rem;
+  line-height: 1.4;
+}
+.subject-rank-note strong { color: #273b4e; font-weight: 800; }
