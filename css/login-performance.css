@@ -1,4 +1,4 @@
-/* v153 - Optimizacion visual EXCLUSIVA del acceso.
+/* v154 - Optimizacion visual EXCLUSIVA del acceso.
    Desactiva repintado continuo de pantalla completa, conserva colores y geometria.
    No interviene en el informe estudiantil ni en el resto de la aplicacion. */
 .login-shell-dark {
@@ -8,16 +8,16 @@
 .login-shell-dark::before {
   animation: none !important;
 }
+/* Desenfoque moderado en toda la tarjeta: 3px en movil y computador. */
+.login-card-dark {
+  -webkit-backdrop-filter: blur(3px) !important;
+  backdrop-filter: blur(3px) !important;
+}
 @media (max-width: 680px) {
   .login-card-dark {
-    -webkit-backdrop-filter: none !important;
-    backdrop-filter: none !important;
-    background: rgba(6, 16, 35, .82) !important;
+    background: rgba(6, 16, 35, .58) !important;
   }
-  .login-bg-shapes .shape {
-    animation: none !important;
-    opacity: .52 !important;
-  }
+  /* Las figuras recuperan su animacion CSS original de 12 segundos. */
   .login-main-logo img {
     filter: none !important;
   }
