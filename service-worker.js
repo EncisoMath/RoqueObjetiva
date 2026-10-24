@@ -1,30 +1,30 @@
-const APP_VERSION = "v166";
-const CACHE_VERSION = "resultados-pwa-v166-hero-unificado";
+const APP_VERSION = "v167";
+const CACHE_VERSION = "resultados-pwa-v167-cargue-ia-preflight";
 const CACHE_PREFIXES = ["resultados-pwa-", "resultados-pruebas-"];
 
 const APP_SHELL = [
   "./",
   "index.html",
-  "css/app.css?v=166",
-  "css/login-performance.css?v=166",
-  "css/ediciones.css?v=166",
-  "css/admin-navigation.css?v=166",
-  "css/teacher-navigation.css?v=166",
-  "css/shared-hero.css?v=166",
-  "js/app.js?v=166",
-  "js/ediciones.js?v=166",
+  "css/app.css?v=167",
+  "css/login-performance.css?v=167",
+  "css/ediciones.css?v=167",
+  "css/admin-navigation.css?v=167",
+  "css/teacher-navigation.css?v=167",
+  "css/shared-hero.css?v=167",
+  "js/app.js?v=167",
+  "js/ediciones.js?v=167",
   "version.json",
   "config/data-manifest.json",
   "config/site-config.json",
-  "config/supabase-config.js?v=166",
-  "manifest.webmanifest?v=166",
+  "config/supabase-config.js?v=167",
+  "manifest.webmanifest?v=167",
   "icons/icon-192.png",
   "icons/icon-512.png",
   "icons/maskable-512.png",
   "icons/apple-touch-icon.png",
   "icons/favicon-16.png",
   "icons/favicon-32.png",
-  "assets/logo-principal.png?v=166",
+  "assets/logo-principal.png?v=167",
   "assets/ZERO.png",
   "ICONOS/artistica.png",
   "ICONOS/ciencias-naturales.png",

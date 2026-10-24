@@ -1,4 +1,4 @@
-/* RoqueObjetiva v145: administrador multiedicion.
+/* RoqueObjetiva v167: seguimiento del cargue por IA en administración multiedición.
    La contraseña de Supabase Auth solo se usa durante el inicio de sesión.
    Los tokens permanecen en memoria; nunca se guardan en localStorage. */
 (() => {
@@ -6,7 +6,7 @@
   const S = {
     token: "", refresh: "", expires: 0, email: "",
     editions: [], config: null, edition: "", grade: 0, page: 0,
-    busy: false, error: "", info: "", form: "", edit: null
+    busy: false, error: "", info: "", form: "", edit: null, preflight: null, advanced: false
   };
   const HTML = (value) => String(value == null ? "" : value)
     .replace(/&/g, "&amp;").replace(/</g, "&lt;")
@@ -78,7 +78,7 @@
   }
   function logout() {
     S.token = ""; S.refresh = ""; S.expires = 0; S.email = "";
-    S.editions = []; S.config = null; S.edition = ""; S.grade = 0; S.form = ""; S.edit = null;
+    S.editions = []; S.config = null; S.preflight = null; S.edition = ""; S.grade = 0; S.form = ""; S.edit = null; S.advanced = false;
     S.error = ""; S.info = "";
     redraw();
   }
@@ -91,7 +91,9 @@
     else S.config = null;
   }
   async function loadConfiguration(code) {
+    S.preflight = null;
     S.config = await rpc("roque_v2_admin_ver_configuracion", { p_edicion: code });
+    S.preflight = await rpc("roque_v3_admin_preflight_edicion", { p_edicion: code });
     const grades = Array.isArray(S.config.grados) ? S.config.grados : [];
     if (!grades.some((g) => num(g.grado) === S.grade)) S.grade = grades.length ? num(grades[0].grado) : 0;
     S.page = 0;
@@ -130,7 +132,6 @@
     const edition = S.config && S.config.edicion || {};
     return '<section class="ed-controls">' +
       select("Edición", "edicion", S.edition, optionsEd()).replace('<select name="edicion">', '<select name="edicion" data-ed-select="edition">') +
-      button("Crear edición", "new-edition", "", "ed-primary") +
       button("Actualizar datos", "reload") +
       button("Cerrar Supabase Auth", "signout") + '</section>' +
       '<p class="ed-note">Sesión de gestión: ' + HTML(S.email) + '. La página publicada continúa consultando el sistema antiguo hasta completar la transición.</p>' +
@@ -267,14 +268,45 @@
       '<div class="ed-actions"><button type="submit" class="ed-btn ed-primary">Guardar cambios</button>' +
       button("Cancelar", "cancel") + '</div></form></section>';
   }
+  function aiStatusPanel() {
+    const d = S.preflight || {}, structure = d.estructura || {}, load = d.cargue || {};
+    const historical = d.estado !== "borrador";
+    const pending = num(structure.claves_pendientes);
+    const warnings = Array.isArray(d.bloqueos_publicacion) ? d.bloqueos_publicacion : [];
+    return '<section class="ed-ai-card" aria-label="Seguimiento del cargue por inteligencia artificial">' +
+      '<div class="ed-ai-header"><div><span class="ed-ai-kicker">ETAPA 3 · CARGUE POR IA</span>' +
+      '<h3>' + (historical ? 'Edición histórica protegida' : 'Preparación y cargue de esta edición') + '</h3>' +
+      '<p>' + (historical ? 'Consulta del historial: la IA no sobrescribirá esta edición.' :
+        'Tú escaneas los exámenes y generas el Excel de EvalBee. ChatGPT revisa, valida y realiza el cargue en Supabase cuando le compartas los archivos.') +
+      '</p></div><span class="ed-ai-state">' + HTML(historical ? "Solo lectura" :
+      (d.preparada_para_revision ? "Lista para revisión" : "Pendiente de datos")) + '</span></div>' +
+      '<div class="ed-ai-metrics">' +
+        metric("Estudiantes inscritos", num(load.inscripciones)) +
+        metric("Resultados cargados", num(load.resultados)) +
+        metric("Preguntas configuradas", num(structure.preguntas)) +
+        metric("Claves pendientes", pending) +
+      '</div>' +
+      (historical ? '<p class="ed-ai-note">Los resultados de esta edición permanecen independientes de futuras pruebas.</p>' :
+        '<div class="ed-ai-steps"><strong>Así trabajaremos</strong>' +
+        '<p><b>1.</b> Escaneas los exámenes. <b>2.</b> Exportas el Excel. <b>3.</b> Me adjuntas el Excel en ChatGPT, junto con las claves si aún no están registradas. <b>4.</b> Yo compruebo las coincidencias y cargo la edición en Supabase.</p></div>') +
+      (warnings.length ? '<div class="ed-ai-warnings"><strong>' +
+        (historical ? "Estado del historial" : "Pendientes antes de publicar") +
+        '</strong><ul>' + warnings.map((w) => '<li>' + HTML(w) + '</li>').join("") + '</ul></div>' : '') +
+      '<p class="ed-ai-note">Este panel es informativo. Ni la carga de archivos ni la publicación se ejecutan automáticamente desde el navegador.</p>' +
+    '</section>';
+  }
   function panel() {
     if (!S.token) return loginPanel();
-    return selectorPanel() + createEditionForm() + configSection();
+    return selectorPanel() + aiStatusPanel() +
+      '<div class="ed-advanced-switch">' +
+        button(S.advanced ? "Ocultar configuración técnica" : "Mostrar configuración técnica (opcional)", "toggle-advanced") +
+        (S.advanced ? button("Crear edición", "new-edition", "", "ed-primary") : "") +
+      '</div>' + (S.advanced ? createEditionForm() + configSection() : "");
   }
   function render() {
     return '<div id="roque-ediciones-root" class="ed-root">' +
       '<header class="ed-heading"><h2>Ediciones y pruebas</h2>' +
-      '<p>Configuración académica histórica y nuevas evaluaciones por semestre.</p></header>' +
+      '<p>Seguimiento de evaluaciones. El cargue lo hace ChatGPT con los archivos que le compartas.</p></header>' +
       (S.error ? '<p class="ed-message ed-error" role="alert">' + HTML(S.error) + '</p>' : "") +
       (S.info ? '<p class="ed-message ed-ok" role="status">' + HTML(S.info) + '</p>' : "") +
       (S.busy ? '<p class="ed-message">Consultando Supabase…</p>' : "") +
@@ -296,6 +328,7 @@
     const action = target.dataset.edAction;
     const id = target.dataset.edId;
     if (action === "signout") return logout();
+    if (action === "toggle-advanced") { S.advanced = !S.advanced; S.form = ""; S.edit = null; return redraw(); }
     if (action === "cancel") return setForm("");
     if (action === "new-edition") return setForm("edition");
     if (action === "new-grade") return setForm("grade");
