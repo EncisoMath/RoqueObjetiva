@@ -84,7 +84,7 @@
   .adm151-link { transition:none; }
 }
 
-/* === v157 / navegación administrativa móvil: cristal azul nocturno flat ===
+/* === v158 / navegación móvil: carbón azulado flat, blur 3px y radio 4px ===
    Mismo tono azul oscuro del login; blur de 3px, radios <= 4px. No hay velo sobre el contenido de fondo.
    La columna lateral de escritorio conserva su diseño v151. */
 @media (max-width: 1000px) {
@@ -101,10 +101,10 @@
     border: 1px solid rgba(125, 174, 208, .32);
     border-bottom: 0;
     border-radius: 4px 4px 0 0;
-    background: rgba(6, 21, 43, .82);
+    background: rgba(4, 12, 24, .90);
     -webkit-backdrop-filter: blur(3px);
     backdrop-filter: blur(3px);
-    box-shadow: 0 -4px 16px rgba(1, 13, 31, .18);
+    box-shadow: 0 -4px 16px rgba(0, 8, 20, .24);
     isolation: isolate;
   }
   .adm151-dock::before {
@@ -114,7 +114,7 @@
     left: 7%;
     right: 7%;
     height: 1px;
-    background: rgba(176, 221, 250, .34);
+    background: rgba(180, 220, 245, .20);
     pointer-events: none;
   }
   .adm151-dock-item {
@@ -125,7 +125,7 @@
     border: 1px solid transparent;
     border-radius: 4px;
     background: transparent;
-    color: #b8cde0;
+    color: #d3e2ee;
     font-weight: 660;
     font-size: .68rem;
     letter-spacing: -.012em;
@@ -148,7 +148,7 @@
     transition: transform .23s cubic-bezier(.2,.8,.2,1);
   }
   .adm151-dock-item:hover {
-    background: rgba(75, 142, 187, .18);
+    background: rgba(74, 138, 182, .14);
     color: #e9f6ff;
   }
   .adm151-dock-item:active {
@@ -159,9 +159,9 @@
   }
   .adm151-dock-item.is-active {
     color: #ffffff;
-    border-color: rgba(117, 192, 237, .44);
-    background: rgba(39, 117, 171, .50);
-    box-shadow: inset 0 0 0 1px rgba(183,225,250,.13);
+    border-color: rgba(112, 182, 224, .32);
+    background: rgba(28, 92, 140, .58);
+    box-shadow: inset 0 0 0 1px rgba(190, 228, 249, .10);
   }
   .adm151-dock-item.is-active::after {
     content: "";
@@ -189,13 +189,13 @@
   .adm151-overlay .adm151-sheet {
     max-height: min(84dvh, 650px);
     height: auto;
-    border: 1px solid rgba(108, 169, 212, .38);
+    border: 1px solid rgba(101, 161, 204, .26);
     border-bottom: 0;
     border-radius: 4px 4px 0 0;
-    background: rgba(6, 19, 40, .82);
+    background: rgba(5, 14, 28, .90);
     -webkit-backdrop-filter: blur(3px);
     backdrop-filter: blur(3px);
-    box-shadow: 0 -10px 26px rgba(2, 13, 31, .21);
+    box-shadow: 0 -10px 26px rgba(0, 8, 20, .28);
     transform: translate3d(0, calc(100% + 16px), 0);
     opacity: .98;
     transition:
@@ -217,8 +217,8 @@
 
   .adm151-sheet-head {
     padding: 14px 16px 12px;
-    background: rgba(16, 43, 70, .57);
-    border-bottom: 1px solid rgba(137, 183, 220, .26);
+    background: rgba(8, 22, 40, .82);
+    border-bottom: 1px solid rgba(120, 171, 210, .20);
   }
   .adm151-sheet-head .adm151-kicker {
     color: #93cbe9;
@@ -237,8 +237,8 @@
     height: 36px;
     border: 1px solid rgba(149,193,224,.32);
     border-radius: 4px;
-    background: rgba(95, 153, 196, .19);
-    color: #d8eeff;
+    background: rgba(77, 127, 165, .22);
+    color: #edf7ff;
     transition: transform .19s ease, background .19s ease, color .19s ease;
   }
   .adm151-close:hover { background: rgba(106, 169, 212, .34); color: #ffffff; }
@@ -273,7 +273,7 @@
       border-color .2s ease;
   }
   .adm151-sheet-scroll .adm151-link:hover {
-    background: rgba(94, 164, 207, .19);
+    background: rgba(72, 130, 170, .16);
     color: #ffffff;
   }
   .adm151-sheet-scroll .adm151-link:active {
@@ -281,8 +281,8 @@
   }
   .adm151-sheet-scroll .adm151-link.is-active {
     color: #ffffff;
-    border-color: rgba(116,183,229,.42);
-    background: rgba(35, 116, 176, .47);
+    border-color: rgba(101, 166, 208, .28);
+    background: rgba(28, 92, 140, .52);
     font-weight: 750;
   }
   .adm151-sheet-scroll .adm151-link .adm151-current-mark {
@@ -300,8 +300,8 @@
   .adm151-sheet-foot {
     padding: 7px 13px;
     color: #a8bfd1;
-    border-top-color: rgba(134,181,216,.26);
-    background: rgba(16, 43, 70, .57);
+    border-top-color: rgba(120,171,210,.20);
+    background: rgba(8, 22, 40, .82);
   }
   .adm151-sheet-foot .adm151-exit {
     border-radius: 4px;
