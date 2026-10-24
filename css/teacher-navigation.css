@@ -1,4 +1,4 @@
-/* RoqueObjetiva v161 — Etapa 2: navegación por rol y selectores académicos.
+/* RoqueObjetiva v162 — Etapa 2: navegación por rol y selectores académicos.
    Exclusivo para sesiones docentes: no altera administración ni el reporte estudiantil. */
 .roque-teacher-shell { --t160-border: #dce3e9; --t160-muted: #617181; --t160-soft: color-mix(in srgb, var(--orange) 9%, white); }
 .roque-teacher-shell .top-banner,
@@ -157,4 +157,87 @@
   .roque-teacher-shell .page > .teacher-nav-block,
   .roque-teacher-shell .page > .coordinator-admin-panel,
   .roque-teacher-shell .page > .director-subject-grid { animation: none !important; }
+}
+
+/* v162 · Cabecera docente: reservar espacio para el logo EXISTENTE, sin escalarlo ni reducirlo.
+   No se alteran las vistas de administrador ni los resultados de estudiantes. */
+.roque-teacher-shell .top-banner {
+  min-height: 128px !important;
+}
+.roque-teacher-shell .top-banner .banner-inner {
+  min-height: 128px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 22px !important;
+  box-sizing: border-box;
+}
+.roque-teacher-shell .banner-copy {
+  min-width: 0;
+}
+.roque-teacher-shell .banner-copy h1 {
+  font-size: clamp(1.5rem, 2.45vw, 1.85rem) !important;
+  line-height: 1.08;
+  margin: 0 0 5px !important;
+  font-weight: 800;
+}
+.roque-teacher-shell .banner-copy p {
+  font-size: .82rem !important;
+  line-height: 1.25 !important;
+  font-weight: 500 !important;
+  margin: 0;
+}
+/* Solo dimensiones del CONTENEDOR de la cabecera: banner-logo y logo-zoom no se tocan. */
+.roque-teacher-shell .banner-brand,
+.roque-teacher-shell .banner-logo-frame {
+  overflow: visible;
+}
+.roque-teacher-shell .teacher-toolbar {
+  padding: 20px 22px !important;
+  box-sizing: border-box;
+}
+.roque-teacher-shell .teacher-toolbar > div {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+}
+.roque-teacher-shell .teacher-toolbar .section-eyebrow {
+  margin: 0;
+}
+.roque-teacher-shell .teacher-toolbar h2 {
+  margin: 0 !important;
+  line-height: 1.16;
+  max-width: 100%;
+  overflow-wrap: break-word;
+}
+.roque-teacher-shell .teacher-toolbar .teacher-active-label {
+  margin: 0 !important;
+  line-height: 1.35;
+}
+@media (max-width: 680px) {
+  .roque-teacher-shell .top-banner {
+    min-height: 116px !important;
+  }
+  .roque-teacher-shell .top-banner .banner-inner {
+    min-height: 116px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding: 13px 16px !important;
+    gap: 10px;
+  }
+  .roque-teacher-shell .banner-copy h1 {
+    font-size: 1.32rem !important;
+    margin-bottom: 5px !important;
+  }
+  .roque-teacher-shell .banner-copy p {
+    font-size: .70rem !important;
+    line-height: 1.22 !important;
+  }
+  .roque-teacher-shell .teacher-toolbar {
+    padding: 18px 18px !important;
+  }
+  .roque-teacher-shell .teacher-toolbar > div {
+    gap: 7px;
+  }
 }
