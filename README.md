@@ -6,7 +6,12 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v171
+RoqueObjetiva v172
+
+
+## v172 · Historial multisemestre seguro
+
+El inicio habitual por ID y el informe de 2026-1S se mantienen. La pantalla «Mis evaluaciones · cuenta personal» permite seleccionar periodos **publicados** solo cuando el estudiante tiene una cuenta Supabase Auth autorizada y vinculada explícitamente a su persona. Una evaluación en borrador (como 2026-2S) no es visible. El nuevo sistema no crea cuentas ni publica resultados automáticamente. Detalles y pruebas en [docs/HISTORIAL_MULTISEMESTRE_V172.md](docs/HISTORIAL_MULTISEMESTRE_V172.md).
 
 ## Uso
 
