@@ -132,7 +132,6 @@
     const edition = S.config && S.config.edicion || {};
     return '<section class="ed-controls">' +
       select("Edición", "edicion", S.edition, optionsEd()).replace('<select name="edicion">', '<select name="edicion" data-ed-select="edition">') +
-      button("Crear edición", "new-edition", "", "ed-primary") +
       button("Actualizar datos", "reload") +
       button("Cerrar Supabase Auth", "signout") + '</section>' +
       '<p class="ed-note">Sesión de gestión: ' + HTML(S.email) + '. La página publicada continúa consultando el sistema antiguo hasta completar la transición.</p>' +
@@ -301,6 +300,7 @@
     return selectorPanel() + aiStatusPanel() +
       '<div class="ed-advanced-switch">' +
         button(S.advanced ? "Ocultar configuración técnica" : "Mostrar configuración técnica (opcional)", "toggle-advanced") +
+        (S.advanced ? button("Crear edición", "new-edition", "", "ed-primary") : "") +
       '</div>' + (S.advanced ? createEditionForm() + configSection() : "");
   }
   function render() {
