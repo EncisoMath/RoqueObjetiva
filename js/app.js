@@ -153,9 +153,6 @@
     adminDirectorTeacherId: "",
     modalStack: [],
     activeSession: null,
-    historyAvailable: [],
-    historyRanking: null,
-    historyAccess: false,
     studentEditionCatalog: [],
     zeroToleranceShown: false
   };
@@ -188,7 +185,7 @@
       await loadAllData();
       buildRepository();
       const saved = readJSON(STORAGE.session, null);
-      if (saved && saved.role && saved.role !== "admin" && !saved.historial) {
+      if (saved && saved.role && saved.role !== "admin") {
         if (saved.role === "student" && SUPABASE_CONFIG.enabled) {
           // No abrir un informe con datos sin autenticar tras refrescar la PWA.
           await loginWithSupabase(cleanId(saved.roll), "", { restore: true });
@@ -1337,12 +1334,6 @@
     const parsedLogin = parseRankingLoginInput(user);
     const cleanUser = parsedLogin.login;
     const wantsRankingDebug = !!(options.rankingDebug || parsedLogin.rankingDebug);
-    if (state.historyAccess) {
-      state.historyAvailable = [];
-      state.historyRanking = null;
-      state.historyAccess = false;
-      window.RoqueHistorial?.clear?.();
-    }
     try {
       const bootCopy = randomLoaderCopy();
       fadeAppOut();
@@ -2401,25 +2392,6 @@
     const key = cleanId(roll);
     if (!key) return;
     clearSessionRankContext();
-    // Historial v172: usar exclusivamente el ranking personal ya validado
-    // por JWT en Supabase, sin consultar la RPC antigua limitada a 2026-1S.
-    if (state.historyAccess) {
-      const personal = state.historyRanking || {};
-      const rank = personal.ranking || {};
-      setSessionRankContext(key, {
-        gradeRank: rank.puesto_grado, gradeCount: rank.total_grado,
-        courseRank: rank.puesto_curso, courseCount: rank.total_curso,
-        globalScore: rank.puntaje_global
-      });
-      const areas = new Map();
-      Object.entries(personal.ranking_areas || {}).forEach(([name, info]) => {
-        const position = positiveIntOrNull(info?.puesto);
-        const total = positiveIntOrNull(info?.total);
-        if (position && total && position <= total) areas.set(name, { rank: position, total });
-      });
-      state.rankingAreasByRoll.set(key, areas);
-      return;
-    }
     const warnings = [];
     const errors = [];
 
@@ -2640,14 +2612,11 @@
       rankingDebugDone: !debug,
       rankingDebugVersion: "v140",
       studentView: "report",
-      edition: cleanText(options.edition || state.academicEdition || "2026-1S"),
-      ...(options.historial ? { historial: true } : {})
+      edition: cleanText(options.edition || state.academicEdition || "2026-1S")
     };
     state.activeSession = session;
-    if (!options.historial) {
-      writeJSON(STORAGE.session, state.activeSession);
-      rememberRecentLogin(session);
-    }
+    writeJSON(STORAGE.session, state.activeSession);
+    rememberRecentLogin(session);
     fadeAppOut();
     showRouteLoader(message);
     window.setTimeout(async () => {
@@ -2978,34 +2947,6 @@
 
     renderLogin("No se pudo abrir ese ingreso reciente.");
   }
-
-  window.RoqueHistorialBridge = {
-    applyEdition(data, editions) {
-      if (!data?.ok || data?.session?.role !== "student" || !data?.edicion) {
-        throw new Error("La edición no fue autorizada.");
-      }
-      hydrateSupabasePayload(data);
-      state.academicEdition = cleanText(data.edicion);
-      state.academicDataSource = cleanText(data.origen_academico || "roque_private_auth_v172");
-      state.historyRanking = data.ranking_personal || {};
-      state.historyAvailable = Array.isArray(editions) ? editions : [];
-      state.historyAccess = true;
-      buildRepository();
-      enterStudentSessionWithRankingMode(cleanId(data.session.roll), {
-        historial: true, message: "Preparando resultados del semestre..."
-      });
-    },
-    backToEditions() {
-      state.activeSession = null;
-      state.historyRanking = null;
-      clearSessionRankContext();
-      window.RoqueHistorial?.showSelector?.();
-    },
-    leave() {
-      clearSession();
-      renderLogin();
-    }
-  };
 
   function renderLogin(error = "") {
     const primary = normalizeColor(state.config.primaryColor || "#1975ae");
@@ -9089,11 +9030,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
   function clearSession() {
     if (window.RoqueEdiciones) window.RoqueEdiciones.logout();
     state.activeSession = null;
-    state.historyAvailable = [];
-    state.historyRanking = null;
-    state.historyAccess = false;
     state.studentEditionCatalog = [];
-    window.RoqueHistorial?.clear?.();
     state.zeroToleranceShown = false;
     clearSessionRankContext();
     clearRankingFallbackData();
