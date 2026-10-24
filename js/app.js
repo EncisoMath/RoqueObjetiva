@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v154";
+  const APP_VERSION = "v155";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -3576,8 +3576,8 @@
   }
 
   function adminNavItems(section, prefix) {
-    return section.items.map(([id, label, icon]) =>
-      `<button type="button" class="adm151-link ${state.adminTab === id ? "is-active" : ""}" data-action="admin-tab" data-tab="${id}" ${state.adminTab === id ? 'aria-current="page"' : ""}>
+    return section.items.map(([id, label, icon], index) =>
+      `<button type="button" class="adm151-link ${state.adminTab === id ? "is-active" : ""}" style="--adm155-item-index:${index}" data-action="admin-tab" data-tab="${id}" ${state.adminTab === id ? 'aria-current="page"' : ""}>
         ${adminNavIcon(icon)}<span>${esc(label)}</span>${state.adminTab === id ? '<span class="adm151-current-mark" aria-hidden="true"></span>' : ""}
       </button>`
     ).join("");
@@ -3636,11 +3636,22 @@
     };
   }
 
+  // La capa permanece montada durante la animacion de salida, evitando cortes.
+  let adminNavCloseTimer = null;
+
   function openAdminNavigation(group) {
     if (state.activeSession?.role !== "admin") return;
     const overlay = document.querySelector(".adm151-overlay");
     if (!overlay) return;
     const mode = group === "pruebas" || group === "personas" ? group : "otros";
+    if (overlay.classList.contains("is-open") && overlay.dataset.mode === mode) {
+      closeAdminNavigation();
+      return;
+    }
+    if (adminNavCloseTimer !== null) {
+      clearTimeout(adminNavCloseTimer);
+      adminNavCloseTimer = null;
+    }
     const enabledGroups = mode === "otros" ? ["analisis", "configuracion"] : [mode];
     overlay.querySelectorAll(".adm151-group").forEach((node) => {
       node.hidden = !enabledGroups.includes(node.dataset.admGroup);
@@ -3649,20 +3660,39 @@
     const title = overlay.querySelector(".adm151-sheet-title");
     if (title) title.textContent = mode === "pruebas" ? "Pruebas y evaluaciones" :
       mode === "personas" ? "Personas" : "Más opciones";
-    overlay.classList.add("is-open");
+    overlay.classList.remove("is-closing", "is-open");
+    overlay.classList.add("is-visible");
     overlay.setAttribute("aria-hidden", "false");
     document.body.classList.add("adm151-menu-open");
-    overlay.querySelector(".adm151-close")?.focus();
+    // Un frame con estado cerrado permite animar de 100% a 0 sin saltos.
+    requestAnimationFrame(() => {
+      if (overlay.isConnected && overlay.classList.contains("is-visible") &&
+          !overlay.classList.contains("is-closing")) overlay.classList.add("is-open");
+    });
+    overlay.querySelector(".adm151-close")?.focus({ preventScroll: true });
   }
 
-  function closeAdminNavigation() {
-    const overlay = document.querySelector(".adm151-overlay.is-open");
-    document.body.classList.remove("adm151-menu-open");
-    if (!overlay) return false;
+  function closeAdminNavigation(onClosed) {
+    const overlay = document.querySelector(".adm151-overlay.is-visible");
+    if (!overlay) {
+      if (typeof onClosed === "function") onClosed();
+      return false;
+    }
+    if (overlay.classList.contains("is-closing")) return true;
+    const selectedMode = overlay.dataset.mode || "otros";
     overlay.classList.remove("is-open");
-    overlay.setAttribute("aria-hidden", "true");
-    overlay.removeAttribute("data-mode");
-    document.querySelector('.adm151-dock-item[data-action="admin-nav-open"]')?.focus();
+    overlay.classList.add("is-closing");
+    document.body.classList.remove("adm151-menu-open");
+    const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+    adminNavCloseTimer = setTimeout(() => {
+      adminNavCloseTimer = null;
+      overlay.classList.remove("is-visible", "is-closing");
+      overlay.setAttribute("aria-hidden", "true");
+      overlay.removeAttribute("data-mode");
+      document.querySelector('.adm151-dock-item[data-group="' + selectedMode + '"]')
+        ?.focus({ preventScroll: true });
+      if (typeof onClosed === "function") onClosed();
+    }, reduceMotion ? 0 : 235);
     return true;
   }
 
@@ -5604,8 +5634,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     }
 
     if (action === "logout") {
-      closeAdminNavigation();
-      logoutWithFade();
+      closeAdminNavigation(() => logoutWithFade());
       return;
     }
 
@@ -5886,15 +5915,13 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
 
     if (action === "admin-tab") {
       event.preventDefault();
-      closeAdminNavigation();
       const tab = target.dataset.tab || "resumen";
-      if (adminTabIds().has(tab)) {
+      if (!adminTabIds().has(tab)) return;
+      closeAdminNavigation(() => {
         state.adminTab = tab;
-        if (state.adminTab !== "claves") {
-          state.adminSubjectFilter = "all";
-        }
+        if (state.adminTab !== "claves") state.adminSubjectFilter = "all";
         renderAdminContext();
-      }
+      });
       return;
     }
 
