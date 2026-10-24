@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v169";
+  const APP_VERSION = "v170";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -91,6 +91,7 @@
     responsesByRoll: new Map(),
     editedExamRolls: new Set(),
     rankingMetadataByRoll: new Map(),
+    rankingAreasByRoll: new Map(),
     rankingFallbackResponsesByRoll: new Map(),
     rankingFallbackRegistryByExamId: new Map(),
     rankingFallbackRegistryByNationalId: new Map(),
@@ -249,6 +250,7 @@
       state.keys = [];
       state.responsesByRoll = new Map();
       state.rankingMetadataByRoll = new Map();
+    state.rankingAreasByRoll = new Map();
       state.rankingFallbackResponsesByRoll = new Map();
       state.rankingFallbackRegistryByExamId = new Map();
       state.rankingFallbackRegistryByNationalId = new Map();
@@ -269,6 +271,7 @@
     state.keys = [];
     state.responsesByRoll = new Map();
     state.rankingMetadataByRoll = new Map();
+    state.rankingAreasByRoll = new Map();
     state.rankingFallbackResponsesByRoll = new Map();
     state.rankingFallbackRegistryByExamId = new Map();
     state.rankingFallbackRegistryByNationalId = new Map();
@@ -452,10 +455,28 @@
     if (!key) return false;
     let data = null;
     try {
-      data = await supabaseRpc("roque_v2_ranking_controlado", { p_login: key, p_terminal: terminalIdForConsultation() });
+      // v170: mismos puestos, ahora calculados con claves/resultados de roque_private.
+      // El SQL comprueba la edición visible y la visita autorizada de este terminal.
+      data = await supabaseRpc("roque_v3_ranking_controlado_edicion", {
+        p_login: key, p_terminal: terminalIdForConsultation(),
+        p_edicion: cleanText(state.academicEdition || "2026-1S")
+      });
     } catch (error) {
-      warnings.push(`RPC de ranking protegido no disponible o falló: ${error?.message || error}`);
-      return false;
+      if (error?.status === 404 && error?.code === "PGRST202") {
+        // Solo cuando la RPC nueva todavía no exista; jamás eludir bloqueos.
+        try {
+          data = await supabaseRpc("roque_v2_ranking_controlado", {
+            p_login: key, p_terminal: terminalIdForConsultation()
+          });
+          warnings.push("Consulta temporal con RPC de ranking v2 por despliegue pendiente.");
+        } catch (legacyError) {
+          warnings.push(`RPC de ranking protegido no disponible: ${legacyError?.message || legacyError}`);
+          return false;
+        }
+      } else {
+        warnings.push(`RPC de ranking protegido no disponible o falló: ${error?.message || error}`);
+        return false;
+      }
     }
 
     if (!data || data.ok === false) {
@@ -486,10 +507,25 @@
     };
 
     setSessionRankContext(key, meta);
+    if (data.ranking_areas && typeof data.ranking_areas === "object" && !Array.isArray(data.ranking_areas)) {
+      const safeAreas = new Map();
+      Object.entries(data.ranking_areas).forEach(([name, info]) => {
+        const rank = positiveIntOrNull(info?.puesto);
+        const total = positiveIntOrNull(info?.total);
+        if (rank && total && rank <= total) safeAreas.set(name, { rank, total });
+      });
+      state.rankingAreasByRoll.set(key, safeAreas);
+    }
     const examId = cleanId(estudiante.id_prueba || estudiante.roll || gradeTarget?.roll || courseTarget?.roll || "");
     const nationalId = cleanId(estudiante.id_alumno || estudiante.documento || gradeTarget?.nationalId || courseTarget?.nationalId || "");
-    if (examId && examId !== key) setSessionRankContext(examId, meta);
-    if (nationalId && nationalId !== key) setSessionRankContext(nationalId, meta);
+    if (examId && examId !== key) {
+      setSessionRankContext(examId, meta);
+      if (state.rankingAreasByRoll.has(key)) state.rankingAreasByRoll.set(examId, state.rankingAreasByRoll.get(key));
+    }
+    if (nationalId && nationalId !== key) {
+      setSessionRankContext(nationalId, meta);
+      if (state.rankingAreasByRoll.has(key)) state.rankingAreasByRoll.set(nationalId, state.rankingAreasByRoll.get(key));
+    }
 
     const visibleStudent = findRankingStudentByRoll(key) || findRankingStudentByRoll(examId) || findRankingStudentByRoll(nationalId);
     if (visibleStudent) applySessionRankContextToStudent(visibleStudent);
@@ -949,6 +985,7 @@
     state.keys = [];
     state.responsesByRoll = new Map();
     state.rankingMetadataByRoll = new Map();
+    state.rankingAreasByRoll = new Map();
     state.rankingFallbackResponsesByRoll = new Map();
     state.rankingFallbackRegistryByExamId = new Map();
     state.rankingFallbackRegistryByNationalId = new Map();
@@ -3177,6 +3214,9 @@
     if (!stat) return `<div class="empty-state">No hay información para esta asignatura.</div>`;
     const detailRows = (stat.details || []).map((detail) => answerPill(detail, student.roll, detail.item, showCorrect)).join("");
     const activeMetric = state.metricTab === "competences" ? "competences" : "components";
+    const rankArea = state.activeSession?.role === "student"
+      ? state.rankingAreasByRoll?.get?.(cleanId(student.roll))?.get?.(subject)
+      : null;
     const detailHeader = compact ? `
         <header class="subject-detail-head">
           <div class="subject-detail-title">
@@ -3198,6 +3238,7 @@
           <div><span>Incorrectas</span><strong>${(stat.wrong ?? 0) + (stat.doubleMark ?? 0)}</strong></div>
           <div><span>Sin marcar</span><strong>${stat.empty ?? 0}</strong></div>
         </div>
+        ${rankArea ? `<p class="subject-rank-note">Puesto en ${esc(subject)} dentro de ${esc(student.grade)}°: <strong>${rankArea.rank} de ${rankArea.total}</strong></p>` : ""}
 
         <div class="answer-tools clean">
           <h4>Estas fueron las opciones que marcaste</h4>

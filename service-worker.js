@@ -1,30 +1,30 @@
-const APP_VERSION = "v169";
-const CACHE_VERSION = "resultados-pwa-v169-lectura-roque-private";
+const APP_VERSION = "v170";
+const CACHE_VERSION = "resultados-pwa-v170-ranking-edicion";
 const CACHE_PREFIXES = ["resultados-pwa-", "resultados-pruebas-"];
 
 const APP_SHELL = [
   "./",
   "index.html",
-  "css/app.css?v=169",
-  "css/login-performance.css?v=169",
-  "css/ediciones.css?v=169",
-  "css/admin-navigation.css?v=169",
-  "css/teacher-navigation.css?v=169",
-  "css/shared-hero.css?v=169",
-  "js/app.js?v=169",
-  "js/ediciones.js?v=169",
+  "css/app.css?v=170",
+  "css/login-performance.css?v=170",
+  "css/ediciones.css?v=170",
+  "css/admin-navigation.css?v=170",
+  "css/teacher-navigation.css?v=170",
+  "css/shared-hero.css?v=170",
+  "js/app.js?v=170",
+  "js/ediciones.js?v=170",
   "version.json",
   "config/data-manifest.json",
   "config/site-config.json",
-  "config/supabase-config.js?v=169",
-  "manifest.webmanifest?v=169",
+  "config/supabase-config.js?v=170",
+  "manifest.webmanifest?v=170",
   "icons/icon-192.png",
   "icons/icon-512.png",
   "icons/maskable-512.png",
   "icons/apple-touch-icon.png",
   "icons/favicon-16.png",
   "icons/favicon-32.png",
-  "assets/logo-principal.png?v=169",
+  "assets/logo-principal.png?v=170",
   "assets/ZERO.png",
   "ICONOS/artistica.png",
   "ICONOS/ciencias-naturales.png",
