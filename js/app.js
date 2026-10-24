@@ -109,6 +109,7 @@
     metricTab: "components",
     teacherActive: null,
     teacherMode: "asignaturas",
+    teacherDockMenu: "",
     teacherDirectorActiveKey: "",
     teacherSearch: "",
     adminTab: "resumen",
@@ -163,7 +164,7 @@
   document.addEventListener("dragover", handleDragOver);
   document.addEventListener("drop", handleDrop);
   window.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && !closeAdminNavigation()) closeModal();
+    if (event.key === "Escape" && !closeTeacherDockMenu() && !closeAdminNavigation()) closeModal();
   });
 
   async function init() {
@@ -2908,7 +2909,7 @@
     const isMedalBanner = ["banner-rank-gold", "banner-rank-silver", "banner-rank-bronze"].includes(bannerToneClass);
     const bannerClass = isMedalBanner ? ` ${bannerToneClass}` : "";
     app.innerHTML = `
-      <div class="app-shell${state.activeSession?.role === "admin" ? " adm151-shell" : ""}">
+      <div class="app-shell${state.activeSession?.role === "admin" ? " adm151-shell" : ""}${state.activeSession?.role === "teacher" ? " roque-teacher-shell" : ""}">
         <header class="top-banner${bannerClass}" ${bannerStyle}>
           <div class="banner-shapes ${isMedalBanner ? "banner-stars" : ""}" aria-hidden="true">
             ${renderPlayShapes("banner", isMedalBanner)}
@@ -2927,6 +2928,7 @@
         <main class="page">
           ${content}
         </main>
+        ${state.activeSession?.role === "teacher" ? teacherDockHtml() : ""}
       </div>
     `;
   }
@@ -3226,6 +3228,7 @@
     const isCoordinator = !!teacher.coordinator;
 
     if (state.teacherMode === "coord-graficas") state.teacherMode = "coord-estudiantes";
+    if (!teacherModeAllowed(teacher, state.teacherMode)) state.teacherMode = hasAssignments ? "asignaturas" : (hasDirector ? "director" : (isCoordinator ? "coord-estudiantes" : "asignaturas"));
     if (isCoordinator && String(state.teacherMode || "").startsWith("coord-")) {
       return renderCoordinatorPanel(teacher);
     }
@@ -5462,21 +5465,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
         </nav>
       `;
     }
-    if (role === "teacher") {
-      const teacher = state.teachers.get(state.activeSession?.id) || null;
-      const hasAssignments = !!(teacher?.assignments || []).length;
-      const hasDirector = !!(teacher?.directorGroups || []).length;
-      const isCoordinator = !!teacher?.coordinator;
-      const activeMode = state.teacherMode || "asignaturas";
-      return `
-        <nav class="app-nav teacher-top-nav">
-          <button class="nav-chip ${activeMode === "asignaturas" ? "active" : ""}" onclick="window.__poTeacherModeFromElement&&window.__poTeacherModeFromElement(event,this)" data-action="teacher-mode" data-mode="asignaturas" ${hasAssignments ? "" : "disabled"}>Panel docente</button>
-          ${hasDirector ? `<button class="nav-chip ${activeMode === "director" ? "active" : ""}" onclick="window.__poTeacherModeFromElement&&window.__poTeacherModeFromElement(event,this)" data-action="teacher-mode" data-mode="director">Panel director de grupo</button>` : ""}
-          ${isCoordinator ? `<button class="nav-chip ${activeMode === "coord-estudiantes" ? "active" : ""}" onclick="window.__poTeacherModeFromElement&&window.__poTeacherModeFromElement(event,this)" data-action="teacher-mode" data-mode="coord-estudiantes">Estudiantes</button><button class="nav-chip ${activeMode === "coord-resultados" ? "active" : ""}" onclick="window.__poTeacherModeFromElement&&window.__poTeacherModeFromElement(event,this)" data-action="teacher-mode" data-mode="coord-resultados">Resultados</button><button class="nav-chip ${activeMode === "coord-estadisticas" ? "active" : ""}" onclick="window.__poTeacherModeFromElement&&window.__poTeacherModeFromElement(event,this)" data-action="teacher-mode" data-mode="coord-estadisticas">Estadísticas</button><button class="nav-chip ${activeMode === "coord-claves" ? "active" : ""}" onclick="window.__poTeacherModeFromElement&&window.__poTeacherModeFromElement(event,this)" data-action="teacher-mode" data-mode="coord-claves">Claves</button>` : ""}
-          <button class="nav-chip logout" data-action="logout">Salir</button>
-        </nav>
-      `;
-    }
+    if (role === "teacher") return ""; // Etapa 2: dock fuera del header.
     return "";
   }
 
@@ -5536,8 +5525,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
   window.__poTeacherModeFromElement = function(event, element) {
     if (event) { event.preventDefault(); event.stopPropagation(); }
     const mode = element?.dataset?.mode || "asignaturas";
-    state.teacherMode = ["director", "asignaturas", "coord-estudiantes", "coord-resultados", "coord-estadisticas", "coord-claves"].includes(mode) ? mode : "asignaturas";
-    renderBySession();
+    setTeacherMode(mode);
   };
 
 
@@ -5641,6 +5629,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     }
 
     if (action === "logout") {
+      closeTeacherDockMenu();
       closeAdminNavigation(() => logoutWithFade());
       return;
     }
@@ -5727,6 +5716,18 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       return;
     }
 
+    if (action === "teacher-dock-toggle") {
+      toggleTeacherDockMenu(target.dataset.menu || "");
+      return;
+    }
+    if (action === "teacher-dock-close" || action === "teacher-dock-backdrop") {
+      closeTeacherDockMenu();
+      return;
+    }
+    if (action === "teacher-dock-mode") {
+      setTeacherMode(target.dataset.mode || "");
+      return;
+    }
     if (action === "teacher-subject") {
       const teacher = state.teachers.get(state.activeSession?.id);
       const subject = canonicalSubject(target.dataset.subject);
@@ -5774,8 +5775,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
 
     if (action === "teacher-mode") {
       const mode = target.dataset.mode || "asignaturas";
-      state.teacherMode = ["director", "asignaturas", "coord-estudiantes", "coord-resultados", "coord-estadisticas", "coord-claves"].includes(mode) ? mode : "asignaturas";
-      renderBySession();
+      setTeacherMode(mode);
       return;
     }
 
@@ -6396,6 +6396,24 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
 
   function handleChange(event) {
     const target = event.target;
+    if (target.dataset.teacherSelect && state.activeSession?.role === "teacher") {
+      const teacher = state.teachers.get(state.activeSession.id);
+      if (!teacher) return;
+      if (target.dataset.teacherSelect === "subject") {
+        const subject = target.value;
+        const assignments = (teacher.assignments || []).filter((a) => sameSubject(subjectNameForAssignment(a), subject) || sameSubject(a.subject, subject));
+        state.teacherActive = assignments.find((a) => state.computedStudents.some((student) => teacherAssignmentMatches(student, a))) || assignments[0] || null;
+      } else if (target.dataset.teacherSelect === "course") {
+        const selection = (teacher.assignments || []).find((a) => a.key === target.value);
+        if (!selection || (state.teacherActive && !sameSubject(subjectNameForAssignment(selection), subjectNameForAssignment(state.teacherActive)))) return;
+        state.teacherActive = selection;
+      } else if (target.dataset.teacherSelect === "director") {
+        if (!(teacher.directorGroups || []).some((g) => g.key === target.value)) return;
+        state.teacherDirectorActiveKey = target.value;
+      }
+      renderBySession();
+      return;
+    }
 
     if (target.dataset.cargaRow) {
       updateCargaRowField(target);
