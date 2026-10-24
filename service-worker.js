@@ -1,27 +1,28 @@
-const APP_VERSION = "v152";
-const CACHE_VERSION = "resultados-pwa-v152-ediciones-auth";
+const APP_VERSION = "v153";
+const CACHE_VERSION = "resultados-pwa-v153-ediciones-auth";
 const CACHE_PREFIXES = ["resultados-pwa-", "resultados-pruebas-"];
 
 const APP_SHELL = [
   "./",
   "index.html",
-  "css/app.css?v=152",
-  "css/ediciones.css?v=152",
-  "css/admin-navigation.css?v=152",
-  "js/app.js?v=152",
-  "js/ediciones.js?v=152",
+  "css/app.css?v=153",
+  "css/login-performance.css?v=153",
+  "css/ediciones.css?v=153",
+  "css/admin-navigation.css?v=153",
+  "js/app.js?v=153",
+  "js/ediciones.js?v=153",
   "version.json",
   "config/data-manifest.json",
   "config/site-config.json",
-  "config/supabase-config.js?v=152",
-  "manifest.webmanifest?v=152",
+  "config/supabase-config.js?v=153",
+  "manifest.webmanifest?v=153",
   "icons/icon-192.png",
   "icons/icon-512.png",
   "icons/maskable-512.png",
   "icons/apple-touch-icon.png",
   "icons/favicon-16.png",
   "icons/favicon-32.png",
-  "assets/logo-principal.png?v=152",
+  "assets/logo-principal.png?v=153",
   "assets/ZERO.png",
   "ICONOS/artistica.png",
   "ICONOS/ciencias-naturales.png",
@@ -83,6 +84,14 @@ self.addEventListener("fetch", (event) => {
 
   const pathname = url.pathname;
   const isDocument = request.mode === "navigate" || pathname.endsWith("/") || pathname.endsWith(".html");
+  // Los recursos con version ?v=... son inmutables entre actualizaciones de PWA.
+  // Usar CacheStorage primero evita re-descargar 800+ KB de CSS y JS en cada acceso.
+  // Los documentos, configuraciones y datos siguen buscando primero en la red.
+  const isVersionedAsset = /\.(js|css)$/.test(pathname) && url.searchParams.has("v");
+  if (isVersionedAsset) {
+    event.respondWith(cacheFirst(request));
+    return;
+  }
   const mustBeFresh = isDocument
     || pathname.endsWith(".js")
     || pathname.endsWith(".css")
