@@ -84,8 +84,8 @@
   .adm151-link { transition:none; }
 }
 
-/* === v156 / diseno flat translucido, solo navegacion administrativa movil ===
-   Superficies con degradado, desenfoque maximo 3px y radios <= 4px.
+/* === v157 / navegación administrativa móvil: cristal azul nocturno flat ===
+   Mismo tono azul oscuro del login; blur de 3px, radios <= 4px. No hay velo sobre el contenido de fondo.
    La columna lateral de escritorio conserva su diseño v151. */
 @media (max-width: 1000px) {
   .adm151-dock,
@@ -94,17 +94,17 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  /* Dock flat azul hielo: translucidez real sin degradados ni brillos artificiales. */
+  /* Dock flat azul nocturno, translúcido y sin degradados. */
   .adm151-dock {
     gap: 4px;
     padding: 7px 8px calc(7px + env(safe-area-inset-bottom));
-    border: 1px solid rgba(151, 191, 222, .54);
+    border: 1px solid rgba(125, 174, 208, .32);
     border-bottom: 0;
     border-radius: 4px 4px 0 0;
-    background: rgba(196, 228, 246, .56);
+    background: rgba(6, 21, 43, .82);
     -webkit-backdrop-filter: blur(3px);
     backdrop-filter: blur(3px);
-    box-shadow: 0 -4px 16px rgba(11, 54, 91, .12);
+    box-shadow: 0 -4px 16px rgba(1, 13, 31, .18);
     isolation: isolate;
   }
   .adm151-dock::before {
@@ -114,7 +114,7 @@
     left: 7%;
     right: 7%;
     height: 1px;
-    background: rgba(255,255,255,.38);
+    background: rgba(176, 221, 250, .34);
     pointer-events: none;
   }
   .adm151-dock-item {
@@ -125,7 +125,7 @@
     border: 1px solid transparent;
     border-radius: 4px;
     background: transparent;
-    color: #536e86;
+    color: #b8cde0;
     font-weight: 660;
     font-size: .68rem;
     letter-spacing: -.012em;
@@ -148,8 +148,8 @@
     transition: transform .23s cubic-bezier(.2,.8,.2,1);
   }
   .adm151-dock-item:hover {
-    background: rgba(255,255,255,.48);
-    color: #175b90;
+    background: rgba(75, 142, 187, .18);
+    color: #e9f6ff;
   }
   .adm151-dock-item:active {
     transform: scale(.95);
@@ -158,10 +158,10 @@
     transform: scale(.91);
   }
   .adm151-dock-item.is-active {
-    color: #086aa7;
-    border-color: rgba(133, 190, 231, .55);
-    background: rgba(154, 208, 239, .48);
-    box-shadow: inset 0 0 0 1px rgba(255,255,255,.18);
+    color: #ffffff;
+    border-color: rgba(117, 192, 237, .44);
+    background: rgba(39, 117, 171, .50);
+    box-shadow: inset 0 0 0 1px rgba(183,225,250,.13);
   }
   .adm151-dock-item.is-active::after {
     content: "";
@@ -171,30 +171,31 @@
     right: 33%;
     height: 2px;
     border-radius: 2px;
-    background: #2387c1;
+    background: #69c7fc;
     animation: adm155AccentEnter .3s ease-out both;
   }
 
   /* El panel se conserva compacto; no se deja altura vacia. */
   .adm151-overlay.is-visible { display: block; position: fixed; inset: 0; z-index: 211; }
   .adm151-overlay .adm151-backdrop {
-    background: rgba(7, 26, 47, .31);
+    background: transparent;
     opacity: 0;
     transition: opacity .25s ease;
   }
-  .adm151-overlay.is-open .adm151-backdrop { opacity: 1; }
+  /* Se conserva la superficie invisible para cerrar tocando fuera, sin oscurecer la página. */
+  .adm151-overlay.is-open .adm151-backdrop { opacity: 0; }
   .adm151-overlay.is-closing .adm151-backdrop { opacity: 0; transition-duration: .22s; }
 
   .adm151-overlay .adm151-sheet {
     max-height: min(84dvh, 650px);
     height: auto;
-    border: 1px solid rgba(171,202,224,.61);
+    border: 1px solid rgba(108, 169, 212, .38);
     border-bottom: 0;
     border-radius: 4px 4px 0 0;
-    background: rgba(223, 241, 251, .67);
+    background: rgba(6, 19, 40, .82);
     -webkit-backdrop-filter: blur(3px);
     backdrop-filter: blur(3px);
-    box-shadow: 0 -10px 26px rgba(4, 31, 59, .17);
+    box-shadow: 0 -10px 26px rgba(2, 13, 31, .21);
     transform: translate3d(0, calc(100% + 16px), 0);
     opacity: .98;
     transition:
@@ -216,17 +217,17 @@
 
   .adm151-sheet-head {
     padding: 14px 16px 12px;
-    background: rgba(229, 245, 253, .56);
-    border-bottom: 1px solid rgba(187,209,229,.55);
+    background: rgba(16, 43, 70, .57);
+    border-bottom: 1px solid rgba(137, 183, 220, .26);
   }
   .adm151-sheet-head .adm151-kicker {
-    color: #37799e;
+    color: #93cbe9;
     font-size: .6rem;
     font-weight: 730;
     letter-spacing: .12em;
   }
   .adm151-sheet-title {
-    color: #18384f;
+    color: #f1f8ff;
     font-size: 1.07rem;
     font-weight: 750;
     letter-spacing: -.025em;
@@ -234,13 +235,13 @@
   .adm151-close {
     width: 36px;
     height: 36px;
-    border: 1px solid rgba(184,205,222,.65);
+    border: 1px solid rgba(149,193,224,.32);
     border-radius: 4px;
-    background: rgba(207, 231, 247, .59);
-    color: #426580;
+    background: rgba(95, 153, 196, .19);
+    color: #d8eeff;
     transition: transform .19s ease, background .19s ease, color .19s ease;
   }
-  .adm151-close:hover { background: #dbeffc; color: #075d96; }
+  .adm151-close:hover { background: rgba(106, 169, 212, .34); color: #ffffff; }
   .adm151-close:active { transform: scale(.92); }
 
   .adm151-sheet-scroll {
@@ -252,7 +253,7 @@
     font-size: .63rem;
     font-weight: 740;
     letter-spacing: .075em;
-    color: #7990a2;
+    color: #a7c4db;
   }
   .adm151-sheet-scroll .adm151-group-links { gap: 3px; }
   .adm151-sheet-scroll .adm151-link {
@@ -261,7 +262,7 @@
     border: 1px solid transparent;
     border-radius: 4px;
     background: transparent;
-    color: #2e4e67;
+    color: #d9eaf7;
     font-size: .81rem;
     font-weight: 680;
     letter-spacing: -.01em;
@@ -272,22 +273,22 @@
       border-color .2s ease;
   }
   .adm151-sheet-scroll .adm151-link:hover {
-    background: rgba(213,237,250,.40);
-    color: #0b659c;
+    background: rgba(94, 164, 207, .19);
+    color: #ffffff;
   }
   .adm151-sheet-scroll .adm151-link:active {
     transform: scale(.986);
   }
   .adm151-sheet-scroll .adm151-link.is-active {
-    color: #0b639b;
-    border-color: rgba(152,201,230,.6);
-    background: rgba(168, 217, 245, .55);
+    color: #ffffff;
+    border-color: rgba(116,183,229,.42);
+    background: rgba(35, 116, 176, .47);
     font-weight: 750;
   }
   .adm151-sheet-scroll .adm151-link .adm151-current-mark {
     width: 3px;
     height: 17px;
-    background: #1681bb;
+    background: #71c9f6;
     border-radius: 2px;
   }
   .adm151-overlay.is-open .adm151-sheet-scroll .adm151-link {
@@ -298,22 +299,22 @@
 
   .adm151-sheet-foot {
     padding: 7px 13px;
-    color: #7990a4;
-    border-top-color: rgba(190,211,230,.6);
-    background: rgba(218, 239, 251, .59);
+    color: #a8bfd1;
+    border-top-color: rgba(134,181,216,.26);
+    background: rgba(16, 43, 70, .57);
   }
   .adm151-sheet-foot .adm151-exit {
     border-radius: 4px;
     min-height: 38px;
     font-size: .79rem;
     font-weight: 740;
-    color: #ad3543;
+    color: #ffacb4;
   }
-  .adm151-sheet-foot .adm151-exit:hover { background: rgba(247,219,226,.45); color: #922334; }
+  .adm151-sheet-foot .adm151-exit:hover { background: rgba(158, 75, 89, .25); color: #ffe5e8; }
   .adm151-sheet .adm151-link:focus-visible,
   .adm151-dock-item:focus-visible,
   .adm151-close:focus-visible {
-    outline: 2px solid #439dd0;
+    outline: 2px solid #8bdaff;
     outline-offset: 1px;
   }
 }
