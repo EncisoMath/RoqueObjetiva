@@ -1129,15 +1129,15 @@
       p_device: deviceInfoText(), p_mode: appModeText()
     };
     try {
-      return await supabaseRpc("roque_v2_login_controlado", params);
+      // v169: mismo login protegido, datos academicos de roque_private (2026-1S).
+      // La funcion SQL conserva el control de consultas y revierte a public
+      // si detecta diferencias entre los datos de ambos esquemas.
+      return await supabaseRpc("roque_v4_login_controlado_private", params);
     } catch (error) {
-      // Compatibilidad temporal durante despliegue: solo si el RPC nuevo TODAVÍA
-      // no existe. No intentar saltar bloqueos ni errores de autorización.
+      // Solo si la nueva funcion NO EXISTE aun en el servidor.
+      // No sortear bloqueos, errores de acceso ni restricciones por rol.
       if (error?.status === 404 && error?.code === "PGRST202") {
-        return supabaseRpc("roque_login", {
-          p_user: user, p_password: pass || "",
-          p_device: deviceInfoText(), p_mode: appModeText()
-        });
+        return supabaseRpc("roque_v2_login_controlado", params);
       }
       throw error;
     }
@@ -1184,6 +1184,8 @@
         return renderLogin(readableLimitMessage(payload));
       }
       hydrateSupabasePayload(payload);
+      state.academicEdition = cleanText(payload.edicion || "2026-1S");
+      state.academicDataSource = cleanText(payload.origen_academico || "legacy");
       // v124: no se hacen consultas exploratorias de ranking aquí.
       // El ranking de estudiante se calcula después con la RPC dedicada.
       buildRepository();
