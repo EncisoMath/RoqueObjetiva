@@ -3268,6 +3268,83 @@
     `, navFor("teacher"));
   }
 
+
+  // Etapa 2: solo navegar por roles efectivamente asignados.
+  function teacherModeAllowed(teacher, mode) {
+    if (!teacher) return false;
+    if (mode === "asignaturas") return (teacher.assignments || []).length > 0;
+    if (mode === "director") return (teacher.directorGroups || []).length > 0;
+    if (["coord-estudiantes", "coord-resultados", "coord-estadisticas", "coord-claves"].includes(mode)) return !!teacher.coordinator;
+    return false;
+  }
+
+  function setTeacherMode(mode) {
+    if (state.activeSession?.role !== "teacher") return;
+    const teacher = state.teachers.get(state.activeSession.id);
+    if (!teacherModeAllowed(teacher, mode)) return;
+    state.teacherMode = mode;
+    state.teacherDockMenu = "";
+    renderBySession();
+  }
+
+  function closeTeacherDockMenu() {
+    if (!state.teacherDockMenu) return false;
+    state.teacherDockMenu = "";
+    document.querySelectorAll(".t160-menu-layer").forEach((el) => {
+      el.classList.remove("is-open");
+      el.setAttribute("aria-hidden", "true");
+    });
+    document.querySelectorAll(".t160-dock-btn[data-menu]").forEach((el) => el.setAttribute("aria-expanded", "false"));
+    return true;
+  }
+
+  function toggleTeacherDockMenu(menu) {
+    if (state.activeSession?.role !== "teacher" || !["coord", "cuenta"].includes(menu)) return;
+    const teacher = state.teachers.get(state.activeSession.id);
+    if (menu === "coord" && !teacher?.coordinator) return;
+    state.teacherDockMenu = state.teacherDockMenu === menu ? "" : menu;
+    document.querySelectorAll(".t160-menu-layer").forEach((el) => {
+      const open = el.dataset.menu === state.teacherDockMenu;
+      el.classList.toggle("is-open", open);
+      el.setAttribute("aria-hidden", String(!open));
+    });
+    document.querySelectorAll(".t160-dock-btn[data-menu]").forEach((el) => el.setAttribute("aria-expanded", String(el.dataset.menu === state.teacherDockMenu)));
+  }
+
+  function teacherDockHtml() {
+    const teacher = state.teachers.get(state.activeSession?.id);
+    if (!teacher || state.activeSession?.role !== "teacher") return "";
+    const mode = state.teacherMode || "asignaturas";
+    const sections = [];
+    if ((teacher.assignments || []).length) sections.push(["asignaturas", "Carga", "book"]);
+    if ((teacher.directorGroups || []).length) sections.push(["director", "Dirección de Grupo", "graduation"]);
+    if (teacher.coordinator) sections.push(["coord", "Coordinador", "users"]);
+    sections.push(["cuenta", "Cuenta", "menu"]);
+    const dock = sections.map(([id, title, icon]) => {
+      const isMenu = id === "coord" || id === "cuenta";
+      const isCurrent = id === "coord" ? mode.startsWith("coord-") : mode === id;
+      return '<button type="button" class="t160-dock-btn' + (isCurrent ? ' is-active' : '') + '"' +
+        ' data-action="' + (isMenu ? 'teacher-dock-toggle' : 'teacher-dock-mode') + '"' +
+        (isMenu ? ' data-menu="' + id + '" aria-haspopup="true" aria-expanded="false"' : ' data-mode="' + id + '"' + (isCurrent ? ' aria-current="page"' : '')) + '>' +
+        adminNavIcon(icon) + '<span>' + title + '</span></button>';
+    }).join("");
+    const menus = [];
+    if (teacher.coordinator) {
+      const links = [
+        ["coord-estudiantes", "Estudiantes", "users"],
+        ["coord-resultados", "Resultados", "chart"],
+        ["coord-claves", "Claves de respuestas", "key"],
+        ["coord-estadisticas", "Estadísticas", "chart"]
+      ].map(([id, label, icon]) =>
+        '<button type="button" class="t160-menu-item' + (mode === id ? ' is-active' : '') +
+        '" data-action="teacher-dock-mode" data-mode="' + id + '">' + adminNavIcon(icon) + '<span>' + label + '</span></button>'
+      ).join("");
+      menus.push('<div class="t160-menu-layer" data-action="teacher-dock-backdrop" data-menu="coord" aria-hidden="true"><section class="t160-menu-panel" role="menu" aria-label="Coordinador"><div class="t160-menu-head"><strong>Coordinación académica</strong><button type="button" class="t160-menu-close" aria-label="Cerrar menú" data-action="teacher-dock-close">×</button></div>' + links + '</section></div>');
+    }
+    menus.push('<div class="t160-menu-layer" data-action="teacher-dock-backdrop" data-menu="cuenta" aria-hidden="true"><section class="t160-menu-panel" role="menu" aria-label="Cuenta"><div class="t160-menu-head"><strong>Mi cuenta</strong><button type="button" class="t160-menu-close" aria-label="Cerrar menú" data-action="teacher-dock-close">×</button></div><button type="button" class="t160-menu-item t160-logout" data-action="logout">' + adminNavIcon("logout") + '<span>Cerrar sesión</span></button></section></div>');
+    return '<nav class="t160-dock" aria-label="Navegación docente" style="--t160-count:' + sections.length + '">' + dock + '</nav>' + menus.join("");
+  }
+
   function teacherModeTabs(teacher, activeMode) {
     return "";
   }
