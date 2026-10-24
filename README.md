@@ -6,7 +6,7 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v168
+RoqueObjetiva v169
 
 ## Uso
 
@@ -30,3 +30,7 @@ El administrador solo escanea los exámenes, exporta el Excel de EvalBee y lo co
 ## Etapa 3 — Importador seguro por IA (v168)
 
 El cargador SQL privado `roque_private.importar_lote_ia` ya permite procesar lotes por edición (claves con área flexible, inscripciones y resultados), con validación/simulación sin cambios por defecto, escrituras atómicas, protección de ediciones históricas e historial de lotes. Los lotes se preparan **por ChatGPT a partir del Excel de EvalBee** que el usuario comparte; no es una importación manual en el navegador ni una carga automática sin archivo. La función se limita a la conexión SQL administrativa y mantiene el segundo semestre en borrador hasta una publicación separada. Consulta [docs/CONTRATO_IMPORTADOR_IA_V168.md](docs/CONTRATO_IMPORTADOR_IA_V168.md).
+
+## v169 — Lectura académica desde roque_private
+
+El inicio de sesión controlado `roque_v4_login_controlado_private` **continúa validando los mismos usuarios, roles y límites de consultas** mediante la función v2 y, tras la autorización, entrega estudiantes, claves y resultados de `roque_private` para la edición histórica publicada `2026-1S`. Los conteos y el contenido se contrastan contra `public`; si aparece una diferencia se usa automáticamente el respaldo legado para no mostrar datos incoherentes. Las asignaciones docentes, la edición manual de un examen y el ranking protegido siguen usando funciones históricas hasta completar su migración. **2026-2S permanece sin publicar y no se consulta.** Consulta [docs/TRANSICION_ROQUE_PRIVATE_V169.md](docs/TRANSICION_ROQUE_PRIVATE_V169.md).
