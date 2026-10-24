@@ -41,24 +41,29 @@
   .adm151-sidebar { display:none; }
   .adm151-current-heading { margin:4px 0 17px; }
   .adm151-current-heading h2 { font-size:1.32rem; }
-  .adm151-mobile-menu-button { display:flex; align-items:center; gap:7px; border:1px solid #d2e5f3; background:#fff; color:var(--adm151-blue); border-radius:9px; padding:10px 12px; font:inherit; font-size:.79rem; font-weight:850; cursor:pointer; white-space:nowrap; }
   .adm151-dock { position:fixed; bottom:0; left:0; right:0; z-index:202; display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:3px; padding:7px 6px calc(7px + env(safe-area-inset-bottom)); background:rgba(255,255,255,.97); border-top:1px solid #cbdfe9; box-shadow:0 -9px 30px rgba(6,48,80,.15); backdrop-filter:blur(12px); }
   .adm151-dock-item { border:0; background:transparent; border-radius:10px; min-width:0; padding:8px 4px 6px; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:4px; font:inherit; font-size:.7rem; font-weight:800; color:#667789; cursor:pointer; }
   .adm151-dock-item .adm151-icon { width:22px; height:22px; flex-basis:22px; }
   .adm151-dock-item.is-active { background:#e5f3fc; color:var(--adm151-blue); }
   .adm151-overlay.is-open { display:block; position:fixed; z-index:211; inset:0; }
   .adm151-backdrop { position:absolute; inset:0; width:100%; background:rgba(5,24,43,.62); border:0; cursor:pointer; }
-  .adm151-sheet { position:absolute; bottom:0; left:0; right:0; margin:0 auto; max-width:550px; height:min(83dvh,720px); display:flex; flex-direction:column; border-radius:20px 20px 0 0; overflow:hidden; background:#fff; box-shadow:0 -15px 48px rgba(7,30,50,.28); padding-bottom:env(safe-area-inset-bottom); }
-  .adm151-sheet-head { display:flex; justify-content:space-between; align-items:center; padding:17px 19px 13px; border-bottom:1px solid #e2ebf1; gap:12px; }
+  body.adm151-menu-open { overflow:hidden; }
+  .adm151-sheet { position:absolute; bottom:0; left:0; right:0; margin:0 auto; max-width:550px; height:auto; max-height:min(84dvh,650px); display:flex; flex-direction:column; border-radius:18px 18px 0 0; overflow:hidden; background:#fff; box-shadow:0 -15px 48px rgba(7,30,50,.28); padding-bottom:env(safe-area-inset-bottom); }
+  .adm151-sheet-head { display:flex; flex-shrink:0; justify-content:space-between; align-items:center; padding:12px 17px 11px; border-bottom:1px solid #e2ebf1; gap:12px; }
   .adm151-sheet-head > div { display:flex; flex-direction:column; gap:4px; }
   .adm151-sheet-head .adm151-kicker { color:var(--adm151-blue); }
   .adm151-sheet-title { font-size:1.1rem; font-weight:900; color:#223b55; line-height:1.2; }
   .adm151-close { display:grid; place-items:center; width:37px; height:37px; border:0; background:#eef3f8; color:#35536b; border-radius:10px; cursor:pointer; }
-  .adm151-sheet-scroll { min-height:0; overflow-y:auto; overscroll-behavior:contain; padding:12px 15px 25px; }
-  .adm151-sheet-scroll .adm151-group-heading { padding-top:12px; }
-  .adm151-sheet-scroll .adm151-link { min-height:45px; }
+  .adm151-sheet-scroll { flex:0 1 auto; min-height:0; overflow-y:auto; overscroll-behavior:contain; padding:7px 12px 9px; scrollbar-width:thin; }
+  .adm151-sheet-scroll .adm151-group { margin:2px 0 7px; }
+  .adm151-sheet-scroll .adm151-group-heading { padding:8px 10px 5px; font-size:.63rem; }
+  .adm151-overlay[data-mode="pruebas"] .adm151-group-heading,
+  .adm151-overlay[data-mode="personas"] .adm151-group-heading { display:none; }
+  .adm151-sheet-scroll .adm151-link { min-height:42px; padding:9px 12px; border-bottom:1px solid #eef3f8; font-size:.81rem; }
+  .adm151-sheet-scroll .adm151-group-links { gap:2px; }
+  .adm151-sheet-scroll .adm151-link:last-child { border-bottom:0; }
   .adm151-group[hidden] { display:none !important; }
-  .adm151-sheet-foot { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:8px 15px; border-top:1px solid #e2ebf1; background:#f9fcff; color:#7b8794; font-size:.73rem; }
+  .adm151-sheet-foot { display:flex; flex-shrink:0; align-items:center; justify-content:space-between; gap:10px; padding:6px 14px; border-top:1px solid #e2ebf1; background:#f9fcff; color:#7b8794; font-size:.73rem; }
   .adm151-sheet-foot .adm151-exit { width:auto; min-height:38px; }
   .adm151-shell .top-banner .banner-inner { padding:12px 14px !important; gap:10px; }
   .adm151-shell .banner-logo { height:49px; width:min(24vw,90px); }
@@ -68,8 +73,6 @@
 @media (max-width:390px) {
   .adm151-workspace { padding-inline:10px; }
   .adm151-current-heading h2 { font-size:1.15rem; }
-  .adm151-mobile-menu-button { padding:9px; }
-  .adm151-mobile-menu-button span { display:none; }
   .adm151-dock-item { font-size:.66rem; }
 }
 @media print {

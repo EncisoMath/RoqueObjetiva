@@ -1,27 +1,27 @@
-const APP_VERSION = "v151";
-const CACHE_VERSION = "resultados-pwa-v151-ediciones-auth";
+const APP_VERSION = "v152";
+const CACHE_VERSION = "resultados-pwa-v152-ediciones-auth";
 const CACHE_PREFIXES = ["resultados-pwa-", "resultados-pruebas-"];
 
 const APP_SHELL = [
   "./",
   "index.html",
-  "css/app.css?v=151",
-  "css/ediciones.css?v=151",
-  "css/admin-navigation.css?v=151",
-  "js/app.js?v=151",
-  "js/ediciones.js?v=151",
+  "css/app.css?v=152",
+  "css/ediciones.css?v=152",
+  "css/admin-navigation.css?v=152",
+  "js/app.js?v=152",
+  "js/ediciones.js?v=152",
   "version.json",
   "config/data-manifest.json",
   "config/site-config.json",
-  "config/supabase-config.js?v=151",
-  "manifest.webmanifest?v=151",
+  "config/supabase-config.js?v=152",
+  "manifest.webmanifest?v=152",
   "icons/icon-192.png",
   "icons/icon-512.png",
   "icons/maskable-512.png",
   "icons/apple-touch-icon.png",
   "icons/favicon-16.png",
   "icons/favicon-32.png",
-  "assets/logo-principal.png?v=151",
+  "assets/logo-principal.png?v=152",
   "assets/ZERO.png",
   "ICONOS/artistica.png",
   "ICONOS/ciencias-naturales.png",
