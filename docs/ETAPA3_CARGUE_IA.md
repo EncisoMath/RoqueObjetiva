@@ -1,5 +1,5 @@
 # RoqueObjetiva — Etapa 3: cargue de evaluaciones realizado por ChatGPT
-**Versión base:** v167 · **Modo:** administración por IA, sin importación manual para el usuario
+**Versión base:** v168 · **Modo:** administración por IA, sin importación manual para el usuario
 
 ## Reparto de responsabilidades
 
@@ -39,7 +39,11 @@ Los números son una fotografía inicial, no valores incrustados en la aplicaci�
 - No cargar, crear claves oficiales ni publicar a partir de información incompleta o inventada.
 - No alterar el reporte actual del estudiante hasta implementar las etapas 4–5.
 
-## Qué ofrece v167 ahora
+## Qué ofrece v168 ahora
+
+La v168 añade el **importador SQL privado y transaccional** por edición `roque_private.importar_lote_ia`, con simulación predeterminada, detección de duplicados, validación de preguntas y documentos, bitácora de cargas y prohibición de sobrescribir históricos. Se añadió la RPC de lectura administrativa `public.roque_v3_admin_resumen_cargas_ia`. Especificación completa y ejemplos en [CONTRATO_IMPORTADOR_IA_V168.md](CONTRATO_IMPORTADOR_IA_V168.md).
+
+## Qué ofrecía v167
 
 - `public.roque_v3_admin_preflight_edicion(text)`: solo lectura, ejecutable por Supabase Auth con autorización activa en `roque_private.operadores_admin`. Devuelve conteos y pendientes sin datos personales.
 - Panel `Administración > Ediciones y pruebas`: seguimiento visible del cargue, métricas reales y advertencias para cada edición. La configuración manual heredada se mantiene como **herramienta técnica opcional**, oculta inicialmente.

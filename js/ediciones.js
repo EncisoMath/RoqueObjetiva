@@ -6,7 +6,7 @@
   const S = {
     token: "", refresh: "", expires: 0, email: "",
     editions: [], config: null, edition: "", grade: 0, page: 0,
-    busy: false, error: "", info: "", form: "", edit: null, preflight: null, advanced: false
+    busy: false, error: "", info: "", form: "", edit: null, preflight: null, audit: null, advanced: false
   };
   const HTML = (value) => String(value == null ? "" : value)
     .replace(/&/g, "&amp;").replace(/</g, "&lt;")
@@ -78,7 +78,7 @@
   }
   function logout() {
     S.token = ""; S.refresh = ""; S.expires = 0; S.email = "";
-    S.editions = []; S.config = null; S.preflight = null; S.edition = ""; S.grade = 0; S.form = ""; S.edit = null; S.advanced = false;
+    S.editions = []; S.config = null; S.preflight = null; S.audit = null; S.edition = ""; S.grade = 0; S.form = ""; S.edit = null; S.advanced = false;
     S.error = ""; S.info = "";
     redraw();
   }
@@ -91,9 +91,13 @@
     else S.config = null;
   }
   async function loadConfiguration(code) {
-    S.preflight = null;
+    S.preflight = null; S.audit = null;
     S.config = await rpc("roque_v2_admin_ver_configuracion", { p_edicion: code });
-    S.preflight = await rpc("roque_v3_admin_preflight_edicion", { p_edicion: code });
+    // Métricas y bitácora: solo datos agregados, sin identidad ni respuestas personales.
+    [S.preflight, S.audit] = await Promise.all([
+      rpc("roque_v3_admin_preflight_edicion", { p_edicion: code }),
+      rpc("roque_v3_admin_resumen_cargas_ia", { p_edicion: code })
+    ]);
     const grades = Array.isArray(S.config.grados) ? S.config.grados : [];
     if (!grades.some((g) => num(g.grado) === S.grade)) S.grade = grades.length ? num(grades[0].grado) : 0;
     S.page = 0;
@@ -273,6 +277,10 @@
     const historical = d.estado !== "borrador";
     const pending = num(structure.claves_pendientes);
     const warnings = Array.isArray(d.bloqueos_publicacion) ? d.bloqueos_publicacion : [];
+    const audit = S.audit || {};
+    const lastRun = audit.ultimo_cargue ? new Date(audit.ultimo_cargue) : null;
+    const lastLabel = lastRun && !Number.isNaN(lastRun.getTime())
+      ? lastRun.toLocaleString("es-CO") : "Sin cargues";
     return '<section class="ed-ai-card" aria-label="Seguimiento del cargue por inteligencia artificial">' +
       '<div class="ed-ai-header"><div><span class="ed-ai-kicker">ETAPA 3 · CARGUE POR IA</span>' +
       '<h3>' + (historical ? 'Edición histórica protegida' : 'Preparación y cargue de esta edición') + '</h3>' +
@@ -286,6 +294,9 @@
         metric("Preguntas configuradas", num(structure.preguntas)) +
         metric("Claves pendientes", pending) +
       '</div>' +
+      '<div class="ed-ai-audit"><span>Importador IA · disponible para lotes validados, solo desde ChatGPT</span>' +
+        '<span>Operaciones registradas: <strong>' + HTML(num(audit.lotes)) +
+        '</strong> · Última carga: <strong>' + HTML(lastLabel) + '</strong></span></div>' +
       (historical ? '<p class="ed-ai-note">Los resultados de esta edición permanecen independientes de futuras pruebas.</p>' :
         '<div class="ed-ai-steps"><strong>Así trabajaremos</strong>' +
         '<p><b>1.</b> Escaneas los exámenes. <b>2.</b> Exportas el Excel. <b>3.</b> Me adjuntas el Excel en ChatGPT, junto con las claves si aún no están registradas. <b>4.</b> Yo compruebo las coincidencias y cargo la edición en Supabase.</p></div>') +

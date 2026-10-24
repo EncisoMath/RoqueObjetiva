@@ -6,7 +6,7 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v167
+RoqueObjetiva v168
 
 ## Uso
 
@@ -26,3 +26,7 @@ La antigua contraseña pública ha sido invalidada en Supabase y quitada del Jav
 ## Etapa 3 — Cargue gestionado por inteligencia artificial (v167)
 
 El administrador solo escanea los exámenes, exporta el Excel de EvalBee y lo comparte con ChatGPT. La IA realizará las operaciones de importación en Supabase, previa validación de IDs, claves y edición. La pantalla **Ediciones y pruebas** permite vigilar los totales y pendientes sin hacer el cargue manual. La edición 2026-1S permanece histórica; 2026-2S está en borrador hasta recibir archivos válidos. Más información en [docs/ETAPA3_CARGUE_IA.md](docs/ETAPA3_CARGUE_IA.md). La importación de archivos no se ejecuta automáticamente desde el navegador.
+
+## Etapa 3 — Importador seguro por IA (v168)
+
+El cargador SQL privado `roque_private.importar_lote_ia` ya permite procesar lotes por edición (claves con área flexible, inscripciones y resultados), con validación/simulación sin cambios por defecto, escrituras atómicas, protección de ediciones históricas e historial de lotes. Los lotes se preparan **por ChatGPT a partir del Excel de EvalBee** que el usuario comparte; no es una importación manual en el navegador ni una carga automática sin archivo. La función se limita a la conexión SQL administrativa y mantiene el segundo semestre en borrador hasta una publicación separada. Consulta [docs/CONTRATO_IMPORTADOR_IA_V168.md](docs/CONTRATO_IMPORTADOR_IA_V168.md).
