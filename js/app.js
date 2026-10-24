@@ -91,6 +91,8 @@
     responsesByRoll: new Map(),
     editedExamRolls: new Set(),
     rankingMetadataByRoll: new Map(),
+    originalExamAnswers: new Map(),
+    originalKeyAnswers: new Map(),
     rankingAreasByRoll: new Map(),
     rankingFallbackResponsesByRoll: new Map(),
     rankingFallbackRegistryByExamId: new Map(),
@@ -270,6 +272,8 @@
 
     state.keys = [];
     state.responsesByRoll = new Map();
+    state.originalExamAnswers = new Map();
+    state.originalKeyAnswers = new Map();
     state.rankingMetadataByRoll = new Map();
     state.rankingAreasByRoll = new Map();
     state.rankingFallbackResponsesByRoll = new Map();
@@ -984,6 +988,8 @@
     const datasets = payload?.datasets || {};
     state.keys = [];
     state.responsesByRoll = new Map();
+    state.originalExamAnswers = new Map();
+    state.originalKeyAnswers = new Map();
     state.rankingMetadataByRoll = new Map();
     state.rankingAreasByRoll = new Map();
     state.rankingFallbackResponsesByRoll = new Map();
@@ -1034,6 +1040,8 @@
         state.keys.push(...parseAnswerKey(JSON.stringify([group]), { grade: toInt(group.grade || group.grado), path: "SUPABASE/claves" }));
       }
     });
+    // Captura las claves reales ANTES de los overrides locales del navegador.
+    state.keys.forEach((key) => state.originalKeyAnswers.set(keyId(key), cleanOption(key.correct)));
     applyAnswerOverrides();
 
     (resultados || []).forEach((group) => {
@@ -5563,12 +5571,12 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       </section>
 
       ${canEditKeys ? `
-        <div class="admin-note">Los cambios quedan guardados localmente al usar <strong>Guardar claves</strong>. Para publicarlos para todos, usa <strong>Subir a Supabase</strong>.</div>
+        <div class="admin-note"><strong>Guardar claves</strong> conserva cambios locales. <strong>Guardar y subir claves</strong> corrige únicamente las claves modificadas de 2026-1S en ambos esquemas, con auditoría. La subida masiva sigue bloqueada.</div>
         <div class="inline-actions" style="margin-bottom:14px;">
           <button class="secondary-btn" data-action="save-keys">Guardar claves</button>
+          <button class="primary-btn" data-action="save-keys-supabase">Guardar y subir claves</button>
           <button class="ghost-btn" data-action="export-keys">Exportar JSON</button>
           <button class="danger-btn" data-action="reset-keys">Restaurar claves originales</button>
-          <button class="secondary-btn" data-action="publish-supabase">Subir a Supabase</button>
         </div>
       ` : `<div class="admin-note">Modo consulta. Las claves no se pueden editar desde una cuenta de coordinación.</div>`}
 
@@ -6433,6 +6441,10 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       toast("Claves guardadas localmente.");
       renderAdmin();
     }
+    if (action === "save-keys-supabase") {
+      await publishEditedKeysToSupabase();
+      return;
+    }
 
     if (action === "export-keys") {
       if (state.activeSession?.role !== "admin") { toast("Solo el administrador puede exportar claves desde esta vista."); return; }
@@ -6692,6 +6704,49 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       .filter((row) => row.id && row.subjectRaw && row.grade);
   }
 
+  async function publishEditedKeysToSupabase() {
+    if (state.activeSession?.role !== "admin" || !adminAuthSession) {
+      toast("Inicia sesión como administrador autorizado de Supabase."); return false;
+    }
+    if (cleanText(state.academicEdition || "2026-1S") !== "2026-1S") {
+      toast("No se pueden corregir claves de un borrador mediante este panel."); return false;
+    }
+    const changes = [];
+    for (const row of state.keys) {
+      const id = keyId(row);
+      const before = state.originalKeyAnswers.get(id);
+      const after = cleanOption(row.correct);
+      if (!before) { toast("Falta la clave original. Vuelve a iniciar sesión."); return false; }
+      if (after !== before) changes.push({
+        grado: Number(row.grade), numero_item: Number(row.item),
+        correcta_antes: before, correcta_nueva: after
+      });
+    }
+    if (!changes.length) { toast("No hay claves modificadas para subir."); return true; }
+    if (changes.length > 100) { toast("Máximo 100 correcciones por operación. Filtra por grado o asignatura."); return false; }
+    const reason = window.prompt(`Motivo de corrección de ${changes.length} clave(s), mínimo 10 caracteres:`, "");
+    if (reason === null) return false;
+    if (reason.trim().length < 10) { toast("Es obligatorio explicar el motivo."); return false; }
+    try {
+      const response = await supabaseRpc("roque_v4_admin_corregir_claves_edicion", {
+        p_edicion: "2026-1S", p_cambios: changes, p_motivo: reason.trim()
+      });
+      if (!response || response.ok !== true) throw new Error(response?.error || "No se pudieron guardar las claves.");
+      changes.forEach((change) => {
+        const row = state.keys.find((key) => Number(key.grade) === change.grado && Number(key.item) === change.numero_item);
+        if (row) state.originalKeyAnswers.set(keyId(row), change.correcta_nueva);
+      });
+      localStorage.removeItem(STORAGE.answers);
+      buildRepository();
+      toast(`Se corrigieron ${response.cambios} clave(s) en Supabase con auditoría.`);
+      renderAdminContext();
+      return true;
+    } catch (error) {
+      toast(error?.message || "No se pudieron subir las claves; no se aplicaron cambios parciales.");
+      return false;
+    }
+  }
+
   function saveKeys() {
     const overrides = {};
     state.keys.forEach((row) => {
@@ -6914,11 +6969,21 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     }
 
     try {
-      const response = await supabaseRpc("roque_v3_admin_guardar_resultado", {
-        p_id_prueba: cleanRoll, p_respuestas: answers, p_activo: true
+      const edition = cleanText(state.academicEdition || "2026-1S");
+      if (edition !== "2026-1S") throw new Error("La corrección solo está habilitada en la edición histórica 2026-1S.");
+      const expected = state.originalExamAnswers.get(cleanRoll);
+      if (!expected) throw new Error("No existe una versión original verificada. Cierra el examen, recarga la aplicación y vuelve a abrirlo.");
+      const reason = window.prompt("¿Cuál es el motivo de esta corrección? (mínimo 10 caracteres)", "");
+      if (reason === null) return false;
+      if (reason.trim().length < 10) throw new Error("Es necesario explicar el motivo (al menos 10 caracteres).");
+      const response = await supabaseRpc("roque_v4_admin_corregir_resultado_edicion", {
+        p_edicion: edition, p_id_prueba: cleanRoll, p_respuestas: answers,
+        p_esperado: expected, p_motivo: reason.trim()
       });
       if (!response || response.ok !== true) throw new Error(response?.error || "Guardado no autorizado.");
+      state.originalExamAnswers.set(cleanRoll, { ...answers });
       clearResultOverrideForRoll(cleanRoll);
+      state.editedExamRolls.delete(cleanRoll);
       buildRepository();
       if (options.renderAfter !== false) safeRenderAdminContext("guardar examen seguro");
       toast("Examen guardado mediante Supabase Auth.");
@@ -7876,6 +7941,10 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     const cleanRoll = cleanId(roll);
     const record = state.responsesByRoll.get(cleanRoll);
     if (!record) { toast("No encontré respuestas cargadas para ese ID prueba."); return; }
+    // Estado cargado al abrir el examen, no el modificado durante esta edición.
+    if (!state.originalExamAnswers.has(cleanRoll)) {
+      state.originalExamAnswers.set(cleanRoll, normalizeAnswersForSupabase(record));
+    }
     const student = state.computedByRoll.get(cleanRoll) || state.computedStudents.find((item) => cleanId(item?.registry?.examId) === cleanRoll) || null;
     const registry = state.registryByExamId.get(cleanRoll) || state.registryByNationalId.get(cleanId(record?.nationalId)) || null;
     const displayName = displayListName(student || registry || record) || cleanText(record?.name) || cleanText(registry?.name) || "Examen sin estudiante vinculado";
