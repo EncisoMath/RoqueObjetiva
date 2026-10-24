@@ -1,12 +1,16 @@
-/* RoqueObjetiva v162 — Etapa 2: navegación por rol y selectores académicos.
+/* RoqueObjetiva v163 — Etapa 2: navegación por rol y selectores académicos.
    Exclusivo para sesiones docentes: no altera administración ni el reporte estudiantil. */
 .roque-teacher-shell { --t160-border: #dce3e9; --t160-muted: #617181; --t160-soft: color-mix(in srgb, var(--orange) 9%, white); }
 .roque-teacher-shell .top-banner,
 .roque-teacher-shell .top-banner[style] {
   background: var(--orange) !important;
   background-image: none !important;
+  /* Anula el bannerBreath heredado: azul sólido de brillo constante. */
+  animation: none !important;
+  filter: none !important;
 }
-.roque-teacher-shell .top-banner .banner-shapes { display: none !important; }
+/* Figuras originales visibles; conservan sus keyframes y colores en app.css. */
+.roque-teacher-shell .top-banner .banner-shapes { display: block !important; }
 .roque-teacher-shell .app-nav.teacher-top-nav { display: none !important; }
 .roque-teacher-shell .page { padding-bottom: calc(84px + env(safe-area-inset-bottom)) !important; }
 .roque-teacher-shell .teacher-toolbar { background: #fff; border: 1px solid var(--t160-border); border-radius: 4px; box-shadow: none; }
