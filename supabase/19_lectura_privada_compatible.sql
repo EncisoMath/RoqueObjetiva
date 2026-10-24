@@ -18,18 +18,21 @@ BEGIN
  d := coalesce(o->'datasets','{}'::jsonb);
  -- Paridad completa antes del cambio de lectura. Si un admin edita una fila
  -- en public, la app continua por la ruta historica hasta reconciliarla.
- IF (SELECT count(*) FROM public.estudiantes e FULL JOIN roque_private.inscripciones i
-       ON i.edicion=ed AND i.id_prueba=e.id_prueba
+ IF (SELECT count(*) FROM public.estudiantes e FULL JOIN
+       (SELECT * FROM roque_private.inscripciones WHERE edicion=ed) i
+       ON i.id_prueba=e.id_prueba
        WHERE e.id_prueba IS NULL OR i.id_prueba IS NULL OR e.id_alumno IS DISTINCT FROM i.id_alumno
          OR e.grado IS DISTINCT FROM i.grado OR e.sede IS DISTINCT FROM i.sede
          OR e.grupo IS DISTINCT FROM i.grupo OR e.apellidos IS DISTINCT FROM i.apellidos
          OR e.nombres IS DISTINCT FROM i.nombres OR e.activo IS DISTINCT FROM i.activo) > 0
- OR (SELECT count(*) FROM public.resultados r FULL JOIN roque_private.resultados n
-       ON n.edicion=ed AND n.id_prueba=r.id_prueba
+ OR (SELECT count(*) FROM public.resultados r FULL JOIN
+       (SELECT * FROM roque_private.resultados WHERE edicion=ed) n
+       ON n.id_prueba=r.id_prueba
        WHERE r.id_prueba IS NULL OR n.id_prueba IS NULL
          OR r.respuestas IS DISTINCT FROM n.respuestas OR r.activo IS DISTINCT FROM n.activo) > 0
- OR (SELECT count(*) FROM public.claves k FULL JOIN roque_private.items n
-       ON n.edicion=ed AND n.grado=k.grado AND n.numero_item=k.numero_item
+ OR (SELECT count(*) FROM public.claves k FULL JOIN
+       (SELECT * FROM roque_private.items WHERE edicion=ed) n
+       ON n.grado=k.grado AND n.numero_item=k.numero_item
        WHERE k.id IS NULL OR n.numero_item IS NULL OR k.area IS DISTINCT FROM n.area
          OR k.respuesta_sugerida IS DISTINCT FROM n.respuesta_correcta
          OR k.activo IS DISTINCT FROM n.activo OR k.componente IS DISTINCT FROM n.componente
