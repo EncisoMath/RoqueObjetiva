@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v150";
+  const APP_VERSION = "v151";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -163,7 +163,7 @@
   document.addEventListener("dragover", handleDragOver);
   document.addEventListener("drop", handleDrop);
   window.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") closeModal();
+    if (event.key === "Escape" && !closeAdminNavigation()) closeModal();
   });
 
   async function init() {
@@ -2908,7 +2908,7 @@
     const isMedalBanner = ["banner-rank-gold", "banner-rank-silver", "banner-rank-bronze"].includes(bannerToneClass);
     const bannerClass = isMedalBanner ? ` ${bannerToneClass}` : "";
     app.innerHTML = `
-      <div class="app-shell">
+      <div class="app-shell${state.activeSession?.role === "admin" ? " adm151-shell" : ""}">
         <header class="top-banner${bannerClass}" ${bannerStyle}>
           <div class="banner-shapes ${isMedalBanner ? "banner-stars" : ""}" aria-hidden="true">
             ${renderPlayShapes("banner", isMedalBanner)}
@@ -3522,39 +3522,163 @@
     return teacherAggregateMetricsHtmlForDetails(details);
   }
 
+
+  // Navegación de administración v151. Las 15 vistas originales se conservan:
+  // solamente cambia cómo se presentan y organizan.
+  const ADMIN_MENU_GROUPS = [
+    { id: "inicio", title: "Inicio", items: [["resumen", "Resumen", "house"]] },
+    { id: "pruebas", title: "Pruebas y evaluaciones", items: [
+      ["ediciones", "Ediciones y pruebas", "calendar"],
+      ["resultados", "Resultados", "chart"],
+      ["claves", "Claves de respuestas", "key"],
+      ["examenes-huerfanos", "Exámenes sin estudiante", "file-warning"],
+      ["alerta-sesiones", "Alertas de sesiones", "shield"]
+    ]},
+    { id: "personas", title: "Personas", items: [
+      ["estudiantes", "Estudiantes", "users"],
+      ["docentes", "Docentes", "graduation"],
+      ["matriz-estudiantes", "Matriz de estudiantes", "table"]
+    ]},
+    { id: "analisis", title: "Análisis y estadísticas", items: [
+      ["estadisticas", "Estadísticas", "chart"],
+      ["mapa-grado", "Mapa por grado", "map"]
+    ]},
+    { id: "configuracion", title: "Configuración", items: [
+      ["asignaturas-areas", "Asignaturas y áreas", "book"],
+      ["apariencia", "Apariencia", "palette"],
+      ["logos", "Logos", "image"],
+      ["github", "Supabase", "database"]
+    ]}
+  ];
+
+  function adminNavIcon(name) {
+    const paths = {
+      house: '<path d="m3 10 9-7 9 7v10H3z"/><path d="M9 20v-7h6v7"/>',
+      calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18m-12 5h6"/>',
+      chart: '<path d="M4 20V11m6 9V5m6 15v-8m4 8V8"/>',
+      key: '<circle cx="8" cy="9" r="4"/><path d="m11 12 9 9m-1-4-3 3"/>',
+      "file-warning": '<path d="M5 3h10l5 5v13H5zM15 3v6h5"/><path d="M12 12v4m0 3h.01"/>',
+      shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M12 7v6m0 4h.01"/>',
+      users: '<circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2z"/><path d="M17 5a3 3 0 0 1 0 6m1 4a5 5 0 0 1 3 5"/>',
+      graduation: '<path d="m2 10 10-5 10 5-10 5z"/><path d="M6 12v5c4 3 8 3 12 0v-5M22 10v7"/>',
+      table: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M3 15h18M9 4v16"/>',
+      map: '<path d="m3 5 6-2 6 2 6-2v16l-6 2-6-2-6 2zM9 3v16m6-14v16"/>',
+      book: '<path d="M12 6c-3-2-6-2-9-1v14c3-1 6-1 9 1 3-2 6-2 9-1V5c-3-1-6-1-9 1zm0 0v14"/>',
+      palette: '<path d="M12 3a9 9 0 1 0 0 18h2a2 2 0 0 0 1-4 2 2 0 0 1 1-4h2a3 3 0 0 0 3-3c0-4-4-7-9-7z"/><circle cx="7.5" cy="10" r=".8"/><circle cx="11" cy="7" r=".8"/><circle cx="16" cy="8" r=".8"/>',
+      image: '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8" cy="9" r="2"/><path d="m4 18 6-6 4 4 3-3 4 4"/>',
+      database: '<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 4 18 4 18 0V5M3 12c0 4 18 4 18 0"/>',
+      menu: '<path d="M4 6h16M4 12h16M4 18h16"/>',
+      logout: '<path d="M10 3H5v18h5M14 8l5 4-5 4m-7-4h12"/>',
+      close: '<path d="M5 5l14 14M19 5 5 19"/>'
+    };
+    return '<svg class="adm151-icon" width="19" height="19" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round">' +
+      (paths[name] || paths.menu) + '</svg>';
+  }
+
+  function adminNavItems(section, prefix) {
+    return section.items.map(([id, label, icon]) =>
+      `<button type="button" class="adm151-link ${state.adminTab === id ? "is-active" : ""}" data-action="admin-tab" data-tab="${id}" ${state.adminTab === id ? 'aria-current="page"' : ""}>
+        ${adminNavIcon(icon)}<span>${esc(label)}</span>${state.adminTab === id ? '<span class="adm151-current-mark" aria-hidden="true"></span>' : ""}
+      </button>`
+    ).join("");
+  }
+
+  function adminNavGroup(section) {
+    return `<div class="adm151-group">
+      <p class="adm151-group-heading">${esc(section.title)}</p>
+      <nav class="adm151-group-links" aria-label="${esc(section.title)}">${adminNavItems(section)}</nav>
+    </div>`;
+  }
+
+  function adminNavigationHtml() {
+    const selection = ADMIN_MENU_GROUPS.flatMap(g => g.items).find(i => i[0] === state.adminTab);
+    const currentTitle = selection ? selection[1] : "Resumen";
+    const activeSection = ADMIN_MENU_GROUPS.find(g => g.items.some(i => i[0] === state.adminTab));
+    const allGroups = ADMIN_MENU_GROUPS.map(adminNavGroup).join("");
+    const dockItem = (label, icon, action, section = "", active = false) =>
+      `<button type="button" class="adm151-dock-item ${active ? "is-active" : ""}" data-action="${action}" ${section ? `data-group="${section}"` : 'data-tab="resumen"'} aria-label="${esc(label)}">
+        ${adminNavIcon(icon)}<span>${esc(label)}</span>
+      </button>`;
+    return {
+      currentTitle,
+      sidebar: `<aside class="adm151-sidebar" aria-label="Navegación administrativa">
+        <div class="adm151-sidebar-head">
+          <span class="adm151-kicker">ROQUEOBJETIVA</span>
+          <strong>Administración</strong>
+          <span class="adm151-meta">Panel de control</span>
+        </div>
+        <div class="adm151-sidebar-scroll">${allGroups}</div>
+        <div class="adm151-sidebar-foot">
+          <span class="adm151-version">Versión ${esc(APP_VERSION)}</span>
+          <button class="adm151-link adm151-exit" data-action="logout" type="button">${adminNavIcon("logout")}<span>Cerrar sesión</span></button>
+        </div>
+      </aside>`,
+      mobile: `<nav class="adm151-dock" aria-label="Navegación móvil de administración">
+        ${dockItem("Inicio", "house", "admin-tab", "", state.adminTab === "resumen")}
+        ${dockItem("Pruebas", "calendar", "admin-nav-open", "pruebas", activeSection?.id === "pruebas")}
+        ${dockItem("Personas", "users", "admin-nav-open", "personas", activeSection?.id === "personas")}
+        ${dockItem("Menú", "menu", "admin-nav-open", "todos", ["analisis","configuracion"].includes(activeSection?.id))}
+      </nav>
+      <div class="adm151-overlay" aria-hidden="true">
+        <button type="button" class="adm151-backdrop" data-action="admin-nav-close" aria-label="Cerrar menú"></button>
+        <aside class="adm151-sheet" role="dialog" aria-modal="true" aria-label="Menú administrativo">
+          <div class="adm151-sheet-head">
+            <div><span class="adm151-kicker">NAVEGACIÓN</span><strong class="adm151-sheet-title">Menú administrativo</strong></div>
+            <button type="button" class="adm151-close" data-action="admin-nav-close" aria-label="Cerrar menú">${adminNavIcon("close")}</button>
+          </div>
+          <div class="adm151-sheet-scroll">${allGroups}</div>
+          <div class="adm151-sheet-foot"><span>v${esc(APP_VERSION.replace(/^v/, ""))}</span>
+            <button type="button" class="adm151-link adm151-exit" data-action="logout">${adminNavIcon("logout")}<span>Cerrar sesión</span></button>
+          </div>
+        </aside>
+      </div>`
+    };
+  }
+
+  function openAdminNavigation(group) {
+    if (state.activeSession?.role !== "admin") return;
+    const overlay = document.querySelector(".adm151-overlay");
+    if (!overlay) return;
+    overlay.querySelectorAll(".adm151-group").forEach((node) => {
+      const title = node.querySelector(".adm151-group-heading")?.textContent || "";
+      const section = ADMIN_MENU_GROUPS.find(g => g.title === title);
+      node.hidden = group !== "todos" && section?.id !== group;
+    });
+    const title = overlay.querySelector(".adm151-sheet-title");
+    if (title) title.textContent = group === "pruebas" ? "Pruebas y evaluaciones" :
+      group === "personas" ? "Personas" : "Menú administrativo";
+    overlay.classList.add("is-open");
+    overlay.setAttribute("aria-hidden", "false");
+    overlay.querySelector(".adm151-close")?.focus();
+  }
+
+  function closeAdminNavigation() {
+    const overlay = document.querySelector(".adm151-overlay.is-open");
+    if (!overlay) return false;
+    overlay.classList.remove("is-open");
+    overlay.setAttribute("aria-hidden", "true");
+    document.querySelector('.adm151-dock-item[data-action="admin-nav-open"]')?.focus();
+    return true;
+  }
+
   function renderAdmin() {
     if (state.adminTab === "graficas") state.adminTab = "resumen";
-    const tabs = [
-      ["resumen", "Resumen"],
-      ["ediciones", "Ediciones y pruebas"],
-      ["estudiantes", "Estudiantes"],
-      ["resultados", "Resultados"],
-      ["estadisticas", "Estadísticas"],
-      ["docentes", "Docentes"],
-      ["mapa-grado", "Mapa por grado"],
-      ["examenes-huerfanos", "Exámenes sin estudiante"],
-      ["alerta-sesiones", "Alertas sesiones"],
-      ["matriz-estudiantes", "Matriz estudiantes"],
-      ["asignaturas-areas", "Asignaturas y áreas"],
-      ["apariencia", "Apariencia"],
-      ["logos", "Logos"],
-      ["claves", "Claves"],
-      ["github", "Supabase"]
-    ];
-
-    const nav = `
-      <nav class="app-nav admin-top-tabs">
-        ${tabs.map(([id, label]) => `<button type="button" class="nav-chip ${state.adminTab === id ? "active" : ""}" data-action="admin-tab" data-tab="${id}" ${id === "estadisticas" ? 'data-force-admin-stats="true" onclick="window.__poOpenAdminStats&&window.__poOpenAdminStats(event)"' : ''}>${label}</button>`).join("")}
-        <span class="nav-chip admin-version-chip">${esc(APP_VERSION)}</span>
-        <button class="nav-chip logout" data-action="logout">Salir</button>
-      </nav>
-    `;
-
+    const navigation = adminNavigationHtml();
     renderShell(`
-      <section class="admin-layout admin-layout-full">
-        <div class="admin-panel">${renderAdminTab()}</div>
-      </section>
-    `, nav);
+      <div class="adm151-workspace">
+        ${navigation.sidebar}
+        <section class="adm151-main" aria-label="Contenido administrativo">
+          <div class="adm151-current-heading">
+            <div><span>ADMINISTRACIÓN</span><h2>${esc(navigation.currentTitle)}</h2></div>
+            <button type="button" class="adm151-mobile-menu-button" data-action="admin-nav-open" data-group="todos" aria-label="Abrir menú de administración">${adminNavIcon("menu")}<span>Menú</span></button>
+          </div>
+          <section class="admin-layout admin-layout-full">
+            <div class="admin-panel">${renderAdminTab()}</div>
+          </section>
+        </section>
+      </div>
+      ${navigation.mobile}
+    `);
   }
 
   function renderAdminContext() {
@@ -3576,7 +3700,7 @@
             <pre class="debug-box">${esc(error?.message || String(error))}</pre>
             <button class="primary-btn" data-action="admin-tab" data-tab="resumen">Volver al resumen</button>
           </div>
-        `, `<nav class="app-nav admin-top-tabs"><button class="nav-chip active" data-action="admin-tab" data-tab="resumen">Resumen</button><button class="nav-chip logout" data-action="logout">Salir</button></nav>`);
+        `);
       } catch (fallbackError) {
         console.error("Fallo también el render de respaldo", fallbackError);
       }
@@ -5740,6 +5864,18 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
 
     if (action === "force-admin-stats") {
       openAdminStatsView(event);
+      return;
+    }
+
+    if (action === "admin-nav-open") {
+      event.preventDefault();
+      openAdminNavigation(target.dataset.group || "todos");
+      return;
+    }
+
+    if (action === "admin-nav-close") {
+      event.preventDefault();
+      closeAdminNavigation();
       return;
     }
 
