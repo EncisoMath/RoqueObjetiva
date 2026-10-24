@@ -3700,7 +3700,7 @@
             <pre class="debug-box">${esc(error?.message || String(error))}</pre>
             <button class="primary-btn" data-action="admin-tab" data-tab="resumen">Volver al resumen</button>
           </div>
-        `, `<nav class="app-nav admin-top-tabs"><button class="nav-chip active" data-action="admin-tab" data-tab="resumen">Resumen</button><button class="nav-chip logout" data-action="logout">Salir</button></nav>`);
+        `);
       } catch (fallbackError) {
         console.error("Fallo también el render de respaldo", fallbackError);
       }
