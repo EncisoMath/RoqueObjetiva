@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v151";
+  const APP_VERSION = "v152";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -3584,7 +3584,7 @@
   }
 
   function adminNavGroup(section) {
-    return `<div class="adm151-group">
+    return `<div class="adm151-group" data-adm-group="${esc(section.id)}">
       <p class="adm151-group-heading">${esc(section.title)}</p>
       <nav class="adm151-group-links" aria-label="${esc(section.title)}">${adminNavItems(section)}</nav>
     </div>`;
@@ -3595,6 +3595,7 @@
     const currentTitle = selection ? selection[1] : "Resumen";
     const activeSection = ADMIN_MENU_GROUPS.find(g => g.items.some(i => i[0] === state.adminTab));
     const allGroups = ADMIN_MENU_GROUPS.map(adminNavGroup).join("");
+    const mobileGroups = ADMIN_MENU_GROUPS.filter(g => g.id !== "inicio").map(adminNavGroup).join("");
     const dockItem = (label, icon, action, section = "", active = false) =>
       `<button type="button" class="adm151-dock-item ${active ? "is-active" : ""}" data-action="${action}" ${section ? `data-group="${section}"` : 'data-tab="resumen"'} aria-label="${esc(label)}">
         ${adminNavIcon(icon)}<span>${esc(label)}</span>
@@ -3617,7 +3618,7 @@
         ${dockItem("Inicio", "house", "admin-tab", "", state.adminTab === "resumen")}
         ${dockItem("Pruebas", "calendar", "admin-nav-open", "pruebas", activeSection?.id === "pruebas")}
         ${dockItem("Personas", "users", "admin-nav-open", "personas", activeSection?.id === "personas")}
-        ${dockItem("Menú", "menu", "admin-nav-open", "todos", ["analisis","configuracion"].includes(activeSection?.id))}
+        ${dockItem("Menú", "menu", "admin-nav-open", "otros", ["analisis","configuracion"].includes(activeSection?.id))}
       </nav>
       <div class="adm151-overlay" aria-hidden="true">
         <button type="button" class="adm151-backdrop" data-action="admin-nav-close" aria-label="Cerrar menú"></button>
@@ -3626,7 +3627,7 @@
             <div><span class="adm151-kicker">NAVEGACIÓN</span><strong class="adm151-sheet-title">Menú administrativo</strong></div>
             <button type="button" class="adm151-close" data-action="admin-nav-close" aria-label="Cerrar menú">${adminNavIcon("close")}</button>
           </div>
-          <div class="adm151-sheet-scroll">${allGroups}</div>
+          <div class="adm151-sheet-scroll">${mobileGroups}</div>
           <div class="adm151-sheet-foot"><span>v${esc(APP_VERSION.replace(/^v/, ""))}</span>
             <button type="button" class="adm151-link adm151-exit" data-action="logout">${adminNavIcon("logout")}<span>Cerrar sesión</span></button>
           </div>
@@ -3639,24 +3640,28 @@
     if (state.activeSession?.role !== "admin") return;
     const overlay = document.querySelector(".adm151-overlay");
     if (!overlay) return;
+    const mode = group === "pruebas" || group === "personas" ? group : "otros";
+    const enabledGroups = mode === "otros" ? ["analisis", "configuracion"] : [mode];
     overlay.querySelectorAll(".adm151-group").forEach((node) => {
-      const title = node.querySelector(".adm151-group-heading")?.textContent || "";
-      const section = ADMIN_MENU_GROUPS.find(g => g.title === title);
-      node.hidden = group !== "todos" && section?.id !== group;
+      node.hidden = !enabledGroups.includes(node.dataset.admGroup);
     });
+    overlay.dataset.mode = mode;
     const title = overlay.querySelector(".adm151-sheet-title");
-    if (title) title.textContent = group === "pruebas" ? "Pruebas y evaluaciones" :
-      group === "personas" ? "Personas" : "Menú administrativo";
+    if (title) title.textContent = mode === "pruebas" ? "Pruebas y evaluaciones" :
+      mode === "personas" ? "Personas" : "Más opciones";
     overlay.classList.add("is-open");
     overlay.setAttribute("aria-hidden", "false");
+    document.body.classList.add("adm151-menu-open");
     overlay.querySelector(".adm151-close")?.focus();
   }
 
   function closeAdminNavigation() {
     const overlay = document.querySelector(".adm151-overlay.is-open");
+    document.body.classList.remove("adm151-menu-open");
     if (!overlay) return false;
     overlay.classList.remove("is-open");
     overlay.setAttribute("aria-hidden", "true");
+    overlay.removeAttribute("data-mode");
     document.querySelector('.adm151-dock-item[data-action="admin-nav-open"]')?.focus();
     return true;
   }
@@ -3670,8 +3675,7 @@
         <section class="adm151-main" aria-label="Contenido administrativo">
           <div class="adm151-current-heading">
             <div><span>ADMINISTRACIÓN</span><h2>${esc(navigation.currentTitle)}</h2></div>
-            <button type="button" class="adm151-mobile-menu-button" data-action="admin-nav-open" data-group="todos" aria-label="Abrir menú de administración">${adminNavIcon("menu")}<span>Menú</span></button>
-          </div>
+remove-duplicate-menu          </div>
           <section class="admin-layout admin-layout-full">
             <div class="admin-panel">${renderAdminTab()}</div>
           </section>
@@ -5600,6 +5604,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     }
 
     if (action === "logout") {
+      closeAdminNavigation();
       logoutWithFade();
       return;
     }
@@ -5869,7 +5874,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
 
     if (action === "admin-nav-open") {
       event.preventDefault();
-      openAdminNavigation(target.dataset.group || "todos");
+      openAdminNavigation(target.dataset.group || "otros");
       return;
     }
 
@@ -5881,6 +5886,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
 
     if (action === "admin-tab") {
       event.preventDefault();
+      closeAdminNavigation();
       const tab = target.dataset.tab || "resumen";
       if (adminTabIds().has(tab)) {
         state.adminTab = tab;
