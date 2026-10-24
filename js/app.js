@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v159";
+  const APP_VERSION = "v160";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -109,6 +109,7 @@
     metricTab: "components",
     teacherActive: null,
     teacherMode: "asignaturas",
+    teacherDockMenu: "",
     teacherDirectorActiveKey: "",
     teacherSearch: "",
     adminTab: "resumen",
@@ -163,7 +164,7 @@
   document.addEventListener("dragover", handleDragOver);
   document.addEventListener("drop", handleDrop);
   window.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && !closeAdminNavigation()) closeModal();
+    if (event.key === "Escape" && !closeTeacherDockMenu() && !closeAdminNavigation()) closeModal();
   });
 
   async function init() {
@@ -2907,8 +2908,9 @@
     const bannerStyle = `style="background: linear-gradient(105deg, ${primary} 0%, ${primary} 42%, ${primaryDark} 100%)"`;
     const isMedalBanner = ["banner-rank-gold", "banner-rank-silver", "banner-rank-bronze"].includes(bannerToneClass);
     const bannerClass = isMedalBanner ? ` ${bannerToneClass}` : "";
+    if (state.activeSession?.role === "teacher") state.teacherDockMenu = "";
     app.innerHTML = `
-      <div class="app-shell${state.activeSession?.role === "admin" ? " adm151-shell" : ""}">
+      <div class="app-shell${state.activeSession?.role === "admin" ? " adm151-shell" : ""}${state.activeSession?.role === "teacher" ? " roque-teacher-shell" : ""}">
         <header class="top-banner${bannerClass}" ${bannerStyle}>
           <div class="banner-shapes ${isMedalBanner ? "banner-stars" : ""}" aria-hidden="true">
             ${renderPlayShapes("banner", isMedalBanner)}
@@ -2927,6 +2929,7 @@
         <main class="page">
           ${content}
         </main>
+        ${state.activeSession?.role === "teacher" ? teacherDockHtml() : ""}
       </div>
     `;
   }
@@ -3226,10 +3229,11 @@
     const isCoordinator = !!teacher.coordinator;
 
     if (state.teacherMode === "coord-graficas") state.teacherMode = "coord-estudiantes";
+    if (!teacherModeAllowed(teacher, state.teacherMode)) state.teacherMode = hasAssignments ? "asignaturas" : (hasDirector ? "director" : (isCoordinator ? "coord-estudiantes" : "asignaturas"));
     if (isCoordinator && String(state.teacherMode || "").startsWith("coord-")) {
       return renderCoordinatorPanel(teacher);
     }
-    if (!hasAssignments && hasDirector) state.teacherMode = "director";
+    if (!hasAssignments && hasDirector && state.teacherMode === "asignaturas") state.teacherMode = "director";
     if (!hasDirector && state.teacherMode === "director") state.teacherMode = hasAssignments ? "asignaturas" : (isCoordinator ? "coord-estudiantes" : "asignaturas");
     if (!state.teacherMode) state.teacherMode = hasAssignments ? "asignaturas" : (hasDirector ? "director" : (isCoordinator ? "coord-estudiantes" : "asignaturas"));
 
@@ -3265,6 +3269,83 @@
     `, navFor("teacher"));
   }
 
+
+  // Etapa 2: solo navegar por roles efectivamente asignados.
+  function teacherModeAllowed(teacher, mode) {
+    if (!teacher) return false;
+    if (mode === "asignaturas") return (teacher.assignments || []).length > 0;
+    if (mode === "director") return (teacher.directorGroups || []).length > 0;
+    if (["coord-estudiantes", "coord-resultados", "coord-estadisticas", "coord-claves"].includes(mode)) return !!teacher.coordinator;
+    return false;
+  }
+
+  function setTeacherMode(mode) {
+    if (state.activeSession?.role !== "teacher") return;
+    const teacher = state.teachers.get(state.activeSession.id);
+    if (!teacherModeAllowed(teacher, mode)) return;
+    state.teacherMode = mode;
+    state.teacherDockMenu = "";
+    renderBySession();
+  }
+
+  function closeTeacherDockMenu() {
+    if (!state.teacherDockMenu) return false;
+    state.teacherDockMenu = "";
+    document.querySelectorAll(".t160-menu-layer").forEach((el) => {
+      el.classList.remove("is-open");
+      el.setAttribute("aria-hidden", "true");
+    });
+    document.querySelectorAll(".t160-dock-btn[data-menu]").forEach((el) => el.setAttribute("aria-expanded", "false"));
+    return true;
+  }
+
+  function toggleTeacherDockMenu(menu) {
+    if (state.activeSession?.role !== "teacher" || !["coord", "cuenta"].includes(menu)) return;
+    const teacher = state.teachers.get(state.activeSession.id);
+    if (menu === "coord" && !teacher?.coordinator) return;
+    state.teacherDockMenu = state.teacherDockMenu === menu ? "" : menu;
+    document.querySelectorAll(".t160-menu-layer").forEach((el) => {
+      const open = el.dataset.menu === state.teacherDockMenu;
+      el.classList.toggle("is-open", open);
+      el.setAttribute("aria-hidden", String(!open));
+    });
+    document.querySelectorAll(".t160-dock-btn[data-menu]").forEach((el) => el.setAttribute("aria-expanded", String(el.dataset.menu === state.teacherDockMenu)));
+  }
+
+  function teacherDockHtml() {
+    const teacher = state.teachers.get(state.activeSession?.id);
+    if (!teacher || state.activeSession?.role !== "teacher") return "";
+    const mode = state.teacherMode || "asignaturas";
+    const sections = [];
+    if ((teacher.assignments || []).length) sections.push(["asignaturas", "Carga", "book"]);
+    if ((teacher.directorGroups || []).length) sections.push(["director", "Dirección de Grupo", "graduation"]);
+    if (teacher.coordinator) sections.push(["coord", "Coordinador", "users"]);
+    sections.push(["cuenta", "Cuenta", "menu"]);
+    const dock = sections.map(([id, title, icon]) => {
+      const isMenu = id === "coord" || id === "cuenta";
+      const isCurrent = id === "coord" ? mode.startsWith("coord-") : mode === id;
+      return '<button type="button" class="t160-dock-btn' + (isCurrent ? ' is-active' : '') + '"' +
+        ' data-action="' + (isMenu ? 'teacher-dock-toggle' : 'teacher-dock-mode') + '"' +
+        (isMenu ? ' data-menu="' + id + '" aria-haspopup="true" aria-expanded="false"' : ' data-mode="' + id + '"' + (isCurrent ? ' aria-current="page"' : '')) + '>' +
+        adminNavIcon(icon) + '<span>' + title + '</span></button>';
+    }).join("");
+    const menus = [];
+    if (teacher.coordinator) {
+      const links = [
+        ["coord-estudiantes", "Estudiantes", "users"],
+        ["coord-resultados", "Resultados", "chart"],
+        ["coord-claves", "Claves de respuestas", "key"],
+        ["coord-estadisticas", "Estadísticas", "chart"]
+      ].map(([id, label, icon]) =>
+        '<button type="button" class="t160-menu-item' + (mode === id ? ' is-active' : '') +
+        '" data-action="teacher-dock-mode" data-mode="' + id + '">' + adminNavIcon(icon) + '<span>' + label + '</span></button>'
+      ).join("");
+      menus.push('<div class="t160-menu-layer" data-action="teacher-dock-backdrop" data-menu="coord" aria-hidden="true"><section class="t160-menu-panel" role="menu" aria-label="Coordinador"><div class="t160-menu-head"><strong>Coordinación académica</strong><button type="button" class="t160-menu-close" aria-label="Cerrar menú" data-action="teacher-dock-close">×</button></div>' + links + '</section></div>');
+    }
+    menus.push('<div class="t160-menu-layer" data-action="teacher-dock-backdrop" data-menu="cuenta" aria-hidden="true"><section class="t160-menu-panel" role="menu" aria-label="Cuenta"><div class="t160-menu-head"><strong>Mi cuenta</strong><button type="button" class="t160-menu-close" aria-label="Cerrar menú" data-action="teacher-dock-close">×</button></div><button type="button" class="t160-menu-item t160-logout" data-action="logout">' + adminNavIcon("logout") + '<span>Cerrar sesión</span></button></section></div>');
+    return '<nav class="t160-dock" aria-label="Navegación docente" style="--t160-count:' + sections.length + '">' + dock + '</nav>' + menus.join("");
+  }
+
   function teacherModeTabs(teacher, activeMode) {
     return "";
   }
@@ -3282,17 +3363,14 @@
     const activeSubjectGroup = groupedAssignments.find((group) => sameSubject(group.subject, activeSubject)) || groupedAssignments[0] || null;
     const visibleGradeAssignments = (activeSubjectGroup?.assignments || assignments.filter((assignment) => sameSubject(subjectNameForAssignment(assignment), activeSubject) || sameSubject(assignment.subject, activeSubject))).slice();
 
-    const subjectButtons = groupedAssignments.map((group) => `
-      <button class="tab-btn teacher-subject-tab ${sameSubject(activeSubject, group.subject) ? "active" : ""}" data-action="teacher-subject" data-subject="${escAttr(group.subject)}">
-        ${esc(group.subject)}
-      </button>
-    `).join("");
 
-    const groupButtons = visibleGradeAssignments.map((a) => `
-      <button class="tab-btn teacher-group-tab ${active?.key === a.key ? "active" : ""}" data-action="teacher-assignment" data-key="${escAttr(a.key)}" data-grade="${escAttr(a.grade)}" data-subject="${escAttr(a.subjectRaw || a.subject)}" data-group="${escAttr(a.group || "")}" data-sede="${escAttr(a.sede || "")}">
-        ${esc(a.grade)}°${a.group ? ` · ${esc(a.group)}` : ""}${a.sede ? ` · ${esc(a.sede)}` : ""}
-      </button>
-    `).join("");
+    const subjectOptions = groupedAssignments.map((group) =>
+      '<option value="' + escAttr(group.subject) + '"' + (sameSubject(activeSubject, group.subject) ? ' selected' : '') + '>' + esc(group.subject) + '</option>'
+    ).join("");
+    const courseOptions = visibleGradeAssignments.map((assignment) => {
+      const label = String(assignment.grade) + '°' + (assignment.group ? ' · ' + assignment.group : '') + (assignment.sede ? ' · ' + assignment.sede : '');
+      return '<option value="' + escAttr(assignment.key) + '"' + (active?.key === assignment.key ? ' selected' : '') + '>' + esc(label) + '</option>';
+    }).join("");
 
     const students = active
       ? state.computedStudents.filter((student) => teacherAssignmentMatches(student, active))
@@ -3337,8 +3415,16 @@
       ${teacherModeTabs(teacher, "asignaturas")}
 
       <div class="teacher-nav-block">
-        <nav class="teacher-assignment-nav teacher-subject-nav">${subjectButtons || `<span class="badge gray">Sin cargas asignadas</span>`}</nav>
-        ${activeSubject ? `<nav class="teacher-assignment-nav teacher-group-nav">${groupButtons || `<span class="badge gray">Sin cursos para esta asignatura</span>`}</nav>` : ""}
+        <div class="t160-selectors" aria-label="Selección de carga académica">
+          <div class="t160-field">
+            <label for="t160-subject">Asignatura</label>
+            <div class="t160-select-wrap"><select id="t160-subject" data-teacher-select="subject" ${!groupedAssignments.length ? "disabled" : ""}>${subjectOptions || "<option>Sin asignaturas</option>"}</select></div>
+          </div>
+          <div class="t160-field">
+            <label for="t160-course">Curso</label>
+            <div class="t160-select-wrap"><select id="t160-course" data-teacher-select="course" ${!visibleGradeAssignments.length ? "disabled" : ""}>${courseOptions || "<option>Sin cursos</option>"}</select></div>
+          </div>
+        </div>
       </div>
 
       ${active ? `
@@ -3390,11 +3476,11 @@
       if (subject) return student.subjectStats[subject.name]?.score;
       return displayListName(student);
     });
-    const groupButtons = groups.map((group) => `
-      <button class="tab-btn teacher-group-tab ${active?.key === group.key ? "active" : ""}" data-action="teacher-director-group" data-key="${escAttr(group.key)}">
-        ${esc(group.sede)} · ${esc(group.grade)}° · ${esc(group.group)}
-      </button>
-    `).join("");
+
+    const groupOptions = groups.map((group) =>
+      '<option value="' + escAttr(group.key) + '"' + (active?.key === group.key ? ' selected' : '') + '>' +
+      esc(group.sede) + ' · ' + esc(group.grade) + '° · ' + esc(group.group) + '</option>'
+    ).join("");
     const subjectCards = subjects.map((subject) => {
       const studentsForSubjectStats = evaluatedStudentsForSubject(students, subject.name);
       const values = scoresForSubjectAverage(studentsForSubjectStats, subject.name);
@@ -3434,7 +3520,12 @@
       ${teacherModeTabs(teacher, "director")}
 
       <div class="teacher-nav-block">
-        <nav class="teacher-assignment-nav teacher-group-nav">${groupButtons || `<span class="badge gray">No tienes dirección de grupo asignada.</span>`}</nav>
+        <div class="t160-selectors t160-director-selectors">
+          <div class="t160-field">
+            <label for="t160-director-course">Grupo a cargo</label>
+            <div class="t160-select-wrap"><select id="t160-director-course" data-teacher-select="director" ${!groups.length ? "disabled" : ""}>${groupOptions || "<option>Sin grupos</option>"}</select></div>
+          </div>
+        </div>
       </div>
 
       ${active ? `
@@ -5462,21 +5553,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
         </nav>
       `;
     }
-    if (role === "teacher") {
-      const teacher = state.teachers.get(state.activeSession?.id) || null;
-      const hasAssignments = !!(teacher?.assignments || []).length;
-      const hasDirector = !!(teacher?.directorGroups || []).length;
-      const isCoordinator = !!teacher?.coordinator;
-      const activeMode = state.teacherMode || "asignaturas";
-      return `
-        <nav class="app-nav teacher-top-nav">
-          <button class="nav-chip ${activeMode === "asignaturas" ? "active" : ""}" onclick="window.__poTeacherModeFromElement&&window.__poTeacherModeFromElement(event,this)" data-action="teacher-mode" data-mode="asignaturas" ${hasAssignments ? "" : "disabled"}>Panel docente</button>
-          ${hasDirector ? `<button class="nav-chip ${activeMode === "director" ? "active" : ""}" onclick="window.__poTeacherModeFromElement&&window.__poTeacherModeFromElement(event,this)" data-action="teacher-mode" data-mode="director">Panel director de grupo</button>` : ""}
-          ${isCoordinator ? `<button class="nav-chip ${activeMode === "coord-estudiantes" ? "active" : ""}" onclick="window.__poTeacherModeFromElement&&window.__poTeacherModeFromElement(event,this)" data-action="teacher-mode" data-mode="coord-estudiantes">Estudiantes</button><button class="nav-chip ${activeMode === "coord-resultados" ? "active" : ""}" onclick="window.__poTeacherModeFromElement&&window.__poTeacherModeFromElement(event,this)" data-action="teacher-mode" data-mode="coord-resultados">Resultados</button><button class="nav-chip ${activeMode === "coord-estadisticas" ? "active" : ""}" onclick="window.__poTeacherModeFromElement&&window.__poTeacherModeFromElement(event,this)" data-action="teacher-mode" data-mode="coord-estadisticas">Estadísticas</button><button class="nav-chip ${activeMode === "coord-claves" ? "active" : ""}" onclick="window.__poTeacherModeFromElement&&window.__poTeacherModeFromElement(event,this)" data-action="teacher-mode" data-mode="coord-claves">Claves</button>` : ""}
-          <button class="nav-chip logout" data-action="logout">Salir</button>
-        </nav>
-      `;
-    }
+    if (role === "teacher") return ""; // Etapa 2: dock fuera del header.
     return "";
   }
 
@@ -5536,8 +5613,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
   window.__poTeacherModeFromElement = function(event, element) {
     if (event) { event.preventDefault(); event.stopPropagation(); }
     const mode = element?.dataset?.mode || "asignaturas";
-    state.teacherMode = ["director", "asignaturas", "coord-estudiantes", "coord-resultados", "coord-estadisticas", "coord-claves"].includes(mode) ? mode : "asignaturas";
-    renderBySession();
+    setTeacherMode(mode);
   };
 
 
@@ -5641,6 +5717,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     }
 
     if (action === "logout") {
+      closeTeacherDockMenu();
       closeAdminNavigation(() => logoutWithFade());
       return;
     }
@@ -5727,6 +5804,18 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       return;
     }
 
+    if (action === "teacher-dock-toggle") {
+      toggleTeacherDockMenu(target.dataset.menu || "");
+      return;
+    }
+    if (action === "teacher-dock-close" || action === "teacher-dock-backdrop") {
+      closeTeacherDockMenu();
+      return;
+    }
+    if (action === "teacher-dock-mode") {
+      setTeacherMode(target.dataset.mode || "");
+      return;
+    }
     if (action === "teacher-subject") {
       const teacher = state.teachers.get(state.activeSession?.id);
       const subject = canonicalSubject(target.dataset.subject);
@@ -5774,8 +5863,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
 
     if (action === "teacher-mode") {
       const mode = target.dataset.mode || "asignaturas";
-      state.teacherMode = ["director", "asignaturas", "coord-estudiantes", "coord-resultados", "coord-estadisticas", "coord-claves"].includes(mode) ? mode : "asignaturas";
-      renderBySession();
+      setTeacherMode(mode);
       return;
     }
 
@@ -6396,6 +6484,24 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
 
   function handleChange(event) {
     const target = event.target;
+    if (target.dataset.teacherSelect && state.activeSession?.role === "teacher") {
+      const teacher = state.teachers.get(state.activeSession.id);
+      if (!teacher) return;
+      if (target.dataset.teacherSelect === "subject") {
+        const subject = target.value;
+        const assignments = (teacher.assignments || []).filter((a) => sameSubject(subjectNameForAssignment(a), subject) || sameSubject(a.subject, subject));
+        state.teacherActive = assignments.find((a) => state.computedStudents.some((student) => teacherAssignmentMatches(student, a))) || assignments[0] || null;
+      } else if (target.dataset.teacherSelect === "course") {
+        const selection = (teacher.assignments || []).find((a) => a.key === target.value);
+        if (!selection || (state.teacherActive && !sameSubject(subjectNameForAssignment(selection), subjectNameForAssignment(state.teacherActive)))) return;
+        state.teacherActive = selection;
+      } else if (target.dataset.teacherSelect === "director") {
+        if (!(teacher.directorGroups || []).some((g) => g.key === target.value)) return;
+        state.teacherDirectorActiveKey = target.value;
+      }
+      renderBySession();
+      return;
+    }
 
     if (target.dataset.cargaRow) {
       updateCargaRowField(target);

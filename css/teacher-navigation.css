@@ -1,0 +1,132 @@
+/* RoqueObjetiva v160 — Etapa 2: navegación por rol y selectores académicos.
+   Exclusivo para sesiones docentes: no altera administración ni el reporte estudiantil. */
+.roque-teacher-shell { --t160-border: #dce3e9; --t160-muted: #617181; --t160-soft: color-mix(in srgb, var(--orange) 9%, white); }
+.roque-teacher-shell .top-banner,
+.roque-teacher-shell .top-banner[style] {
+  background: var(--orange) !important;
+  background-image: none !important;
+}
+.roque-teacher-shell .top-banner .banner-shapes { display: none !important; }
+.roque-teacher-shell .app-nav.teacher-top-nav { display: none !important; }
+.roque-teacher-shell .page { padding-bottom: calc(108px + env(safe-area-inset-bottom)) !important; }
+.roque-teacher-shell .teacher-toolbar { background: #fff; border: 1px solid var(--t160-border); border-radius: 4px; box-shadow: none; }
+.roque-teacher-shell .teacher-nav-block { margin: 0 0 16px; display: block; }
+.t160-selectors {
+  display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px;
+  padding: 14px; border: 1px solid var(--t160-border); background: #fff;
+  border-radius: 4px; margin-bottom: 15px;
+}
+.t160-field { min-width: 0; display: flex; flex-direction: column; gap: 7px; }
+.t160-field label { font-size: .74rem; font-weight: 800; color: var(--t160-muted); }
+.t160-field select {
+  appearance: none; -webkit-appearance: none; width: 100%; min-height: 45px;
+  border: 1px solid #c9d7e2; border-radius: 4px;
+  color: #19344b; background-color: #fff;
+  background-image: none;
+  padding: 10px 34px 10px 12px;
+  font: inherit; font-size: .85rem; font-weight: 750;
+  cursor: pointer; text-overflow: ellipsis;
+}
+.t160-select-wrap { position: relative; }
+.t160-select-wrap::after {
+  content: ""; position: absolute; right: 15px; top: calc(50% - 4px);
+  width: 7px; height: 7px; border-right: 2px solid var(--orange);
+  border-bottom: 2px solid var(--orange); transform: rotate(45deg);
+  pointer-events: none;
+}
+.t160-field select:focus-visible, .t160-dock-btn:focus-visible,
+.t160-menu-item:focus-visible {
+  outline: 2px solid var(--orange); outline-offset: 2px;
+}
+.t160-field select:disabled { color: var(--t160-muted); background-color: #f1f4f7; cursor: not-allowed; }
+.roque-teacher-shell .teacher-stat, .roque-teacher-shell .director-subject-card,
+.roque-teacher-shell .teacher-table-card, .roque-teacher-shell .coordinator-admin-panel .card {
+  background: #fff; background-image: none; border-radius: 4px;
+  border-color: var(--t160-border); box-shadow: none; backdrop-filter: none;
+}
+.roque-teacher-shell .director-subject-card:hover {
+  transform: none; box-shadow: none; border-color: var(--orange);
+}
+.roque-teacher-shell .teacher-stat-action:hover { box-shadow: none; transform: none; border-color: var(--orange); }
+.roque-teacher-shell .teacher-stat-strip { gap: 9px; }
+.t160-dock {
+  position: fixed; z-index: 221;
+  bottom: 0; left: 50%; transform: translateX(-50%);
+  display: grid; grid-template-columns: repeat(var(--t160-count,4), minmax(0,1fr));
+  width: min(100%, 760px); gap: 3px;
+  padding: 7px 8px calc(8px + env(safe-area-inset-bottom));
+  background: #fff; border: 1px solid var(--t160-border); border-bottom: 0;
+  border-radius: 4px 4px 0 0; box-shadow: none; backdrop-filter: none;
+}
+.t160-dock-btn {
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  min-width: 0; min-height: 58px; gap: 4px;
+  padding: 7px 3px; cursor: pointer; color: #5b6771;
+  border: 1px solid transparent; border-radius: 4px; background: #fff;
+  font: inherit; font-size: .72rem; font-weight: 750; line-height: 1.2;
+  transition: color .17s ease, background-color .17s ease, border-color .17s ease;
+}
+.t160-dock-btn .adm151-icon { width: 21px; height: 21px; flex: 0 0 21px; }
+.t160-dock-btn.is-active, .t160-dock-btn[aria-expanded="true"] {
+  background: var(--t160-soft); color: var(--orange); border-color: var(--t160-border);
+}
+.t160-dock-btn:hover { color: var(--orange); }
+.t160-menu-layer {
+  position: fixed; z-index: 220; inset: 0; display: none;
+  background: transparent; pointer-events: none;
+}
+.t160-menu-layer.is-open { display: block; pointer-events: auto; }
+.t160-menu-panel {
+  position: absolute; left: 50%; bottom: calc(89px + env(safe-area-inset-bottom));
+  width: min(400px, calc(100% - 24px)); max-height: min(62dvh, 490px);
+  overflow-y: auto; padding: 10px;
+  background: #fff; border: 1px solid var(--orange); border-radius: 4px;
+  box-shadow: none;
+  opacity: 0; transform: translate(-50%, 8px);
+  transition: opacity .18s ease, transform .18s ease;
+}
+.t160-menu-layer.is-open .t160-menu-panel { opacity: 1; transform: translate(-50%, 0); }
+.t160-menu-head { display: flex; justify-content: space-between; align-items: center; padding: 7px 8px 10px; }
+.t160-menu-head strong { font-size: .86rem; color: #253d50; }
+.t160-menu-close { border: 0; background: #f1f4f6; border-radius: 4px; width: 30px; height: 30px; color: #365065; cursor: pointer; }
+.t160-menu-item {
+  display: flex; align-items: center; gap: 11px; width: 100%;
+  padding: 12px 10px; min-height: 45px; background: #fff;
+  border: 1px solid transparent; border-bottom-color: var(--t160-border);
+  border-radius: 4px; font: inherit; font-size: .85rem; font-weight: 750;
+  text-align: left; color: #253d50; cursor: pointer;
+  transition: background-color .17s ease, color .17s ease;
+}
+.t160-menu-item:last-child { border-bottom-color: transparent; }
+.t160-menu-item:hover, .t160-menu-item.is-active { color: var(--orange); background: var(--t160-soft); }
+.t160-menu-item .adm151-icon { flex: 0 0 19px; width: 19px; height: 19px; }
+.t160-menu-item span { flex: 1; }
+.t160-menu-item::after {
+  content: ""; width: 7px; height: 7px; border-top: 1.5px solid currentColor;
+  border-right: 1.5px solid currentColor; transform: rotate(45deg);
+}
+.t160-menu-item.t160-logout { color: #af3342; }
+.t160-menu-item.t160-logout:hover { background: #fff2f2; }
+.roque-teacher-shell .director-table-wrap { overflow-x: auto; }
+@media (max-width: 640px) {
+  .t160-selectors { gap: 9px; padding: 11px; }
+  .t160-field select { font-size: .78rem; padding-left: 9px; padding-right: 24px; }
+  .t160-select-wrap::after { right: 10px; }
+  .t160-dock { border-left: 0; border-right: 0; }
+  .t160-dock-btn { font-size: .63rem; min-height: 74px; }
+  .t160-dock-btn span { overflow-wrap: normal; line-height: 1.08; }
+  .t160-menu-panel { bottom: calc(105px + env(safe-area-inset-bottom)); }
+  .roque-teacher-shell .page { padding-bottom: calc(122px + env(safe-area-inset-bottom)) !important; }
+  .roque-teacher-shell .teacher-stat-strip-three .teacher-stat { padding: 12px 7px; }
+}
+@media (max-width: 360px) {
+  .t160-selectors { grid-template-columns: 1fr; }
+  .t160-dock-btn { font-size: .57rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .t160-menu-panel, .t160-menu-item, .t160-dock-btn { transition: none !important; }
+}
+@media print {
+  .t160-dock, .t160-menu-layer { display: none !important; }
+  .roque-teacher-shell .page { padding-bottom: 0 !important; }
+}
