@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v164";
+  const APP_VERSION = "v165";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -3720,7 +3720,7 @@
           </div>
           <div class="adm151-sheet-scroll">
             ${mobileGroups}
-            <div class="adm159-menu-exit">
+            <div class="adm159-menu-exit" hidden>
               <button type="button" class="adm151-link adm151-exit" data-action="logout">${adminNavIcon("logout")}<span>Cerrar sesión</span></button>
             </div>
           </div>
@@ -3750,6 +3750,9 @@
       node.hidden = !enabledGroups.includes(node.dataset.admGroup);
     });
     overlay.dataset.mode = mode;
+    // Cerrar sesión sólo existe en el menú móvil «Menú» (otros).
+    const logoutRow = overlay.querySelector(".adm159-menu-exit");
+    if (logoutRow) logoutRow.hidden = mode !== "otros";
     // El dock queda visible y operativo; el grupo abierto recibe el estado activo.
     document.querySelectorAll(".adm151-dock-item").forEach((button) => {
       const selected = button.dataset.group === mode;
@@ -3808,7 +3811,7 @@
         <section class="adm151-main" aria-label="Contenido administrativo">
           <div class="adm151-current-heading">
             <div><span>ADMINISTRACIÓN</span><h2>${esc(navigation.currentTitle)}</h2></div>
-remove-duplicate-menu          </div>
+          </div>
           <section class="admin-layout admin-layout-full">
             <div class="admin-panel">${renderAdminTab()}</div>
           </section>

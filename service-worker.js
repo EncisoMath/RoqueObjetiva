@@ -1,29 +1,29 @@
-const APP_VERSION = "v164";
-const CACHE_VERSION = "resultados-pwa-v164-admin-dock-docente";
+const APP_VERSION = "v165";
+const CACHE_VERSION = "resultados-pwa-v165-admin-menu-exit";
 const CACHE_PREFIXES = ["resultados-pwa-", "resultados-pruebas-"];
 
 const APP_SHELL = [
   "./",
   "index.html",
-  "css/app.css?v=164",
-  "css/login-performance.css?v=164",
-  "css/ediciones.css?v=164",
-  "css/admin-navigation.css?v=164",
-  "css/teacher-navigation.css?v=164",
-  "js/app.js?v=164",
-  "js/ediciones.js?v=164",
+  "css/app.css?v=165",
+  "css/login-performance.css?v=165",
+  "css/ediciones.css?v=165",
+  "css/admin-navigation.css?v=165",
+  "css/teacher-navigation.css?v=165",
+  "js/app.js?v=165",
+  "js/ediciones.js?v=165",
   "version.json",
   "config/data-manifest.json",
   "config/site-config.json",
-  "config/supabase-config.js?v=164",
-  "manifest.webmanifest?v=164",
+  "config/supabase-config.js?v=165",
+  "manifest.webmanifest?v=165",
   "icons/icon-192.png",
   "icons/icon-512.png",
   "icons/maskable-512.png",
   "icons/apple-touch-icon.png",
   "icons/favicon-16.png",
   "icons/favicon-32.png",
-  "assets/logo-principal.png?v=164",
+  "assets/logo-principal.png?v=165",
   "assets/ZERO.png",
   "ICONOS/artistica.png",
   "ICONOS/ciencias-naturales.png",

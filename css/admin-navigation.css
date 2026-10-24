@@ -423,3 +423,10 @@
   }
   .adm151-overlay.is-open .adm151-sheet-scroll .adm151-link { animation: none !important; }
 }
+
+/* v165: Cerrar sesión pertenece exclusivamente al apartado móvil «Menú».
+   Los paneles Pruebas y Personas jamás lo muestran, incluso antes de abrir. */
+@media (max-width: 1000px) {
+  .adm151-overlay:not([data-mode="otros"]) .adm159-menu-exit,
+  .adm151-overlay .adm159-menu-exit[hidden] { display: none !important; }
+}
