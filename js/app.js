@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v159";
+  const APP_VERSION = "v160";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -2908,6 +2908,7 @@
     const bannerStyle = `style="background: linear-gradient(105deg, ${primary} 0%, ${primary} 42%, ${primaryDark} 100%)"`;
     const isMedalBanner = ["banner-rank-gold", "banner-rank-silver", "banner-rank-bronze"].includes(bannerToneClass);
     const bannerClass = isMedalBanner ? ` ${bannerToneClass}` : "";
+    if (state.activeSession?.role === "teacher") state.teacherDockMenu = "";
     app.innerHTML = `
       <div class="app-shell${state.activeSession?.role === "admin" ? " adm151-shell" : ""}${state.activeSession?.role === "teacher" ? " roque-teacher-shell" : ""}">
         <header class="top-banner${bannerClass}" ${bannerStyle}>
