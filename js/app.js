@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v171";
+  const APP_VERSION = "v172";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -153,6 +153,9 @@
     adminDirectorTeacherId: "",
     modalStack: [],
     activeSession: null,
+    historyAvailable: [],
+    historyRanking: null,
+    historyAccess: false,
     zeroToleranceShown: false
   };
 
@@ -184,7 +187,7 @@
       await loadAllData();
       buildRepository();
       const saved = readJSON(STORAGE.session, null);
-      if (saved && saved.role && saved.role !== "admin") {
+      if (saved && saved.role && saved.role !== "admin" && !saved.historial) {
         state.activeSession = saved;
         renderBySession();
       } else {
@@ -1197,6 +1200,12 @@
     const parsedLogin = parseRankingLoginInput(user);
     const cleanUser = parsedLogin.login;
     const wantsRankingDebug = !!(options.rankingDebug || parsedLogin.rankingDebug);
+    if (state.historyAccess) {
+      state.historyAvailable = [];
+      state.historyRanking = null;
+      state.historyAccess = false;
+      window.RoqueHistorial?.clear?.();
+    }
     try {
       const bootCopy = randomLoaderCopy();
       fadeAppOut();
@@ -2253,6 +2262,25 @@
     const key = cleanId(roll);
     if (!key) return;
     clearSessionRankContext();
+    // Historial v172: usar exclusivamente el ranking personal ya validado
+    // por JWT en Supabase, sin consultar la RPC antigua limitada a 2026-1S.
+    if (state.historyAccess) {
+      const personal = state.historyRanking || {};
+      const rank = personal.ranking || {};
+      setSessionRankContext(key, {
+        gradeRank: rank.puesto_grado, gradeCount: rank.total_grado,
+        courseRank: rank.puesto_curso, courseCount: rank.total_curso,
+        globalScore: rank.puntaje_global
+      });
+      const areas = new Map();
+      Object.entries(personal.ranking_areas || {}).forEach(([name, info]) => {
+        const position = positiveIntOrNull(info?.puesto);
+        const total = positiveIntOrNull(info?.total);
+        if (position && total && position <= total) areas.set(name, { rank: position, total });
+      });
+      state.rankingAreasByRoll.set(key, areas);
+      return;
+    }
     const warnings = [];
     const errors = [];
 
@@ -2470,11 +2498,14 @@
       roll: cleanRoll,
       rankingDebugRequested: debug,
       rankingDebugDone: !debug,
-      rankingDebugVersion: "v140"
+      rankingDebugVersion: "v140",
+      ...(options.historial ? { historial: true } : {})
     };
     state.activeSession = session;
-    writeJSON(STORAGE.session, state.activeSession);
-    rememberRecentLogin(session);
+    if (!options.historial) {
+      writeJSON(STORAGE.session, state.activeSession);
+      rememberRecentLogin(session);
+    }
     fadeAppOut();
     showRouteLoader(message);
     window.setTimeout(async () => {
@@ -2806,6 +2837,34 @@
     renderLogin("No se pudo abrir ese ingreso reciente.");
   }
 
+  window.RoqueHistorialBridge = {
+    applyEdition(data, editions) {
+      if (!data?.ok || data?.session?.role !== "student" || !data?.edicion) {
+        throw new Error("La edición no fue autorizada.");
+      }
+      hydrateSupabasePayload(data);
+      state.academicEdition = cleanText(data.edicion);
+      state.academicDataSource = cleanText(data.origen_academico || "roque_private_auth_v172");
+      state.historyRanking = data.ranking_personal || {};
+      state.historyAvailable = Array.isArray(editions) ? editions : [];
+      state.historyAccess = true;
+      buildRepository();
+      enterStudentSessionWithRankingMode(cleanId(data.session.roll), {
+        historial: true, message: "Preparando resultados del semestre..."
+      });
+    },
+    backToEditions() {
+      state.activeSession = null;
+      state.historyRanking = null;
+      clearSessionRankContext();
+      window.RoqueHistorial?.showSelector?.();
+    },
+    leave() {
+      clearSession();
+      renderLogin();
+    }
+  };
+
   function renderLogin(error = "") {
     const primary = normalizeColor(state.config.primaryColor || "#1975ae");
     const primaryDark = shadeColor(primary, -26);
@@ -2855,6 +2914,9 @@
                 <button class="primary-btn" type="submit">Ingresar</button>
               </div>
             </form>
+            <div class="history-shortcut">
+              <button type="button" class="history-shortcut-button" data-action="history-login">Mis evaluaciones · cuenta personal</button>
+            </div>
             ${recentLoginsHtml}
           </div>
         </div>
@@ -5612,6 +5674,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       return `
         <nav class="app-nav">
           <button class="nav-chip active">Reporte general</button>
+          ${state.historyAccess && state.historyAvailable.length > 1 ? '<button class="nav-chip" data-action="history-back">Mis evaluaciones</button>' : ""}
           <button class="nav-chip logout" data-action="logout">Salir</button>
         </nav>
       `;
@@ -8877,6 +8940,10 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
   function clearSession() {
     if (window.RoqueEdiciones) window.RoqueEdiciones.logout();
     state.activeSession = null;
+    state.historyAvailable = [];
+    state.historyRanking = null;
+    state.historyAccess = false;
+    window.RoqueHistorial?.clear?.();
     state.zeroToleranceShown = false;
     clearSessionRankContext();
     clearRankingFallbackData();
