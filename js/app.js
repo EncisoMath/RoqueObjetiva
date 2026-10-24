@@ -3233,7 +3233,7 @@
     if (isCoordinator && String(state.teacherMode || "").startsWith("coord-")) {
       return renderCoordinatorPanel(teacher);
     }
-    if (!hasAssignments && hasDirector) state.teacherMode = "director";
+    if (!hasAssignments && hasDirector && state.teacherMode === "asignaturas") state.teacherMode = "director";
     if (!hasDirector && state.teacherMode === "director") state.teacherMode = hasAssignments ? "asignaturas" : (isCoordinator ? "coord-estudiantes" : "asignaturas");
     if (!state.teacherMode) state.teacherMode = hasAssignments ? "asignaturas" : (hasDirector ? "director" : (isCoordinator ? "coord-estudiantes" : "asignaturas"));
 
