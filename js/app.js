@@ -3688,7 +3688,7 @@
     const allGroups = ADMIN_MENU_GROUPS.map(adminNavGroup).join("");
     const mobileGroups = ADMIN_MENU_GROUPS.filter(g => g.id !== "inicio").map(adminNavGroup).join("");
     const dockItem = (label, icon, action, section = "", active = false) =>
-      `<button type="button" class="adm151-dock-item ${active ? "is-active" : ""}" data-action="${action}" ${section ? `data-group="${section}"` : 'data-tab="resumen"'} aria-label="${esc(label)}">
+      `<button type="button" class="adm151-dock-item ${active ? "is-active" : ""}" data-action="${action}" ${section ? `data-group="${section}" aria-haspopup="true" aria-expanded="false"` : 'data-tab="resumen"'} aria-label="${esc(label)}">
         ${adminNavIcon(icon)}<span>${esc(label)}</span>
       </button>`;
     return {
@@ -3714,9 +3714,9 @@
       <div class="adm151-overlay" aria-hidden="true">
         <button type="button" class="adm151-backdrop" data-action="admin-nav-close" aria-label="Cerrar menú"></button>
         <aside class="adm151-sheet" role="dialog" aria-modal="false" aria-label="Menú administrativo">
-          <button type="button" class="adm159-grabber" data-action="admin-nav-close" aria-label="Cerrar menú" title="Cerrar menú"><span aria-hidden="true"></span></button>
           <div class="adm151-sheet-head">
             <div><span class="adm151-kicker">NAVEGACIÓN</span><strong class="adm151-sheet-title">Menú administrativo</strong></div>
+            <button type="button" class="adm151-close" data-action="admin-nav-close" aria-label="Cerrar menú">×</button>
           </div>
           <div class="adm151-sheet-scroll">
             ${mobileGroups}
@@ -3752,7 +3752,9 @@
     overlay.dataset.mode = mode;
     // El dock queda visible y operativo; el grupo abierto recibe el estado activo.
     document.querySelectorAll(".adm151-dock-item").forEach((button) => {
-      button.classList.toggle("is-selected", button.dataset.group === mode);
+      const selected = button.dataset.group === mode;
+      button.classList.toggle("is-selected", selected);
+      if (button.dataset.group) button.setAttribute("aria-expanded", String(selected));
     });
     const title = overlay.querySelector(".adm151-sheet-title");
     if (title) title.textContent = mode === "pruebas" ? "Pruebas y evaluaciones" :
@@ -3766,7 +3768,7 @@
       if (overlay.isConnected && overlay.classList.contains("is-visible") &&
           !overlay.classList.contains("is-closing")) overlay.classList.add("is-open");
     }));
-    overlay.querySelector(".adm159-grabber")?.focus({ preventScroll: true });
+    overlay.querySelector(".adm151-close")?.focus({ preventScroll: true });
   }
 
   function closeAdminNavigation(onClosed) {
@@ -3786,7 +3788,10 @@
       overlay.classList.remove("is-visible", "is-closing");
       overlay.setAttribute("aria-hidden", "true");
       overlay.removeAttribute("data-mode");
-      document.querySelectorAll(".adm151-dock-item").forEach((button) => button.classList.remove("is-selected"));
+      document.querySelectorAll(".adm151-dock-item").forEach((button) => {
+        button.classList.remove("is-selected");
+        if (button.dataset.group) button.setAttribute("aria-expanded", "false");
+      });
       document.querySelector('.adm151-dock-item[data-group="' + selectedMode + '"]')
         ?.focus({ preventScroll: true });
       if (typeof onClosed === "function") onClosed();
