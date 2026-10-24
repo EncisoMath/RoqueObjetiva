@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v152";
+  const APP_VERSION = "v153";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -1227,7 +1227,7 @@
       return "";
     }
     try {
-      const url = `${path}${path.includes("?") ? "&" : "?"}v=${Date.now()}`;
+      const url = `${path}${path.includes("?") ? "&" : "?"}v=${APP_VERSION}`;
       const response = await fetch(url, { cache: "no-store" });
       if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
       return await response.text();
