@@ -345,3 +345,253 @@
   .adm151-overlay.is-visible:not(.is-open) .adm151-sheet { transform: translate3d(0,100%,0); }
   .adm151-overlay.is-open .adm151-sheet { transform: translate3d(0,0,0); }
 }
+
+
+/* v159 — referencia móvil: panel anclado JUSTO ENCIMA del dock.
+   Flat azul nocturno, filas separadas, grabber y dock visible/clicable. */
+@media (max-width: 1000px) {
+  .adm151-shell {
+    --adm159-dock-height: calc(67px + env(safe-area-inset-bottom));
+  }
+  /* El dock queda POR DELANTE del overlay y conserva todas sus acciones. */
+  .adm151-dock {
+    z-index: 230;
+    border-radius: 4px 4px 0 0;
+    background: rgba(3, 12, 26, .96);
+    border-top: 1px solid rgba(111, 165, 205, .25);
+    box-shadow: 0 -2px 8px rgba(2, 12, 26, .14);
+  }
+  .adm151-dock-item {
+    min-height: 52px;
+    font-size: .68rem;
+    color: #b9cde0;
+  }
+  .adm151-dock-item.is-selected {
+    color: #f5fbff;
+    border: 1px solid rgba(52, 142, 201, .48);
+    background: rgba(15, 95, 156, .67);
+  }
+  .adm151-dock-item.is-selected .adm151-icon {
+    stroke: #f4fbff;
+  }
+  /* Al abrir un grupo, solo se resalta el botón que se acaba de tocar. */
+  body.adm151-menu-open .adm151-dock-item.is-active:not(.is-selected) {
+    color: #b9cde0;
+    border-color: transparent;
+    background: transparent;
+    box-shadow: none;
+  }
+  body.adm151-menu-open .adm151-dock-item.is-active:not(.is-selected)::after {
+    opacity: 0;
+  }
+  .adm151-overlay.is-visible {
+    z-index: 211;
+    background: transparent;
+  }
+  .adm151-overlay .adm151-backdrop,
+  .adm151-overlay.is-open .adm151-backdrop {
+    background: transparent;
+    opacity: 0;
+  }
+
+  /* No tapa el dock: se detiene exactamente en su borde superior. */
+  .adm151-overlay .adm151-sheet {
+    left: 4px;
+    right: 4px;
+    bottom: var(--adm159-dock-height);
+    width: auto;
+    max-width: 550px;
+    height: auto;
+    max-height: calc(100dvh - var(--adm159-dock-height) - 12px);
+    margin: 0 auto;
+    padding: 0;
+    border: 1px solid rgba(85, 142, 182, .26);
+    border-bottom: 1px solid rgba(89, 149, 190, .26);
+    border-radius: 4px 4px 0 0;
+    background: rgba(6, 20, 38, .96);
+    box-shadow: 0 -4px 18px rgba(0, 9, 23, .20);
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
+  }
+
+  .adm159-grabber {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 22px;
+    padding: 7px 0 9px;
+    border: 0;
+    border-radius: 4px 4px 0 0;
+    background: transparent;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  .adm159-grabber span {
+    display: block;
+    flex: 0 0 33px;
+    width: 33px;
+    height: 4px;
+    border-radius: 3px;
+    background: rgba(143, 176, 202, .55);
+  }
+  .adm159-grabber:focus-visible {
+    outline: 2px solid #91d5fc;
+    outline-offset: -2px;
+  }
+  .adm151-sheet-head {
+    padding: 0 16px 9px;
+    background: transparent;
+    border-bottom: 1px solid rgba(116, 163, 196, .13);
+  }
+  .adm151-sheet-head .adm151-kicker {
+    color: #8dc4e6;
+    font-size: .61rem;
+    letter-spacing: .1em;
+  }
+  .adm151-sheet-title {
+    color: #f4f8ff;
+    font-size: 1.02rem;
+    line-height: 1.18;
+    font-weight: 750;
+  }
+
+  .adm151-sheet-scroll {
+    padding: 0 12px 8px;
+    max-height: none;
+    min-height: 0;
+    scrollbar-width: thin;
+  }
+  .adm151-sheet-scroll .adm151-group {
+    margin: 0;
+  }
+  .adm151-sheet-scroll .adm151-group + .adm151-group {
+    margin-top: 8px;
+  }
+  .adm151-sheet-scroll .adm151-group-heading {
+    padding: 8px 9px 5px;
+    font-size: .64rem;
+    color: #99bdd5;
+  }
+  .adm151-overlay[data-mode="pruebas"] .adm151-group-heading,
+  .adm151-overlay[data-mode="personas"] .adm151-group-heading {
+    display: none;
+  }
+  .adm151-sheet-scroll .adm151-group-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .adm151-sheet-scroll .adm151-link {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 37px;
+    padding: 8px 11px;
+    margin: 0;
+    border: 0;
+    border-right: 1px solid rgba(115, 165, 201, .10);
+    border-left: 1px solid rgba(115, 165, 201, .10);
+    border-bottom: 1px solid rgba(144, 189, 220, .13);
+    border-radius: 0;
+    color: #e2effa;
+    background: rgba(20, 43, 65, .47);
+    font-size: .78rem;
+    font-weight: 610;
+    line-height: 1.2;
+    letter-spacing: -.006em;
+    box-shadow: none;
+  }
+  .adm151-sheet-scroll .adm151-link .adm151-icon {
+    width: 17px;
+    height: 17px;
+    flex: 0 0 17px;
+    margin-right: 1px;
+    stroke-width: 1.65px;
+    color: #b9d9ec;
+  }
+  /* Flecha fina, sin iconos añadidos por red ni dependencias. */
+  .adm151-sheet-scroll .adm151-link::after {
+    content: "";
+    display: block;
+    width: 6px;
+    height: 6px;
+    flex: 0 0 6px;
+    margin-left: 9px;
+    margin-right: 3px;
+    border-top: 1.5px solid currentColor;
+    border-right: 1.5px solid currentColor;
+    transform: rotate(45deg);
+    opacity: .6;
+  }
+  .adm151-sheet-scroll .adm151-group .adm151-link:first-child {
+    border-top: 1px solid rgba(144, 189, 220, .13);
+    border-radius: 4px 4px 0 0;
+  }
+  .adm151-sheet-scroll .adm151-group .adm151-link:last-child {
+    border-bottom: 1px solid rgba(144, 189, 220, .13);
+    border-radius: 0 0 4px 4px;
+  }
+  .adm151-sheet-scroll .adm151-group .adm151-link:only-child {
+    border-radius: 4px;
+  }
+  .adm151-sheet-scroll .adm151-link:hover {
+    color: #fff;
+    background: rgba(35, 86, 127, .44);
+  }
+  .adm151-sheet-scroll .adm151-link:active {
+    background: rgba(34, 104, 160, .56);
+    transform: scale(.992);
+  }
+  .adm151-sheet-scroll .adm151-link.is-active {
+    color: #ecf7ff;
+    background: rgba(27, 67, 103, .49);
+    border-color: rgba(144, 189, 220, .13);
+    font-weight: 680;
+  }
+  .adm151-sheet-scroll .adm151-link .adm151-current-mark {
+    display: none;
+  }
+
+  /* Cerrar sesión también es una fila, no un pie separado. */
+  .adm159-menu-exit {
+    margin-top: 8px;
+  }
+  .adm151-sheet-scroll .adm159-menu-exit .adm151-exit {
+    border: 1px solid rgba(144, 189, 220, .13);
+    border-radius: 4px;
+    min-height: 37px;
+    color: #ff9aa8;
+    background: rgba(19, 37, 57, .61);
+    font-size: .78rem;
+  }
+  .adm151-sheet-scroll .adm159-menu-exit .adm151-exit .adm151-icon {
+    color: #ff91a0;
+  }
+  .adm151-sheet-scroll .adm159-menu-exit .adm151-exit:hover {
+    color: #ffdce1;
+    background: rgba(103, 43, 64, .33);
+  }
+
+  /* Animaciones v155 se conservan, con el panel ahora anclado sobre el dock. */
+  .adm151-overlay.is-open .adm151-sheet-scroll .adm159-menu-exit .adm151-link {
+    animation: adm155RowEnter .35s cubic-bezier(.18,.8,.2,1) both;
+    animation-delay: 255ms;
+  }
+  .adm151-overlay.is-closing .adm151-sheet-scroll .adm159-menu-exit .adm151-link {
+    animation: none;
+  }
+}
+@media (max-width: 390px) {
+  .adm151-sheet-scroll .adm151-link {
+    font-size: .75rem;
+    padding-left: 9px;
+    padding-right: 9px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .adm151-overlay.is-open .adm151-sheet-scroll .adm159-menu-exit .adm151-link {
+    animation: none !important;
+  }
+}
