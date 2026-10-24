@@ -293,8 +293,7 @@ exception when others then
     'login', v_login
   );
 end;
-$function$
-
+$function$;
 
 CREATE OR REPLACE FUNCTION public.roque_v3_ranking_controlado_edicion(
  p_login text, p_terminal uuid, p_edicion text DEFAULT '2026-1S'
