@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v172";
+  const APP_VERSION = "v172.1";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -153,9 +153,7 @@
     adminDirectorTeacherId: "",
     modalStack: [],
     activeSession: null,
-    historyAvailable: [],
-    historyRanking: null,
-    historyAccess: false,
+    studentEditionCatalog: [],
     zeroToleranceShown: false
   };
 
@@ -187,9 +185,14 @@
       await loadAllData();
       buildRepository();
       const saved = readJSON(STORAGE.session, null);
-      if (saved && saved.role && saved.role !== "admin" && !saved.historial) {
-        state.activeSession = saved;
-        renderBySession();
+      if (saved && saved.role && saved.role !== "admin") {
+        if (saved.role === "student" && SUPABASE_CONFIG.enabled) {
+          // No abrir un informe con datos sin autenticar tras refrescar la PWA.
+          await loginWithSupabase(cleanId(saved.roll), "", { restore: true });
+        } else {
+          state.activeSession = saved;
+          renderBySession();
+        }
       } else {
         renderLogin();
       }
@@ -1190,6 +1193,137 @@
       throw error;
     }
   }
+
+  // Portada de evaluaciones: metadatos no sensibles publicados por Supabase.
+  // Solo 2026-1S usa la sesión histórica v171; ninguna edición futura
+  // obtiene claves/resultados mediante esta consulta de catálogo.
+  async function loadStudentEditionCatalog() {
+    let rows = [];
+    try {
+      const result = await supabaseRpc("roque_v5_portada_ediciones", {});
+      if (result?.ok && Array.isArray(result.ediciones)) rows = result.ediciones;
+    } catch (error) {
+      console.warn("No se pudo actualizar la portada de ediciones.", error?.message || error);
+    }
+    if (!rows.length) {
+      // Respaldo visual, nunca un permiso para leer 2026-2S.
+      rows = [
+        { codigo: "2026-2S", titulo: "Prueba objetiva - Segundo semestre de 2026",
+          anio: 2026, semestre: 2, estado: "no_confirmada", resultados_visibles: false },
+        { codigo: "2026-1S", titulo: "Prueba objetiva - Primer semestre de 2026",
+          anio: 2026, semestre: 1, estado: "cerrada", resultados_visibles: true }
+      ];
+    }
+    state.studentEditionCatalog = rows
+      .filter(e => /^\d{4}-[12]S$/.test(String(e?.codigo || "")))
+      .map(e => ({
+        codigo: String(e.codigo),
+        titulo: cleanText(e.titulo || "Prueba objetiva"),
+        anio: Number(e.anio) || Number(String(e.codigo).slice(0, 4)),
+        semestre: Number(e.semestre) || Number(String(e.codigo).slice(5, 6)),
+        estado: cleanText(e.estado || "no_confirmada"),
+        resultados_visibles: e.resultados_visibles === true
+      }))
+      .sort((a,b) => b.anio - a.anio || b.semestre - a.semestre);
+  }
+
+  function studentEditionAvailability(ed) {
+    const published = ed.resultados_visibles && ["publicada", "cerrada"].includes(ed.estado);
+    if (!published) return { enabled: false, badge: "PRÓXIMAMENTE",
+      description: "Esta evaluación aún no tiene resultados publicados." };
+    // Proteger la separación entre semestres. v171 solo validó 2026-1S.
+    if (ed.codigo !== state.academicEdition) return {
+      enabled: false, badge: "ACCESO PENDIENTE",
+      description: "Esta evaluación necesita habilitación individual para tu cuenta."
+    };
+    return { enabled: true, badge: "DISPONIBLE",
+      description: "Tus resultados, puntajes y puestos están listos para consultar." };
+  }
+
+  function editionTileHtml(ed, featured = false) {
+    const status = studentEditionAvailability(ed);
+    const label = ed.semestre === 1 ? "Primer semestre" : "Segundo semestre";
+    const statusLabel = status.enabled ? "Abrir evaluación" : status.badge;
+    const tile = [
+      '<span class="po-edition-topline"><span class="po-edition-chip">',
+      esc(label), '</span><span class="po-edition-status ',
+      status.enabled ? "is-ready" : "is-locked", '">', esc(status.badge), '</span></span>',
+      '<span class="po-edition-text"><strong class="po-edition-code">',
+      esc(ed.codigo), '</strong><span class="po-edition-name">',
+      esc(ed.titulo), '</span><span class="po-edition-desc">',
+      esc(status.description), '</span></span>',
+      '<span class="po-edition-bottom"><span>',
+      esc(statusLabel), '</span><span aria-hidden="true" class="po-edition-arrow">',
+      status.enabled ? '→' : '⌁', '</span></span>'
+    ].join('');
+    const cls = "po-edition-tile" + (featured ? " po-edition-featured" : " po-edition-history")
+      + (status.enabled ? " is-clickable" : " is-unavailable");
+    if (status.enabled) {
+      return '<button type="button" class="' + cls +
+        '" data-action="student-open-edition" data-edicion="' + escAttr(ed.codigo) +
+        '" aria-label="Abrir evaluación ' + escAttr(ed.codigo) + '">' + tile + '</button>';
+    }
+    return '<article class="' + cls + '" aria-label="' +
+      escAttr(ed.codigo + ': ' + status.description) + '">' + tile + '</article>';
+  }
+
+  function renderStudentEditionChooser() {
+    if (state.activeSession?.role !== "student") return renderLogin();
+    const rows = state.studentEditionCatalog || [];
+    const newest = rows[0] || null;
+    const historic = rows.slice(1);
+    const roll = cleanId(state.activeSession.roll);
+    const registry = state.registryByExamId.get(roll);
+    const name = cleanText(registry?.name || state.computedByRoll.get(roll)?.name || "");
+    renderShell(
+      '<section class="po-editions-screen" aria-labelledby="po-editions-title">' +
+        '<header class="po-editions-intro">' +
+          '<span class="po-editions-kicker">EVALUACIONES INSTITUCIONALES</span>' +
+          '<h2 id="po-editions-title">Tus evaluaciones</h2>' +
+          '<p>' + (name ? 'Bienvenido, <strong>' + esc(name) + '</strong>. ' : '') +
+             'Elige el semestre para consultar tu informe de resultados.</p>' +
+        '</header>' +
+        (newest ? '<div class="po-editions-latest"><span class="po-editions-eyebrow">' +
+          'ÚLTIMA EVALUACIÓN</span>' + editionTileHtml(newest, true) + '</div>' : '') +
+        '<div class="po-editions-divider"><span></span><strong>HISTORIAL</strong><span></span></div>' +
+        '<div class="po-editions-history">' +
+          (historic.length ? historic.map(e => editionTileHtml(e)).join('') :
+            '<p class="po-editions-empty">Aún no tienes evaluaciones anteriores.</p>') +
+        '</div>' +
+        '<p class="po-editions-footnote">Solo puedes abrir evaluaciones publicadas y autorizadas.</p>' +
+      '</section>',
+      navFor("student")
+    );
+  }
+
+  function enterStudentEditionChooser(roll, options = {}) {
+    const id = cleanId(roll);
+    if (!id) return renderLogin("No se pudo identificar el estudiante.");
+    const session = {role:"student",roll:id,studentView:"editions"};
+    state.activeSession = session;
+    state.selectedSubject = null;
+    state.zeroToleranceShown = false;
+    clearSessionRankContext();
+    writeJSON(STORAGE.session,session);
+    rememberRecentLogin(session);
+    if (options.immediate) return renderStudentEditionChooser();
+    return enterSessionWithLoader(session, () => renderStudentEditionChooser(),
+      "Preparando tus evaluaciones...");
+  }
+
+  function openStudentSelectedEdition(code) {
+    if (state.activeSession?.role !== "student") return;
+    const selected = (state.studentEditionCatalog || []).find(e => e.codigo === code);
+    if (!selected || !studentEditionAvailability(selected).enabled) {
+      toast("La evaluación no está publicada o no está autorizada.");
+      return;
+    }
+    // El motor del informe, notas, gráficos y ranking NO se modifica.
+    return enterStudentSessionWithRankingMode(state.activeSession.roll, {
+      edition: code, message: "Preparando el informe de " + code + "..."
+    });
+  }
+
   const CONSULTATION_BLOCK_MESSAGE = "Ingresar códigos uno tras otro, como si la plataforma tuviera que satisfacer cada impulso de consulta, constituye un uso abusivo del servicio.\n\nPor eso, se ha restringido temporalmente el acceso desde este dispositivo. **Aprende a distinguir entre una consulta necesaria y una insistencia innecesaria.**\n\nLa próxima vez, dedica esa misma insistencia a estudiar y preocuparte por tus propios resultados. **Estar pendiente de las calificaciones ajenas no va a mejorar las tuyas.**";
   function readableLimitMessage(payload) {
     return payload?.motivo === "bloqueo_por_consultas_rapidas"
@@ -1200,12 +1334,6 @@
     const parsedLogin = parseRankingLoginInput(user);
     const cleanUser = parsedLogin.login;
     const wantsRankingDebug = !!(options.rankingDebug || parsedLogin.rankingDebug);
-    if (state.historyAccess) {
-      state.historyAvailable = [];
-      state.historyRanking = null;
-      state.historyAccess = false;
-      window.RoqueHistorial?.clear?.();
-    }
     try {
       const bootCopy = randomLoaderCopy();
       fadeAppOut();
@@ -1267,7 +1395,9 @@
 
       if (session.role === "student") {
         const roll = cleanId(session.roll);
-        return enterStudentSessionWithRankingMode(roll, { debug: wantsRankingDebug, message: wantsRankingDebug ? "Preparando diagnóstico de ranking..." : "Calculando ranking y preparando resultados..." });
+        await loadStudentEditionCatalog();
+        // El informe NO se abre automáticamente después del login.
+        return enterStudentEditionChooser(roll);
       }
 
       return renderLogin("No se pudo identificar el tipo de usuario.");
@@ -2262,25 +2392,6 @@
     const key = cleanId(roll);
     if (!key) return;
     clearSessionRankContext();
-    // Historial v172: usar exclusivamente el ranking personal ya validado
-    // por JWT en Supabase, sin consultar la RPC antigua limitada a 2026-1S.
-    if (state.historyAccess) {
-      const personal = state.historyRanking || {};
-      const rank = personal.ranking || {};
-      setSessionRankContext(key, {
-        gradeRank: rank.puesto_grado, gradeCount: rank.total_grado,
-        courseRank: rank.puesto_curso, courseCount: rank.total_curso,
-        globalScore: rank.puntaje_global
-      });
-      const areas = new Map();
-      Object.entries(personal.ranking_areas || {}).forEach(([name, info]) => {
-        const position = positiveIntOrNull(info?.puesto);
-        const total = positiveIntOrNull(info?.total);
-        if (position && total && position <= total) areas.set(name, { rank: position, total });
-      });
-      state.rankingAreasByRoll.set(key, areas);
-      return;
-    }
     const warnings = [];
     const errors = [];
 
@@ -2476,6 +2587,7 @@
     }
 
     if (state.activeSession.role === "student") {
+      if (state.activeSession.studentView !== "report") return renderStudentEditionChooser();
       const roll = cleanId(state.activeSession.roll);
       if (state.activeSession.rankingDebugRequested && (!state.activeSession.rankingDebugDone || state.activeSession.rankingDebugVersion !== "v140")) {
         return showStudentRankingDebugGate(roll, "Reconstruyendo diagnóstico de ranking...");
@@ -2499,13 +2611,12 @@
       rankingDebugRequested: debug,
       rankingDebugDone: !debug,
       rankingDebugVersion: "v140",
-      ...(options.historial ? { historial: true } : {})
+      studentView: "report",
+      edition: cleanText(options.edition || state.academicEdition || "2026-1S")
     };
     state.activeSession = session;
-    if (!options.historial) {
-      writeJSON(STORAGE.session, state.activeSession);
-      rememberRecentLogin(session);
-    }
+    writeJSON(STORAGE.session, state.activeSession);
+    rememberRecentLogin(session);
     fadeAppOut();
     showRouteLoader(message);
     window.setTimeout(async () => {
@@ -2837,34 +2948,6 @@
     renderLogin("No se pudo abrir ese ingreso reciente.");
   }
 
-  window.RoqueHistorialBridge = {
-    applyEdition(data, editions) {
-      if (!data?.ok || data?.session?.role !== "student" || !data?.edicion) {
-        throw new Error("La edición no fue autorizada.");
-      }
-      hydrateSupabasePayload(data);
-      state.academicEdition = cleanText(data.edicion);
-      state.academicDataSource = cleanText(data.origen_academico || "roque_private_auth_v172");
-      state.historyRanking = data.ranking_personal || {};
-      state.historyAvailable = Array.isArray(editions) ? editions : [];
-      state.historyAccess = true;
-      buildRepository();
-      enterStudentSessionWithRankingMode(cleanId(data.session.roll), {
-        historial: true, message: "Preparando resultados del semestre..."
-      });
-    },
-    backToEditions() {
-      state.activeSession = null;
-      state.historyRanking = null;
-      clearSessionRankContext();
-      window.RoqueHistorial?.showSelector?.();
-    },
-    leave() {
-      clearSession();
-      renderLogin();
-    }
-  };
-
   function renderLogin(error = "") {
     const primary = normalizeColor(state.config.primaryColor || "#1975ae");
     const primaryDark = shadeColor(primary, -26);
@@ -2914,9 +2997,6 @@
                 <button class="primary-btn" type="submit">Ingresar</button>
               </div>
             </form>
-            <div class="history-shortcut">
-              <button type="button" class="history-shortcut-button" data-action="history-login">Mis evaluaciones · cuenta personal</button>
-            </div>
             ${recentLoginsHtml}
           </div>
         </div>
@@ -5671,10 +5751,12 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
 
   function navFor(role) {
     if (role === "student") {
+      const onReport = state.activeSession?.studentView === "report";
       return `
         <nav class="app-nav">
-          <button class="nav-chip active">Reporte general</button>
-          ${state.historyAccess && state.historyAvailable.length > 1 ? '<button class="nav-chip" data-action="history-back">Mis evaluaciones</button>' : ""}
+          ${onReport
+            ? '<button class="nav-chip" data-action="student-back-to-editions">← Evaluaciones</button><button class="nav-chip active">Reporte general</button>'
+            : '<button class="nav-chip active" aria-current="page">Mis evaluaciones</button>'}
           <button class="nav-chip logout" data-action="logout">Salir</button>
         </nav>
       `;
@@ -5842,6 +5924,14 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       return;
     }
 
+    if (action === "student-open-edition") {
+      openStudentSelectedEdition(target.dataset.edicion || "");
+      return;
+    }
+    if (action === "student-back-to-editions") {
+      enterStudentEditionChooser(state.activeSession?.roll || "", { immediate: true });
+      return;
+    }
     if (action === "logout") {
       closeTeacherDockMenu();
       closeAdminNavigation(() => logoutWithFade());
@@ -8940,10 +9030,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
   function clearSession() {
     if (window.RoqueEdiciones) window.RoqueEdiciones.logout();
     state.activeSession = null;
-    state.historyAvailable = [];
-    state.historyRanking = null;
-    state.historyAccess = false;
-    window.RoqueHistorial?.clear?.();
+    state.studentEditionCatalog = [];
     state.zeroToleranceShown = false;
     clearSessionRankContext();
     clearRankingFallbackData();
