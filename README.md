@@ -6,7 +6,7 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v169
+RoqueObjetiva v170
 
 ## Uso
 
@@ -34,3 +34,7 @@ El cargador SQL privado `roque_private.importar_lote_ia` ya permite procesar lot
 ## v169 — Lectura académica desde roque_private
 
 El inicio de sesión controlado `roque_v4_login_controlado_private` **continúa validando los mismos usuarios, roles y límites de consultas** mediante la función v2 y, tras la autorización, entrega estudiantes, claves y resultados de `roque_private` para la edición histórica publicada `2026-1S`. Los conteos y el contenido se contrastan contra `public`; si aparece una diferencia se usa automáticamente el respaldo legado para no mostrar datos incoherentes. Las asignaciones docentes, la edición manual de un examen y el ranking protegido siguen usando funciones históricas hasta completar su migración. **2026-2S permanece sin publicar y no se consulta.** Consulta [docs/TRANSICION_ROQUE_PRIVATE_V169.md](docs/TRANSICION_ROQUE_PRIVATE_V169.md).
+
+## v170 — Rankings de roque_private por edición
+
+Los rankings de grado y curso y los puestos del estudiante por las cinco áreas principales ahora se calculan por edición a partir de inscripciones, claves y resultados en `roque_private`. La consulta web usa `roque_v3_ranking_controlado_edicion`, exige una visita estudiantil reciente y devuelve únicamente la fila propia y puestos agregados. Mantiene reglas de puntaje/desempate v124 y recurre a v2 cuando la nueva RPC no está desplegada o cuando difieren las copias históricas. `2026-2S` continúa inaccesible mientras esté en borrador. Ver [docs/RANKING_POR_EDICION_V170.md](docs/RANKING_POR_EDICION_V170.md).
