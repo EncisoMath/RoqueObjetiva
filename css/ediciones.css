@@ -133,3 +133,11 @@
   #roque-ediciones-root .ed-ai-header { flex-direction: column; gap: 7px; }
   #roque-ediciones-root .ed-ai-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
 }
+
+/* v168: bitácora agregada sin datos personales, mismo estilo flat institucional. */
+#roque-ediciones-root .ed-ai-audit {
+  display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;
+  gap:8px; border-top:1px solid #dce3e9; padding:11px 0 2px;
+  color:#526777; font-size:.74rem; line-height:1.4;
+}
+#roque-ediciones-root .ed-ai-audit strong { color:#243d50; }
