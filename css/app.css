@@ -5635,13 +5635,9 @@ body {
   font-weight: 500 !important;
   font-size: clamp(.9rem, 1.4vw, 1.05rem) !important;
 }
-.top-banner {
-  animation: bannerBreath 9s ease-in-out infinite;
-}
-@keyframes bannerBreath {
-  0%, 100% { filter: brightness(1); }
-  50% { filter: brightness(.88) saturate(1.08); }
-}
+/* v166: retirado bannerBreath global.
+   La animación de figuras sigue en bannerShapeDrift y bannerStarDrift;
+   el hero compartido mantiene un brillo constante. */
 .admin-students-compact table {
   table-layout: auto;
 }
@@ -7454,7 +7450,7 @@ body {
 .top-banner.banner-rank-silver,
 .top-banner.banner-rank-bronze {
   background-size: 180% 180% !important;
-  animation: bannerMedalBreath 7.2s ease-in-out infinite;
+  /* Fondo de medalla fijo: estrellas independientes siguen animándose. */
   box-shadow: 0 18px 42px rgba(20, 14, 5, .20);
 }
 
