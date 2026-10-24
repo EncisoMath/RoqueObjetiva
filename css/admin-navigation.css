@@ -83,3 +83,268 @@
 @media (prefers-reduced-motion:reduce) {
   .adm151-link { transition:none; }
 }
+
+/* === v155 / refinamiento iOS, solo menu administrativo movil ===
+   Superficies con degradado, desenfoque maximo 3px y radios <= 4px.
+   La columna lateral de escritorio conserva su diseño v151. */
+@media (max-width: 1000px) {
+  .adm151-dock,
+  .adm151-sheet {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Dock de cristal fino: azul hielo sin efectos GPU pesados. */
+  .adm151-dock {
+    gap: 4px;
+    padding: 7px 8px calc(7px + env(safe-area-inset-bottom));
+    border: 1px solid rgba(148, 182, 209, .65);
+    border-bottom: 0;
+    border-radius: 4px 4px 0 0;
+    background: linear-gradient(180deg,
+      rgba(251, 254, 255, .97) 0%,
+      rgba(230, 242, 252, .94) 60%,
+      rgba(219, 234, 248, .96) 100%);
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
+    box-shadow: 0 -5px 20px rgba(11, 54, 91, .12),
+      0 -1px 0 rgba(255, 255, 255, .88);
+    isolation: isolate;
+  }
+  .adm151-dock::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 7%;
+    right: 7%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.95), transparent);
+    pointer-events: none;
+  }
+  .adm151-dock-item {
+    position: relative;
+    min-height: 52px;
+    gap: 4px;
+    padding: 7px 4px 5px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    background: transparent;
+    color: #536e86;
+    font-weight: 660;
+    font-size: .68rem;
+    letter-spacing: -.012em;
+    transition:
+      background .21s cubic-bezier(.2,.8,.2,1),
+      border-color .21s ease,
+      color .21s ease,
+      transform .19s cubic-bezier(.2,.8,.2,1),
+      box-shadow .21s ease;
+    animation: adm155DockEnter .35s cubic-bezier(.18,.84,.25,1) both;
+  }
+  .adm151-dock-item:nth-child(2) { animation-delay: 32ms; }
+  .adm151-dock-item:nth-child(3) { animation-delay: 64ms; }
+  .adm151-dock-item:nth-child(4) { animation-delay: 96ms; }
+  .adm151-dock-item .adm151-icon {
+    width: 21px;
+    height: 21px;
+    flex-basis: 21px;
+    stroke-width: 1.7px;
+    transition: transform .23s cubic-bezier(.2,.8,.2,1);
+  }
+  .adm151-dock-item:hover {
+    background: rgba(255,255,255,.48);
+    color: #175b90;
+  }
+  .adm151-dock-item:active {
+    transform: scale(.95);
+  }
+  .adm151-dock-item:active .adm151-icon {
+    transform: scale(.91);
+  }
+  .adm151-dock-item.is-active {
+    color: #086aa7;
+    border-color: rgba(133, 190, 231, .55);
+    background: linear-gradient(155deg, rgba(255,255,255,.97), rgba(194,227,250,.78));
+    box-shadow: 0 2px 8px rgba(32,103,151,.08), inset 0 1px 0 #fff;
+  }
+  .adm151-dock-item.is-active::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 33%;
+    right: 33%;
+    height: 2px;
+    border-radius: 2px;
+    background: linear-gradient(90deg,#68b8e5,#0873ae,#68b8e5);
+    animation: adm155AccentEnter .3s ease-out both;
+  }
+
+  /* El panel se conserva compacto; no se deja altura vacia. */
+  .adm151-overlay.is-visible { display: block; position: fixed; inset: 0; z-index: 211; }
+  .adm151-overlay .adm151-backdrop {
+    background: rgba(7, 26, 47, .52);
+    opacity: 0;
+    transition: opacity .25s ease;
+  }
+  .adm151-overlay.is-open .adm151-backdrop { opacity: 1; }
+  .adm151-overlay.is-closing .adm151-backdrop { opacity: 0; transition-duration: .22s; }
+
+  .adm151-overlay .adm151-sheet {
+    max-height: min(84dvh, 650px);
+    height: auto;
+    border: 1px solid rgba(170,199,221,.7);
+    border-bottom: 0;
+    border-radius: 4px 4px 0 0;
+    background: linear-gradient(160deg, rgba(255,255,255,.98), rgba(242,249,255,.97) 72%, rgba(230,242,252,.98));
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
+    box-shadow: 0 -12px 34px rgba(4, 31, 59, .19);
+    transform: translate3d(0, calc(100% + 16px), 0);
+    opacity: .98;
+    transition:
+      transform .35s cubic-bezier(.19,1,.22,1),
+      opacity .25s ease;
+    will-change: transform;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .adm151-overlay.is-open .adm151-sheet {
+    transform: translate3d(0,0,0);
+    opacity: 1;
+  }
+  .adm151-overlay.is-closing .adm151-sheet {
+    transform: translate3d(0, calc(100% + 16px), 0);
+    opacity: .97;
+    transition-duration: .22s;
+    transition-timing-function: cubic-bezier(.4,0,.7,.4);
+  }
+
+  .adm151-sheet-head {
+    padding: 14px 16px 12px;
+    background: linear-gradient(180deg, rgba(255,255,255,.97), rgba(238,247,254,.67));
+    border-bottom: 1px solid rgba(187,209,229,.55);
+  }
+  .adm151-sheet-head .adm151-kicker {
+    color: #37799e;
+    font-size: .6rem;
+    font-weight: 730;
+    letter-spacing: .12em;
+  }
+  .adm151-sheet-title {
+    color: #18384f;
+    font-size: 1.07rem;
+    font-weight: 750;
+    letter-spacing: -.025em;
+  }
+  .adm151-close {
+    width: 36px;
+    height: 36px;
+    border: 1px solid rgba(184,205,222,.65);
+    border-radius: 4px;
+    background: linear-gradient(145deg, #f9fcff, #e8f1f9);
+    color: #426580;
+    transition: transform .19s ease, background .19s ease, color .19s ease;
+  }
+  .adm151-close:hover { background: #dbeffc; color: #075d96; }
+  .adm151-close:active { transform: scale(.92); }
+
+  .adm151-sheet-scroll {
+    padding: 9px 12px 11px;
+  }
+  .adm151-sheet-scroll .adm151-group { margin: 2px 0 9px; }
+  .adm151-sheet-scroll .adm151-group-heading {
+    padding: 9px 10px 6px;
+    font-size: .63rem;
+    font-weight: 740;
+    letter-spacing: .075em;
+    color: #7990a2;
+  }
+  .adm151-sheet-scroll .adm151-group-links { gap: 3px; }
+  .adm151-sheet-scroll .adm151-link {
+    min-height: 43px;
+    padding: 10px 12px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    background: transparent;
+    color: #2e4e67;
+    font-size: .81rem;
+    font-weight: 680;
+    letter-spacing: -.01em;
+    transition:
+      background .2s ease,
+      color .2s ease,
+      transform .2s cubic-bezier(.2,.8,.2,1),
+      border-color .2s ease;
+  }
+  .adm151-sheet-scroll .adm151-link:hover {
+    background: rgba(213,237,250,.65);
+    color: #0b659c;
+  }
+  .adm151-sheet-scroll .adm151-link:active {
+    transform: scale(.986);
+  }
+  .adm151-sheet-scroll .adm151-link.is-active {
+    color: #0b639b;
+    border-color: rgba(152,201,230,.6);
+    background: linear-gradient(110deg,rgba(226,244,255,.94),rgba(202,232,250,.7));
+    font-weight: 750;
+  }
+  .adm151-sheet-scroll .adm151-link .adm151-current-mark {
+    width: 3px;
+    height: 17px;
+    background: #1681bb;
+    border-radius: 2px;
+  }
+  .adm151-overlay.is-open .adm151-sheet-scroll .adm151-link {
+    animation: adm155RowEnter .35s cubic-bezier(.18,.8,.2,1) both;
+    animation-delay: calc(55ms + var(--adm155-item-index, 0) * 42ms);
+  }
+  .adm151-overlay.is-closing .adm151-sheet-scroll .adm151-link { animation: none; }
+
+  .adm151-sheet-foot {
+    padding: 7px 13px;
+    color: #7990a4;
+    border-top-color: rgba(190,211,230,.6);
+    background: linear-gradient(180deg,#f7fbfe,#ebf5fb);
+  }
+  .adm151-sheet-foot .adm151-exit {
+    border-radius: 4px;
+    min-height: 38px;
+    font-size: .79rem;
+    font-weight: 740;
+    color: #ad3543;
+  }
+  .adm151-sheet-foot .adm151-exit:hover { background: rgba(247,219,226,.65); color: #922334; }
+  .adm151-sheet .adm151-link:focus-visible,
+  .adm151-dock-item:focus-visible,
+  .adm151-close:focus-visible {
+    outline: 2px solid #439dd0;
+    outline-offset: 1px;
+  }
+}
+
+@keyframes adm155DockEnter {
+  from { opacity: 0; transform: translate3d(0,7px,0); }
+  to { opacity: 1; transform: translate3d(0,0,0); }
+}
+@keyframes adm155RowEnter {
+  from { opacity: 0; transform: translate3d(0,9px,0); }
+  to { opacity: 1; transform: translate3d(0,0,0); }
+}
+@keyframes adm155AccentEnter {
+  from { transform: scaleX(.15); opacity: 0; }
+  to { transform: scaleX(1); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .adm151-dock-item,
+  .adm151-dock-item .adm151-icon,
+  .adm151-sheet-scroll .adm151-link,
+  .adm151-close,
+  .adm151-overlay .adm151-sheet,
+  .adm151-overlay .adm151-backdrop,
+  .adm151-dock-item.is-active::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  .adm151-overlay.is-visible:not(.is-open) .adm151-sheet { transform: translate3d(0,100%,0); }
+  .adm151-overlay.is-open .adm151-sheet { transform: translate3d(0,0,0); }
+}
