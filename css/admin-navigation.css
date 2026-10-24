@@ -84,7 +84,7 @@
   .adm151-link { transition:none; }
 }
 
-/* === v156 / cristal translucido real, solo menu administrativo movil ===
+/* === v156 / diseno flat translucido, solo navegacion administrativa movil ===
    Superficies con degradado, desenfoque maximo 3px y radios <= 4px.
    La columna lateral de escritorio conserva su diseño v151. */
 @media (max-width: 1000px) {
@@ -94,21 +94,17 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  /* Dock de cristal fino: azul hielo sin efectos GPU pesados. */
+  /* Dock flat azul hielo: translucidez real sin degradados ni brillos artificiales. */
   .adm151-dock {
     gap: 4px;
     padding: 7px 8px calc(7px + env(safe-area-inset-bottom));
     border: 1px solid rgba(151, 191, 222, .54);
     border-bottom: 0;
     border-radius: 4px 4px 0 0;
-    background: linear-gradient(180deg,
-      rgba(233, 248, 255, .62) 0%,
-      rgba(205, 234, 250, .54) 60%,
-      rgba(167, 211, 240, .48) 100%);
+    background: rgba(196, 228, 246, .56);
     -webkit-backdrop-filter: blur(3px);
     backdrop-filter: blur(3px);
-    box-shadow: 0 -5px 20px rgba(11, 54, 91, .10),
-      inset 0 1px 0 rgba(255, 255, 255, .63);
+    box-shadow: 0 -4px 16px rgba(11, 54, 91, .12);
     isolation: isolate;
   }
   .adm151-dock::before {
@@ -118,7 +114,7 @@
     left: 7%;
     right: 7%;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,.95), transparent);
+    background: rgba(255,255,255,.38);
     pointer-events: none;
   }
   .adm151-dock-item {
@@ -164,8 +160,8 @@
   .adm151-dock-item.is-active {
     color: #086aa7;
     border-color: rgba(133, 190, 231, .55);
-    background: linear-gradient(155deg, rgba(241,250,255,.61), rgba(154,210,246,.35));
-    box-shadow: 0 2px 8px rgba(32,103,151,.06), inset 0 1px 0 rgba(255,255,255,.62);
+    background: rgba(154, 208, 239, .48);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.18);
   }
   .adm151-dock-item.is-active::after {
     content: "";
@@ -175,7 +171,7 @@
     right: 33%;
     height: 2px;
     border-radius: 2px;
-    background: linear-gradient(90deg,#68b8e5,#0873ae,#68b8e5);
+    background: #2387c1;
     animation: adm155AccentEnter .3s ease-out both;
   }
 
@@ -195,10 +191,10 @@
     border: 1px solid rgba(171,202,224,.61);
     border-bottom: 0;
     border-radius: 4px 4px 0 0;
-    background: linear-gradient(160deg, rgba(251,254,255,.69), rgba(231,246,254,.60) 72%, rgba(208,235,250,.57));
+    background: rgba(223, 241, 251, .67);
     -webkit-backdrop-filter: blur(3px);
     backdrop-filter: blur(3px);
-    box-shadow: 0 -12px 34px rgba(4, 31, 59, .16), inset 0 1px 0 rgba(255,255,255,.45);
+    box-shadow: 0 -10px 26px rgba(4, 31, 59, .17);
     transform: translate3d(0, calc(100% + 16px), 0);
     opacity: .98;
     transition:
@@ -220,7 +216,7 @@
 
   .adm151-sheet-head {
     padding: 14px 16px 12px;
-    background: linear-gradient(180deg, rgba(252,254,255,.51), rgba(221,241,253,.31));
+    background: rgba(229, 245, 253, .56);
     border-bottom: 1px solid rgba(187,209,229,.55);
   }
   .adm151-sheet-head .adm151-kicker {
@@ -240,7 +236,7 @@
     height: 36px;
     border: 1px solid rgba(184,205,222,.65);
     border-radius: 4px;
-    background: linear-gradient(145deg, rgba(253,255,255,.58), rgba(199,226,246,.40));
+    background: rgba(207, 231, 247, .59);
     color: #426580;
     transition: transform .19s ease, background .19s ease, color .19s ease;
   }
@@ -285,7 +281,7 @@
   .adm151-sheet-scroll .adm151-link.is-active {
     color: #0b639b;
     border-color: rgba(152,201,230,.6);
-    background: linear-gradient(110deg,rgba(211,240,255,.54),rgba(163,216,248,.42));
+    background: rgba(168, 217, 245, .55);
     font-weight: 750;
   }
   .adm151-sheet-scroll .adm151-link .adm151-current-mark {
@@ -304,7 +300,7 @@
     padding: 7px 13px;
     color: #7990a4;
     border-top-color: rgba(190,211,230,.6);
-    background: linear-gradient(180deg,rgba(245,252,255,.40),rgba(202,230,247,.34));
+    background: rgba(218, 239, 251, .59);
   }
   .adm151-sheet-foot .adm151-exit {
     border-radius: 4px;
