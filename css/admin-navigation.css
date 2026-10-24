@@ -84,7 +84,7 @@
   .adm151-link { transition:none; }
 }
 
-/* === v155 / refinamiento iOS, solo menu administrativo movil ===
+/* === v156 / cristal translucido real, solo menu administrativo movil ===
    Superficies con degradado, desenfoque maximo 3px y radios <= 4px.
    La columna lateral de escritorio conserva su diseño v151. */
 @media (max-width: 1000px) {
@@ -98,17 +98,17 @@
   .adm151-dock {
     gap: 4px;
     padding: 7px 8px calc(7px + env(safe-area-inset-bottom));
-    border: 1px solid rgba(148, 182, 209, .65);
+    border: 1px solid rgba(151, 191, 222, .54);
     border-bottom: 0;
     border-radius: 4px 4px 0 0;
     background: linear-gradient(180deg,
-      rgba(251, 254, 255, .97) 0%,
-      rgba(230, 242, 252, .94) 60%,
-      rgba(219, 234, 248, .96) 100%);
+      rgba(233, 248, 255, .62) 0%,
+      rgba(205, 234, 250, .54) 60%,
+      rgba(167, 211, 240, .48) 100%);
     -webkit-backdrop-filter: blur(3px);
     backdrop-filter: blur(3px);
-    box-shadow: 0 -5px 20px rgba(11, 54, 91, .12),
-      0 -1px 0 rgba(255, 255, 255, .88);
+    box-shadow: 0 -5px 20px rgba(11, 54, 91, .10),
+      inset 0 1px 0 rgba(255, 255, 255, .63);
     isolation: isolate;
   }
   .adm151-dock::before {
@@ -164,8 +164,8 @@
   .adm151-dock-item.is-active {
     color: #086aa7;
     border-color: rgba(133, 190, 231, .55);
-    background: linear-gradient(155deg, rgba(255,255,255,.97), rgba(194,227,250,.78));
-    box-shadow: 0 2px 8px rgba(32,103,151,.08), inset 0 1px 0 #fff;
+    background: linear-gradient(155deg, rgba(241,250,255,.61), rgba(154,210,246,.35));
+    box-shadow: 0 2px 8px rgba(32,103,151,.06), inset 0 1px 0 rgba(255,255,255,.62);
   }
   .adm151-dock-item.is-active::after {
     content: "";
@@ -182,7 +182,7 @@
   /* El panel se conserva compacto; no se deja altura vacia. */
   .adm151-overlay.is-visible { display: block; position: fixed; inset: 0; z-index: 211; }
   .adm151-overlay .adm151-backdrop {
-    background: rgba(7, 26, 47, .52);
+    background: rgba(7, 26, 47, .31);
     opacity: 0;
     transition: opacity .25s ease;
   }
@@ -192,13 +192,13 @@
   .adm151-overlay .adm151-sheet {
     max-height: min(84dvh, 650px);
     height: auto;
-    border: 1px solid rgba(170,199,221,.7);
+    border: 1px solid rgba(171,202,224,.61);
     border-bottom: 0;
     border-radius: 4px 4px 0 0;
-    background: linear-gradient(160deg, rgba(255,255,255,.98), rgba(242,249,255,.97) 72%, rgba(230,242,252,.98));
+    background: linear-gradient(160deg, rgba(251,254,255,.69), rgba(231,246,254,.60) 72%, rgba(208,235,250,.57));
     -webkit-backdrop-filter: blur(3px);
     backdrop-filter: blur(3px);
-    box-shadow: 0 -12px 34px rgba(4, 31, 59, .19);
+    box-shadow: 0 -12px 34px rgba(4, 31, 59, .16), inset 0 1px 0 rgba(255,255,255,.45);
     transform: translate3d(0, calc(100% + 16px), 0);
     opacity: .98;
     transition:
@@ -220,7 +220,7 @@
 
   .adm151-sheet-head {
     padding: 14px 16px 12px;
-    background: linear-gradient(180deg, rgba(255,255,255,.97), rgba(238,247,254,.67));
+    background: linear-gradient(180deg, rgba(252,254,255,.51), rgba(221,241,253,.31));
     border-bottom: 1px solid rgba(187,209,229,.55);
   }
   .adm151-sheet-head .adm151-kicker {
@@ -240,7 +240,7 @@
     height: 36px;
     border: 1px solid rgba(184,205,222,.65);
     border-radius: 4px;
-    background: linear-gradient(145deg, #f9fcff, #e8f1f9);
+    background: linear-gradient(145deg, rgba(253,255,255,.58), rgba(199,226,246,.40));
     color: #426580;
     transition: transform .19s ease, background .19s ease, color .19s ease;
   }
@@ -276,7 +276,7 @@
       border-color .2s ease;
   }
   .adm151-sheet-scroll .adm151-link:hover {
-    background: rgba(213,237,250,.65);
+    background: rgba(213,237,250,.40);
     color: #0b659c;
   }
   .adm151-sheet-scroll .adm151-link:active {
@@ -285,7 +285,7 @@
   .adm151-sheet-scroll .adm151-link.is-active {
     color: #0b639b;
     border-color: rgba(152,201,230,.6);
-    background: linear-gradient(110deg,rgba(226,244,255,.94),rgba(202,232,250,.7));
+    background: linear-gradient(110deg,rgba(211,240,255,.54),rgba(163,216,248,.42));
     font-weight: 750;
   }
   .adm151-sheet-scroll .adm151-link .adm151-current-mark {
@@ -304,7 +304,7 @@
     padding: 7px 13px;
     color: #7990a4;
     border-top-color: rgba(190,211,230,.6);
-    background: linear-gradient(180deg,#f7fbfe,#ebf5fb);
+    background: linear-gradient(180deg,rgba(245,252,255,.40),rgba(202,230,247,.34));
   }
   .adm151-sheet-foot .adm151-exit {
     border-radius: 4px;
@@ -313,7 +313,7 @@
     font-weight: 740;
     color: #ad3543;
   }
-  .adm151-sheet-foot .adm151-exit:hover { background: rgba(247,219,226,.65); color: #922334; }
+  .adm151-sheet-foot .adm151-exit:hover { background: rgba(247,219,226,.45); color: #922334; }
   .adm151-sheet .adm151-link:focus-visible,
   .adm151-dock-item:focus-visible,
   .adm151-close:focus-visible {
