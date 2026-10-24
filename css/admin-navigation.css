@@ -1,12 +1,7 @@
-/* RoqueObjetiva v151 · Etapa 1: navegación exclusiva del administrador.
-   No aplica a páginas de estudiantes, docentes ni coordinadores. */
+/* Navegación exclusiva del administrador (base v151, dock v165).
+   El hero ahora se define SOLO en css/shared-hero.css (v166). */
 .adm151-shell { --adm151-blue: var(--orange, #1975ae); --adm151-deep: #103754; --adm151-muted: #687b8d; }
 .adm151-shell .page { max-width: none !important; width:100%; margin:0 !important; padding:0 !important; }
-.adm151-shell .top-banner { min-height:0 !important; }
-.adm151-shell .top-banner .banner-inner { max-width:1500px; padding:16px 24px 15px !important; }
-.adm151-shell .banner-copy h1 { font-size:clamp(1.15rem,2.1vw,1.58rem) !important; margin:0 0 4px !important; }
-.adm151-shell .banner-copy p { font-size:clamp(.73rem,1.3vw,.88rem) !important; line-height:1.3; max-width:700px; }
-.adm151-shell .banner-logo { height:55px; width:min(21vw,130px); }
 .adm151-workspace { display:grid; grid-template-columns:242px minmax(0,1fr); gap:22px; max-width:1600px; margin:0 auto; padding:20px 22px 30px; align-items:start; }
 .adm151-workspace * { box-sizing:border-box; }
 .adm151-sidebar { background:#fff; border:1px solid #dde8f0; box-shadow:0 8px 30px rgba(18,65,108,.07); border-radius:16px; overflow:hidden; min-width:0; position:sticky; top:14px; max-height:calc(100dvh - 26px); display:flex; flex-direction:column; }
@@ -65,10 +60,6 @@
   .adm151-group[hidden] { display:none !important; }
   .adm151-sheet-foot { display:flex; flex-shrink:0; align-items:center; justify-content:space-between; gap:10px; padding:6px 14px; border-top:1px solid #e2ebf1; background:#f9fcff; color:#7b8794; font-size:.73rem; }
   .adm151-sheet-foot .adm151-exit { width:auto; min-height:38px; }
-  .adm151-shell .top-banner .banner-inner { padding:12px 14px !important; gap:10px; }
-  .adm151-shell .banner-logo { height:49px; width:min(24vw,90px); }
-  .adm151-shell .banner-copy h1 { font-size:1.06rem !important; }
-  .adm151-shell .banner-copy p { font-size:.73rem !important; max-width:235px; }
 }
 @media (max-width:390px) {
   .adm151-workspace { padding-inline:10px; }
