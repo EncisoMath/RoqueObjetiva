@@ -2905,12 +2905,15 @@
     document.documentElement.removeAttribute("data-theme");
     document.querySelector('meta[name="theme-color"]')?.setAttribute("content", primary);
     applyAppMeta(primary);
-    const bannerStyle = `style="background: linear-gradient(105deg, ${primary} 0%, ${primary} 42%, ${primaryDark} 100%)"`;
+    const bannerStyle = `style="background: ${primary}"`;
     const isMedalBanner = ["banner-rank-gold", "banner-rank-silver", "banner-rank-bronze"].includes(bannerToneClass);
     const bannerClass = isMedalBanner ? ` ${bannerToneClass}` : "";
+    const heroRole = state.activeSession?.role;
+    const studentHero = heroRole === "student";
+    const hasInstitutionalHero = ["student", "teacher", "admin"].includes(heroRole);
     if (state.activeSession?.role === "teacher") state.teacherDockMenu = "";
     app.innerHTML = `
-      <div class="app-shell${state.activeSession?.role === "admin" ? " adm151-shell" : ""}${state.activeSession?.role === "teacher" ? " roque-teacher-shell" : ""}">
+      <div class="app-shell${hasInstitutionalHero ? " roque-hero-shell" : ""}${heroRole === "admin" ? " adm151-shell" : ""}${heroRole === "teacher" ? " roque-teacher-shell" : ""}${studentHero ? " roque-student-shell" : ""}">
         <header class="top-banner${bannerClass}" ${bannerStyle}>
           <div class="banner-shapes ${isMedalBanner ? "banner-stars" : ""}" aria-hidden="true">
             ${renderPlayShapes("banner", isMedalBanner)}
@@ -2924,8 +2927,9 @@
               ${cfg.logoImage ? `<span class="banner-logo-frame"><img class="banner-logo" src="${escAttr(cfg.logoImage)}" alt="Logo"></span>` : `<div class="banner-mark-text">Resultados</div>`}
             </div>
           </div>
-          ${nav}
+          ${studentHero ? "" : nav}
         </header>
+        ${studentHero && nav ? `<div class="roque-student-nav-row">${nav}</div>` : ""}
         <main class="page">
           ${content}
         </main>
