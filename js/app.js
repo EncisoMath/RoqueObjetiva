@@ -3362,17 +3362,14 @@
     const activeSubjectGroup = groupedAssignments.find((group) => sameSubject(group.subject, activeSubject)) || groupedAssignments[0] || null;
     const visibleGradeAssignments = (activeSubjectGroup?.assignments || assignments.filter((assignment) => sameSubject(subjectNameForAssignment(assignment), activeSubject) || sameSubject(assignment.subject, activeSubject))).slice();
 
-    const subjectButtons = groupedAssignments.map((group) => `
-      <button class="tab-btn teacher-subject-tab ${sameSubject(activeSubject, group.subject) ? "active" : ""}" data-action="teacher-subject" data-subject="${escAttr(group.subject)}">
-        ${esc(group.subject)}
-      </button>
-    `).join("");
 
-    const groupButtons = visibleGradeAssignments.map((a) => `
-      <button class="tab-btn teacher-group-tab ${active?.key === a.key ? "active" : ""}" data-action="teacher-assignment" data-key="${escAttr(a.key)}" data-grade="${escAttr(a.grade)}" data-subject="${escAttr(a.subjectRaw || a.subject)}" data-group="${escAttr(a.group || "")}" data-sede="${escAttr(a.sede || "")}">
-        ${esc(a.grade)}°${a.group ? ` · ${esc(a.group)}` : ""}${a.sede ? ` · ${esc(a.sede)}` : ""}
-      </button>
-    `).join("");
+    const subjectOptions = groupedAssignments.map((group) =>
+      '<option value="' + escAttr(group.subject) + '"' + (sameSubject(activeSubject, group.subject) ? ' selected' : '') + '>' + esc(group.subject) + '</option>'
+    ).join("");
+    const courseOptions = visibleGradeAssignments.map((assignment) => {
+      const label = String(assignment.grade) + '°' + (assignment.group ? ' · ' + assignment.group : '') + (assignment.sede ? ' · ' + assignment.sede : '');
+      return '<option value="' + escAttr(assignment.key) + '"' + (active?.key === assignment.key ? ' selected' : '') + '>' + esc(label) + '</option>';
+    }).join("");
 
     const students = active
       ? state.computedStudents.filter((student) => teacherAssignmentMatches(student, active))
@@ -3417,8 +3414,16 @@
       ${teacherModeTabs(teacher, "asignaturas")}
 
       <div class="teacher-nav-block">
-        <nav class="teacher-assignment-nav teacher-subject-nav">${subjectButtons || `<span class="badge gray">Sin cargas asignadas</span>`}</nav>
-        ${activeSubject ? `<nav class="teacher-assignment-nav teacher-group-nav">${groupButtons || `<span class="badge gray">Sin cursos para esta asignatura</span>`}</nav>` : ""}
+        <div class="t160-selectors" aria-label="Selección de carga académica">
+          <div class="t160-field">
+            <label for="t160-subject">Asignatura</label>
+            <div class="t160-select-wrap"><select id="t160-subject" data-teacher-select="subject" ${!groupedAssignments.length ? "disabled" : ""}>${subjectOptions || "<option>Sin asignaturas</option>"}</select></div>
+          </div>
+          <div class="t160-field">
+            <label for="t160-course">Curso</label>
+            <div class="t160-select-wrap"><select id="t160-course" data-teacher-select="course" ${!visibleGradeAssignments.length ? "disabled" : ""}>${courseOptions || "<option>Sin cursos</option>"}</select></div>
+          </div>
+        </div>
       </div>
 
       ${active ? `
@@ -3470,11 +3475,11 @@
       if (subject) return student.subjectStats[subject.name]?.score;
       return displayListName(student);
     });
-    const groupButtons = groups.map((group) => `
-      <button class="tab-btn teacher-group-tab ${active?.key === group.key ? "active" : ""}" data-action="teacher-director-group" data-key="${escAttr(group.key)}">
-        ${esc(group.sede)} · ${esc(group.grade)}° · ${esc(group.group)}
-      </button>
-    `).join("");
+
+    const groupOptions = groups.map((group) =>
+      '<option value="' + escAttr(group.key) + '"' + (active?.key === group.key ? ' selected' : '') + '>' +
+      esc(group.sede) + ' · ' + esc(group.grade) + '° · ' + esc(group.group) + '</option>'
+    ).join("");
     const subjectCards = subjects.map((subject) => {
       const studentsForSubjectStats = evaluatedStudentsForSubject(students, subject.name);
       const values = scoresForSubjectAverage(studentsForSubjectStats, subject.name);
@@ -3514,7 +3519,12 @@
       ${teacherModeTabs(teacher, "director")}
 
       <div class="teacher-nav-block">
-        <nav class="teacher-assignment-nav teacher-group-nav">${groupButtons || `<span class="badge gray">No tienes dirección de grupo asignada.</span>`}</nav>
+        <div class="t160-selectors t160-director-selectors">
+          <div class="t160-field">
+            <label for="t160-director-course">Grupo a cargo</label>
+            <div class="t160-select-wrap"><select id="t160-director-course" data-teacher-select="director" ${!groups.length ? "disabled" : ""}>${groupOptions || "<option>Sin grupos</option>"}</select></div>
+          </div>
+        </div>
       </div>
 
       ${active ? `
