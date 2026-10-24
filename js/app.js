@@ -3664,11 +3664,11 @@
     overlay.classList.add("is-visible");
     overlay.setAttribute("aria-hidden", "false");
     document.body.classList.add("adm151-menu-open");
-    // Un frame con estado cerrado permite animar de 100% a 0 sin saltos.
-    requestAnimationFrame(() => {
+    // Dos frames garantizan que el estado inicial se pinte antes de animar.
+    requestAnimationFrame(() => requestAnimationFrame(() => {
       if (overlay.isConnected && overlay.classList.contains("is-visible") &&
           !overlay.classList.contains("is-closing")) overlay.classList.add("is-open");
-    });
+    }));
     overlay.querySelector(".adm151-close")?.focus({ preventScroll: true });
   }
 
