@@ -1,57 +1,31 @@
-/* RoqueObjetiva v173 — Dock estudiantil con el mismo sistema del dock docente.
-   Flat, sin degradados, bordes <=4px. */
-.roque-student-shell .page {
-  padding-bottom: calc(102px + env(safe-area-inset-bottom)) !important;
-}
-.roque-student-shell .top-banner .app-nav,
-.roque-student-shell .roque-student-nav-row { display:none !important; }
-.student-bottom-dock {
+/* v173.1: el dock estudiantil usa EXACTAMENTE las mismas reglas
+   .t160-dock y .t160-dock-btn que el docente, sin sobrescribir estado activo,
+   ancho, alto, texto, hover, colores, espaciado ni iconos. */
+.roque-student-shell {
   --t160-border: #dce3e9;
   --t160-muted: #617181;
-  --t160-soft: #edf4f9;
-  background: #fff;
-  width: min(100%,760px);
-  gap: 4px;
-  border-color: #dce3e9;
-  border-radius: 4px 4px 0 0;
-  box-shadow: none;
-  backdrop-filter: none;
+  --t160-soft: color-mix(in srgb, var(--orange) 9%, white);
 }
-.student-bottom-dock .t160-dock-btn {
-  min-height: 55px;
-  height: 55px;
-  border-radius:4px;
-  font-size:12px;
-  font-weight:750;
+.roque-student-shell .page {
+  padding-bottom: calc(84px + env(safe-area-inset-bottom)) !important;
 }
-.student-bottom-dock .t160-dock-btn.is-active {
-  background: #e6f0f7;
-  color:#136693;
+.roque-student-shell .top-banner .app-nav,
+.roque-student-shell .roque-student-nav-row {
+  display: none !important;
 }
+/* Única diferencia funcional: deshabilitar Detalles hasta seleccionar examen. */
 .student-bottom-dock .t160-dock-btn:disabled {
-  opacity:.45;
-  cursor:not-allowed;
+  opacity: .45;
+  cursor: not-allowed;
 }
-.student-bottom-dock .t160-dock-btn:last-child {
-  color:#a24141;
-}
-.student-bottom-dock .t160-dock-btn:last-child:hover {
-  background:#fcf1f1;
-}
+/* Aviso de bloqueo del historial (ajeno al diseño del dock). */
 .po-editions-locknote {
-  font-size:12px;
-  color:#76616a;
-  background:#f5edf0;
-  border:1px solid #e3d2d9;
-  border-radius:4px;
-  padding:11px 12px;
-  line-height:1.5;
-  margin:0 0 12px;
-}
-@media(max-width:520px) {
-  .student-bottom-dock{padding-left:5px;padding-right:5px;}
-  .student-bottom-dock .t160-dock-btn{font-size:11px;gap:3px;}
-}
-@media(prefers-reduced-motion:reduce) {
-  .student-bottom-dock .t160-dock-btn{transition:none;}
+  font-size: 12px;
+  color: #76616a;
+  background: #f5edf0;
+  border: 1px solid #e3d2d9;
+  border-radius: 4px;
+  padding: 11px 12px;
+  line-height: 1.5;
+  margin: 0 0 12px;
 }
