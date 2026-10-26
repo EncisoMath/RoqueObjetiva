@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v173.1";
+  const APP_VERSION = "v173.2";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
