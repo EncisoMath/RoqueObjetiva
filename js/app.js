@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v174.7";
+  const APP_VERSION = "v174.8";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -3183,9 +3183,9 @@
   const STUDENT_AREA_COLORS = Object.freeze({
     "Matemáticas": "#6366d9",
     "Lenguaje": "#ee525a",
-    "Ciencias Naturales": "#1ba65a",
-    "Inglés": "#16b7d6",
-    "Ciencias Sociales y Ciudadanía": "#268dc4",
+    "Ciencias Naturales": "#FFC107",
+    "Inglés": "#4CAF50",
+    "Ciencias Sociales y Ciudadanía": "#00BCD4",
     "Ética y Valores": "#efb400",
     "Artística": "#e7b800",
     "Educación Física": "#4eb7ad",
