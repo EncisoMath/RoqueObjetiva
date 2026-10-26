@@ -1,4 +1,4 @@
-/* v174.1 · Informe del estudiante. Alcance EXCLUSIVO: .stu174-dashboard
+/* v174.3 · Informe del estudiante. Alcance EXCLUSIVO: .stu174-dashboard
    Diseño inspirado en referencia: identidad, puntaje, 2 rankings y grid 2 columnas.
    Sin porcentajes escritos, sin degradados, radios <= 4px. */
 .roque-student-shell .stu174-dashboard {
@@ -177,8 +177,19 @@
   background: #f3f6f9;
   padding: 9px 7px;
 }
+/* Los dos bloques adoptan el fondo del metal que corresponda al puesto,
+   manteniendo el color original del número y etiqueta. */
+.roque-student-shell .stu174-rank-tile.is-gold {
+  background: #FFD43B;
+}
+.roque-student-shell .stu174-rank-tile.is-silver {
+  background: #BCCAD8;
+}
+.roque-student-shell .stu174-rank-tile.is-bronze {
+  background: #E89557;
+}
 .roque-student-shell .stu174-rank-icon {
-  color: var(--stu174-rank-color);
+  color: #243657;
   line-height: 0;
   flex: 0 0 24px;
 }
