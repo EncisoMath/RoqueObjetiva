@@ -29,3 +29,13 @@
   line-height: 1.5;
   margin: 0 0 12px;
 }
+
+/* Mismo rojo que «Cerrar sesión» del menú docente (#af3342),
+   aplicado únicamente al texto e icono de «Salir» del estudiante. */
+.student-bottom-dock .t160-dock-btn[data-action="logout"],
+.student-bottom-dock .t160-dock-btn[data-action="logout"]:hover:not(.is-active):not([aria-expanded="true"]) {
+  color: #af3342;
+}
+.student-bottom-dock .t160-dock-btn[data-action="logout"]:hover:not(.is-active):not([aria-expanded="true"]) {
+  background: #fff2f2;
+}
