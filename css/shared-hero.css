@@ -1,4 +1,4 @@
-/* RoqueObjetiva v166 · ÚNICA FUENTE DE ESTILO DEL HERO INSTITUCIONAL.
+/* RoqueObjetiva v174.2 · ÚNICA FUENTE DE ESTILO DEL HERO INSTITUCIONAL.
    Mismo componente y dimensiones para estudiante, docente/coordinación y administración.
    Variantes de ranking: preservan medalla, colores y estrellas, ahora con fondo sólido.
    Este archivo se carga DESPUÉS de app.css y de las navegaciones por rol. */
@@ -124,15 +124,15 @@
    sin degradados oscuros ni respiración del fondo. Todo lo demás del ranking
    -- estrellas, distintivos, texto y efectos de la tarjeta -- se conserva. */
 .roque-student-shell .top-banner.banner-rank-gold {
-  background: #926100 !important;
+  background: #FFD43B !important;
   background-image: none !important;
 }
 .roque-student-shell .top-banner.banner-rank-silver {
-  background: #576878 !important;
+  background: #BCCAD8 !important;
   background-image: none !important;
 }
 .roque-student-shell .top-banner.banner-rank-bronze {
-  background: #984b26 !important;
+  background: #E89557 !important;
   background-image: none !important;
 }
 .roque-student-shell .top-banner.banner-rank-gold,
@@ -141,6 +141,31 @@
   background-size: auto !important;
   animation: none !important;
   filter: none !important;
+  color: #243044 !important;
+}
+/* Sobre los metales brillantes, el título y subtítulo deben ser oscuros.
+   Sobrescribe el blanco con sombra del legado v68 en css/app.css. */
+.roque-student-shell .top-banner.banner-rank-gold .banner-copy h1,
+.roque-student-shell .top-banner.banner-rank-gold .banner-copy p,
+.roque-student-shell .top-banner.banner-rank-silver .banner-copy h1,
+.roque-student-shell .top-banner.banner-rank-silver .banner-copy p,
+.roque-student-shell .top-banner.banner-rank-bronze .banner-copy h1,
+.roque-student-shell .top-banner.banner-rank-bronze .banner-copy p {
+  color: #243044 !important;
+  text-shadow: none !important;
+}
+/* Estrellas mantienen el movimiento, con contraste sobre fondos claros. */
+.roque-student-shell .top-banner.banner-rank-gold .banner-shapes.banner-stars .shape {
+  color: rgba(104, 75, 14, .60);
+  text-shadow: 0 0 12px rgba(255, 255, 255, .65);
+}
+.roque-student-shell .top-banner.banner-rank-silver .banner-shapes.banner-stars .shape {
+  color: rgba(57, 79, 102, .58);
+  text-shadow: 0 0 12px rgba(255, 255, 255, .68);
+}
+.roque-student-shell .top-banner.banner-rank-bronze .banner-shapes.banner-stars .shape {
+  color: rgba(111, 52, 24, .57);
+  text-shadow: 0 0 12px rgba(255, 255, 255, .60);
 }
 /* Estrellas del ranking intactas: el efecto sucede SOLO en las figuras. */
 .roque-student-shell .top-banner .banner-shapes.banner-stars .shape {
