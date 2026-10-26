@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v174.6";
+  const APP_VERSION = "v174.7";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -1273,6 +1273,29 @@
       escAttr(ed.codigo + ': ' + status.description) + '">' + tile + '</article>';
   }
 
+  // Al cambiar entre Historial y Detalles no conservar el scroll anterior.
+  // app.css define html { scroll-behavior: smooth }, por eso forzamos un
+  // desplazamiento INMEDIATO aun si la lista anterior estaba desplazada.
+  function resetStudentScreenScroll() {
+    const root = document.documentElement;
+    const previousBehavior = root.style.scrollBehavior;
+    root.style.scrollBehavior = "auto";
+    const toTop = () => {
+      window.scrollTo(0, 0);
+      if (document.scrollingElement) document.scrollingElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      app.scrollTop = 0;
+      const page = app.querySelector(".roque-student-shell .page");
+      if (page) page.scrollTop = 0;
+    };
+    toTop();
+    // Segunda pasada tras el repintado, por si el navegador restauró scroll.
+    window.requestAnimationFrame(() => {
+      toTop();
+      root.style.scrollBehavior = previousBehavior;
+    });
+  }
+
   function renderStudentEditionChooser() {
     if (state.activeSession?.role !== "student") return renderLogin();
     const rows = state.studentEditionCatalog || [];
@@ -1302,6 +1325,7 @@
       '</section>',
       navFor("student")
     );
+    resetStudentScreenScroll();
   }
 
   function enterStudentEditionChooser(roll, options = {}) {
@@ -2663,6 +2687,7 @@
           renderStudent(cleanRoll);
         }
       } finally {
+        resetStudentScreenScroll();
         fadeAppIn();
         window.setTimeout(hideRouteLoader, 180);
       }
