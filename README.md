@@ -6,7 +6,7 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v173.1
+RoqueObjetiva v173.2
 
 
 ## v172.1 · Evaluaciones antes del informe
@@ -21,6 +21,9 @@ Después del ingreso habitual por ID, aparece una portada de evaluaciones. **202
 
 ## v173.1 · Dock estudiantil idéntico al docente
 El dock estudiantil reutiliza directamente `.t160-dock` y `.t160-dock-btn` (los mismos del docente), sin sobreescribir estilo activo, colores, alturas, tipografía, separaciones ni animaciones. Sólo conserva el tratamiento de estado deshabilitado para «Detalles de examen» antes de elegir una evaluación. Botones: Historial | Detalles de examen | Salir. El resto de v173, incluyendo notas y bloqueo de historial, queda intacto.
+
+## v173.2 · Botón «Salir» rojo
+El dock estudiantil conserva los estilos del docente. Únicamente el icono y el texto de «Salir» usan el mismo rojo `#af3342` de «Cerrar sesión» en el menú docente; en hover usa el mismo fondo `#fff2f2`. Sin cambios funcionales, académicos ni de Supabase.
 
 ## Uso
 
