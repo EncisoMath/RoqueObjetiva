@@ -1,4 +1,4 @@
-/* RoqueObjetiva v174.5 · ÚNICA FUENTE DE ESTILO DEL HERO INSTITUCIONAL.
+/* RoqueObjetiva v174.6 · ÚNICA FUENTE DE ESTILO DEL HERO INSTITUCIONAL.
    Mismo componente y dimensiones para estudiante, docente/coordinación y administración.
    Variantes de ranking: preservan medalla, colores y estrellas, ahora con fondo sólido.
    Este archivo se carga DESPUÉS de app.css y de las navegaciones por rol. */
@@ -58,12 +58,12 @@
   font-style: normal !important;
   line-height: 1.25 !important;
 }
-/* v174.5: El PNG del escudo debe mostrarse COMPLETO.
+/* v174.6: El PNG del escudo debe mostrarse COMPLETO y más grande.
    Sin recortes ni sombras heredadas; centrado vertical en cualquier hero.
    Se usa un marco CUADRADO con espacio real dentro del header. */
 .roque-hero-shell .top-banner .banner-brand {
   min-width: 0;
-  width: clamp(64px, 9vw, 92px);
+  width: clamp(96px, 10vw, 110px);
   flex: 0 0 auto;
   align-self: center;
   display: flex;
@@ -82,8 +82,8 @@
   width: 100%;
   height: auto;
   aspect-ratio: 1 / 1;
-  max-width: 92px;
-  max-height: 92px;
+  max-width: 100px;
+  max-height: 96px;
   padding: 0 !important;
   margin: 0 !important;
   overflow: visible !important;
@@ -229,11 +229,11 @@
     line-height: 1.22 !important;
   }
   .roque-hero-shell .top-banner .banner-brand {
-    width: clamp(46px, 15vw, 68px);
+    width: clamp(78px, 22.5vw, 90px);
   }
   .roque-hero-shell .top-banner .banner-logo-frame {
-    max-width: 68px;
-    max-height: 68px;
+    max-width: 90px;
+    max-height: 90px;
     aspect-ratio: 1 / 1;
   }
   .roque-student-shell .roque-student-nav-row .app-nav {
