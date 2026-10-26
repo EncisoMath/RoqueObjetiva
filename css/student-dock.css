@@ -39,3 +39,10 @@
 .student-bottom-dock .t160-dock-btn[data-action="logout"]:hover:not(.is-active):not([aria-expanded="true"]) {
   background: #fff2f2;
 }
+
+/* v174.9: el detalle de asignatura se dibuja SOBRE el dock estudiantil.
+   La ventana base tiene z-index:50 y el dock docente reutilizado z-index:221.
+   No modificar el dock ni la capa de otros modales. */
+#modal-root .student-subject-modal-backdrop {
+  z-index: 300 !important;
+}
