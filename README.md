@@ -6,7 +6,7 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v173.2
+RoqueObjetiva v174
 
 
 ## v172.1 · Evaluaciones antes del informe
@@ -24,6 +24,15 @@ El dock estudiantil reutiliza directamente `.t160-dock` y `.t160-dock-btn` (los 
 
 ## v173.2 · Botón «Salir» rojo
 El dock estudiantil conserva los estilos del docente. Únicamente el icono y el texto de «Salir» usan el mismo rojo `#af3342` de «Cerrar sesión» en el menú docente; en hover usa el mismo fondo `#fff2f2`. Sin cambios funcionales, académicos ni de Supabase.
+
+## v174 · Nuevo informe visual del estudiante
+
+- Ficha independiente de identidad: grado, nombre, ID, sede y curso.
+- Tarjeta inferior de puntaje global con barra proporcional y explicación al pulsar.
+- Dos tarjetas de ranking por curso y por grado.
+- **Resultados por área** en grid de **dos columnas** en móvil y escritorio, con los iconos existentes, nota sobre 100 y barra con color propio por asignatura; sin imprimir porcentajes.
+- Pulsar cualquier asignatura conserva el modal de respuestas, aciertos, errores y puesto por materia.
+- Cambios únicamente en `renderStudent` y el nuevo `css/student-dashboard.css` (estilo encapsulado). Docentes, coordinadores, administradores, datos académicos y dock sin modificaciones.
 
 ## Uso
 
