@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v174.2";
+  const APP_VERSION = "v174.3";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -3208,11 +3208,13 @@
       '</section>'
     ].join("");
 
-    const rankCard = (value,label,icon,rankColor) => {
+    const rankCard = (value,label,icon) => {
       const rank = num(value);
       const display = rank !== null && rank > 0 ? String(rank) : "—";
+      // Cada ranking usa su propio puesto: uno puede ser oro y el otro bronce.
+      const medalClass = rank === 1 ? " is-gold" : rank === 2 ? " is-silver" : rank === 3 ? " is-bronze" : "";
       return [
-        '<div class="stu174-rank-tile" style="--stu174-rank-color:', rankColor, '">',
+        '<div class="stu174-rank-tile', medalClass, '">',
           '<span class="stu174-rank-icon" aria-hidden="true">', adminNavIcon(icon), '</span>',
           '<div class="stu174-rank-copy"><strong>', esc(display), '</strong><small>', esc(label), '</small></div>',
         '</div>'
@@ -3228,8 +3230,8 @@
           '<span class="stu174-global-track" aria-hidden="true"><i style="width:', globalProgress, '%"></i></span>',
         '</button>',
         '<div class="stu174-ranking">',
-          rankCard(student.courseRank, "Ranking por curso", "chart", "#228be6"),
-          rankCard(student.gradeRank, "Ranking por grado", "users", "#8834ef"),
+          rankCard(student.courseRank, "Ranking por curso", "chart"),
+          rankCard(student.gradeRank, "Ranking por grado", "users"),
         '</div>',
       '</section>'
     ].join("");
