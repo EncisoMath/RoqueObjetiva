@@ -1,0 +1,368 @@
+/* v174 · Informe del estudiante. Alcance EXCLUSIVO: .stu174-dashboard
+   Diseño inspirado en referencia: identidad, puntaje, 2 rankings y grid 2 columnas.
+   Sin porcentajes escritos, sin degradados, radios <= 4px. */
+.roque-student-shell .stu174-dashboard {
+  display: grid;
+  gap: 11px;
+  width: min(100%, 950px);
+  margin: 0 auto;
+  color: #172d42;
+}
+.roque-student-shell .stu174-identity,
+.roque-student-shell .stu174-global,
+.roque-student-shell .stu174-area-card {
+  box-sizing: border-box;
+  border-radius: 4px !important;
+  background: #fff;
+  border: 1px solid #e7edf2;
+  box-shadow: 0 2px 9px rgba(20, 45, 70, .045);
+}
+.roque-student-shell .stu174-identity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  min-width: 0;
+}
+.roque-student-shell .stu174-grade {
+  display: grid;
+  place-items: center;
+  background: #e5f2fc;
+  color: #18629a;
+  border-radius: 4px;
+  width: 49px;
+  height: 49px;
+  flex: 0 0 49px;
+  font-size: 1.48rem;
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: -.055em;
+}
+.roque-student-shell .stu174-identity-copy {
+  min-width: 0;
+  flex: 1;
+}
+.roque-student-shell .stu174-identity-copy h2 {
+  margin: 0 0 4px;
+  color: #263954;
+  font-size: clamp(.83rem, 1.7vw, 1.04rem);
+  font-weight: 850;
+  line-height: 1.28;
+  overflow-wrap: anywhere;
+}
+.roque-student-shell .stu174-identity-copy p {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 7px;
+  margin: 0;
+  color: #61748e;
+  font-size: clamp(.65rem, 1.35vw, .77rem);
+  line-height: 1.4;
+  font-weight: 550;
+}
+.roque-student-shell .stu174-meta-sep {
+  color: #b1c0ca;
+}
+.roque-student-shell .stu174-global.card {
+  display: grid;
+  grid-template-columns: minmax(0,1fr);
+  gap: 0;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: hidden;
+  isolation: isolate;
+}
+.roque-student-shell .stu174-global-button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  appearance: none;
+  background: #fff;
+  border: 0;
+  border-radius: 4px;
+  padding: 18px 20px 14px;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition: background-color .18s ease;
+}
+.roque-student-shell .stu174-global-button:hover {
+  background: #f9fcff;
+}
+.roque-student-shell .stu174-global-button:focus-visible,
+.roque-student-shell .stu174-area-card:focus-visible {
+  outline: 2px solid var(--orange, #1975ae);
+  outline-offset: -2px;
+}
+.roque-student-shell .stu174-global-title {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  color: #253a58;
+  font-weight: 850;
+  font-size: clamp(.79rem, 1.8vw, .94rem);
+}
+.roque-student-shell .stu174-trophy {
+  flex: 0 0 31px;
+  height: 31px;
+  font-size: 22px;
+  line-height: 31px;
+  text-align: center;
+  border-radius: 4px;
+  background: #fff5db;
+}
+.roque-student-shell .stu174-info-mark {
+  color: #2387d3;
+  font-size: 1rem;
+  vertical-align: baseline;
+  margin-left: 3px;
+}
+.roque-student-shell .stu174-global-value {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  margin: 6px 0 12px 42px;
+}
+.roque-student-shell .stu174-global-value strong {
+  font-size: clamp(2.6rem, 7vw, 4.25rem);
+  line-height: .97;
+  font-weight: 900;
+  letter-spacing: -.06em;
+  color: #152f5b;
+}
+.roque-student-shell .stu174-global-value > span {
+  color: #1685cf;
+  font-size: clamp(1rem, 2.6vw, 1.3rem);
+  font-weight: 850;
+}
+.roque-student-shell .stu174-global-track,
+.roque-student-shell .stu174-area-track {
+  position: relative;
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 4px;
+  background: #e8eff4;
+}
+.roque-student-shell .stu174-global-track {
+  height: 10px;
+}
+.roque-student-shell .stu174-global-track i,
+.roque-student-shell .stu174-area-track i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  transition: width .3s ease;
+}
+.roque-student-shell .stu174-global-track i {
+  background: #268fd0;
+}
+.roque-student-shell .stu174-ranking {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 9px;
+  border-top: 1px solid #edf1f5;
+  padding: 10px;
+}
+.roque-student-shell .stu174-rank-tile {
+  min-height: 77px;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 11px;
+  border-radius: 4px;
+  background: #f3f6f9;
+  padding: 9px 7px;
+}
+.roque-student-shell .stu174-rank-icon {
+  color: var(--stu174-rank-color);
+  line-height: 0;
+  flex: 0 0 24px;
+}
+.roque-student-shell .stu174-rank-icon .adm151-icon {
+  height: 24px;
+  width: 24px;
+}
+.roque-student-shell .stu174-rank-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.roque-student-shell .stu174-rank-copy strong {
+  font-size: clamp(1.15rem, 3vw, 1.8rem);
+  line-height: 1;
+  font-weight: 900;
+  color: #243657;
+}
+.roque-student-shell .stu174-rank-copy small {
+  font-size: clamp(.59rem, 1.3vw, .72rem);
+  font-weight: 750;
+  line-height: 1.2;
+  color: #6a7790;
+}
+.roque-student-shell .stu174-results {
+  padding: 4px 0 8px;
+}
+.roque-student-shell .stu174-results h2 {
+  margin: 4px 2px 11px;
+  color: #243752;
+  font-size: clamp(.88rem, 2vw, 1.08rem);
+  line-height: 1.4;
+  font-weight: 900;
+}
+.roque-student-shell .stu174-grid {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 10px;
+}
+.roque-student-shell .stu174-area-card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  text-align: left;
+  appearance: none;
+  min-width: 0;
+  min-height: 131px;
+  width: 100%;
+  padding: 12px 13px 11px;
+  font: inherit;
+  color: #2d3b52;
+  cursor: pointer;
+  transition: border-color .19s ease, background-color .19s ease, transform .18s ease;
+}
+.roque-student-shell .stu174-area-card:hover {
+  border-color: var(--stu174-area-color);
+  background: #fbfcfe;
+  transform: translateY(-1px);
+}
+.roque-student-shell .stu174-area-card:active {
+  transform: scale(.99);
+}
+.roque-student-shell .stu174-area-head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  width: 100%;
+}
+.roque-student-shell .stu174-area-icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+}
+.roque-student-shell .stu174-area-icon .subject-icon {
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px !important;
+  display: grid !important;
+  place-items: center;
+  margin: 0 !important;
+  border-radius: 4px !important;
+  overflow: visible !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.roque-student-shell .stu174-area-icon .subject-icon img {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  background: transparent !important;
+  padding: 0 !important;
+}
+.roque-student-shell .stu174-area-title {
+  min-width: 0;
+  font-size: clamp(.67rem, 1.55vw, .88rem);
+  font-weight: 850;
+  line-height: 1.23;
+  overflow-wrap: anywhere;
+}
+.roque-student-shell .stu174-area-result {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  margin: auto 0 8px;
+  padding-top: 8px;
+}
+.roque-student-shell .stu174-area-result strong {
+  color: #23344c;
+  font-size: clamp(1.33rem, 3.2vw, 1.85rem);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -.05em;
+}
+.roque-student-shell .stu174-area-result small {
+  color: #7f8ba0;
+  font-size: clamp(.59rem, 1.5vw, .75rem);
+  font-weight: 800;
+}
+.roque-student-shell .stu174-area-track {
+  height: 7px;
+}
+.roque-student-shell .stu174-area-track i {
+  background: var(--stu174-area-color, #268dc4);
+}
+.roque-student-shell .stu174-no-results {
+  grid-column: 1 / -1;
+  padding: 20px;
+  color: #64748b;
+}
+@media (max-width: 540px) {
+  .roque-student-shell .stu174-dashboard {
+    gap: 9px;
+  }
+  .roque-student-shell .stu174-identity {
+    gap: 9px;
+    padding: 10px 11px;
+  }
+  .roque-student-shell .stu174-grade {
+    width: 42px;
+    height: 42px;
+    flex-basis: 42px;
+    font-size: 1.35rem;
+  }
+  .roque-student-shell .stu174-global-button {
+    padding: 14px 13px 11px;
+  }
+  .roque-student-shell .stu174-global-value {
+    margin-left: 40px;
+  }
+  .roque-student-shell .stu174-rank-tile {
+    gap: 7px;
+    min-height: 66px;
+  }
+  .roque-student-shell .stu174-grid {
+    gap: 8px;
+  }
+  .roque-student-shell .stu174-area-card {
+    min-height: 116px;
+    padding: 10px 9px 9px;
+  }
+  .roque-student-shell .stu174-area-head {
+    gap: 6px;
+  }
+  .roque-student-shell .stu174-area-icon,
+  .roque-student-shell .stu174-area-icon .subject-icon {
+    width: 30px !important;
+    height: 30px !important;
+    min-width: 30px !important;
+    flex-basis: 30px !important;
+  }
+}
+@media (max-width: 340px) {
+  .roque-student-shell .stu174-area-card { padding: 9px 7px 8px; }
+  .roque-student-shell .stu174-area-title { font-size: .63rem; }
+  .roque-student-shell .stu174-meta-sep { display: none; }
+  .roque-student-shell .stu174-identity-copy p { gap: 2px 6px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .roque-student-shell .stu174-global-button,
+  .roque-student-shell .stu174-area-card,
+  .roque-student-shell .stu174-area-track i,
+  .roque-student-shell .stu174-global-track i { transition: none; }
+}

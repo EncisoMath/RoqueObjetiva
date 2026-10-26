@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v173.2";
+  const APP_VERSION = "v174";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -3154,98 +3154,120 @@
     `;
   }
 
+  // Dashboard estudiantil v174. No modifica algoritmos, puntuaciones ni respuestas.
+  const STUDENT_AREA_COLORS = Object.freeze({
+    "Matemáticas": "#6366d9",
+    "Lenguaje": "#ee525a",
+    "Ciencias Naturales": "#1ba65a",
+    "Inglés": "#16b7d6",
+    "Ciencias Sociales y Ciudadanía": "#268dc4",
+    "Ética y Valores": "#efb400",
+    "Artística": "#e7b800",
+    "Educación Física": "#4eb7ad",
+    "Informática": "#8297a7",
+    "Religión": "#dc6b9a"
+  });
+
   function renderStudent(roll) {
     const student = state.computedByRoll.get(roll);
     applySessionRankContextToStudent(student);
     if (!student) {
       const registry = state.registryByExamId.get(roll) || Array.from(state.registryByNationalId.values()).find((s) => s.examId === roll);
-      renderShell(`
-        <div class="card card-pad empty-state">
-          <h2>No hay resultados cargados para este estudiante</h2>
-          <p>${registry ? `El estudiante ${esc(registry.name)} está registrado, pero no aparece en los archivos de RESULTADOS.` : "El ID ingresado no tiene un examen asociado."}</p>
-          <button class="ghost-btn" data-action="logout">Salir</button>
-        </div>
-      `, navFor("student"));
+      renderShell(
+        '<div class="card card-pad empty-state"><h2>No hay resultados cargados para este estudiante</h2><p>' +
+          (registry ? 'El estudiante ' + esc(registry.name) + ' está registrado, pero no aparece en los archivos de RESULTADOS.' :
+            'El ID ingresado no tiene un examen asociado.') +
+          '</p><button class="ghost-btn" data-action="logout">Salir</button></div>',
+        navFor("student")
+      );
       return;
     }
 
-    const availableSubjects = SUBJECTS.filter((s) => student.subjectStats[s.name]?.total);
-    if (state.selectedSubject && !student.subjectStats[state.selectedSubject]?.total) {
-      state.selectedSubject = null;
-    }
-    if (!state.metricTab) state.metricTab = "components";
-    const subject = state.selectedSubject;
-    const stat = subject ? student.subjectStats[subject] : null;
+    const availableSubjects = SUBJECTS.filter((subject) => student.subjectStats[subject.name]?.total);
+    const num = (value) => {
+      if (value === undefined || value === null || value === "") return null;
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? parsed : null;
+    };
+    const global = num(student.globalScore);
+    const globalProgress = global === null ? 0 : clamp(global / 5, 0, 100);
+    const examId = cleanText(student.registry?.nationalId || student.roll);
+    const grade = Number(student.grade);
+    const course = cleanText(student.group || "");
+    const sede = cleanText(student.sede || "");
+    const summary = [
+      '<section class="stu174-identity" aria-label="Datos del estudiante">',
+        '<span class="stu174-grade" aria-label="Grado ', escAttr(grade), '">', esc(grade), '°</span>',
+        '<div class="stu174-identity-copy">',
+          '<h2>', esc(student.name), '</h2>',
+          '<p><span>ID: ', esc(examId), '</span><span class="stu174-meta-sep" aria-hidden="true">·</span>',
+          '<span>', esc(sede || "Sede no registrada"), '</span>',
+          '<span class="stu174-meta-sep" aria-hidden="true">·</span>',
+          '<span>', esc(grade), '° · ', esc(course), '</span></p>',
+        '</div>',
+      '</section>'
+    ].join("");
 
-    const subjectItems = availableSubjects.map((item) => {
-      const s = student.subjectStats[item.name];
-      const active = item.name === subject;
-      const percent = Number.isFinite(Number(s.score)) ? clamp(Number(s.score), 0, 100) : 0;
-      return `
-        <article class="subject-list-item ${active ? "active" : ""}">
-          <button class="subject-row subject-row-grid-card" data-action="select-subject" data-subject="${escAttr(item.name)}" aria-expanded="${active ? "true" : "false"}">
-            <span class="subject-card-main">
-              ${subjectIcon(item.name)}
-              <span class="subject-card-text">
-                <span class="subject-card-title">${esc(item.short || item.name)}</span>
-                <span class="subject-card-scoreline">
-                  ${scoreDisplayHtml(s, "subject-score", true)}
-                  <span class="subject-chevron" aria-hidden="true">⌄</span>
-                </span>
-              </span>
-            </span>
-            <span class="subject-card-progress" aria-hidden="true" style="--score:${percent}%;"><i style="width:${percent}%"></i></span>
-          </button>
-          <div class="subject-mobile-detail">
-            <div class="subject-mobile-detail-inner">
-              ${active ? buildSubjectDetailHtml(student, item.name, s, true) : ""}
-            </div>
-          </div>
-        </article>
-      `;
+    const rankCard = (value,label,icon,rankColor) => {
+      const rank = num(value);
+      const display = rank !== null && rank > 0 ? String(rank) : "—";
+      return [
+        '<div class="stu174-rank-tile" style="--stu174-rank-color:', rankColor, '">',
+          '<span class="stu174-rank-icon" aria-hidden="true">', adminNavIcon(icon), '</span>',
+          '<div class="stu174-rank-copy"><strong>', esc(display), '</strong><small>', esc(label), '</small></div>',
+        '</div>'
+      ].join("");
+    };
+
+    const globalCard = [
+      '<section class="stu174-global card" aria-label="Puntaje global y rankings">',
+        '<button type="button" class="stu174-global-button" data-action="global-info" data-roll="', escAttr(student.roll), '" aria-label="Conocer cómo se calcula el puntaje global">',
+          '<div class="stu174-global-title"><span class="stu174-trophy" aria-hidden="true">🏆</span>',
+            '<span>Puntaje global Saber <span class="stu174-info-mark" aria-hidden="true">ⓘ</span></span></div>',
+          '<div class="stu174-global-value"><strong>', esc(global === null ? "—" : global), '</strong><span>/500</span></div>',
+          '<span class="stu174-global-track" aria-hidden="true"><i style="width:', globalProgress, '%"></i></span>',
+        '</button>',
+        '<div class="stu174-ranking">',
+          rankCard(student.courseRank, "Ranking por curso", "chart", "#228be6"),
+          rankCard(student.gradeRank, "Ranking por grado", "users", "#8834ef"),
+        '</div>',
+      '</section>'
+    ].join("");
+
+    const tiles = availableSubjects.map((subject) => {
+      const result = student.subjectStats[subject.name];
+      const score = num(result?.score);
+      const scoreText = score === null ? "—" : String(score);
+      const barWidth = score === null ? 0 : clamp(score, 0, 100);
+      const areaColor = STUDENT_AREA_COLORS[subject.name] || "#248bc4";
+      return [
+        '<button type="button" class="stu174-area-card" data-action="student-area-open"',
+          ' data-subject="', escAttr(subject.name), '"',
+          ' aria-label="', escAttr(subject.name), ', ', escAttr(scoreText), ' de 100 puntos. Ver respuestas y detalle."',
+          ' style="--stu174-area-color:', areaColor, '">',
+          '<span class="stu174-area-head">',
+            '<span class="stu174-area-icon" aria-hidden="true">', subjectIcon(subject.name), '</span>',
+            '<strong class="stu174-area-title">', esc(subject.short || subject.name), '</strong>',
+          '</span>',
+          '<span class="stu174-area-result"><strong>', esc(scoreText), '</strong><small>/100</small></span>',
+          '<span class="stu174-area-track" aria-hidden="true"><i style="width:', barWidth, '%"></i></span>',
+        '</button>'
+      ].join("");
     }).join("");
 
-    renderShell(`
-      <section class="student-summary card">
-        <div class="summary-score-block saber-score-block" data-action="global-info" data-roll="${escAttr(student.roll)}" role="button" tabindex="0">
-          <div class="score-label"><span class="score-icon">🏆</span><span>Si esto fuese una prueba Saber, tu puntaje global sería...</span></div>
-          <div class="score-number">${student.globalScore ?? "—"}<small>/500</small></div>
-          <button type="button" class="score-help" data-action="global-info" data-roll="${escAttr(student.roll)}">Toca para entender cómo se calcula este puntaje</button>
-        </div>
-        <div class="summary-info-block">
-          <div class="student-identity">
-            <span>Alumno</span>
-            <strong>${esc(student.name)}</strong>
-          </div>
-          <div class="student-identity">
-            <span>Identificación</span>
-            <strong>${esc(student.registry?.nationalId || student.roll)}</strong>
-          </div>
-          <div class="student-identity">
-            <span>Grado y curso</span>
-            <strong>${esc(student.grade)}° · ${esc(student.group)}</strong>
-          </div>
-          <div class="student-identity">
-            <span>Sede</span>
-            <strong>${esc(student.sede)}</strong>
-          </div>
-        </div>
-        <div class="ranking-mini">
-          ${rankingBoxHtml(student.courseRank, "Ranking por curso")}
-          ${rankingBoxHtml(student.gradeRank, "Ranking por grado")}
-        </div>
-      </section>
-
-      <section class="student-workspace">
-        <aside class="subject-list-panel">
-          <h2>Puntaje por pruebas</h2>
-          <div class="subject-list">${subjectItems}</div>
-        </aside>
-        <section class="student-detail-panel card detail-card ${subject ? "" : "is-empty"}">
-          ${subject ? buildSubjectDetailHtml(student, subject, stat, false) : buildEmptySubjectDetailHtml()}
-        </section>
-      </section>
-    `, navFor("student"), studentBannerTone(student));
+    renderShell(
+      '<div class="stu174-dashboard">' +
+        summary + globalCard +
+        '<section class="stu174-results" aria-labelledby="stu174-results-heading">' +
+          '<h2 id="stu174-results-heading">Resultados por área</h2>' +
+          '<div class="stu174-grid">' +
+            (tiles || '<p class="stu174-no-results">No hay asignaturas disponibles para esta evaluación.</p>') +
+          '</div>' +
+        '</section>' +
+      '</div>',
+      navFor("student"),
+      studentBannerTone(student)
+    );
     if (!state.zeroToleranceShown) {
       state.zeroToleranceShown = true;
       window.setTimeout(() => openZeroToleranceModal(), 260);
@@ -6012,6 +6034,13 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
 
     if (action === "print") {
       window.print();
+    }
+
+    if (action === "student-area-open") {
+      if (state.activeSession?.role === "student") {
+        openStudentSubjectModal(target.dataset.subject || "");
+      }
+      return;
     }
 
     if (action === "select-subject") {
