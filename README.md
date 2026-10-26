@@ -6,7 +6,7 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v173
+RoqueObjetiva v173.1
 
 
 ## v172.1 · Evaluaciones antes del informe
@@ -18,6 +18,9 @@ Después del ingreso habitual por ID, aparece una portada de evaluaciones. **202
 - Dock inferior estudiantil con **Historial | Detalles de examen | Salir**. Se eliminaron los botones superiores de esa navegación.
 - Del **1 al 18 de noviembre de 2026** (hora Colombia) se bloquean semestres anteriores al más reciente; reapertura el **19 de noviembre de 2026**. Las rutas antiguas de resultados y ranking también se protegen en Supabase. `2026-2S` continúa en borrador.
 - Prueba y detalle técnico: `docs/NOTAS_DOCK_BLOQUEO_V173.md`.
+
+## v173.1 · Dock estudiantil idéntico al docente
+El dock estudiantil reutiliza directamente `.t160-dock` y `.t160-dock-btn` (los mismos del docente), sin sobreescribir estilo activo, colores, alturas, tipografía, separaciones ni animaciones. Sólo conserva el tratamiento de estado deshabilitado para «Detalles de examen» antes de elegir una evaluación. Botones: Historial | Detalles de examen | Salir. El resto de v173, incluyendo notas y bloqueo de historial, queda intacto.
 
 ## Uso
 
