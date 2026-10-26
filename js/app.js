@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v172.1";
+  const APP_VERSION = "v173";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -154,6 +154,7 @@
     modalStack: [],
     activeSession: null,
     studentEditionCatalog: [],
+    studentSelectedEdition: "",
     zeroToleranceShown: false
   };
 
@@ -1222,13 +1223,18 @@
         anio: Number(e.anio) || Number(String(e.codigo).slice(0, 4)),
         semestre: Number(e.semestre) || Number(String(e.codigo).slice(5, 6)),
         estado: cleanText(e.estado || "no_confirmada"),
-        resultados_visibles: e.resultados_visibles === true
+        resultados_visibles: e.resultados_visibles === true,
+        bloqueado_periodo: e.bloqueado_periodo === true
       }))
       .sort((a,b) => b.anio - a.anio || b.semestre - a.semestre);
   }
 
   function studentEditionAvailability(ed) {
     const published = ed.resultados_visibles && ["publicada", "cerrada"].includes(ed.estado);
+    if (ed.bloqueado_periodo === true) return {
+      enabled: false, badge: "BLOQUEADO",
+      description: "Estos exámenes están bloqueados hasta que finalice el periodo."
+    };
     if (!published) return { enabled: false, badge: "PRÓXIMAMENTE",
       description: "Esta evaluación aún no tiene resultados publicados." };
     // Proteger la separación entre semestres. v171 solo validó 2026-1S.
@@ -1286,6 +1292,8 @@
         (newest ? '<div class="po-editions-latest"><span class="po-editions-eyebrow">' +
           'ÚLTIMA EVALUACIÓN</span>' + editionTileHtml(newest, true) + '</div>' : '') +
         '<div class="po-editions-divider"><span></span><strong>HISTORIAL</strong><span></span></div>' +
+        (historic.some(e => e.bloqueado_periodo) ?
+          '<p class="po-editions-locknote">Estos exámenes están bloqueados hasta que finalice el periodo.</p>' : '') +
         '<div class="po-editions-history">' +
           (historic.length ? historic.map(e => editionTileHtml(e)).join('') :
             '<p class="po-editions-empty">Aún no tienes evaluaciones anteriores.</p>') +
@@ -1311,14 +1319,32 @@
       "Preparando tus evaluaciones...");
   }
 
-  function openStudentSelectedEdition(code) {
+  async function openStudentSelectedEdition(code) {
     if (state.activeSession?.role !== "student") return;
     const selected = (state.studentEditionCatalog || []).find(e => e.codigo === code);
     if (!selected || !studentEditionAvailability(selected).enabled) {
       toast("La evaluación no está publicada o no está autorizada.");
       return;
     }
-    // El motor del informe, notas, gráficos y ranking NO se modifica.
+    // Verificar de nuevo en servidor ANTES de enseñar datos antiguos.
+    // Evita que una portada abierta antes del 1 de noviembre eluda el bloqueo.
+    try {
+      const result = await studentLoginRpc(cleanId(state.activeSession.roll), "");
+      if (!result?.ok || result.historial_bloqueado === true) {
+        await loadStudentEditionCatalog();
+        renderStudentEditionChooser();
+        toast("Estos exámenes están bloqueados hasta que finalice el periodo.");
+        return;
+      }
+      hydrateSupabasePayload(result);
+      state.academicEdition = cleanText(result.edicion || "2026-1S");
+      state.academicDataSource = cleanText(result.origen_academico || "legacy");
+      buildRepository();
+    } catch(error) {
+      toast("No fue posible verificar el acceso al examen. Intenta nuevamente.");
+      return;
+    }
+    state.studentSelectedEdition = code;
     return enterStudentSessionWithRankingMode(state.activeSession.roll, {
       edition: code, message: "Preparando el informe de " + code + "..."
     });
@@ -3123,6 +3149,7 @@
           ${content}
         </main>
         ${state.activeSession?.role === "teacher" ? teacherDockHtml() : ""}
+        ${state.activeSession?.role === "student" ? studentDockHtml() : ""}
       </div>
     `;
   }
@@ -3507,6 +3534,24 @@
       el.setAttribute("aria-hidden", String(!open));
     });
     document.querySelectorAll(".t160-dock-btn[data-menu]").forEach((el) => el.setAttribute("aria-expanded", String(el.dataset.menu === state.teacherDockMenu)));
+  }
+
+  function studentDockHtml() {
+    if (state.activeSession?.role !== "student") return "";
+    const report = state.activeSession.studentView === "report";
+    const entries = [
+      ["student-dock-history", "Historial", "calendar", !report, false],
+      ["student-dock-details", "Detalles de examen", "chart", report, !state.studentSelectedEdition],
+      ["logout", "Salir", "logout", false, false]
+    ];
+    return '<nav class="t160-dock student-bottom-dock" aria-label="Navegación estudiante" style="--t160-count:3">' +
+      entries.map(([action,label,icon,selected,disabled]) =>
+        '<button type="button" class="t160-dock-btn' + (selected?' is-active':'') +
+        '" data-action="' + action + '"' +
+        (selected?' aria-current="page"':'') +
+        (disabled?' disabled aria-disabled="true"':'') + '>' +
+        adminNavIcon(icon) + '<span>' + label + '</span></button>'
+      ).join('') + '</nav>';
   }
 
   function teacherDockHtml() {
@@ -5750,17 +5795,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
   }
 
   function navFor(role) {
-    if (role === "student") {
-      const onReport = state.activeSession?.studentView === "report";
-      return `
-        <nav class="app-nav">
-          ${onReport
-            ? '<button class="nav-chip" data-action="student-back-to-editions">← Evaluaciones</button><button class="nav-chip active">Reporte general</button>'
-            : '<button class="nav-chip active" aria-current="page">Mis evaluaciones</button>'}
-          <button class="nav-chip logout" data-action="logout">Salir</button>
-        </nav>
-      `;
-    }
+    if (role === "student") return ""; // Dock inferior: sin botones duplicados arriba.
     if (role === "teacher") return ""; // Etapa 2: dock fuera del header.
     return "";
   }
@@ -5924,6 +5959,22 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       return;
     }
 
+    if (action === "student-dock-history") {
+      if (state.activeSession?.role === "student") {
+        enterStudentEditionChooser(state.activeSession.roll, { immediate: true });
+      }
+      return;
+    }
+    if (action === "student-dock-details") {
+      if (state.activeSession?.role !== "student") return;
+      if (state.activeSession.studentView === "report") return;
+      if (!state.studentSelectedEdition) {
+        toast("Selecciona primero un examen en Historial.");
+        return;
+      }
+      openStudentSelectedEdition(state.studentSelectedEdition);
+      return;
+    }
     if (action === "student-open-edition") {
       openStudentSelectedEdition(target.dataset.edicion || "");
       return;
@@ -9031,6 +9082,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     if (window.RoqueEdiciones) window.RoqueEdiciones.logout();
     state.activeSession = null;
     state.studentEditionCatalog = [];
+    state.studentSelectedEdition = "";
     state.zeroToleranceShown = false;
     clearSessionRankContext();
     clearRankingFallbackData();
@@ -9406,7 +9458,12 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
         .map((row) => {
           const obj = {};
           Object.entries(row).forEach(([key, value]) => {
-            obj[cleanText(key)] = cleanText(value);
+            // Los resultados privados llegan como {respuestas: {"1":"A",...}}.
+            // No convertir el objeto a "[object Object]": eso vaciaba TODAS
+            // las marcas y dejaba asignaturas en 0 pese al ranking correcto.
+            const field = cleanText(key);
+            obj[field] = /^respuestas$/i.test(field) && value && typeof value === "object" && !Array.isArray(value)
+              ? value : cleanText(value);
           });
           return obj;
         });
