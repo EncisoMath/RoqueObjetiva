@@ -6,12 +6,18 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v172.1
+RoqueObjetiva v173
 
 
 ## v172.1 · Evaluaciones antes del informe
 
 Después del ingreso habitual por ID, aparece una portada de evaluaciones. **2026-2S** es la tarjeta principal (bloqueada mientras esté en borrador); debajo, **HISTORIAL** ofrece **2026-1S**, cuyo informe, cálculos y ranking no se alteran. El estado se consulta desde la RPC pública de metadatos `roque_v5_portada_ediciones` sin publicar resultados ni permitir acceder a otras ediciones sin autorización. La pantalla de cuenta personal introducida en v172 se retiró del ingreso.
+
+## v173 · Corrección académica, dock estudiante y bloqueo del historial
+- Respuestas privadas JSON preservadas, sin `[object Object]`: calificaciones y marcas por asignatura restauradas.
+- Dock inferior estudiantil con **Historial | Detalles de examen | Salir**. Se eliminaron los botones superiores de esa navegación.
+- Del **1 al 18 de noviembre de 2026** (hora Colombia) se bloquean semestres anteriores al más reciente; reapertura el **19 de noviembre de 2026**. Las rutas antiguas de resultados y ranking también se protegen en Supabase. `2026-2S` continúa en borrador.
+- Prueba y detalle técnico: `docs/NOTAS_DOCK_BLOQUEO_V173.md`.
 
 ## Uso
 
