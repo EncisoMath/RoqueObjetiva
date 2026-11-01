@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.1";
+  const APP_VERSION = "v175.2";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -1248,7 +1248,7 @@
     if (!state.studentPreview2026 || state.activeSession?.role !== "student"
         || cleanId(state.activeSession?.roll) !== "2573") return renderLogin("Vista no autorizada.");
     const registry = state.registryByExamId.get("2573");
-    const studentName = cleanText(registry?.name || "Estudiante de prueba");
+    const studentName = cleanText(registry?.name || "Estudiante");
     const grade = toInt(registry?.grade) || 0;
     const subjectNames = grade === 5
       ? ["Matemáticas","Lenguaje","Inglés","Ciencias Sociales y Ciudadanía","Ciencias Naturales"]
@@ -1265,19 +1265,16 @@
     }).join("");
     const identity = '<section class="stu174-identity"><span class="stu174-grade">' +
       esc(grade || "—") + '°</span><div class="stu174-identity-copy"><h2>' + esc(studentName) + '</h2>' +
-      '<p><span>ID de prueba: 2573</span><span class="stu174-meta-sep">·</span><span>2026-2S</span></p></div></section>';
-    const notice = '<div class="po175-preview-notice" role="status">' +
-      '<strong>VISTA DE PRUEBA · 2026-2S</strong>' +
-      '<span>Los valores 0 son solo demostrativos. No se han cargado respuestas, claves ni resultados reales.</span></div>';
+      '<p><span>ID: 2573</span><span class="stu174-meta-sep">·</span><span>2026-2S</span></p></div></section>';
     const globalCard = '<section class="stu174-global card">' +
-      '<div class="stu174-global-button"><div class="stu174-global-title">Puntaje global · vista previa</div>' +
+      '<div class="stu174-global-button"><div class="stu174-global-title">Puntaje global Saber</div>' +
       '<div class="stu174-global-value"><strong>0</strong><span>/500</span></div>' +
       '<span class="stu174-global-track"><i style="width:0%"></i></span></div>' +
       '<div class="stu174-ranking">' +
-      '<div class="stu174-rank-tile"><div class="stu174-rank-copy"><strong>—</strong><small>Ranking por curso · pendiente</small></div></div>' +
-      '<div class="stu174-rank-tile"><div class="stu174-rank-copy"><strong>—</strong><small>Ranking por grado · pendiente</small></div></div>' +
+      '<div class="stu174-rank-tile"><div class="stu174-rank-copy"><strong>—</strong><small>Ranking por curso</small></div></div>' +
+      '<div class="stu174-rank-tile"><div class="stu174-rank-copy"><strong>—</strong><small>Ranking por grado</small></div></div>' +
       '</div></section>';
-    renderShell('<div class="stu174-dashboard">' + identity + notice + globalCard +
+    renderShell('<div class="stu174-dashboard">' + identity + globalCard +
       '<section class="stu174-results" aria-labelledby="po175-areas-title">' +
       '<h2 id="po175-areas-title">Resultados por área</h2><div class="stu174-grid">' +
       tiles + '</div></section></div>', navFor("student"));
@@ -1292,8 +1289,8 @@
         description: "Abre tu informe del primer semestre." };
     }
     if (state.studentPreview2026 && cleanId(state.activeSession?.roll) === "2573" && ed.codigo === "2026-2S") {
-      return { enabled: true, badge: "VISTA PREVIA",
-        description: "Abrir simulación con puntajes en cero, sin resultados publicados." };
+      return { enabled: true, badge: "DISPONIBLE",
+        description: "Abre tu informe del segundo semestre." };
     }
     const published = ed.resultados_visibles && ["publicada", "cerrada"].includes(ed.estado);
     if (ed.bloqueado_periodo === true) return {
