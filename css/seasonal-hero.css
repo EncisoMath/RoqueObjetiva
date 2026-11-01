@@ -1,4 +1,4 @@
-/* RoqueObjetiva v175.7: decoración de Navidad ÚNICAMENTE dentro del hero.
+/* RoqueObjetiva v175.8: Navidad con viento ÚNICAMENTE dentro del hero.
    Se activa por fecha en JS (1 de noviembre - 6 de enero, America/Bogota).
    No cambia el fondo, el escudo, las medallas ni la botonera. */
 .roque-hero-shell .top-banner {
@@ -24,7 +24,7 @@
   height: auto;
   line-height: 1;
   font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
-  font-size: var(--holiday-size, 20px);
+  font-size: clamp(29px, var(--holiday-size, 37px), 45px);
   font-weight: 400;
   white-space: nowrap;
   user-select: none;
@@ -38,23 +38,45 @@
   animation-name: roqueHolidaySnowfall;
   animation-duration: var(--holiday-duration, 15s);
   animation-delay: var(--holiday-delay, 0s);
-  animation-timing-function: linear;
+  animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;
   animation-fill-mode: both;
 }
+/* Ráfagas irregulares: la partícula deriva, retrocede suavemente y vuelve
+   a desplazarse mientras cae. Los valores dependen de cada partícula. */
 @keyframes roqueHolidaySnowfall {
   0% {
-    transform: translate3d(0, -44px, 0) rotate(-15deg);
+    transform: translate3d(var(--holiday-wind-start, -38px), -56px, 0) rotate(-19deg);
     opacity: 0;
+    animation-timing-function: cubic-bezier(.23,.34,.35,.96);
   }
-  12% {
-    opacity: var(--holiday-opacity, .64);
+  17% {
+    transform: translate3d(var(--holiday-wind-gust, 42px), -10px, 0) rotate(9deg);
+    opacity: var(--holiday-opacity, .75);
+    animation-timing-function: cubic-bezier(.62,.02,.32,.93);
   }
-  86% {
-    opacity: var(--holiday-opacity, .64);
+  36% {
+    transform: translate3d(var(--holiday-wind-gust, 42px), 35px, 0) rotate(20deg);
+    opacity: var(--holiday-opacity, .75);
+    animation-timing-function: cubic-bezier(.32,.43,.65,1);
+  }
+  54% {
+    transform: translate3d(var(--holiday-wind-lull, 16px), 75px, 0) rotate(-10deg);
+    opacity: var(--holiday-opacity, .75);
+    animation-timing-function: cubic-bezier(.16,.51,.36,.95);
+  }
+  74% {
+    transform: translate3d(var(--holiday-wind-second, 78px), 123px, 0) rotate(26deg);
+    opacity: var(--holiday-opacity, .75);
+    animation-timing-function: cubic-bezier(.49,.06,.6,.91);
+  }
+  88% {
+    transform: translate3d(var(--holiday-wind-second, 78px), 151px, 0) rotate(5deg);
+    opacity: var(--holiday-opacity, .75);
+    animation-timing-function: ease-in;
   }
   100% {
-    transform: translate3d(var(--holiday-drift, 10px), 205px, 0) rotate(18deg);
+    transform: translate3d(var(--holiday-wind-end, 106px), 190px, 0) rotate(34deg);
     opacity: 0;
   }
 }
@@ -66,7 +88,8 @@
 }
 @media (max-width: 680px) {
   .roque-hero-shell .top-banner .banner-winter .holiday-particle {
-    font-size: min(var(--holiday-size, 20px), 6vw);
+    /* Antes se limitaban a 6vw (muy pequeñas en pantallas de celular). */
+    font-size: clamp(29px, var(--holiday-size, 37px), 45px);
   }
 }
 /* Preferencias de accesibilidad: figuras estáticas, sin animación. */

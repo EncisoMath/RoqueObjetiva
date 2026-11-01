@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.7";
+  const APP_VERSION = "v175.8";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -3261,9 +3261,17 @@
       ["🎁", 48, 19.1, -17.2, 15, 17, .57],
       ["❄", 84, 15.8, -3.9,  -6, 15, .68]
     ];
-    return particles.map(([symbol,left,duration,delay,drift,size,opacity]) =>
-      `<span class="holiday-particle" aria-hidden="true" style="--holiday-left:${left}%;--holiday-duration:${duration}s;--holiday-delay:${delay}s;--holiday-drift:${drift}px;--holiday-size:${size}px;--holiday-opacity:${opacity}">${symbol}</span>`
-    ).join("");
+    return particles.map(([symbol,left,duration,delay,drift,size,opacity]) => {
+      // Trayectoria no recta: una ráfaga, una breve calma y otra ráfaga.
+      // Cálculos deterministas para evitar parpadeos al cambiar de pantalla.
+      const windStart = Math.round(-2.4 * drift);
+      const windGust = Math.round(2.4 * drift);
+      const windLull = Math.round(1.1 * drift);
+      const windSecond = Math.round(4.5 * drift);
+      const windEnd = Math.round(6.2 * drift);
+      const displaySize = Math.round(size * 1.65);
+      return `<span class="holiday-particle" aria-hidden="true" style="--holiday-left:${left}%;--holiday-duration:${duration}s;--holiday-delay:${delay}s;--holiday-wind-start:${windStart}px;--holiday-wind-gust:${windGust}px;--holiday-wind-lull:${windLull}px;--holiday-wind-second:${windSecond}px;--holiday-wind-end:${windEnd}px;--holiday-size:${displaySize}px;--holiday-opacity:${opacity}">${symbol}</span>`;
+    }).join("");
   }
 
   function studentBannerTone(student) {
@@ -3296,7 +3304,8 @@
     applyAppMeta(primary);
     const bannerStyle = `style="background: ${primary}"`;
     const isMedalBanner = ["banner-rank-gold", "banner-rank-silver", "banner-rank-bronze"].includes(bannerToneClass);
-    const holidayHero = isHolidayHeroDate();
+    // Las estrellas de oro, plata y bronce tienen prioridad sobre Navidad.
+    const holidayHero = !isMedalBanner && isHolidayHeroDate();
     const bannerClass = isMedalBanner ? ` ${bannerToneClass}` : "";
     const heroRole = state.activeSession?.role;
     const studentHero = heroRole === "student";
