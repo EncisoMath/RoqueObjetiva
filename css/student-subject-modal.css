@@ -1,0 +1,276 @@
+/* RoqueObjetiva v175.5 — modal de detalle de asignatura.
+   Alcance estrictamente estudiantil: no altera modales de docentes/admin. */
+.student-subject-modal {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden !important;
+  max-height: min(88dvh, 850px) !important;
+  background: #fff;
+  --student-area-color: #236f9b;
+}
+
+.student-subject-modal .student-subject-hero {
+  position: relative;
+  z-index: 2;
+  flex: 0 0 auto;
+  background: var(--student-area-color);
+  background-image: none !important;
+  color: #fff;
+  padding: 35px 16px 19px;
+}
+
+.student-subject-modal .student-subject-hero-main {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 13px;
+  min-width: 0;
+}
+
+.student-subject-modal .student-subject-hero-icon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  aspect-ratio: 1;
+  flex: none;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.student-subject-modal .student-subject-hero-icon .subject-icon {
+  display: grid;
+  place-items: center;
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 0;
+  min-height: 0;
+  flex: none !important;
+  background: #fff !important;
+  border: 0;
+  border-radius: 10px !important;
+  padding: 5px;
+  box-sizing: border-box;
+  font-size: 1.75rem;
+  color: var(--student-area-color);
+}
+.student-subject-modal .student-subject-hero-icon .subject-icon img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  box-sizing: border-box;
+  padding: 0;
+}
+
+.student-subject-modal .student-subject-hero-info {
+  min-width: 0;
+}
+.student-subject-modal .student-subject-hero-kicker {
+  display: block;
+  font-size: .71rem;
+  font-weight: 850;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  line-height: 1.2;
+  color: #fff;
+  opacity: .88;
+}
+.student-subject-modal .student-subject-hero-info h2 {
+  color: #fff;
+  font-size: clamp(1.17rem, 4.5vw, 1.63rem);
+  font-weight: 900;
+  letter-spacing: -.035em;
+  line-height: 1.12;
+  margin: 2px 0 7px;
+  overflow-wrap: anywhere;
+}
+.student-subject-modal .student-subject-hero-info p {
+  color: #fff;
+  line-height: 1.3;
+  margin: 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.student-subject-modal .student-subject-hero-student {
+  font-size: .79rem;
+}
+.student-subject-modal .student-subject-hero-course {
+  font-size: .71rem;
+  opacity: .87;
+  margin-top: 3px !important;
+}
+
+.student-subject-modal .student-subject-hero-score {
+  align-self: center;
+  justify-self: end;
+  white-space: nowrap;
+  padding-left: 1px;
+}
+.student-subject-modal .student-subject-hero-score .subject-detail-score {
+  color: #fff !important;
+  display: inline-flex !important;
+  align-items: baseline;
+  gap: 2px;
+  font-size: clamp(1.75rem, 7.5vw, 2.6rem);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -.065em;
+  background: none !important;
+  box-shadow: none !important;
+}
+.student-subject-modal .student-subject-hero-score .subject-detail-score small,
+.student-subject-modal .student-subject-hero-score .subject-detail-score.score-absent small {
+  color: #fff !important;
+  opacity: .8 !important;
+  font-size: .38em;
+  letter-spacing: -.02em;
+}
+.student-subject-modal .student-subject-hero-close {
+  position: absolute;
+  top: 9px;
+  right: 11px;
+  z-index: 3;
+  width: 30px;
+  height: 30px;
+  min-width: 30px;
+  border-radius: 7px !important;
+  color: var(--student-area-color);
+  background: #fff;
+  border: 0;
+  box-shadow: none;
+  font-size: 1.1rem;
+}
+.student-subject-modal .student-subject-hero-close:hover {
+  background: #f1f4f8;
+}
+.student-subject-modal .student-subject-hero-close:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+
+.student-subject-modal .modal-body {
+  min-height: 0;
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: none !important;
+  padding: 15px 15px 19px;
+  overscroll-behavior: contain;
+}
+.student-subject-modal .subject-detail {
+  padding: 0 !important;
+}
+
+/* Resultados: la misma familia cromática por asignatura, estados identificables.
+   Todas las superficies son flat: ninguna usa degradado ni sombra de color. */
+.student-subject-modal .answer-pill {
+  position: relative;
+  border-radius: 5px !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  border: 1px solid transparent;
+}
+.student-subject-modal .answer-pill.correct {
+  background: var(--student-area-color) !important;
+  color: #fff !important;
+}
+.student-subject-modal .answer-pill.wrong {
+  background: color-mix(in srgb, var(--student-area-color) 68%, #192638) !important;
+  color: #fff !important;
+}
+.student-subject-modal .answer-pill.double {
+  background: color-mix(in srgb, var(--student-area-color) 57%, #fff) !important;
+  color: #152638 !important;
+}
+.student-subject-modal .answer-pill.empty {
+  background: color-mix(in srgb, var(--student-area-color) 18%, #fff) !important;
+  border-color: color-mix(in srgb, var(--student-area-color) 58%, #fff);
+  color: #26384b !important;
+}
+.student-subject-modal .legend .dot.correct {
+  background: var(--student-area-color);
+}
+.student-subject-modal .legend .dot.wrong {
+  background: color-mix(in srgb, var(--student-area-color) 68%, #192638);
+}
+.student-subject-modal .legend .dot.double {
+  background: color-mix(in srgb, var(--student-area-color) 57%, #fff);
+  border: 1px solid color-mix(in srgb, var(--student-area-color) 65%, #fff);
+}
+.student-subject-modal .legend .dot.empty {
+  background: color-mix(in srgb, var(--student-area-color) 18%, #fff);
+  border: 1px solid var(--student-area-color);
+}
+.student-subject-modal .item-value-note strong {
+  color: var(--student-area-color);
+}
+.student-subject-modal .metric-tab {
+  border-color: color-mix(in srgb, var(--student-area-color) 30%, #fff);
+  color: var(--student-area-color);
+  background: #fff;
+  background-image: none !important;
+  box-shadow: none;
+  border-radius: 5px !important;
+}
+.student-subject-modal .metric-tab.active {
+  color: #fff;
+  border-color: var(--student-area-color);
+  background: var(--student-area-color);
+  background-image: none !important;
+}
+.student-subject-modal .metric-tab:focus-visible,
+.student-subject-modal .answer-pill:focus-visible {
+  outline: 2px solid var(--student-area-color);
+  outline-offset: 2px;
+}
+.student-subject-modal .metric-progress {
+  background: color-mix(in srgb, var(--student-area-color) 15%, #fff);
+}
+.student-subject-modal .metric-progress-fill {
+  background: var(--student-area-color) !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+@media (max-width: 600px) {
+  .student-subject-modal .student-subject-hero {
+    padding: 35px 11px 15px;
+  }
+  .student-subject-modal .student-subject-hero-main {
+    grid-template-columns: 46px minmax(0,1fr) auto;
+    gap: 9px;
+  }
+  .student-subject-modal .student-subject-hero-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 8px;
+  }
+  .student-subject-modal .student-subject-hero-icon .subject-icon {
+    border-radius: 8px !important;
+    padding: 4px;
+  }
+  .student-subject-modal .student-subject-hero-info h2 {
+    font-size: clamp(1.02rem,4.2vw,1.29rem);
+  }
+  .student-subject-modal .student-subject-hero-student {
+    font-size: .7rem;
+  }
+  .student-subject-modal .student-subject-hero-course {
+    font-size: .67rem;
+  }
+  .student-subject-modal .student-subject-hero-score .subject-detail-score {
+    font-size: clamp(1.5rem,7vw,2.1rem);
+  }
+  .student-subject-modal .modal-body {
+    padding: 12px 10px 17px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .student-subject-modal .answer-pill,
+  .student-subject-modal .metric-progress-fill,
+  .student-subject-modal .metric-tab {
+    transition: none !important;
+  }
+}
