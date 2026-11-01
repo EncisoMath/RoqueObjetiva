@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.4";
+  const APP_VERSION = "v175.5";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -3442,25 +3442,55 @@
     openStudentSubjectModalForRoll(state.activeSession?.roll, subject, false);
   }
 
+  // Colores planos y de contraste suficiente para las letras blancas del modal.
+  // Conservan las familias de color de las tarjetas de cada asignatura.
+  const STUDENT_MODAL_COLORS = Object.freeze({
+    "Matemáticas": "#5054b6",
+    "Lenguaje": "#c93648",
+    "Ciencias Naturales": "#987000",
+    "Inglés": "#267942",
+    "Ciencias Sociales y Ciudadanía": "#08768d",
+    "Ética y Valores": "#967100",
+    "Artística": "#957000",
+    "Educación Física": "#277b73",
+    "Informática": "#485e73",
+    "Religión": "#963f72"
+  });
+
   function openStudentSubjectModalForRoll(roll, subject, showCorrect = false) {
     const student = state.computedByRoll.get(cleanId(roll));
     if (!student || !subject) return;
     const stat = student.subjectStats?.[subject];
     if (!stat?.total) return;
+    const areaColor = STUDENT_MODAL_COLORS[subject] || "#236f9b";
+    const edition = cleanText(state.activeSession?.edition ||
+      state.studentSelectedEdition || state.academicEdition || "2026-1S");
+    const course = [student.grade ? student.grade + "°" : "", cleanText(student.group || "")]
+      .filter(Boolean).join(" ");
     state.metricTab = "components";
     document.body.classList.add("modal-open");
     modalRoot.innerHTML = `
       <div class="modal-backdrop student-subject-modal-backdrop" data-action="close-modal">
-        <section class="modal student-subject-modal" style="max-width:760px;">
-          <div class="modal-head">
-            <div>
-              <h2>${esc(subject)}</h2>
-              <span style="color:#7d8089;font-weight:600;">${esc(student.name)} · ${esc(student.grade)}° ${esc(student.group || "")}</span>
+        <section class="modal student-subject-modal"
+          style="max-width:760px;--student-area-color:${areaColor}">
+          <header class="student-subject-hero">
+            <button type="button" class="icon-btn student-subject-hero-close"
+              data-action="close-modal" aria-label="Cerrar detalle de ${escAttr(subject)}">×</button>
+            <div class="student-subject-hero-main">
+              <span class="student-subject-hero-icon">${subjectIcon(subject)}</span>
+              <div class="student-subject-hero-info">
+                <span class="student-subject-hero-kicker">Prueba</span>
+                <h2>${esc(subject)}</h2>
+                <p class="student-subject-hero-student">${esc(student.name)}</p>
+                <p class="student-subject-hero-course">${esc(course)} · ${esc(edition)}</p>
+              </div>
+              <div class="student-subject-hero-score">
+                ${scoreDisplayHtml(stat, "subject-detail-score", true)}
+              </div>
             </div>
-            <button type="button" class="icon-btn" data-action="close-modal" aria-label="Cerrar">×</button>
-          </div>
+          </header>
           <div class="modal-body">
-            ${buildSubjectDetailHtml(student, subject, stat, true, showCorrect)}
+            ${buildSubjectDetailHtml(student, subject, stat, false, showCorrect)}
           </div>
         </section>
       </div>
