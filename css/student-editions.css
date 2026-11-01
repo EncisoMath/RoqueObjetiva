@@ -50,3 +50,10 @@
   .po-editions-divider{margin-top:28px}
 }
 @media(prefers-reduced-motion:reduce){.po-edition-tile.is-clickable{transition:none}}
+
+/* v175.10: evitar el rectángulo azul del resaltado táctil sobre el dock.
+   El foco accesible por teclado (:focus-visible) permanece activo. */
+.po-editions-screen .po-edition-tile {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
