@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v174.9";
+  const APP_VERSION = "v175.0";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -54,7 +54,7 @@
     logoAssetVersion: "v85"
   };
 
-  const DEFAULT_GRADES = [6, 7, 8, 9, 10];
+  const DEFAULT_GRADES = [5, 6, 7, 8, 9, 10, 11];
 
   const DEFAULT_MANIFEST = {
     config: "config/site-config.json",
@@ -1229,7 +1229,64 @@
       .sort((a,b) => b.anio - a.anio || b.semestre - a.semestre);
   }
 
+
+  // v175: pantalla EXCLUSIVAMENTE demostrativa, sin consultar ni inventar notas.
+  function enterStudentPreview2026(roll) {
+    if (cleanId(roll) !== "2573" || !state.studentPreview2026) return renderLogin("Vista no autorizada.");
+    const session = { role: "student", roll: "2573", studentView: "preview", edition: "2026-2S" };
+    state.activeSession = session;
+    state.studentSelectedEdition = "2026-2S";
+    state.zeroToleranceShown = true;
+    writeJSON(STORAGE.session, session);
+    rememberRecentLogin(session);
+    return renderStudentPreview2026();
+  }
+
+  function renderStudentPreview2026() {
+    if (!state.studentPreview2026 || state.activeSession?.role !== "student"
+        || cleanId(state.activeSession?.roll) !== "2573") return renderLogin("Vista no autorizada.");
+    const registry = state.registryByExamId.get("2573");
+    const studentName = cleanText(registry?.name || "Estudiante de prueba");
+    const grade = toInt(registry?.grade) || 0;
+    const subjectNames = grade === 5
+      ? ["Matemáticas","Lenguaje","Inglés","Ciencias Sociales y Ciudadanía","Ciencias Naturales"]
+      : SUBJECTS.map((subject) => subject.name);
+    const tiles = subjectNames.map((name) => {
+      const subject = SUBJECTS.find((item) => item.name === name);
+      const color = STUDENT_AREA_COLORS[name] || "#248bc4";
+      return '<article class="stu174-area-card po175-preview-area" style="--stu174-area-color:' + color + '">' +
+        '<span class="stu174-area-head"><span class="stu174-area-icon">' + subjectIcon(name) + '</span>' +
+        '<strong class="stu174-area-title">' + esc(subject?.short || name) + '</strong></span>' +
+        '<span class="stu174-area-result"><strong>0</strong><small>/100</small></span>' +
+        '<span class="stu174-area-track"><i style="width:0%"></i></span>' +
+        '</article>';
+    }).join("");
+    const identity = '<section class="stu174-identity"><span class="stu174-grade">' +
+      esc(grade || "—") + '°</span><div class="stu174-identity-copy"><h2>' + esc(studentName) + '</h2>' +
+      '<p><span>ID de prueba: 2573</span><span class="stu174-meta-sep">·</span><span>2026-2S</span></p></div></section>';
+    const notice = '<div class="po175-preview-notice" role="status">' +
+      '<strong>VISTA DE PRUEBA · 2026-2S</strong>' +
+      '<span>Los valores 0 son solo demostrativos. No se han cargado respuestas, claves ni resultados reales.</span></div>';
+    const globalCard = '<section class="stu174-global card">' +
+      '<div class="stu174-global-button"><div class="stu174-global-title">Puntaje global · vista previa</div>' +
+      '<div class="stu174-global-value"><strong>0</strong><span>/500</span></div>' +
+      '<span class="stu174-global-track"><i style="width:0%"></i></span></div>' +
+      '<div class="stu174-ranking">' +
+      '<div class="stu174-rank-tile"><div class="stu174-rank-copy"><strong>—</strong><small>Ranking por curso · pendiente</small></div></div>' +
+      '<div class="stu174-rank-tile"><div class="stu174-rank-copy"><strong>—</strong><small>Ranking por grado · pendiente</small></div></div>' +
+      '</div></section>';
+    renderShell('<div class="stu174-dashboard">' + identity + notice + globalCard +
+      '<section class="stu174-results" aria-labelledby="po175-areas-title">' +
+      '<h2 id="po175-areas-title">Resultados por área</h2><div class="stu174-grid">' +
+      tiles + '</div></section></div>', navFor("student"));
+    resetStudentScreenScroll();
+  }
+
   function studentEditionAvailability(ed) {
+    if (state.studentPreview2026 && cleanId(state.activeSession?.roll) === "2573" && ed.codigo === "2026-2S") {
+      return { enabled: true, badge: "VISTA PREVIA",
+        description: "Abrir simulación con puntajes en cero, sin resultados publicados." };
+    }
     const published = ed.resultados_visibles && ["publicada", "cerrada"].includes(ed.estado);
     if (ed.bloqueado_periodo === true) return {
       enabled: false, badge: "BLOQUEADO",
@@ -1345,6 +1402,23 @@
 
   async function openStudentSelectedEdition(code) {
     if (state.activeSession?.role !== "student") return;
+    if (code === "2026-2S" && state.studentPreview2026 && cleanId(state.activeSession.roll) === "2573") {
+      // Volver a comprobar la excepción en el servidor. No confiar en localStorage.
+      try {
+        const verified = await studentLoginRpc("2573", "");
+        if (verified?.ok && verified?.modo_vista_previa === "2026-2S"
+            && cleanId(verified?.session?.roll) === "2573") {
+          hydrateSupabasePayload(verified);
+          buildRepository();
+          return enterStudentPreview2026("2573");
+        }
+      } catch (error) {
+        console.warn("No se pudo validar el acceso de prueba.", error?.message || error);
+      }
+      state.studentPreview2026 = false;
+      clearSession();
+      return renderLogin("No fue posible validar el acceso a la vista de prueba.");
+    }
     const selected = (state.studentEditionCatalog || []).find(e => e.codigo === code);
     if (!selected || !studentEditionAvailability(selected).enabled) {
       toast("La evaluación no está publicada o no está autorizada.");
@@ -1445,8 +1519,11 @@
 
       if (session.role === "student") {
         const roll = cleanId(session.roll);
+        state.studentPreview2026 = payload.modo_vista_previa === "2026-2S" && roll === "2573";
         await loadStudentEditionCatalog();
-        // El informe NO se abre automáticamente después del login.
+        // La última evaluación disponible se abre primero.
+        // Mientras dura el cierre, solo 2573 puede abrir la simulación privada.
+        if (state.studentPreview2026) return enterStudentPreview2026(roll);
         return enterStudentEditionChooser(roll);
       }
 
@@ -2637,6 +2714,7 @@
     }
 
     if (state.activeSession.role === "student") {
+      if (state.activeSession.studentView === "preview") return renderStudentPreview2026();
       if (state.activeSession.studentView !== "report") return renderStudentEditionChooser();
       const roll = cleanId(state.activeSession.roll);
       if (state.activeSession.rankingDebugRequested && (!state.activeSession.rankingDebugDone || state.activeSession.rankingDebugVersion !== "v140")) {
@@ -3587,10 +3665,11 @@
 
   function studentDockHtml() {
     if (state.activeSession?.role !== "student") return "";
-    const report = state.activeSession.studentView === "report";
+    const report = ["report", "preview"].includes(state.activeSession.studentView);
+    const edition = cleanText(state.activeSession.edition || state.studentSelectedEdition || "2026-2S");
     const entries = [
+      ["student-dock-details", edition + "|Detalle", "chart", report, !state.studentSelectedEdition],
       ["student-dock-history", "Historial", "calendar", !report, false],
-      ["student-dock-details", "Detalles de examen", "chart", report, !state.studentSelectedEdition],
       ["logout", "Salir", "logout", false, false]
     ];
     return '<nav class="t160-dock student-bottom-dock" aria-label="Navegación estudiante" style="--t160-count:3">' +
@@ -3599,7 +3678,10 @@
         '" data-action="' + action + '"' +
         (selected?' aria-current="page"':'') +
         (disabled?' disabled aria-disabled="true"':'') + '>' +
-        adminNavIcon(icon) + '<span>' + label + '</span></button>'
+        adminNavIcon(icon) + '<span>' +
+          (label.includes("|") ? '<strong>' + esc(label.split("|")[0]) +
+            '</strong><small class="po175-dock-subtitle">' + esc(label.split("|")[1]) + '</small>' : esc(label)) +
+          '</span></button>'
       ).join('') + '</nav>';
   }
 
@@ -6016,12 +6098,12 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     }
     if (action === "student-dock-details") {
       if (state.activeSession?.role !== "student") return;
-      if (state.activeSession.studentView === "report") return;
+      if (["report","preview"].includes(state.activeSession.studentView)) return;
       if (!state.studentSelectedEdition) {
         toast("Selecciona primero un examen en Historial.");
         return;
       }
-      openStudentSelectedEdition(state.studentSelectedEdition);
+      openStudentSelectedEdition(state.studentPreview2026 ? "2026-2S" : state.studentSelectedEdition);
       return;
     }
     if (action === "student-open-edition") {
@@ -9137,6 +9219,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
   function clearSession() {
     if (window.RoqueEdiciones) window.RoqueEdiciones.logout();
     state.activeSession = null;
+    state.studentPreview2026 = false;
     state.studentEditionCatalog = [];
     state.studentSelectedEdition = "";
     state.zeroToleranceShown = false;

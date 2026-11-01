@@ -46,3 +46,9 @@
 #modal-root .student-subject-modal-backdrop {
   z-index: 300 !important;
 }
+
+/* v175: etiqueta de semestre y aviso de vista previa */
+.student-bottom-dock .po175-dock-subtitle {display:block;font-size:.66rem;line-height:1.1;font-weight:700;opacity:.78;margin-top:2px}
+.po175-preview-notice {padding:12px 14px;border:1px solid #b9d5e4;border-radius:4px;background:#ebf7fd;color:#21516b;display:grid;gap:4px;font-size:12px;line-height:1.55}
+.po175-preview-notice strong {font-weight:900;letter-spacing:.05em}
+.po175-preview-area {cursor:default}
