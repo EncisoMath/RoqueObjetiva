@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.8";
+  const APP_VERSION = "v175.9";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -3261,16 +3261,17 @@
       ["🎁", 48, 19.1, -17.2, 15, 17, .57],
       ["❄", 84, 15.8, -3.9,  -6, 15, .68]
     ];
-    return particles.map(([symbol,left,duration,delay,drift,size,opacity]) => {
-      // Trayectoria no recta: una ráfaga, una breve calma y otra ráfaga.
-      // Cálculos deterministas para evitar parpadeos al cambiar de pantalla.
-      const windStart = Math.round(-2.4 * drift);
-      const windGust = Math.round(2.4 * drift);
-      const windLull = Math.round(1.1 * drift);
-      const windSecond = Math.round(4.5 * drift);
-      const windEnd = Math.round(6.2 * drift);
+    return particles.map(([symbol,left,duration,delay,drift,size,opacity], index) => {
+      // Dos movimientos simultáneos, independientes:
+      // 1. La partícula cae SIEMPRE a velocidad constante y en diagonal.
+      // 2. El adorno interior oscila suavemente con el viento, sin frenar la caída.
+      const direction = drift < 0 ? -1 : 1;
+      const startX = -direction * 22;
+      const endX = direction * (90 + Math.round(Math.abs(drift) * 2.5));
+      const sway = 7 + (index % 5) * 2;
+      const swayDuration = (2.4 + (index % 4) * 0.45).toFixed(2);
       const displaySize = Math.round(size * 1.65);
-      return `<span class="holiday-particle" aria-hidden="true" style="--holiday-left:${left}%;--holiday-duration:${duration}s;--holiday-delay:${delay}s;--holiday-wind-start:${windStart}px;--holiday-wind-gust:${windGust}px;--holiday-wind-lull:${windLull}px;--holiday-wind-second:${windSecond}px;--holiday-wind-end:${windEnd}px;--holiday-size:${displaySize}px;--holiday-opacity:${opacity}">${symbol}</span>`;
+      return `<span class="holiday-particle" aria-hidden="true" style="--holiday-left:${left}%;--holiday-duration:${duration}s;--holiday-delay:${delay}s;--holiday-x-start:${startX}px;--holiday-x-end:${endX}px;--holiday-sway:${sway}px;--holiday-sway-duration:${swayDuration}s;--holiday-size:${displaySize}px;--holiday-opacity:${opacity}"><span class="holiday-particle-symbol">${symbol}</span></span>`;
     }).join("");
   }
 

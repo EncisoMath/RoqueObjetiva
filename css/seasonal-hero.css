@@ -1,4 +1,4 @@
-/* RoqueObjetiva v175.8: Navidad con viento ÚNICAMENTE dentro del hero.
+/* RoqueObjetiva v175.9: caída diagonal continua con viento dentro del hero.
    Se activa por fecha en JS (1 de noviembre - 6 de enero, America/Bogota).
    No cambia el fondo, el escudo, las medallas ni la botonera. */
 .roque-hero-shell .top-banner {
@@ -38,46 +38,43 @@
   animation-name: roqueHolidaySnowfall;
   animation-duration: var(--holiday-duration, 15s);
   animation-delay: var(--holiday-delay, 0s);
-  animation-timing-function: ease-in-out;
+  animation-timing-function: linear;
   animation-iteration-count: infinite;
   animation-fill-mode: both;
 }
-/* Ráfagas irregulares: la partícula deriva, retrocede suavemente y vuelve
-   a desplazarse mientras cae. Los valores dependen de cada partícula. */
+/* Movimiento principal: caída diagonal a VELOCIDAD CONSTANTE, sin cambios de
+   aceleración o puntos intermedios de transform que puedan frenar la caída.
+   La opacidad solo atenúa las entradas/salidas fuera del hero. */
 @keyframes roqueHolidaySnowfall {
   0% {
-    transform: translate3d(var(--holiday-wind-start, -38px), -56px, 0) rotate(-19deg);
+    transform: translate3d(var(--holiday-x-start, -22px), -64px, 0);
     opacity: 0;
-    animation-timing-function: cubic-bezier(.23,.34,.35,.96);
   }
-  17% {
-    transform: translate3d(var(--holiday-wind-gust, 42px), -10px, 0) rotate(9deg);
-    opacity: var(--holiday-opacity, .75);
-    animation-timing-function: cubic-bezier(.62,.02,.32,.93);
+  11% {
+    opacity: var(--holiday-opacity, .72);
   }
-  36% {
-    transform: translate3d(var(--holiday-wind-gust, 42px), 35px, 0) rotate(20deg);
-    opacity: var(--holiday-opacity, .75);
-    animation-timing-function: cubic-bezier(.32,.43,.65,1);
-  }
-  54% {
-    transform: translate3d(var(--holiday-wind-lull, 16px), 75px, 0) rotate(-10deg);
-    opacity: var(--holiday-opacity, .75);
-    animation-timing-function: cubic-bezier(.16,.51,.36,.95);
-  }
-  74% {
-    transform: translate3d(var(--holiday-wind-second, 78px), 123px, 0) rotate(26deg);
-    opacity: var(--holiday-opacity, .75);
-    animation-timing-function: cubic-bezier(.49,.06,.6,.91);
-  }
-  88% {
-    transform: translate3d(var(--holiday-wind-second, 78px), 151px, 0) rotate(5deg);
-    opacity: var(--holiday-opacity, .75);
-    animation-timing-function: ease-in;
+  86% {
+    opacity: var(--holiday-opacity, .72);
   }
   100% {
-    transform: translate3d(var(--holiday-wind-end, 106px), 190px, 0) rotate(34deg);
+    transform: translate3d(var(--holiday-x-end, 120px), 200px, 0);
     opacity: 0;
+  }
+}
+/* Movimiento superpuesto e independiente: una oscilación horizontal y
+   rotación leve que nunca interrumpen la traslación diagonal constante. */
+.roque-hero-shell .top-banner .banner-winter .holiday-particle-symbol {
+  display: block;
+  line-height: 1;
+  animation: roqueHolidaySway var(--holiday-sway-duration, 3s) ease-in-out infinite alternate;
+  will-change: transform;
+}
+@keyframes roqueHolidaySway {
+  from {
+    transform: translate3d(calc(-1 * var(--holiday-sway, 10px)), 0, 0) rotate(-12deg);
+  }
+  to {
+    transform: translate3d(var(--holiday-sway, 10px), 0, 0) rotate(12deg);
   }
 }
 /* Jerarquía del hero intacta: nieve detrás de textos y escudo. */
@@ -99,6 +96,11 @@
     top: 40%;
     transform: none !important;
     opacity: .23 !important;
+    will-change: auto;
+  }
+  .roque-hero-shell .top-banner .banner-winter .holiday-particle-symbol {
+    animation: none !important;
+    transform: none !important;
     will-change: auto;
   }
 }
