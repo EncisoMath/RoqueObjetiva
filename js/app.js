@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.3";
+  const APP_VERSION = "v175.4";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -3126,6 +3126,7 @@
     const errorHtml = String(error || "").startsWith("Ingresar códigos uno tras otro")
       ? safeError.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>").replace(/\n/g, "<br>")
       : safeError;
+    document.getElementById("student-dock-root")?.replaceChildren();
     app.innerHTML = `
       <section class="login-shell login-shell-dark" style="--login-primary:${primary};--login-dark:${primaryDark};--login-deep:${primaryDeep};">
         <div class="login-bg-shapes" aria-hidden="true">
@@ -3277,9 +3278,11 @@
           ${content}
         </main>
         ${state.activeSession?.role === "teacher" ? teacherDockHtml() : ""}
-        ${state.activeSession?.role === "student" ? studentDockHtml() : ""}
       </div>
     `;
+    // El dock estudiantil vive FUERA de #app: no se destruye ni desvanece
+    // al sustituir el informe, el historial o la cabecera medallista.
+    syncPersistentStudentDock();
   }
 
   // Dashboard estudiantil v174. No modifica algoritmos, puntuaciones ni respuestas.
@@ -3686,6 +3689,48 @@
       el.setAttribute("aria-hidden", String(!open));
     });
     document.querySelectorAll(".t160-dock-btn[data-menu]").forEach((el) => el.setAttribute("aria-expanded", String(el.dataset.menu === state.teacherDockMenu)));
+  }
+
+  // Una sola instancia DOM del dock entre todas las pantallas estudiantiles.
+  // Mantener intactos sus botones evita reinicios, pérdidas de foco y parpadeos.
+  function syncPersistentStudentDock() {
+    const root = document.getElementById("student-dock-root");
+    if (!root) return;
+    if (state.activeSession?.role !== "student") {
+      if (root.firstChild) root.replaceChildren();
+      return;
+    }
+
+    let dock = root.querySelector(".student-bottom-dock");
+    if (!dock) {
+      // ÚNICO montaje durante la sesión. Los siguientes renders solo sincronizan estado.
+      root.innerHTML = studentDockHtml();
+      dock = root.querySelector(".student-bottom-dock");
+    }
+    if (!dock) return;
+
+    const report = ["report", "preview"].includes(state.activeSession.studentView);
+    const edition = cleanText(
+      state.activeSession.edition || state.studentSelectedEdition || "2026-2S"
+    );
+    const detail = dock.querySelector('[data-action="student-dock-details"]');
+    const history = dock.querySelector('[data-action="student-dock-history"]');
+
+    if (detail) {
+      const title = detail.querySelector("strong");
+      if (title && title.textContent !== edition) title.textContent = edition;
+      const disabled = !state.studentSelectedEdition;
+      if (detail.disabled !== disabled) detail.disabled = disabled;
+      if (disabled) detail.setAttribute("aria-disabled", "true");
+      else detail.removeAttribute("aria-disabled");
+    }
+
+    for (const [button, active] of [[detail, report], [history, !report]]) {
+      if (!button) continue;
+      button.classList.toggle("is-active", active);
+      if (active) button.setAttribute("aria-current", "page");
+      else button.removeAttribute("aria-current");
+    }
   }
 
   function studentDockHtml() {
@@ -9244,6 +9289,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
 
   function clearSession() {
     if (window.RoqueEdiciones) window.RoqueEdiciones.logout();
+    document.getElementById("student-dock-root")?.replaceChildren();
     state.activeSession = null;
     state.studentPreview2026 = false;
     state.studentEditionCatalog = [];
