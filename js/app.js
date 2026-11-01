@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.0";
+  const APP_VERSION = "v175.1";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -1174,11 +1174,11 @@
       return null;
     }
   }
-  async function studentLoginRpc(user, pass = "") {
+  async function studentLoginRpc(user, pass = "", options = {}) {
     const params = {
       p_user: user, p_password: pass || "",
       p_terminal: terminalIdForConsultation(),
-      p_device: deviceInfoText(), p_mode: appModeText()
+      p_device: deviceInfoText(), p_mode: options.history2573 === true ? "roque_historico_2026_1s_2573" : appModeText()
     };
     try {
       // v169: mismo login protegido, datos academicos de roque_private (2026-1S).
@@ -1239,7 +1239,9 @@
     state.zeroToleranceShown = true;
     writeJSON(STORAGE.session, session);
     rememberRecentLogin(session);
-    return renderStudentPreview2026();
+    // Conserva el efecto loader -> disolvencia -> aparición escalonada.
+    return enterSessionWithLoader(session, () => renderStudentPreview2026(),
+      "Abriendo resultados de 2026-2S...");
   }
 
   function renderStudentPreview2026() {
@@ -1283,6 +1285,12 @@
   }
 
   function studentEditionAvailability(ed) {
+    // La excepción de historial se limita al ID 2573; Supabase la valida de nuevo al abrir.
+    if (state.studentPreview2026 && cleanId(state.activeSession?.roll) === "2573"
+        && ed.codigo === "2026-1S") {
+      return { enabled: true, badge: "DISPONIBLE",
+        description: "Abre tu informe del primer semestre." };
+    }
     if (state.studentPreview2026 && cleanId(state.activeSession?.roll) === "2573" && ed.codigo === "2026-2S") {
       return { enabled: true, badge: "VISTA PREVIA",
         description: "Abrir simulación con puntajes en cero, sin resultados publicados." };
@@ -1372,7 +1380,7 @@
         (newest ? '<div class="po-editions-latest"><span class="po-editions-eyebrow">' +
           'ÚLTIMA EVALUACIÓN</span>' + editionTileHtml(newest, true) + '</div>' : '') +
         '<div class="po-editions-divider"><span></span><strong>HISTORIAL</strong><span></span></div>' +
-        (historic.some(e => e.bloqueado_periodo) ?
+        (historic.some(e => e.bloqueado_periodo && !studentEditionAvailability(e).enabled) ?
           '<p class="po-editions-locknote">Estos exámenes están bloqueados hasta que finalice el periodo.</p>' : '') +
         '<div class="po-editions-history">' +
           (historic.length ? historic.map(e => editionTileHtml(e)).join('') :
@@ -1402,6 +1410,37 @@
 
   async function openStudentSelectedEdition(code) {
     if (state.activeSession?.role !== "student") return;
+    if (code === "2026-1S" && state.studentPreview2026
+        && cleanId(state.activeSession.roll) === "2573") {
+      // Datos históricos únicamente tras autorización SQL de la cuenta de pruebas.
+      try {
+        const result = await studentLoginRpc("2573", "", { history2573: true });
+        if (!result?.ok || result.edicion !== "2026-1S"
+            || result.origen_academico !== "historico_2573_autorizado"
+            || cleanId(result.session?.roll) !== "2573"
+            || !result.datasets?.keys?.[0]?.rows?.length
+            || !result.datasets?.resultados?.[0]?.rows?.length) {
+          throw new Error("El primer semestre no está disponible para este usuario.");
+        }
+        hydrateSupabasePayload(result);
+        state.academicEdition = "2026-1S";
+        state.academicDataSource = "roque_private";
+        buildRepository();
+        state.studentSelectedEdition = "2026-1S";
+        state.selectedSubject = null;
+        state.zeroToleranceShown = true;
+        const session = { role: "student", roll: "2573",
+          studentView: "report", edition: "2026-1S" };
+        return enterSessionWithLoader(session, () => {
+          renderStudent("2573");
+          resetStudentScreenScroll();
+        }, "Abriendo resultados de 2026-1S...");
+      } catch (error) {
+        console.warn("No se pudo abrir 2026-1S:", error?.message || error);
+        toast("No fue posible verificar el acceso a 2026-1S.");
+        return;
+      }
+    }
     if (code === "2026-2S" && state.studentPreview2026 && cleanId(state.activeSession.roll) === "2573") {
       // Volver a comprobar la excepción en el servidor. No confiar en localStorage.
       try {
