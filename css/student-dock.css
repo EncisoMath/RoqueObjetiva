@@ -52,3 +52,11 @@
 .po175-preview-notice {padding:12px 14px;border:1px solid #b9d5e4;border-radius:4px;background:#ebf7fd;color:#21516b;display:grid;gap:4px;font-size:12px;line-height:1.55}
 .po175-preview-notice strong {font-weight:900;letter-spacing:.05em}
 .po175-preview-area {cursor:default}
+
+/* v175.4: el dock vive fuera de #app; recuperar las variables del shell
+   sin modificar tamaño, posición, colores ni comportamiento de la botonera. */
+.student-bottom-dock {
+  --t160-border: #dce3e9;
+  --t160-muted: #617181;
+  --t160-soft: color-mix(in srgb, var(--orange) 9%, white);
+}
