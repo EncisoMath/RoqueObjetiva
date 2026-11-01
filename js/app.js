@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.2";
+  const APP_VERSION = "v175.3";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -1124,20 +1124,6 @@
     });
   }
 
-  const FUNNY_LOADER_COPIES = [
-    { title: "Tranquilo, estamos haciendo este examen por ti", subtitle: "Mentira... pero ya estamos preparando tus resultados." },
-    { title: "Seguro que borraste bien? Hmm...", subtitle: "Revisando respuestas, cursos y ese sospechoso ítem 37." },
-    { title: "Invocando al espíritu del ICFES", subtitle: "Si aparece una gráfica rara, no fuimos nosotros. Bueno, sí." },
-    { title: "Consultando la bola de cristal académica", subtitle: "También estamos calculando promedios, rankings y cositas serias." },
-    { title: "No cierres esto, se asusta la base de datos", subtitle: "Estamos acomodando tus resultados en una bandejita bonita." },
-    { title: "Contando respuestas correctas con los dedos", subtitle: "Ya casi. Nos prestaron una calculadora." },
-    { title: "Respira. Si sale cero rojo, hablamos luego", subtitle: "Cargando vista, notas y reportes autorizados." }
-  ];
-
-  function randomLoaderCopy() {
-    return FUNNY_LOADER_COPIES[Math.floor(Math.random() * FUNNY_LOADER_COPIES.length)] || FUNNY_LOADER_COPIES[0];
-  }
-
   async function loadSupabasePublicSettings() {
     try {
       const settings = await supabaseRpc("roque_get_public_settings", {});
@@ -1239,9 +1225,8 @@
     state.zeroToleranceShown = true;
     writeJSON(STORAGE.session, session);
     rememberRecentLogin(session);
-    // Conserva el efecto loader -> disolvencia -> aparición escalonada.
-    return enterSessionWithLoader(session, () => renderStudentPreview2026(),
-      "Abriendo resultados de 2026-2S...");
+    // La autenticación ya se completó: animar sin segundo cargador artificial.
+    return transitionStudentView(() => renderStudentPreview2026());
   }
 
   function renderStudentPreview2026() {
@@ -1428,10 +1413,14 @@
         state.zeroToleranceShown = true;
         const session = { role: "student", roll: "2573",
           studentView: "report", edition: "2026-1S" };
-        return enterSessionWithLoader(session, () => {
+        state.activeSession = session;
+        writeJSON(STORAGE.session, session);
+        rememberRecentLogin(session);
+        // El RPC ya devolvió el examen: solo una transición visual, sin espera de carga.
+        return transitionStudentView(() => {
           renderStudent("2573");
           resetStudentScreenScroll();
-        }, "Abriendo resultados de 2026-1S...");
+        });
       } catch (error) {
         console.warn("No se pudo abrir 2026-1S:", error?.message || error);
         toast("No fue posible verificar el acceso a 2026-1S.");
@@ -1495,14 +1484,14 @@
     const cleanUser = parsedLogin.login;
     const wantsRankingDebug = !!(options.rankingDebug || parsedLogin.rankingDebug);
     try {
-      const bootCopy = randomLoaderCopy();
+      // Única espera real: la autenticación y los datos vienen de Supabase.
       fadeAppOut();
       await wait(180);
       app.innerHTML = `
         <div class="boot">
           <div class="boot-mark"></div>
-          <h1>${esc(bootCopy.title)}</h1>
-          <p>${esc(bootCopy.subtitle)}</p>
+          <h1>Consultando resultados</h1>
+          <p>Verificando el acceso y la información disponible.</p>
         </div>
       `;
       fadeAppIn();
@@ -6139,7 +6128,8 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
         toast("Selecciona primero un examen en Historial.");
         return;
       }
-      openStudentSelectedEdition(state.studentPreview2026 ? "2026-2S" : state.studentSelectedEdition);
+      // Respetar el semestre elegido. El modo de acceso 2573 no es el semestre activo.
+      openStudentSelectedEdition(state.studentSelectedEdition || state.activeSession.edition);
       return;
     }
     if (action === "student-open-edition") {
@@ -9266,6 +9256,15 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     sessionStorage.removeItem("po_supabase_admin_password");
   }
 
+  // Transición de navegación estudiantil: conserva la disolvencia y el
+  // escalonado CSS sin simular otra carga cuando los datos ya están disponibles.
+  async function transitionStudentView(renderFn) {
+    fadeAppOut();
+    await wait(190);
+    renderFn();
+    fadeAppIn();
+  }
+
   function enterSessionWithLoader(session, renderFn, message = "Preparando resultados...") {
     state.activeSession = session;
     writeJSON(STORAGE.session, state.activeSession);
@@ -9311,13 +9310,12 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
   function showRouteLoader(message) {
     document.querySelector(".route-loader")?.remove();
     const loader = document.createElement("div");
-    const copy = randomLoaderCopy();
     loader.className = "route-loader";
     loader.innerHTML = `
       <div class="route-loader-card">
         <div class="route-loader-mark"></div>
-        <strong>${esc(copy.title || message)}</strong>
-        <span>${esc(copy.subtitle || "Calculando puntajes, rankings y reportes.")}</span>
+        <strong>${esc(message || "Preparando resultados...")}</strong>
+        <span>Un momento, por favor.</span>
       </div>
     `;
     document.body.appendChild(loader);
