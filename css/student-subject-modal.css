@@ -1,4 +1,4 @@
-/* RoqueObjetiva v175.5 — modal de detalle de asignatura.
+/* RoqueObjetiva v175.6 — modal de detalle de asignatura.
    Alcance estrictamente estudiantil: no altera modales de docentes/admin. */
 .student-subject-modal {
   display: flex;
@@ -162,8 +162,8 @@
   padding: 0 !important;
 }
 
-/* Resultados: la misma familia cromática por asignatura, estados identificables.
-   Todas las superficies son flat: ninguna usa degradado ni sombra de color. */
+/* Los resultados conservan los cuatro colores de estado exactos para todas
+   las asignaturas; SOLO hero, barras y pestañas heredan el color de área. */
 .student-subject-modal .answer-pill {
   position: relative;
   border-radius: 5px !important;
@@ -172,41 +172,41 @@
   border: 1px solid transparent;
 }
 .student-subject-modal .answer-pill.correct {
-  background: var(--student-area-color) !important;
+  background: #7CB342 !important;
   color: #fff !important;
 }
 .student-subject-modal .answer-pill.wrong {
-  background: color-mix(in srgb, var(--student-area-color) 68%, #192638) !important;
+  background: #F44336 !important;
   color: #fff !important;
 }
 .student-subject-modal .answer-pill.double {
-  background: color-mix(in srgb, var(--student-area-color) 57%, #fff) !important;
-  color: #152638 !important;
+  background: #FFCA28 !important;
+  color: #263238 !important;
 }
 .student-subject-modal .answer-pill.empty {
-  background: color-mix(in srgb, var(--student-area-color) 18%, #fff) !important;
-  border-color: color-mix(in srgb, var(--student-area-color) 58%, #fff);
-  color: #26384b !important;
+  background: #607D8B !important;
+  border-color: transparent !important;
+  color: #fff !important;
 }
 .student-subject-modal .legend .dot.correct {
-  background: var(--student-area-color);
+  background: #7CB342 !important;
 }
 .student-subject-modal .legend .dot.wrong {
-  background: color-mix(in srgb, var(--student-area-color) 68%, #192638);
+  background: #F44336 !important;
 }
 .student-subject-modal .legend .dot.double {
-  background: color-mix(in srgb, var(--student-area-color) 57%, #fff);
-  border: 1px solid color-mix(in srgb, var(--student-area-color) 65%, #fff);
+  background: #FFCA28 !important;
+  border: 0;
 }
 .student-subject-modal .legend .dot.empty {
-  background: color-mix(in srgb, var(--student-area-color) 18%, #fff);
-  border: 1px solid var(--student-area-color);
+  background: #607D8B !important;
+  border: 0;
 }
 .student-subject-modal .item-value-note strong {
   color: var(--student-area-color);
 }
 .student-subject-modal .metric-tab {
-  border-color: color-mix(in srgb, var(--student-area-color) 30%, #fff);
+  border-color: var(--student-area-color);
   color: var(--student-area-color);
   background: #fff;
   background-image: none !important;
@@ -225,7 +225,7 @@
   outline-offset: 2px;
 }
 .student-subject-modal .metric-progress {
-  background: color-mix(in srgb, var(--student-area-color) 15%, #fff);
+  background: #e6ebf0;
 }
 .student-subject-modal .metric-progress-fill {
   background: var(--student-area-color) !important;

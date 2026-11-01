@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.5";
+  const APP_VERSION = "v175.6";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -3442,27 +3442,14 @@
     openStudentSubjectModalForRoll(state.activeSession?.roll, subject, false);
   }
 
-  // Colores planos y de contraste suficiente para las letras blancas del modal.
-  // Conservan las familias de color de las tarjetas de cada asignatura.
-  const STUDENT_MODAL_COLORS = Object.freeze({
-    "Matemáticas": "#5054b6",
-    "Lenguaje": "#c93648",
-    "Ciencias Naturales": "#987000",
-    "Inglés": "#267942",
-    "Ciencias Sociales y Ciudadanía": "#08768d",
-    "Ética y Valores": "#967100",
-    "Artística": "#957000",
-    "Educación Física": "#277b73",
-    "Informática": "#485e73",
-    "Religión": "#963f72"
-  });
-
+  // La cabecera, pestañas y barras del modal comparten EXACTAMENTE
+  // la misma fuente de color que las tarjetas del informe, sin variantes.
   function openStudentSubjectModalForRoll(roll, subject, showCorrect = false) {
     const student = state.computedByRoll.get(cleanId(roll));
     if (!student || !subject) return;
     const stat = student.subjectStats?.[subject];
     if (!stat?.total) return;
-    const areaColor = STUDENT_MODAL_COLORS[subject] || "#236f9b";
+    const areaColor = STUDENT_AREA_COLORS[subject] || "#248bc4";
     const edition = cleanText(state.activeSession?.edition ||
       state.studentSelectedEdition || state.academicEdition || "2026-1S");
     const course = [student.grade ? student.grade + "°" : "", cleanText(student.group || "")]
