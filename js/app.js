@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.6";
+  const APP_VERSION = "v175.7";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -3221,6 +3221,51 @@
     }).join("");
   }
 
+  // Temporada navideña institucional: desde 1/nov hasta 6/ene (ambos incluidos).
+  // Colombia es la zona horaria del colegio, incluso si se abre desde otro país.
+  function isHolidayHeroDate(date = new Date()) {
+    let month;
+    let day;
+    try {
+      const parts = new Intl.DateTimeFormat("en-US", {
+        timeZone: "America/Bogota", month: "numeric", day: "numeric"
+      }).formatToParts(date);
+      month = Number(parts.find((part) => part.type === "month")?.value);
+      day = Number(parts.find((part) => part.type === "day")?.value);
+    } catch (error) {
+      month = date.getMonth() + 1;
+      day = date.getDate();
+    }
+    return (month === 11 && day >= 1) || month === 12 ||
+      (month === 1 && day <= 6);
+  }
+
+  // Posiciones y desfases fijos: no parpadean aleatoriamente cuando cambia la vista.
+  // Cada partícula vive dentro del banner, sin crear elementos sobre el contenido.
+  function renderHolidayHeroParticles() {
+    const particles = [
+      ["❄", 3, 11.8, -3.4,  19, 25, .77],
+      ["❄", 11, 14.4, -7.2, -13, 16, .66],
+      ["🍪", 19, 17.1, -12.6, 18, 21, .67],
+      ["❄", 27, 13.3, -9.1,  -8, 20, .65],
+      ["⛄", 36, 19.5, -5.5,  10, 22, .66],
+      ["❄", 44, 10.6, -8.8, -17, 15, .63],
+      ["❄", 52, 16.0, -13.2, 14, 24, .67],
+      ["🎁", 60, 18.3, -2.9, -11, 20, .72],
+      ["❄", 67, 12.1, -6.2,  12, 18, .72],
+      ["❄", 74, 15.2, -10.8, -10, 25, .65],
+      ["🍪", 81, 17.6, -8.1, -13, 18, .65],
+      ["❄", 89, 11.5, -5.8,  12, 20, .76],
+      ["⛄", 95, 20.0, -16.4, -14, 21, .58],
+      ["❄", 16, 13.7, -11.7, 8,  15, .61],
+      ["🎁", 48, 19.1, -17.2, 15, 17, .57],
+      ["❄", 84, 15.8, -3.9,  -6, 15, .68]
+    ];
+    return particles.map(([symbol,left,duration,delay,drift,size,opacity]) =>
+      `<span class="holiday-particle" aria-hidden="true" style="--holiday-left:${left}%;--holiday-duration:${duration}s;--holiday-delay:${delay}s;--holiday-drift:${drift}px;--holiday-size:${size}px;--holiday-opacity:${opacity}">${symbol}</span>`
+    ).join("");
+  }
+
   function studentBannerTone(student) {
     const ranks = [student?.courseRank, student?.gradeRank]
       .map((value) => Number(value))
@@ -3251,6 +3296,7 @@
     applyAppMeta(primary);
     const bannerStyle = `style="background: ${primary}"`;
     const isMedalBanner = ["banner-rank-gold", "banner-rank-silver", "banner-rank-bronze"].includes(bannerToneClass);
+    const holidayHero = isHolidayHeroDate();
     const bannerClass = isMedalBanner ? ` ${bannerToneClass}` : "";
     const heroRole = state.activeSession?.role;
     const studentHero = heroRole === "student";
@@ -3259,8 +3305,8 @@
     app.innerHTML = `
       <div class="app-shell${hasInstitutionalHero ? " roque-hero-shell" : ""}${heroRole === "admin" ? " adm151-shell" : ""}${heroRole === "teacher" ? " roque-teacher-shell" : ""}${studentHero ? " roque-student-shell" : ""}">
         <header class="top-banner${bannerClass}" ${bannerStyle}>
-          <div class="banner-shapes ${isMedalBanner ? "banner-stars" : ""}" aria-hidden="true">
-            ${renderPlayShapes("banner", isMedalBanner)}
+          <div class="banner-shapes ${holidayHero ? "banner-winter" : (isMedalBanner ? "banner-stars" : "")}" aria-hidden="true">
+            ${holidayHero ? renderHolidayHeroParticles() : renderPlayShapes("banner", isMedalBanner)}
           </div>
           <div class="banner-inner">
             <div class="banner-copy">

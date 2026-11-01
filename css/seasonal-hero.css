@@ -1,0 +1,81 @@
+/* RoqueObjetiva v175.7: decoración de Navidad ÚNICAMENTE dentro del hero.
+   Se activa por fecha en JS (1 de noviembre - 6 de enero, America/Bogota).
+   No cambia el fondo, el escudo, las medallas ni la botonera. */
+.roque-hero-shell .top-banner {
+  overflow: hidden !important;
+}
+.roque-hero-shell .top-banner .banner-shapes.banner-winter {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 0;
+  display: block !important;
+  overflow: hidden !important;
+  pointer-events: none !important;
+  opacity: 1 !important;
+  mix-blend-mode: normal !important;
+  isolation: isolate;
+}
+.roque-hero-shell .top-banner .banner-winter .holiday-particle {
+  position: absolute;
+  display: block;
+  top: 0;
+  left: var(--holiday-left, 50%);
+  width: auto;
+  height: auto;
+  line-height: 1;
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+  font-size: var(--holiday-size, 20px);
+  font-weight: 400;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-user-select: none;
+  pointer-events: none;
+  opacity: 0;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(18, 48, 69, .12);
+  filter: none;
+  will-change: transform, opacity;
+  animation-name: roqueHolidaySnowfall;
+  animation-duration: var(--holiday-duration, 15s);
+  animation-delay: var(--holiday-delay, 0s);
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-fill-mode: both;
+}
+@keyframes roqueHolidaySnowfall {
+  0% {
+    transform: translate3d(0, -44px, 0) rotate(-15deg);
+    opacity: 0;
+  }
+  12% {
+    opacity: var(--holiday-opacity, .64);
+  }
+  86% {
+    opacity: var(--holiday-opacity, .64);
+  }
+  100% {
+    transform: translate3d(var(--holiday-drift, 10px), 205px, 0) rotate(18deg);
+    opacity: 0;
+  }
+}
+/* Jerarquía del hero intacta: nieve detrás de textos y escudo. */
+.roque-hero-shell .top-banner .banner-inner,
+.roque-hero-shell .top-banner .app-nav {
+  position: relative;
+  z-index: 1;
+}
+@media (max-width: 680px) {
+  .roque-hero-shell .top-banner .banner-winter .holiday-particle {
+    font-size: min(var(--holiday-size, 20px), 6vw);
+  }
+}
+/* Preferencias de accesibilidad: figuras estáticas, sin animación. */
+@media (prefers-reduced-motion: reduce) {
+  .roque-hero-shell .top-banner .banner-winter .holiday-particle {
+    animation: none !important;
+    top: 40%;
+    transform: none !important;
+    opacity: .23 !important;
+    will-change: auto;
+  }
+}
