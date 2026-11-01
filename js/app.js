@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.10";
+  const APP_VERSION = "v175.11";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -3309,6 +3309,11 @@
     const holidayHero = !isMedalBanner && isHolidayHeroDate();
     const bannerClass = isMedalBanner ? ` ${bannerToneClass}` : "";
     const heroRole = state.activeSession?.role;
+    const teacherDisplayName = heroRole === "teacher"
+      ? (state.teachers.get(state.activeSession?.id)?.name || "Docente")
+      : "";
+    const heroTitle = heroRole === "teacher" ? "Panel Docente" : cfg.title;
+    const heroSubtitle = heroRole === "teacher" ? teacherDisplayName : cfg.subtitle;
     const studentHero = heroRole === "student";
     const hasInstitutionalHero = ["student", "teacher", "admin"].includes(heroRole);
     if (state.activeSession?.role === "teacher") state.teacherDockMenu = "";
@@ -3320,8 +3325,8 @@
           </div>
           <div class="banner-inner">
             <div class="banner-copy">
-              <h1>${esc(cfg.title)}</h1>
-              <p>${esc(cfg.subtitle)}</p>
+              <h1>${esc(heroTitle)}</h1>
+              <p>${esc(heroSubtitle)}</p>
             </div>
             <div class="banner-brand">
               ${cfg.logoImage ? `<span class="banner-logo-frame"><img class="banner-logo" src="${escAttr(cfg.logoImage)}" alt="Logo"></span>` : `<div class="banner-mark-text">Resultados</div>`}
@@ -3920,14 +3925,7 @@
     }).join("");
 
     renderShell(`
-      <section class="toolbar teacher-toolbar">
-        <div>
-          <span class="section-eyebrow">Panel docente</span>
-          <h2 style="margin:8px 0 0;font-size:clamp(1.4rem,4vw,2.2rem);font-weight:900;letter-spacing:-.04em;">${esc(teacher.name || "Docente")}</h2>
-          ${active ? `<p class="teacher-active-label">${esc(active.subject)} · ${esc(active.grade)}°${active.group ? ` · ${esc(active.group)}` : ""}${active.sede ? ` · ${esc(active.sede)}` : ""}</p>` : ""}
-        </div>
-      </section>
-
+      <div class="teacher-assignments-ui">
       ${teacherModeTabs(teacher, "asignaturas")}
 
       <div class="teacher-nav-block">
@@ -3944,24 +3942,34 @@
       </div>
 
       ${active ? `
-        <section class="teacher-stat-strip teacher-stat-strip-three">
-          <article class="card card-pad teacher-stat"><span>Estudiantes</span><strong>${filtered.length}</strong></article>
-          <article class="card card-pad teacher-stat"><span>Promedio</span><strong>${avg(teacherScoreValues)}<small>/100</small></strong></article>
-          <button class="card card-pad teacher-stat teacher-stat-action" data-action="teacher-score-info" data-subject="${escAttr(active.subject)}" data-grade="${escAttr(active.grade)}" data-total="${escAttr(itemValueInfo.total)}">
-            <span>Valor de cada ítem</span>
-            <strong>${esc(itemValueInfo.label)}<small> puntos</small></strong>
-            <em>Toca para ver cómo se calculan las notas de tus estudiantes.</em>
+        <section class="teacher-stat-strip teacher-stat-strip-three" aria-label="Resumen del curso">
+          <article class="card teacher-stat">
+            <span class="teacher-stat-icon">${adminNavIcon("users")}</span>
+            <span class="teacher-stat-copy"><strong>${filtered.length}</strong><span>estudiantes</span></span>
+          </article>
+          <article class="card teacher-stat">
+            <span class="teacher-stat-icon">${adminNavIcon("chart")}</span>
+            <span class="teacher-stat-copy"><span class="teacher-stat-caption">Promedio</span><strong>${avg(teacherScoreValues)}<small>/100</small></strong></span>
+          </article>
+          <button type="button" class="card teacher-stat teacher-stat-action" data-action="teacher-score-info"
+            data-subject="${escAttr(active.subject)}" data-grade="${escAttr(active.grade)}" data-total="${escAttr(itemValueInfo.total)}"
+            aria-label="Valor de cada ítem: ${escAttr(itemValueInfo.label)} puntos. Ver cómo se calculan las notas.">
+            <span class="teacher-stat-icon">${adminNavIcon("layers")}</span>
+            <span class="teacher-stat-copy"><strong>${esc(itemValueInfo.label)}</strong><span>puntos</span></span>
           </button>
         </section>
         <section class="teacher-metrics-row">
-          ${teacherAggregateMetricsHtml(studentsForStats, statsSubject)}
-        </section>
-        <section class="teacher-key-actions">
-          <button class="secondary-btn" data-action="open-answer-key" data-grade="${escAttr(active.grade)}" data-subject="${escAttr(active.subject)}">Ver respuestas correctas</button>
+          ${teacherAggregateMetricsHtml(studentsForStats, statsSubject, true)}
         </section>
       ` : ""}
 
-      <section class="card table-card teacher-table-card">
+      <section class="card table-card teacher-table-card teacher-students-card">
+        <div class="teacher-students-head">
+          <h3>Estudiantes</h3>
+          ${active ? `<button type="button" class="teacher-answer-link" data-action="open-answer-key"
+            data-grade="${escAttr(active.grade)}" data-subject="${escAttr(active.subject)}">
+            Ver respuestas correctas <span aria-hidden="true">›</span></button>` : ""}
+        </div>
         <div class="table-wrap">
           <table class="teacher-table">
             <thead><tr><th>#</th><th>${sortHeader("Estudiante", "teacher-active", "name")}</th><th>${sortHeader("Nota", "teacher-active", "score")}</th><th>${sortHeader("Correctas", "teacher-active", "correct")}</th></tr></thead>
@@ -3969,6 +3977,7 @@
           </table>
         </div>
       </section>
+      </div>
     `, navFor("teacher"));
   }
 
@@ -4124,9 +4133,9 @@
     `;
   }
 
-  function teacherAggregateMetricsHtml(students, subject) {
+  function teacherAggregateMetricsHtml(students, subject, dashboard = false) {
     const details = aggregateDetails(students, subject);
-    return teacherAggregateMetricsHtmlForDetails(details);
+    return teacherAggregateMetricsHtmlForDetails(details, { dashboard });
   }
 
 
@@ -4163,6 +4172,7 @@
       house: '<path d="m3 10 9-7 9 7v10H3z"/><path d="M9 20v-7h6v7"/>',
       calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18m-12 5h6"/>',
       chart: '<path d="M4 20V11m6 9V5m6 15v-8m4 8V8"/>',
+      layers: '<path d="m12 2 9 5-9 5-9-5 9-5zM3 12l9 5 9-5M3 17l9 5 9-5"/>',
       key: '<circle cx="8" cy="9" r="4"/><path d="m11 12 9 9m-1-4-3 3"/>',
       "file-warning": '<path d="M5 3h10l5 5v13H5zM15 3v6h5"/><path d="M12 12v4m0 3h.01"/>',
       shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M12 7v6m0 4h.01"/>',
@@ -5413,7 +5423,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     `;
   }
 
-  function teacherAggregateMetricsHtmlForDetails(details) {
+  function teacherAggregateMetricsHtmlForDetails(details, options = {}) {
     const hasComponents = hasMetricData(details, "component");
     const hasCompetences = hasMetricData(details, "competence");
     if (!hasComponents && !hasCompetences) return "";
@@ -5426,10 +5436,15 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
             <button class="metric-tab ${active === "competences" ? "active" : ""}" data-action="select-metric-tab" data-tab="competences">Competencias</button>
           </div>
         ` : ""}
+        ${options.dashboard ? `<details class="teacher-performance-card" open>
+          <summary class="teacher-performance-summary">Resumen de desempeño
+            <span aria-hidden="true" class="teacher-performance-chevron">⌄</span>
+          </summary>` : ""}
         <div class="metric-grid teacher-metric-grid" data-active="${escAttr(active)}">
           ${hasComponents ? `<section class="metric-panel components"><h4>Promedio por componentes</h4>${buildMetricBars(details, "component")}</section>` : ""}
           ${hasCompetences ? `<section class="metric-panel competences"><h4>Promedio por competencias</h4>${buildMetricBars(details, "competence")}</section>` : ""}
         </div>
+        ${options.dashboard ? "</details>" : ""}
       </div>
     `;
   }

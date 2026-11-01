@@ -1,0 +1,77 @@
+/* v175.11 — panel de asignaturas docentes. Solo afecta .teacher-assignments-ui. */
+.roque-teacher-shell .teacher-assignments-ui {min-width:0}
+.roque-teacher-shell .teacher-assignments-ui .teacher-nav-block{display:block;margin:0 0 12px!important}
+.roque-teacher-shell .teacher-assignments-ui .t160-selectors{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;margin:0!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important}
+.roque-teacher-shell .teacher-assignments-ui .t160-field{min-width:0}
+.roque-teacher-shell .teacher-assignments-ui .t160-field label{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.roque-teacher-shell .teacher-assignments-ui .t160-field select{width:100%;height:39px;min-height:39px!important;padding:7px 25px 7px 10px!important;border:1px solid #dae4ee;border-radius:7px!important;background:#fff;color:#25334b;font-size:.76rem!important;font-weight:750;line-height:1.15;white-space:nowrap;text-overflow:ellipsis;box-shadow:0 2px 8px rgba(27,63,104,.04)}
+.roque-teacher-shell .teacher-assignments-ui .t160-select-wrap::after{right:12px}
+.roque-teacher-shell .teacher-assignments-ui .teacher-stat-strip.teacher-stat-strip-three{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important;margin:0 0 12px!important}
+.roque-teacher-shell .teacher-assignments-ui .teacher-stat-strip-three .teacher-stat{display:flex!important;flex-direction:row!important;align-items:center;justify-content:flex-start;gap:9px!important;min-width:0;min-height:67px!important;padding:9px 8px!important;text-align:left;border:1px solid #e0e7f0!important;border-radius:9px!important;background:#fff!important;background-image:none!important;box-shadow:0 3px 11px rgba(30,65,103,.055)!important}
+.roque-teacher-shell .teacher-assignments-ui .teacher-stat-icon{display:grid;place-items:center;flex:0 0 33px;width:33px;height:33px;border-radius:7px;background:#eaf4fd;color:#158ac6!important}
+.roque-teacher-shell .teacher-assignments-ui .teacher-stat-icon .adm151-icon{width:21px;height:21px;flex:none;stroke-width:1.9}
+.roque-teacher-shell .teacher-assignments-ui .teacher-stat-copy{display:flex;flex:1 1 auto;min-width:0;flex-direction:column;align-items:flex-start;justify-content:center;gap:1px;text-align:left;line-height:1.08;text-transform:none;letter-spacing:0}
+.roque-teacher-shell .teacher-assignments-ui .teacher-stat-copy strong{display:block;font-size:1.2rem!important;font-weight:900!important;color:#263249!important;white-space:nowrap;letter-spacing:-.035em;line-height:1.04!important}
+.roque-teacher-shell .teacher-assignments-ui .teacher-stat-copy strong small{font-size:.63em!important;letter-spacing:0;color:#667185}
+.roque-teacher-shell .teacher-assignments-ui .teacher-stat-copy>span,.roque-teacher-shell .teacher-assignments-ui .teacher-stat-copy .teacher-stat-caption{display:block;color:#657389!important;font-size:.61rem!important;font-weight:650!important;letter-spacing:0!important;text-transform:none!important;line-height:1.1!important}
+.roque-teacher-shell .teacher-assignments-ui .teacher-stat-action{cursor:pointer}
+.roque-teacher-shell .teacher-assignments-ui .teacher-stat-action:hover{border-color:#83bce2!important;transform:none!important}
+.roque-teacher-shell .teacher-assignments-ui .teacher-stat-action:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+
+/* Pestañas horizontales, bajas, para Componentes y Competencias. */
+.roque-teacher-shell .teacher-assignments-ui .teacher-metrics-row{display:block!important;margin:0 0 12px!important}
+.roque-teacher-shell .teacher-assignments-ui .teacher-metric-tabbed{width:100%;min-width:0}
+.roque-teacher-shell .teacher-assignments-ui .teacher-metric-tabbed .metric-tabs.teacher-metric-tabs{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:0!important;padding:0;margin:0 0 12px!important;border:1px solid #dce6f0;border-radius:8px;background:#fff;box-shadow:0 3px 12px rgba(23,49,78,.04);overflow:hidden}
+.roque-teacher-shell .teacher-assignments-ui .teacher-metric-tabbed .metric-tab{height:33px;min-height:33px!important;padding:5px 10px!important;border:0!important;border-radius:7px!important;background:#fff!important;color:#5e6b7c!important;font-size:.76rem!important;font-weight:750;box-shadow:none!important;cursor:pointer}
+.roque-teacher-shell .teacher-assignments-ui .teacher-metric-tabbed .metric-tab.active{background:#1386bf!important;color:#fff!important}
+.roque-teacher-shell .teacher-assignments-ui .teacher-performance-card{margin:0;padding:0 11px 11px;border:1px solid #e0e8f1;border-radius:9px;background:#fff;box-shadow:0 3px 12px rgba(29,52,83,.045)}
+.roque-teacher-shell .teacher-assignments-ui .teacher-performance-summary{display:flex;align-items:center;justify-content:space-between;min-height:41px;padding:9px 0 7px;list-style:none;color:#243249;font-size:.86rem;font-weight:850;cursor:pointer}
+.roque-teacher-shell .teacher-assignments-ui .teacher-performance-summary::-webkit-details-marker{display:none}
+.roque-teacher-shell .teacher-assignments-ui .teacher-performance-summary:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+.roque-teacher-shell .teacher-assignments-ui .teacher-performance-chevron{display:inline-block;margin-right:3px;color:#1386bf;font-size:1.4rem;line-height:1;transform:rotate(180deg);transition:transform .18s}
+.roque-teacher-shell .teacher-assignments-ui .teacher-performance-card[open] .teacher-performance-chevron{transform:rotate(0)}
+.roque-teacher-shell .teacher-assignments-ui .teacher-metric-tabbed .metric-grid.teacher-metric-grid{display:block!important;grid-template-columns:1fr!important;gap:0!important;margin:1px 0 0!important}
+.roque-teacher-shell .teacher-assignments-ui .teacher-metric-tabbed .metric-panel{display:none!important;min-height:0!important;padding:0!important;background:transparent!important;border:0!important}
+.roque-teacher-shell .teacher-assignments-ui .teacher-metric-tabbed .metric-grid[data-active="components"] .metric-panel.components,.roque-teacher-shell .teacher-assignments-ui .teacher-metric-tabbed .metric-grid[data-active="competences"] .metric-panel.competences,.roque-teacher-shell .teacher-assignments-ui .teacher-metric-tabbed.single .metric-panel{display:block!important}
+.roque-teacher-shell .teacher-assignments-ui .teacher-metric-tabbed .metric-panel h4{margin:0 0 7px;font-size:.78rem}
+.roque-teacher-shell .teacher-assignments-ui .teacher-metric-tabbed .metric-bar-item{display:grid;gap:5px!important;margin:0 0 9px!important}
+.roque-teacher-shell .teacher-assignments-ui .teacher-metric-tabbed .metric-bar-item:last-child{margin-bottom:0!important}
+.roque-teacher-shell .teacher-assignments-ui .teacher-metric-tabbed .metric-bar-head{display:flex;align-items:baseline;gap:8px;font-size:.73rem!important}
+.roque-teacher-shell .teacher-assignments-ui .teacher-metric-tabbed .metric-bar-head span{color:#455166!important;font-size:.73rem!important;font-weight:600!important;line-height:1.24!important}
+.roque-teacher-shell .teacher-assignments-ui .teacher-metric-tabbed .metric-bar-head strong{margin-left:auto;font-size:.76rem!important;font-weight:850!important;white-space:nowrap}
+.roque-teacher-shell .teacher-assignments-ui .teacher-metric-tabbed .metric-progress{height:8px!important;border-radius:2px!important;background:#e6edf6!important}
+.roque-teacher-shell .teacher-assignments-ui .teacher-metric-tabbed .metric-progress-fill{background:linear-gradient(90deg,#0982be,#41b4df)!important;border-radius:2px!important}
+
+/* Cabecera y tabla compacta de estudiantes, cuatro columnas siempre visibles. */
+.roque-teacher-shell .teacher-assignments-ui .teacher-students-card{min-width:0;margin-top:12px;padding:0 9px 8px!important;border:1px solid #e0e8f1;border-radius:9px!important;background:#fff;box-shadow:0 4px 14px rgba(29,52,83,.05)!important}
+.roque-teacher-shell .teacher-assignments-ui .teacher-students-head{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:45px;padding:9px 1px 6px}
+.roque-teacher-shell .teacher-assignments-ui .teacher-students-head h3{margin:0;font-size:.88rem;line-height:1.2;font-weight:900;color:#233046}
+.roque-teacher-shell .teacher-assignments-ui .teacher-answer-link{display:inline-flex;align-items:center;gap:4px;flex:0 0 auto;padding:4px 0;border:0;background:transparent;color:#0781c1;font-size:.68rem;font-weight:800;white-space:nowrap;cursor:pointer}
+.roque-teacher-shell .teacher-assignments-ui .teacher-answer-link span{font-size:1.25rem;line-height:.7}
+.roque-teacher-shell .teacher-assignments-ui .teacher-answer-link:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+.roque-teacher-shell .teacher-assignments-ui .teacher-students-card .table-wrap{width:100%;min-width:0;overflow-x:auto}
+.roque-teacher-shell .teacher-assignments-ui .teacher-students-card .teacher-table{table-layout:fixed;width:100%;min-width:0!important;border-collapse:collapse}
+.roque-teacher-shell .teacher-assignments-ui .teacher-students-card .teacher-table th{padding:7px 4px!important;font-size:.68rem!important;line-height:1.15;color:#697486;background:#f3f5f8;font-weight:750}
+.roque-teacher-shell .teacher-assignments-ui .teacher-students-card .teacher-table td{padding:9px 4px!important;font-size:.72rem!important;line-height:1.25;vertical-align:middle}
+.roque-teacher-shell .teacher-assignments-ui .teacher-students-card .teacher-table th:nth-child(1),.roque-teacher-shell .teacher-assignments-ui .teacher-students-card .teacher-table td:nth-child(1){width:9%;padding-left:2px!important;padding-right:2px!important;text-align:center}
+.roque-teacher-shell .teacher-assignments-ui .teacher-students-card .teacher-table th:nth-child(2),.roque-teacher-shell .teacher-assignments-ui .teacher-students-card .teacher-table td:nth-child(2){width:49%;text-align:left!important;white-space:normal!important;overflow-wrap:anywhere}
+.roque-teacher-shell .teacher-assignments-ui .teacher-students-card .teacher-table th:nth-child(3),.roque-teacher-shell .teacher-assignments-ui .teacher-students-card .teacher-table td:nth-child(3){width:20%;text-align:center;white-space:nowrap}
+.roque-teacher-shell .teacher-assignments-ui .teacher-students-card .teacher-table th:nth-child(4),.roque-teacher-shell .teacher-assignments-ui .teacher-students-card .teacher-table td:nth-child(4){width:22%;text-align:center;white-space:nowrap}
+.roque-teacher-shell .teacher-assignments-ui .teacher-students-card .teacher-table td:nth-child(2) strong{display:inline-block;font-size:.72rem;font-weight:800;color:#222e42;line-height:1.23}
+.roque-teacher-shell .teacher-assignments-ui .teacher-students-card .student-subid{display:inline-block;margin-top:2px;color:#7c8795;font-size:.64rem!important;line-height:1.15}
+.roque-teacher-shell .teacher-assignments-ui .teacher-students-card .teacher-score,.roque-teacher-shell .teacher-assignments-ui .teacher-students-card .teacher-score.teacher-score-plain{font-size:1.16rem!important;font-weight:900!important;line-height:1!important;letter-spacing:-.035em}
+@media(max-width:680px){
+  .roque-teacher-shell .page{padding:11px!important}
+  .roque-teacher-shell .teacher-assignments-ui .teacher-stat-strip-three .teacher-stat{min-height:64px!important;gap:6px!important;padding:8px 6px!important}
+  .roque-teacher-shell .teacher-assignments-ui .teacher-stat-icon{flex-basis:30px;width:30px;height:30px}
+  .roque-teacher-shell .teacher-assignments-ui .teacher-stat-copy strong{font-size:1.1rem!important}
+}
+@media(max-width:350px){
+  .roque-teacher-shell .teacher-assignments-ui .teacher-stat-icon{flex-basis:26px;width:26px;height:26px}
+  .roque-teacher-shell .teacher-assignments-ui .teacher-stat-strip-three .teacher-stat{gap:3px!important;padding:7px 4px!important}
+  .roque-teacher-shell .teacher-assignments-ui .teacher-students-head h3{font-size:.82rem}
+  .roque-teacher-shell .teacher-assignments-ui .teacher-answer-link{font-size:.62rem}
+}
+@media(prefers-reduced-motion:reduce){
+  .roque-teacher-shell .teacher-assignments-ui .teacher-performance-chevron{transition:none!important}
+}
