@@ -1,0 +1,196 @@
+
+/* RoqueObjetiva v175.33 — Inicio de sesión navideño compacto, flat y animado.
+   Las reglas sólo aplican a la bienvenida; las vistas académicas no cambian. */
+.login-shell-dark.christmas-login {
+  position:relative !important;
+  isolation:isolate;
+  background:#052142 url("../assets/christmas-login-scene.svg") center center / 100% 100% no-repeat !important;
+  min-height:100svh !important;
+  animation:none !important;
+  filter:none !important;
+}
+.login-shell-dark.christmas-login::before,
+.login-shell-dark.christmas-login::after {display:none !important;content:none !important;}
+.christmas-login .login-bg-shapes {display:none !important;}
+.christmas-login .login-panel {
+  position:relative;
+  z-index:3;
+  width:100% !important;
+  max-width:100% !important;
+  min-height:100svh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:clamp(58px, 11vh, 120px) 16px clamp(118px, 17vh, 190px) !important;
+}
+.christmas-login .login-card-dark {
+  position:relative;
+  width:min(100%, 420px) !important;
+  max-width:420px !important;
+  max-height:none !important;
+  overflow:visible;
+  transform:none !important;
+  padding:20px 19px 22px !important;
+  border:1px solid rgba(213,231,249,.45) !important;
+  border-radius:18px !important;
+  background:rgba(3,24,50,.68) !important;
+  -webkit-backdrop-filter:blur(11px) !important;
+  backdrop-filter:blur(11px) !important;
+  box-shadow:none !important;
+  color:#fff;
+}
+.christmas-login .login-main-logo {
+  width:95px !important;
+  height:105px !important;
+  margin:0 auto 11px !important;
+  position:relative;
+}
+.christmas-login .login-main-logo::after {
+  content:"🎅";
+  position:absolute;top:-16px;right:-13px;
+  transform:rotate(16deg);font-size:31px;line-height:1;
+  pointer-events:none;
+}
+.christmas-login .login-main-logo img {max-width:100%;max-height:100%;filter:none !important;}
+.christmas-login .login-eyebrow {color:#cbdff2 !important;font-size:.70rem !important;letter-spacing:.055em;}
+.christmas-login .login-card-dark h1 {
+  color:#fff !important;
+  font-size:clamp(1.65rem,5vw,2rem) !important;
+  line-height:1.06 !important;
+  letter-spacing:-.035em !important;
+  margin:5px 0 8px !important;
+}
+.christmas-login .login-card-dark > p {
+  font-size:.79rem !important;
+  line-height:1.4 !important;
+  color:#d2e1ee !important;
+  opacity:1 !important;
+  margin:0 0 12px !important;
+}
+.christmas-login .login-form {gap:10px !important;margin-top:0 !important;}
+.christmas-login .field label {font-size:.78rem !important;margin-bottom:5px !important;color:#fff !important;}
+.christmas-login .field input {
+  min-height:44px !important;
+  padding:10px 13px !important;
+  border-radius:12px !important;
+  background:#e8f1ff !important;
+  border:1px solid #dbeafa !important;
+  color:#0a2038 !important;
+  font-size:.87rem !important;
+}
+.christmas-login .field input::placeholder {color:#5f7083 !important;}
+.christmas-login .field input:focus {border-color:#fff !important;box-shadow:0 0 0 3px rgba(255,255,255,.35) !important;}
+.christmas-login .login-password-field.is-hidden {max-height:0 !important;}
+.christmas-login .login-actions {margin:6px 0 0 !important;}
+.christmas-login .login-actions .primary-btn {
+  min-height:42px !important;
+  padding:9px 17px !important;
+  border-radius:10px !important;
+  background:#fff !important;
+  color:#1975ae !important;
+  box-shadow:none !important;
+  font-size:.86rem !important;
+}
+.christmas-login .recent-login-grid {
+  margin-top:13px !important;
+  gap:7px !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+}
+.christmas-login .recent-login-card {
+  border:1px solid rgba(197,225,250,.30) !important;
+  border-radius:10px !important;
+  background:rgba(40,84,127,.33) !important;
+  min-width:0 !important;
+}
+.christmas-login .recent-login-main {
+  min-height:50px !important;height:50px !important;
+  padding:7px 8px !important;border-radius:10px !important;
+  gap:5px !important;
+}
+.christmas-login .recent-login-text strong {font-size:.61rem !important;}
+.christmas-login .recent-login-text small {font-size:.53rem !important;}
+.christmas-login .recent-login-remove {
+  background:rgba(6,26,50,.88) !important;color:#fff !important;
+  border:1px solid rgba(190,223,248,.42) !important;
+}
+.winter-login-lights,.winter-login-snow {
+  pointer-events:none;position:absolute;inset:0;overflow:hidden;
+}
+.winter-login-lights {z-index:1;}
+.winter-login-bulb {
+  position:absolute;
+  top:var(--bulb-top);left:var(--bulb-left);
+  display:block;width:clamp(9px,1.8vw,19px);height:clamp(17px,2.8vw,29px);
+  border-radius:55% 55% 60% 60%;
+  transform:translate(-50%,-50%) rotate(8deg);
+  background:var(--bulb-color);
+  animation:winterLights 3.2s ease-in-out infinite;
+  animation-delay:var(--bulb-delay);
+  box-shadow:0 0 8px 1px var(--bulb-color);
+}
+.winter-bulb-red {--bulb-color:#ed3c34;}
+.winter-bulb-green {--bulb-color:#16a36a;}
+.winter-bulb-gold {--bulb-color:#ffca2b;}
+@keyframes winterLights {0%,100% {opacity:.92;box-shadow:0 0 9px 2px var(--bulb-color);}40%{opacity:.35;box-shadow:none;}64%{opacity:1;box-shadow:0 0 16px 4px var(--bulb-color);}}
+.winter-login-snow {z-index:2;}
+.winter-falling-flake {
+  position:absolute;top:-55px;left:var(--snow-x);
+  color:#f7fcff;font-size:clamp(9px,1.2vw,15px);
+  opacity:.8;line-height:1;font-style:normal;
+  animation:winterSnowDrift var(--snow-duration) linear var(--snow-delay) infinite;
+  will-change:transform;
+}
+@keyframes winterSnowDrift {
+  0% {transform:translate3d(-30px,-45px,0) scale(var(--snow-scale)) rotate(0deg);opacity:0;}
+  8% {opacity:.83;}
+  23% {transform:translate3d(calc(var(--snow-sway) * .45),25vh,0) scale(var(--snow-scale)) rotate(70deg);}
+  43% {transform:translate3d(calc(var(--snow-sway) * -.6),45vh,0) scale(var(--snow-scale)) rotate(130deg);}
+  64% {transform:translate3d(var(--snow-sway),70vh,0) scale(var(--snow-scale)) rotate(205deg);}
+  82% {transform:translate3d(calc(var(--snow-sway) * -.3),90vh,0) scale(var(--snow-scale)) rotate(290deg);opacity:.85;}
+  100% {transform:translate3d(var(--snow-sway),115vh,0) scale(var(--snow-scale)) rotate(360deg);opacity:0;}
+}
+.winter-login-snowman {
+  position:absolute;
+  right:0;bottom:clamp(10px,4vh,55px);
+  width:clamp(115px,24vw,240px);
+  z-index:2;
+  pointer-events:none;
+}
+.winter-snowman-svg{display:block;width:100%;height:auto;overflow:visible;}
+.winter-arm {transform-box:fill-box;transform-origin:center 66%;will-change:transform;}
+.winter-arm-left {animation:winterWaveLeft .72s ease-in-out infinite alternate;}
+.winter-arm-right {animation:winterWaveRight .83s ease-in-out infinite alternate;}
+.winter-look {animation:winterLook 3.3s ease-in-out infinite alternate;}
+.winter-hat {transform-box:fill-box;transform-origin:58% 75%;animation:winterHat 3.3s ease-in-out infinite alternate;}
+@keyframes winterWaveLeft{from{transform:rotate(-13deg);}to{transform:rotate(18deg);}}
+@keyframes winterWaveRight{from{transform:rotate(15deg);}to{transform:rotate(-16deg);}}
+@keyframes winterLook{0%,13%{transform:translateX(-5px)}42%,55%{transform:translateX(0)}85%,100%{transform:translateX(5px)}}
+@keyframes winterHat{from{transform:rotate(-4deg);}to{transform:rotate(5deg);}}
+.boot .christmas-loader-head,.route-loader-card .christmas-loader-head {
+  width:86px; height:98px;display:flex;align-items:center;justify-content:center;margin:0 auto 4px;
+  animation:winterHeadBob 2s ease-in-out infinite alternate;
+}
+.boot .christmas-loader-head svg,.route-loader-card .christmas-loader-head svg{width:100%;height:100%;}
+@keyframes winterHeadBob{from{transform:translateY(2px) rotate(-2deg)}to{transform:translateY(-3px) rotate(2deg)}}
+@media(max-width:680px){
+  .login-shell-dark.christmas-login {min-height:100svh !important;height:auto !important;}
+  .christmas-login .login-panel {
+    min-height:100svh !important;height:auto !important;
+    padding:max(56px,env(safe-area-inset-top)) 16px max(126px,env(safe-area-inset-bottom)) !important;
+  }
+  .christmas-login .login-card-dark {width:min(100%,420px) !important;padding:17px 16px 19px !important;}
+  .christmas-login .login-main-logo {width:85px !important;height:91px !important;margin:0 auto 9px !important;}
+  .christmas-login .login-card-dark h1 {font-size:1.55rem !important;}
+  .christmas-login .recent-login-avatar{display:none !important;}
+  .winter-login-snowman {width:clamp(112px,27vw,155px);bottom:4vh;right:0;}
+}
+@media(max-height:680px){
+  .christmas-login .login-panel {align-items:flex-start !important;padding-top:42px !important;padding-bottom:100px !important;}
+  .christmas-login .login-main-logo {width:73px !important;height:79px !important;}
+}
+@media(prefers-reduced-motion:reduce){
+  .winter-login-bulb,.winter-falling-flake,.winter-arm,.winter-look,.winter-hat,.christmas-loader-head {
+    animation:none !important;
+  }
+  .winter-falling-flake {display:none !important;}
+}

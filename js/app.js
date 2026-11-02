@@ -1491,7 +1491,7 @@
       await wait(180);
       app.innerHTML = `
         <div class="boot">
-          <div class="boot-mark"></div>
+          ${isHolidayHeroDate() ? `<div class="christmas-loader-head">${christmasSnowmanSvg(true)}</div>` : `<div class="boot-mark"></div>`}
           <h1>Consultando resultados</h1>
           <p>Verificando el acceso y la información disponible.</p>
         </div>
@@ -3104,6 +3104,34 @@
     renderLogin("No se pudo abrir ese ingreso reciente.");
   }
 
+  // Navidad 2026: elementos puramente visuales; no cambian credenciales ni datos.
+  function christmasSnowfall() {
+    return Array.from({length: 34}, (_, index) => {
+      const x = (index * 37 + 13) % 100;
+      const sway = 24 + (index * 11) % 73;
+      const duration = 9 + (index * 17) % 12;
+      const delay = -((index * 47) % 20);
+      const scale = .55 + ((index * 7) % 12) / 14;
+      return '<i class="winter-falling-flake" style="--snow-x:' + x + '%;--snow-sway:' +
+        sway + 'px;--snow-duration:' + duration + 's;--snow-delay:' + delay +
+        's;--snow-scale:' + scale + '" aria-hidden="true">❄</i>';
+    }).join("");
+  }
+
+  function christmasSnowmanSvg(headOnly = false) {
+    return headOnly ? "<svg class=\"winter-snowman-svg winter-snowman-head\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 150 168\" aria-hidden=\"true\">\n<g class=\"winter-hat\">\n  <path d=\"M29 61 Q24 21 66 13 Q109 5 123 61 L126 76 31 73Z\" fill=\"#e53430\"/>\n  <path d=\"M27 68 Q63 58 117 69\" fill=\"none\" stroke=\"#ffffff\" stroke-width=\"17\" stroke-linecap=\"round\"/>\n  <circle cx=\"125\" cy=\"74\" r=\"13\" fill=\"#ffffff\"/>\n  <path d=\"M88 20 Q112 28 114 54\" stroke=\"#aa1c24\" fill=\"none\" stroke-width=\"3\"/>\n</g>\n<ellipse cx=\"75\" cy=\"91\" rx=\"54\" ry=\"49\" fill=\"#ffffff\" stroke=\"#dceaf7\" stroke-width=\"3\"/>\n<g class=\"winter-look\">\n  <circle cx=\"60\" cy=\"84\" r=\"5.8\" fill=\"#0c2d4f\"/>\n  <circle cx=\"90\" cy=\"84\" r=\"5.8\" fill=\"#0c2d4f\"/>\n  <path d=\"M69 93 L33 94 Q51 108 72 102Z\" fill=\"#f68b15\"/>\n  <path d=\"M65 110 Q82 127 99 107\" fill=\"none\" stroke=\"#102c48\" stroke-width=\"3.8\" stroke-linecap=\"round\"/>\n</g>\n<path d=\"M24 129 Q73 121 119 133 L114 148 32 148Z\" fill=\"#e33835\"/>\n<path d=\"M101 130 L122 134 120 163 Q108 168 102 155Z\" fill=\"#e33835\"/></svg>" : "<svg class=\"winter-snowman-svg winter-snowman-full\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 250 290\" aria-hidden=\"true\">\n<g class=\"winter-arm winter-arm-left\"><path d=\"M93 197 L55 167 39 144 M55 167 L30 168\" fill=\"none\" stroke=\"#b66b2d\" stroke-width=\"8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></g>\n<g class=\"winter-arm winter-arm-right\"><path d=\"M177 194 L214 167 226 150 M214 167 L239 166\" fill=\"none\" stroke=\"#b66b2d\" stroke-width=\"8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></g>\n<ellipse cx=\"135\" cy=\"214\" rx=\"67\" ry=\"68\" fill=\"#f3f9ff\" stroke=\"#dceaf6\" stroke-width=\"2\"/>\n<circle cx=\"127\" cy=\"199\" r=\"7\" fill=\"#0b2d4f\"/><circle cx=\"133\" cy=\"242\" r=\"7\" fill=\"#0b2d4f\"/>\n<g transform=\"translate(66 10) scale(.95)\">\n<g class=\"winter-hat\">\n  <path d=\"M29 61 Q24 21 66 13 Q109 5 123 61 L126 76 31 73Z\" fill=\"#e53430\"/>\n  <path d=\"M27 68 Q63 58 117 69\" fill=\"none\" stroke=\"#ffffff\" stroke-width=\"17\" stroke-linecap=\"round\"/>\n  <circle cx=\"125\" cy=\"74\" r=\"13\" fill=\"#ffffff\"/>\n  <path d=\"M88 20 Q112 28 114 54\" stroke=\"#aa1c24\" fill=\"none\" stroke-width=\"3\"/>\n</g>\n<ellipse cx=\"75\" cy=\"91\" rx=\"54\" ry=\"49\" fill=\"#ffffff\" stroke=\"#dceaf7\" stroke-width=\"3\"/>\n<g class=\"winter-look\">\n  <circle cx=\"60\" cy=\"84\" r=\"5.8\" fill=\"#0c2d4f\"/>\n  <circle cx=\"90\" cy=\"84\" r=\"5.8\" fill=\"#0c2d4f\"/>\n  <path d=\"M69 93 L33 94 Q51 108 72 102Z\" fill=\"#f68b15\"/>\n  <path d=\"M65 110 Q82 127 99 107\" fill=\"none\" stroke=\"#102c48\" stroke-width=\"3.8\" stroke-linecap=\"round\"/>\n</g>\n<path d=\"M24 129 Q73 121 119 133 L114 148 32 148Z\" fill=\"#e33835\"/>\n<path d=\"M101 130 L122 134 120 163 Q108 168 102 155Z\" fill=\"#e33835\"/></g>\n</svg>";
+  }
+
+  function christmasLoginDecor() {
+    const bulbs = [[4,6,"red"],[13,6,"gold"],[21,3,"red"],[30,1,"green"],[38,3,"gold"],[47,4,"green"],[55,4,"gold"],[63,2,"red"],[72,1,"green"],[81,3,"gold"],[90,5,"red"],[98,6,"green"]];
+    return '<div class="winter-login-lights" aria-hidden="true">' +
+      bulbs.map(([x,y,color],i) => '<i class="winter-login-bulb winter-bulb-' + color +
+        '" style="--bulb-left:' + x + '%;--bulb-top:' + y +
+        '%;--bulb-delay:-' + (i % 7) * .49 + 's"></i>').join("") + '</div>' +
+      '<div class="winter-login-snow" aria-hidden="true">' + christmasSnowfall() + '</div>' +
+      '<div class="winter-login-snowman" aria-hidden="true">' + christmasSnowmanSvg(false) + '</div>';
+  }
+
   function renderLogin(error = "") {
     const primary = normalizeColor(state.config.primaryColor || "#1975ae");
     const primaryDark = shadeColor(primary, -26);
@@ -3124,16 +3152,15 @@
     applyAppMeta(primaryDark);
     const logo = state.config.logoImage || "assets/logo-principal.png";
     const recentLoginsHtml = renderRecentLoginsHtml();
+    const winterLogin = isHolidayHeroDate();
     const safeError = esc(error);
     const errorHtml = String(error || "").startsWith("Ingresar códigos uno tras otro")
       ? safeError.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>").replace(/\n/g, "<br>")
       : safeError;
     document.getElementById("student-dock-root")?.replaceChildren();
     app.innerHTML = `
-      <section class="login-shell login-shell-dark" style="--login-primary:${primary};--login-dark:${primaryDark};--login-deep:${primaryDeep};">
-        <div class="login-bg-shapes" aria-hidden="true">
-          ${renderPlayShapes("login")}
-        </div>
+      <section class="login-shell login-shell-dark${winterLogin ? " christmas-login" : ""}" style="--login-primary:${primary};--login-dark:${primaryDark};--login-deep:${primaryDeep};">
+        ${winterLogin ? christmasLoginDecor() : `<div class="login-bg-shapes" aria-hidden="true">${renderPlayShapes("login")}</div>`}
         <div class="login-panel">
           <div class="login-card login-card-dark">
             ${logo ? `<div class="login-main-logo"><img src="${escAttr(logo)}" alt="Logo institucional"></div>` : ""}
@@ -9634,7 +9661,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     loader.className = "route-loader";
     loader.innerHTML = `
       <div class="route-loader-card">
-        <div class="route-loader-mark"></div>
+        ${isHolidayHeroDate() ? `<div class="christmas-loader-head">${christmasSnowmanSvg(true)}</div>` : `<div class="route-loader-mark"></div>`}
         <strong>${esc(message || "Preparando resultados...")}</strong>
         <span>Un momento, por favor.</span>
       </div>

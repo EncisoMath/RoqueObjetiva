@@ -6,8 +6,17 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.32
+RoqueObjetiva v175.33
 
+
+## v175.33 · Inicio navideño flat y muñeco de nieve animado
+
+- La bienvenida se ambienta con una composición navideña inspirada en la imagen de referencia: guirnalda superior, nieve, árbol, regalos, suelo nevado y muñeco animado. Se emplean colores sólidos sin degradados; la tarjeta conserva desenfoque real mediante `backdrop-filter`.
+- El muñeco tiene brazos independientes que saludan a distinto ritmo; la mirada (ojos, nariz y boca) viaja suavemente de izquierda a derecha, y el sombrero acompaña la animación.
+- Copos con trayectorias diagonales cambiantes y fases negativas para caída ininterrumpida; luces superiores parpadean de forma independiente.
+- El indicador azul degradado de «Consultando resultados» y el cargador de transiciones se sustituyen en temporada por la cabeza del muñeco con gorro y bufanda.
+- Decoración limitada a temporada navideña (1 de noviembre al 6 de enero, hora Colombia) y exclusivamente a bienvenida/carga; fuera de temporada se mantiene la pantalla original. Se respeta `prefers-reduced-motion`. Ningún resultado, nota, credencial, permiso ni dato de Supabase cambia.
+- Se versionan stylesheet, SVG decorativo y precaché de la PWA. 
 
 ## v175.32 · Cascadas elegantes y dock persistente con indicador móvil
 
