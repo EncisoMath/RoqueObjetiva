@@ -6,8 +6,15 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.41
+RoqueObjetiva v175.42
 
+
+## v175.42 · Ajuste de altura específico para Café
+
+- El personaje **Café** se eleva al aparecer en la bienvenida navideña: su proporción de imagen (1448/1086) es distinta de Santa, Oso y Nieves (1672/941). El sistema lo colocaba notablemente más abajo usando un anclaje vertical común.
+- Corrección exclusiva para Café: `cafeLift = width * (1672/941 - 1448/1086) * 0.8`; equivale aproximadamente a **80 px hacia arriba** en la referencia móvil 360×800 y se adapta proporcionalmente en otras alturas.
+- Las posiciones, los tamaños y el sorteo de Santa, Oso y Nieves siguen **sin cambios**; continúan los ajustes definitivos de v175.41 y el diseño móvil primero.
+- Sin cambios en Supabase, acceso, notas ni otros paneles; versión y caché PWA actualizadas.
 
 ## v175.41 · Coordenadas definitivas y nieve emoji
 
