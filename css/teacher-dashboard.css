@@ -1,4 +1,4 @@
-/* v175.11 — panel de asignaturas docentes. Solo afecta .teacher-assignments-ui. */
+/* v175.12 — panel de asignaturas docentes. Solo afecta .teacher-assignments-ui. */
 .roque-teacher-shell .teacher-assignments-ui {min-width:0}
 .roque-teacher-shell .teacher-assignments-ui .teacher-nav-block{display:block;margin:0 0 12px!important}
 .roque-teacher-shell .teacher-assignments-ui .t160-selectors{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;margin:0!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important}
@@ -28,8 +28,22 @@
 .roque-teacher-shell .teacher-assignments-ui .teacher-performance-summary{display:flex;align-items:center;justify-content:space-between;min-height:41px;padding:9px 0 7px;list-style:none;color:#243249;font-size:.86rem;font-weight:850;cursor:pointer}
 .roque-teacher-shell .teacher-assignments-ui .teacher-performance-summary::-webkit-details-marker{display:none}
 .roque-teacher-shell .teacher-assignments-ui .teacher-performance-summary:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
-.roque-teacher-shell .teacher-assignments-ui .teacher-performance-chevron{display:inline-block;margin-right:3px;color:#1386bf;font-size:1.4rem;line-height:1;transform:rotate(180deg);transition:transform .18s}
-.roque-teacher-shell .teacher-assignments-ui .teacher-performance-card[open] .teacher-performance-chevron{transform:rotate(0)}
+/* Chevron real (SVG) en soporte circular, no una "v" tipográfica. */
+.roque-teacher-shell .teacher-assignments-ui .teacher-performance-chevron{
+  display:grid;place-items:center;flex:0 0 30px;width:30px;height:30px;
+  margin-right:0;border:1px solid #cce4f5;border-radius:9px;
+  background:#edf7fd;color:#0a7fbd;box-shadow:inset 0 1px 0 rgba(255,255,255,.9);
+}
+.roque-teacher-shell .teacher-assignments-ui .teacher-performance-chevron svg{
+  display:block;transition:transform .22s cubic-bezier(.2,.8,.2,1);
+  transform:rotate(0deg);
+}
+.roque-teacher-shell .teacher-assignments-ui .teacher-performance-card[open] .teacher-performance-chevron svg{
+  transform:rotate(180deg);
+}
+.roque-teacher-shell .teacher-assignments-ui .teacher-performance-summary:hover .teacher-performance-chevron{
+  background:#dceffb;border-color:#a8d5f0;
+}
 .roque-teacher-shell .teacher-assignments-ui .teacher-metric-tabbed .metric-grid.teacher-metric-grid{display:block!important;grid-template-columns:1fr!important;gap:0!important;margin:1px 0 0!important}
 .roque-teacher-shell .teacher-assignments-ui .teacher-metric-tabbed .metric-panel{display:none!important;min-height:0!important;padding:0!important;background:transparent!important;border:0!important}
 .roque-teacher-shell .teacher-assignments-ui .teacher-metric-tabbed .metric-grid[data-active="components"] .metric-panel.components,.roque-teacher-shell .teacher-assignments-ui .teacher-metric-tabbed .metric-grid[data-active="competences"] .metric-panel.competences,.roque-teacher-shell .teacher-assignments-ui .teacher-metric-tabbed.single .metric-panel{display:block!important}
@@ -74,4 +88,17 @@
 }
 @media(prefers-reduced-motion:reduce){
   .roque-teacher-shell .teacher-assignments-ui .teacher-performance-chevron{transition:none!important}
+}
+
+/* v175.12: pestañas integradas en la misma tarjeta del resumen. */
+.roque-teacher-shell .teacher-assignments-ui .teacher-performance-card .metric-tabs.teacher-metric-tabs{
+  margin:2px 0 13px!important;
+}
+.roque-teacher-shell .teacher-assignments-ui .teacher-performance-card .teacher-metric-grid{
+  margin-top:0!important;
+}
+@media(prefers-reduced-motion:reduce){
+  .roque-teacher-shell .teacher-assignments-ui .teacher-performance-chevron svg{
+    transition:none!important;
+  }
 }
