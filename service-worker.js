@@ -9,6 +9,7 @@ const APP_SHELL = [
   "css/login-performance.css?v=175.33",
   "css/christmas-login.css?v=175.33",
   "assets/christmas-login-scene.svg",
+  "assets/christmas-login-reference.webp",
   "css/ediciones.css?v=175.33",
   "css/admin-navigation.css?v=175.33",
   "css/teacher-navigation.css?v=175.33",

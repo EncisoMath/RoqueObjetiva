@@ -11,7 +11,7 @@ RoqueObjetiva v175.33
 
 ## v175.33 · Inicio navideño flat y muñeco de nieve animado
 
-- La bienvenida se ambienta con una composición navideña inspirada en la imagen de referencia: guirnalda superior, nieve, árbol, regalos, suelo nevado y muñeco animado. Se emplean colores sólidos sin degradados; la tarjeta conserva desenfoque real mediante `backdrop-filter`.
+- La bienvenida se ambienta con una fondo navideño obtenido de la ilustración original proporcionada, con el formulario dibujado retirado para evitar duplicados, y guirnalda/árbol/regalos originales; además: guirnalda superior, nieve, árbol, regalos, suelo nevado y muñeco animado. Se emplean colores sólidos sin degradados; la tarjeta conserva desenfoque real mediante `backdrop-filter`.
 - El muñeco tiene brazos independientes que saludan a distinto ritmo; la mirada (ojos, nariz y boca) viaja suavemente de izquierda a derecha, y el sombrero acompaña la animación.
 - Copos con trayectorias diagonales cambiantes y fases negativas para caída ininterrumpida; luces superiores parpadean de forma independiente.
 - El indicador azul degradado de «Consultando resultados» y el cargador de transiciones se sustituyen en temporada por la cabeza del muñeco con gorro y bufanda.

@@ -4,7 +4,7 @@
 .login-shell-dark.christmas-login {
   position:relative !important;
   isolation:isolate;
-  background:#052142 url("../assets/christmas-login-scene.svg") center center / 100% 100% no-repeat !important;
+  background:#052142 url("../assets/christmas-login-reference.webp") center center / 100% 100% no-repeat !important;
   min-height:100svh !important;
   animation:none !important;
   filter:none !important;
