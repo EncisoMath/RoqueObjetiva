@@ -3517,6 +3517,11 @@
       modalRoot.lastElementChild?.classList.contains("director-detail-backdrop")
       ? modalRoot.lastElementChild : null;
     const previousMetricTab = state.metricTab;
+    // SOLO Docente > Asignaturas utiliza el azul general del tema.
+    // Estudiante y el detalle individual abierto desde Director conservan
+    // exactamente STUDENT_AREA_COLORS para el hero, tabs y barras.
+    const normalTeacherDetail = state.activeSession?.role === "teacher" && !parentBackdrop;
+    const modalAccent = normalTeacherDetail ? "var(--primary,#1975ae)" : areaColor;
     const edition = cleanText(state.activeSession?.edition ||
       state.studentSelectedEdition || state.academicEdition || "2026-1S");
     const course = [student.grade ? student.grade + "°" : "", cleanText(student.group || "")]
@@ -3527,8 +3532,8 @@
       <div class="modal-backdrop student-subject-modal-backdrop${state.activeSession?.role === "teacher" ? " teacher-subject-detail-backdrop" : ""}"
         ${parentBackdrop ? `data-nested-subject-detail="true" data-restore-metric-tab="${previousMetricTab === "competences" ? "competences" : "components"}"` : ""}
         data-action="close-modal">
-        <section class="modal student-subject-modal"
-          style="max-width:760px;--student-area-color:${areaColor}">
+        <section class="modal student-subject-modal${normalTeacherDetail ? " teacher-theme-subject-modal" : ""}"
+          style="max-width:760px;--student-area-color:${modalAccent}">
           <header class="student-subject-hero">
             <button type="button" class="icon-btn student-subject-hero-close"
               data-action="close-modal" aria-label="Cerrar detalle de ${escAttr(subject)}">×</button>
@@ -5509,7 +5514,8 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     const hasComponents = hasMetricData(details, "component");
     const hasCompetences = hasMetricData(details, "competence");
     if (!hasComponents && !hasCompetences) return "";
-    const active = hasComponents ? (state.metricTab === "competences" && hasCompetences ? "competences" : "components") : "competences";
+    const currentMetric = options.metric ?? state.metricTab;
+    const active = hasComponents ? (currentMetric === "competences" && hasCompetences ? "competences" : "components") : "competences";
     return `
       <div class="teacher-metric-tabbed ${hasComponents && hasCompetences ? "" : "single"}">
         ${options.dashboard ? `<details class="teacher-performance-card" open>
@@ -5529,8 +5535,8 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
           </div>
         ` : ""}
         <div class="metric-grid teacher-metric-grid" data-active="${escAttr(active)}">
-          ${hasComponents ? `<section class="metric-panel components"><h4>Promedio por componentes</h4>${buildMetricBars(details, "component")}</section>` : ""}
-          ${hasCompetences ? `<section class="metric-panel competences"><h4>Promedio por competencias</h4>${buildMetricBars(details, "competence")}</section>` : ""}
+          ${hasComponents ? `<section class="metric-panel components"><h4>${options.individual ? "Componentes evaluados" : "Promedio por componentes"}</h4>${buildMetricBars(details, "component")}</section>` : ""}
+          ${hasCompetences ? `<section class="metric-panel competences"><h4>${options.individual ? "Competencias evaluadas" : "Promedio por competencias"}</h4>${buildMetricBars(details, "competence")}</section>` : ""}
         </div>
         ${options.dashboard ? "</details>" : ""}
       </div>
@@ -8329,19 +8335,13 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
   }
 
   function subjectMetricBlockHtml(details = [], activeMetric = "components") {
-    const hasComponents = hasMetricData(details, "component");
-    const hasCompetences = hasMetricData(details, "competence");
-    if (!hasComponents && !hasCompetences) return "";
-    const active = hasComponents ? (activeMetric === "competences" && hasCompetences ? "competences" : "components") : "competences";
-    return `
-        <div class="metric-tabs" role="tablist" aria-label="Análisis por componente y competencia">
-          ${hasComponents ? `<button class="metric-tab ${active === "components" ? "active" : ""}" data-action="select-metric-tab" data-tab="components">Componentes</button>` : ""}
-          ${hasCompetences ? `<button class="metric-tab ${active === "competences" ? "active" : ""}" data-action="select-metric-tab" data-tab="competences">Competencias</button>` : ""}
-        </div>
-        <div class="metric-grid" data-active="${escAttr(active)}">
-          ${hasComponents ? `<section class="metric-panel components"><h4>Componentes evaluados</h4>${buildMetricBars(details, "component")}</section>` : ""}
-          ${hasCompetences ? `<section class="metric-panel competences"><h4>Competencias evaluadas</h4>${buildMetricBars(details, "competence")}</section>` : ""}
-        </div>`;
+    // Compartir el mismo Resumen de desempeño de Docente y Director.
+    // En el modal individual son resultados de un alumno, no promedios.
+    return teacherAggregateMetricsHtmlForDetails(details, {
+      dashboard: true,
+      individual: true,
+      metric: activeMetric
+    });
   }
 
   function openEditStudentInfoModal(index) {

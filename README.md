@@ -6,8 +6,17 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.23
+RoqueObjetiva v175.24
 
+
+## v175.24 · Modal compartido compacto y Resumen de desempeño
+
+- Ajuste del modal individual que comparten **Estudiante, Docente → Asignaturas y Docente → Director de grupo**: hero más compacto y botón **X** a la altura del contenido, sin espacio superior desperdiciado.
+- El análisis individual de **Componentes y Competencias** ahora reutiliza el **mismo generador de «Resumen de desempeño» del panel Docente**: tarjeta plegable, encabezado, chevron, pestañas integradas y barras compactas.
+- En el detalle individual se muestran los porcentajes del propio alumno, no un promedio del grupo. Cuando existe un único tipo de métrica se conserva el encabezado «evaluados».
+- **Excepción exclusiva de Docente → Asignaturas**: hero, resumen, barras, porcentajes y pestañas emplean el **azul primario normal del tema** (`--primary`), independientemente de la asignatura. Estudiante y Director conservan los colores `STUDENT_AREA_COLORS`.
+- Los colores de estado de respuestas (correcta, incorrecta, doble marca, sin marcar) permanecen intactos; se conserva la ventana padre de Director al cerrar el detalle.
+- Actualizados CSS, README, `version.json` y caché PWA. **Sin cambios** de notas, respuestas, autenticación ni Supabase.
 
 ## v175.23 · El mismo modal del Estudiante en Docente y Director de grupo
 
