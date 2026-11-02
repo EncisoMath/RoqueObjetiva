@@ -1,4 +1,4 @@
-/* v175.42: ajustes definitivos móvil primero (360×800); corrección de altura de Café.
+/* v175.43: ajustes definitivos móvil primero (360×800); altura refinada de Café.
  En escritorio, árbol/regalos usan espacio izquierdo y personaje el derecho.
  Sin edición, sin persistencia local ni modo debug. */
 (() => {
@@ -92,10 +92,11 @@
       xd=treeDesktop+delta;
     } else if (def.group==="right") xd=(c.right-s.left)+22+(def.x-255)*hScale;
     // Café tiene relación alto/ancho 1448/1086, diferente de Santa/Oso/Nieves.
-    // El anclaje anterior lo desplazaba demasiado hacia abajo. Lo elevamos
-    // de manera proporcional al alto móvil, sin alterar a otros personajes.
+    // Ajuste intermedio: v175.42 lo elevaba unos 82px y quedó demasiado alto.
+    // Ahora son unos 62px en un móvil 360x800: Café baja unos 20px respecto
+    // a v175.42, sin tocar Santa, Oso o Nieves ni las coordenadas base.
     const cafeLift = def.id==="snowman" && refs.get(def.id)?.dataset.character==="cafe"
-      ? width * (1672/941 - 1448/1086) * .8
+      ? width * (1672/941 - 1448/1086) * .6
       : 0;
     return {x:mix(xm,xd,blend),y:s.height-height-def.bottom*hScale-cafeLift,width};
   }

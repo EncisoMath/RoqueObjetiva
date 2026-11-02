@@ -6,8 +6,14 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.42
+RoqueObjetiva v175.43
 
+
+## v175.43 · Bajar Café a una posición intermedia
+
+- Café había quedado demasiado elevado en la v175.42. Se reduce **solo su compensación de altura** de `0.8` a `0.6` en `js/christmas-responsive.js`: aproximadamente **20 px más abajo** en la referencia móvil 360×800.
+- Se conservan el tamaño y los ajustes definitivos del personaje, el diseño móvil-primero y las posiciones de Santa, Oso y Nieves.
+- Se actualizan la versión, el precaché de la PWA y el historial del README. No hay cambios en Supabase, resultados académicos ni autenticación.
 
 ## v175.42 · Ajuste de altura específico para Café
 
