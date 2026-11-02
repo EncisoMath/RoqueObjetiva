@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.11";
+  const APP_VERSION = "v175.12";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -3600,7 +3600,11 @@
   function updateMetricTabDom() {
     const activeMetric = state.metricTab === "competences" ? "competences" : "components";
     document.querySelectorAll(".metric-tab").forEach((button) => {
-      button.classList.toggle("active", button.dataset.tab === activeMetric);
+      const selected = button.dataset.tab === activeMetric;
+      button.classList.toggle("active", selected);
+      if (button.getAttribute("role") === "tab") {
+        button.setAttribute("aria-selected", String(selected));
+      }
     });
     document.querySelectorAll(".metric-grid").forEach((grid) => {
       grid.dataset.active = activeMetric;
@@ -4034,14 +4038,6 @@
     `).join("");
 
     renderShell(`
-      <section class="toolbar teacher-toolbar">
-        <div>
-          <span class="section-eyebrow">Director de grupo</span>
-          <h2 style="margin:8px 0 0;font-size:clamp(1.4rem,4vw,2.2rem);font-weight:900;letter-spacing:-.04em;">${esc(teacher.name || "Docente")}</h2>
-          ${active ? `<p class="teacher-active-label">${esc(active.sede)} · ${esc(active.grade)}° · ${esc(active.group)}</p>` : ""}
-        </div>
-      </section>
-
       ${teacherModeTabs(teacher, "director")}
 
       <div class="teacher-nav-block">
@@ -5430,16 +5426,22 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     const active = hasComponents ? (state.metricTab === "competences" && hasCompetences ? "competences" : "components") : "competences";
     return `
       <div class="teacher-metric-tabbed ${hasComponents && hasCompetences ? "" : "single"}">
+        ${options.dashboard ? `<details class="teacher-performance-card" open>
+          <summary class="teacher-performance-summary">
+            <span>Resumen de desempeño</span>
+            <span class="teacher-performance-chevron" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+                stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                <path d="m5 9 7 7 7-7"></path>
+              </svg>
+            </span>
+          </summary>` : ""}
         ${hasComponents && hasCompetences ? `
           <div class="metric-tabs teacher-metric-tabs" role="tablist" aria-label="Promedio por componentes y competencias">
-            <button class="metric-tab ${active === "components" ? "active" : ""}" data-action="select-metric-tab" data-tab="components">Componentes</button>
-            <button class="metric-tab ${active === "competences" ? "active" : ""}" data-action="select-metric-tab" data-tab="competences">Competencias</button>
+            <button type="button" role="tab" aria-selected="${active === "components"}" class="metric-tab ${active === "components" ? "active" : ""}" data-action="select-metric-tab" data-tab="components">Componentes</button>
+            <button type="button" role="tab" aria-selected="${active === "competences"}" class="metric-tab ${active === "competences" ? "active" : ""}" data-action="select-metric-tab" data-tab="competences">Competencias</button>
           </div>
         ` : ""}
-        ${options.dashboard ? `<details class="teacher-performance-card" open>
-          <summary class="teacher-performance-summary">Resumen de desempeño
-            <span aria-hidden="true" class="teacher-performance-chevron">⌄</span>
-          </summary>` : ""}
         <div class="metric-grid teacher-metric-grid" data-active="${escAttr(active)}">
           ${hasComponents ? `<section class="metric-panel components"><h4>Promedio por componentes</h4>${buildMetricBars(details, "component")}</section>` : ""}
           ${hasCompetences ? `<section class="metric-panel competences"><h4>Promedio por competencias</h4>${buildMetricBars(details, "competence")}</section>` : ""}
