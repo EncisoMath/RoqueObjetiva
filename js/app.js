@@ -3535,8 +3535,6 @@
         <section class="modal student-subject-modal${normalTeacherDetail ? " teacher-theme-subject-modal" : ""}"
           style="max-width:760px;--student-area-color:${modalAccent}">
           <header class="student-subject-hero">
-            <button type="button" class="icon-btn student-subject-hero-close"
-              data-action="close-modal" aria-label="Cerrar detalle de ${escAttr(subject)}">×</button>
             <div class="student-subject-hero-main">
               <span class="student-subject-hero-icon">${subjectIcon(subject)}</span>
               <div class="student-subject-hero-info">
@@ -3544,8 +3542,12 @@
                 <p class="student-subject-hero-student">${esc(student.name)}</p>
                 <p class="student-subject-hero-course">${esc(course)} · ${esc(edition)}</p>
               </div>
+              <div class="student-subject-hero-actions">
+                <button type="button" class="icon-btn student-subject-hero-close"
+                  data-action="close-modal" aria-label="Cerrar detalle de ${escAttr(subject)}">×</button>
               <div class="student-subject-hero-score">
                 ${scoreDisplayHtml(stat, "subject-detail-score", true)}
+              </div>
               </div>
             </div>
           </header>
@@ -4169,8 +4171,6 @@
         <section class="modal director-detail-modal student-subject-modal"
           style="max-width:980px;--student-area-color:${areaColor};--director-area-color:${areaColor}">
           <header class="student-subject-hero director-subject-hero">
-            <button type="button" class="icon-btn student-subject-hero-close"
-              data-action="close-modal" aria-label="Cerrar detalle de ${escAttr(subject)}">×</button>
             <div class="student-subject-hero-main">
               <span class="student-subject-hero-icon">${subjectIcon(subject)}</span>
               <div class="student-subject-hero-info">
@@ -4178,8 +4178,12 @@
                 <p class="student-subject-hero-student">${esc(groupLabel)}</p>
                 <p class="student-subject-hero-course">${esc(edition)}</p>
               </div>
+              <div class="student-subject-hero-actions">
+                <button type="button" class="icon-btn student-subject-hero-close"
+                  data-action="close-modal" aria-label="Cerrar detalle de ${escAttr(subject)}">×</button>
               <div class="student-subject-hero-score">
                 <span class="subject-detail-score">${esc(meanScore)}<small>/100</small></span>
+              </div>
               </div>
             </div>
           </header>

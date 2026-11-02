@@ -480,54 +480,99 @@
   }
 }
 
-/* v175.25 — Hero de los tres contextos: Estudiante, Docente y Director.
-   Sin kicker «Prueba», el título ocupa su lugar; la X queda a su altura.
-   La nota se baja a la línea de identificación del alumno/curso y su borde
-   derecho respeta el mismo padding del logo en el lado izquierdo. */
+/* v175.26 — Alineación estructural del hero para Estudiante, Docente y
+   Director. La X y el puntaje ahora forman una misma tercera columna
+   FLEX real (arriba/abajo), sin top absolutos ni align-self:end sobre
+   celdas independientes. Esto evita solapamientos y cortes con nombres
+   cortos, largos o de dos líneas. */
+.student-subject-modal .student-subject-hero {
+  padding: 12px 12px 13px !important;
+}
 .student-subject-modal .student-subject-hero .student-subject-hero-main {
-  min-height: 70px;
+  display: grid;
+  grid-template-columns: 46px minmax(0, 1fr) minmax(66px, max-content);
+  align-items: stretch !important;
+  column-gap: 9px;
+  min-height: 0 !important;
   padding-right: 0 !important;
 }
-.student-subject-modal .student-subject-hero .student-subject-hero-score {
-  align-self: end !important;
-  justify-self: end !important;
+.student-subject-modal .student-subject-hero .student-subject-hero-icon {
+  align-self: center;
+}
+.student-subject-modal .student-subject-hero .student-subject-hero-info {
+  align-self: start;
+  min-width: 0;
+}
+.student-subject-modal .student-subject-hero .student-subject-hero-info h2 {
+  margin-top: 0 !important;
+}
+.student-subject-modal .student-subject-hero .student-subject-hero-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+  align-self: stretch;
+  gap: 8px;
+  min-width: 66px;
+  padding: 0 !important;
+}
+.student-subject-modal .student-subject-hero .student-subject-hero-actions .student-subject-hero-close {
+  position: static !important;
+  inset: auto !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  transform: none !important;
+  display: grid;
+  place-items: center;
+  flex: 0 0 29px;
+  align-self: flex-end;
+  width: 29px !important;
+  height: 29px !important;
+  min-width: 29px !important;
+  min-height: 29px !important;
   margin: 0 !important;
-  padding: 0 0 3px 0 !important;
 }
-.student-subject-modal .student-subject-hero .student-subject-hero-close {
-  top: 22px !important;
-  right: 13px !important;
+.student-subject-modal .student-subject-hero .student-subject-hero-actions .student-subject-hero-score {
+  position: static !important;
+  align-self: flex-end !important;
+  justify-self: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  white-space: nowrap;
+  line-height: 1 !important;
 }
-@media (max-width: 600px) {
-  .student-subject-modal .student-subject-hero .student-subject-hero-main {
-    min-height: 65px;
-    padding-right: 0 !important;
-  }
-  .student-subject-modal .student-subject-hero .student-subject-hero-score {
-    padding-bottom: 2px !important;
-  }
-  .student-subject-modal .student-subject-hero .student-subject-hero-close {
-    top: 20px !important;
-    right: 11px !important;
-  }
+.student-subject-modal .student-subject-hero .student-subject-hero-actions .subject-detail-score {
+  margin: 0 !important;
+  line-height: 1 !important;
 }
-/* El hero general de Director usa los mismos márgenes que el individual.
-   Anula el padding-right heredado de v175.14 (29/27px), sin cambiar
-   los colores, pestañas o tabla específicos de esa vista. */
+
+/* Director conserva el hero/color que ya tiene, pero no las posiciones
+   heredadas que lo hacían desplazar el marcador más abajo del panel. */
 .director-detail-modal.student-subject-modal .director-subject-hero .student-subject-hero-main {
+  grid-template-columns: 46px minmax(0, 1fr) minmax(66px, max-content);
   padding-right: 0 !important;
 }
-.director-detail-modal.student-subject-modal .director-subject-hero .student-subject-hero-score {
-  align-self: end !important;
-  justify-self: end !important;
-}
-.director-detail-modal.student-subject-modal .director-subject-hero .student-subject-hero-close {
-  top: 22px !important;
-  right: 12px !important;
+.director-detail-modal.student-subject-modal .director-subject-hero .student-subject-hero-actions .student-subject-hero-close {
+  position: static !important;
+  top: auto !important;
+  right: auto !important;
 }
 @media (max-width: 600px) {
-  .director-detail-modal.student-subject-modal .director-subject-hero .student-subject-hero-close {
-    top: 20px !important;
-    right: 10px !important;
+  .student-subject-modal .student-subject-hero {
+    padding: 11px 11px 12px !important;
+  }
+  .student-subject-modal .student-subject-hero .student-subject-hero-main {
+    grid-template-columns: 44px minmax(0, 1fr) minmax(61px, max-content);
+    column-gap: 8px;
+  }
+  .student-subject-modal .student-subject-hero .student-subject-hero-actions {
+    min-width: 61px;
+    gap: 7px;
+  }
+  .director-detail-modal.student-subject-modal .director-subject-hero .student-subject-hero-main {
+    grid-template-columns: 42px minmax(0, 1fr) minmax(61px, max-content);
+    column-gap: 7px;
   }
 }

@@ -6,8 +6,17 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.25
+RoqueObjetiva v175.26
 
+
+## v175.26 · Alineación vertical real de la nota y del cierre
+
+- En los modales de **Estudiante**, **Docente normal** y **Director de grupo** el botón **X** y el puntaje **/100** pasan a compartir una **tercera columna vertical** real en la cuadrícula del hero.
+- La **X queda arriba, alineada con el título de la asignatura**, y la **nota abajo, alineada con la información del estudiante/curso** y con el borde lateral derecho.
+- Eliminados los desplazamientos relativos/absolutos que provocaban que las notas quedaran montadas sobre el borde inferior del hero al cambiar la longitud del nombre.
+- La columna se adapta a nombres y títulos largos en móvil y escritorio, sin recuperar la etiqueta «PRUEBA».
+- Mantiene el azul normal en Docente y los colores específicos en Estudiante/Director. Sin cambios en resultados, notas, permisos ni Supabase.
+- Actualizados README, versión y caché PWA.
 
 ## v175.25 · Hero compacto y alineación de nota y cierre en los tres modales
 
