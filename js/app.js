@@ -3335,12 +3335,13 @@
           ${studentHero ? "" : nav}
         </header>
         ${studentHero && nav ? `<div class="roque-student-nav-row">${nav}</div>` : ""}
-        <main class="page">
+        <main class="page${heroRole === "teacher" && state.teacherViewMotionPending ? " teacher-page-enter" : ""}">
           ${content}
         </main>
         ${state.activeSession?.role === "teacher" ? teacherDockHtml() : ""}
       </div>
     `;
+    if (heroRole === "teacher") state.teacherViewMotionPending = false;
     // El dock estudiantil vive FUERA de #app: no se destruye ni desvanece
     // al sustituir el informe, el historial o la cabecera medallista.
     syncPersistentStudentDock();
@@ -3764,13 +3765,36 @@
     return false;
   }
 
+  // Las vistas docentes se redibujan completas: View Transitions captura
+  // solamente el contenido de .page; el dock y el hero no deben parpadear.
+  // CSS-only fallback cuando la API no existe y sin animación para
+  // prefers-reduced-motion.
+  function renderTeacherWithMotion() {
+    const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches === true;
+    if (!reduceMotion && typeof document.startViewTransition === "function" &&
+        document.querySelector(".roque-teacher-shell .page")) {
+      try {
+        document.startViewTransition(() => renderBySession());
+        return;
+      } catch (error) {
+        // No impedir la navegación si la API nativa falla.
+      }
+    }
+    state.teacherViewMotionPending = !reduceMotion;
+    renderBySession();
+  }
+
   function setTeacherMode(mode) {
     if (state.activeSession?.role !== "teacher") return;
     const teacher = state.teachers.get(state.activeSession.id);
     if (!teacherModeAllowed(teacher, mode)) return;
+    if (state.teacherMode === mode) {
+      closeTeacherDockMenu();
+      return;
+    }
     state.teacherMode = mode;
     state.teacherDockMenu = "";
-    renderBySession();
+    renderTeacherWithMotion();
   }
 
   function closeTeacherDockMenu() {
@@ -6491,7 +6515,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       const subject = canonicalSubject(target.dataset.subject);
       const assignments = (teacher?.assignments || []).filter((assignment) => sameSubject(subjectNameForAssignment(assignment), subject) || sameSubject(assignment.subject, subject) || sameSubject(assignment.subjectRaw, subject));
       state.teacherActive = assignments.find((assignment) => state.computedStudents.some((student) => teacherAssignmentMatches(student, assignment))) || assignments[0] || null;
-      renderBySession();
+      renderTeacherWithMotion();
       return;
     }
 
@@ -6527,7 +6551,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
         group: cleanText(target.dataset.group),
         sede: cleanText(target.dataset.sede)
       };
-      renderBySession();
+      renderTeacherWithMotion();
       return;
     }
 
@@ -6539,7 +6563,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
 
     if (action === "teacher-director-group") {
       state.teacherDirectorActiveKey = target.dataset.key || "";
-      renderBySession();
+      renderTeacherWithMotion();
       return;
     }
 
@@ -7163,7 +7187,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
         if (!(teacher.directorGroups || []).some((g) => g.key === target.value)) return;
         state.teacherDirectorActiveKey = target.value;
       }
-      renderBySession();
+      renderTeacherWithMotion();
       return;
     }
 
@@ -9420,27 +9444,29 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       document.body.classList.remove("modal-open");
       return;
     }
-    // Modal de respuestas de un estudiante abierto desde Director de grupo.
-    // Solo retirar la capa superior; el modal del área nunca se desmontó.
-    if (backdrop.hasAttribute("data-nested-subject-detail")) {
-      const previousTab = backdrop.dataset.restoreMetricTab;
-      backdrop.remove();
-      const directorBackdrop = modalRoot.lastElementChild;
-      directorBackdrop?.removeAttribute("inert");
-      state.metricTab = previousTab === "competences" ? "competences" : "components";
-      return;
-    }
-    // Respuestas anidadas: retirar solo la capa superior, sin cerrar ni repintar el área.
-    if (backdrop.hasAttribute("data-nested-answer-key")) {
-      backdrop.remove();
-      const parentBackdrop = modalRoot.lastElementChild;
-      parentBackdrop?.removeAttribute("inert");
-      parentBackdrop?.querySelector('[data-action="open-answer-key"]')?.focus({ preventScroll: true });
-      return;
-    }
+    // Impide cierres duplicados durante la animación de salida.
     if (backdrop.classList.contains("is-closing")) return;
+    const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches === true;
+    const exitMs = reduced ? 0 : 190;
+    const nestedSubject = backdrop.hasAttribute("data-nested-subject-detail");
+    const nestedAnswers = backdrop.hasAttribute("data-nested-answer-key");
+    const previousTab = nestedSubject ? backdrop.dataset.restoreMetricTab : "";
     backdrop.classList.add("is-closing");
     window.setTimeout(() => {
+      if (!backdrop.isConnected) return;
+      if (nestedSubject || nestedAnswers) {
+        // Mantener intacto el modal padre y el scroll mientras
+        // desaparece suavemente el modal superior.
+        backdrop.remove();
+        const parent = modalRoot.lastElementChild;
+        parent?.removeAttribute("inert");
+        if (nestedSubject) {
+          state.metricTab = previousTab === "competences" ? "competences" : "components";
+        } else {
+          parent?.querySelector('[data-action="open-answer-key"]')?.focus({ preventScroll: true });
+        }
+        return;
+      }
       if (state.modalStack.length) {
         modalRoot.innerHTML = state.modalStack.pop();
         document.body.classList.add("modal-open");
@@ -9448,7 +9474,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       }
       modalRoot.innerHTML = "";
       document.body.classList.remove("modal-open");
-    }, 160);
+    }, exitMs);
   }
 
   function appModeText() {

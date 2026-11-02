@@ -6,8 +6,18 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.29
+RoqueObjetiva v175.30
 
+
+## v175.30 · Transiciones fluidas y modales animados
+
+- Navegación entre **Carga**, **Dirección de grupo** y las vistas de Coordinación con una transición suave de contenido (salida breve, entrada con desvanecimiento y desplazamiento sutil), manteniendo estable el **dock inferior**.
+- La navegación utiliza **View Transitions API** cuando el navegador la soporta, y una animación CSS de entrada como alternativa. También aplica al cambio de grupo y asignatura.
+- Todos los modales se abren con **fade + leve movimiento y escala**, y se cierran con transición coordinada.
+- Los modales **anidados del Director** (detalle de estudiante y respuestas correctas) se desvanecen al cerrarse, conservando el modal padre, su desplazamiento y su estado sin parpadeos.
+- Microinteracciones discretas en tarjetas de asignaturas y filas clicables; se evitan animaciones costosas de tamaño, desenfoque y desplazamiento de pantalla.
+- Compatibilidad con **prefers-reduced-motion**: las animaciones se omiten cuando el usuario prefiere reducir movimiento.
+- No se modifican notas, respuestas, datos ni Supabase. Actualizados README, versión y precaché PWA.
 
 ## v175.29 · Tabla de asignatura del Director igualada a Docente normal
 

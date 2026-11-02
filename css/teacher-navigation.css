@@ -187,3 +187,59 @@
     gap: 7px;
   }
 }
+
+/* v175.30 — Transiciones del panel docente.
+   Con View Transitions solo .page cambia; el dock queda estable. */
+.roque-teacher-shell .page {
+  view-transition-name: roque-teacher-page;
+}
+@keyframes roqueTeacherViewOut {
+  to { opacity: 0; transform: translateY(-5px); }
+}
+@keyframes roqueTeacherViewIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+::view-transition-old(roque-teacher-page) {
+  animation: roqueTeacherViewOut 135ms ease-in both;
+}
+::view-transition-new(roque-teacher-page) {
+  animation: roqueTeacherViewIn 270ms cubic-bezier(.2,.8,.2,1) both;
+}
+/* Fallback para navegadores sin document.startViewTransition. */
+.roque-teacher-shell .page.teacher-page-enter {
+  animation: roqueTeacherViewIn 260ms cubic-bezier(.2,.8,.2,1) both;
+}
+.roque-teacher-shell .page.teacher-page-enter > .teacher-nav-block,
+.roque-teacher-shell .page.teacher-page-enter > .director-subject-grid,
+.roque-teacher-shell .page.teacher-page-enter > .coordinator-admin-panel {
+  animation: none !important;
+}
+/* Microinteracciones ligeras: tarjetas y filas sin cambiar el layout. */
+.roque-teacher-shell .director-subject-card {
+  transition: border-color 180ms ease, background-color 180ms ease, translate 210ms cubic-bezier(.2,.8,.2,1), box-shadow 210ms ease;
+}
+.roque-teacher-shell .director-subject-card:active {
+  translate: 0 1px;
+}
+.roque-teacher-shell .teacher-table .table-row-click {
+  transition: background-color 160ms ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .roque-teacher-shell .page {
+    view-transition-name: none;
+  }
+  .roque-teacher-shell .page.teacher-page-enter,
+  ::view-transition-old(roque-teacher-page),
+  ::view-transition-new(roque-teacher-page) {
+    animation: none !important;
+  }
+  .roque-teacher-shell .director-subject-card,
+  .roque-teacher-shell .teacher-table .table-row-click {
+    transition: none !important;
+  }
+}
