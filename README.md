@@ -6,8 +6,16 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.24
+RoqueObjetiva v175.25
 
+
+## v175.25 · Hero compacto y alineación de nota y cierre en los tres modales
+
+- **Estudiante, Docente → Asignaturas y Docente → Director de grupo**: eliminado el texto «PRUEBA» sobre el título de la asignatura, para aprovechar la altura del hero.
+- Botón de cierre **X desplazado hacia abajo**, alineado visualmente con el título de la asignatura.
+- Puntaje **/100 más bajo**, junto al bloque de identificación del estudiante/curso, y alineado al borde derecho con el **mismo margen lateral del icono** a la izquierda.
+- Corregido el padding de la cuadrícula del hero de Director (heredado de v175.14) para que la nota se acerque realmente al borde derecho.
+- Sin cambios en las barras, competencias, respuestas, notas, autenticación ni Supabase. Actualizados README, versión y caché PWA.
 
 ## v175.24 · Modal compartido compacto y Resumen de desempeño
 

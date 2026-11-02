@@ -3540,7 +3540,6 @@
             <div class="student-subject-hero-main">
               <span class="student-subject-hero-icon">${subjectIcon(subject)}</span>
               <div class="student-subject-hero-info">
-                <span class="student-subject-hero-kicker">Prueba</span>
                 <h2>${esc(subject)}</h2>
                 <p class="student-subject-hero-student">${esc(student.name)}</p>
                 <p class="student-subject-hero-course">${esc(course)} · ${esc(edition)}</p>
@@ -4175,7 +4174,6 @@
             <div class="student-subject-hero-main">
               <span class="student-subject-hero-icon">${subjectIcon(subject)}</span>
               <div class="student-subject-hero-info">
-                <span class="student-subject-hero-kicker">Prueba</span>
                 <h2>${esc(subject)}</h2>
                 <p class="student-subject-hero-student">${esc(groupLabel)}</p>
                 <p class="student-subject-hero-course">${esc(edition)}</p>

@@ -479,3 +479,55 @@
     transition: none !important;
   }
 }
+
+/* v175.25 — Hero de los tres contextos: Estudiante, Docente y Director.
+   Sin kicker «Prueba», el título ocupa su lugar; la X queda a su altura.
+   La nota se baja a la línea de identificación del alumno/curso y su borde
+   derecho respeta el mismo padding del logo en el lado izquierdo. */
+.student-subject-modal .student-subject-hero .student-subject-hero-main {
+  min-height: 70px;
+  padding-right: 0 !important;
+}
+.student-subject-modal .student-subject-hero .student-subject-hero-score {
+  align-self: end !important;
+  justify-self: end !important;
+  margin: 0 !important;
+  padding: 0 0 3px 0 !important;
+}
+.student-subject-modal .student-subject-hero .student-subject-hero-close {
+  top: 22px !important;
+  right: 13px !important;
+}
+@media (max-width: 600px) {
+  .student-subject-modal .student-subject-hero .student-subject-hero-main {
+    min-height: 65px;
+    padding-right: 0 !important;
+  }
+  .student-subject-modal .student-subject-hero .student-subject-hero-score {
+    padding-bottom: 2px !important;
+  }
+  .student-subject-modal .student-subject-hero .student-subject-hero-close {
+    top: 20px !important;
+    right: 11px !important;
+  }
+}
+/* El hero general de Director usa los mismos márgenes que el individual.
+   Anula el padding-right heredado de v175.14 (29/27px), sin cambiar
+   los colores, pestañas o tabla específicos de esa vista. */
+.director-detail-modal.student-subject-modal .director-subject-hero .student-subject-hero-main {
+  padding-right: 0 !important;
+}
+.director-detail-modal.student-subject-modal .director-subject-hero .student-subject-hero-score {
+  align-self: end !important;
+  justify-self: end !important;
+}
+.director-detail-modal.student-subject-modal .director-subject-hero .student-subject-hero-close {
+  top: 22px !important;
+  right: 12px !important;
+}
+@media (max-width: 600px) {
+  .director-detail-modal.student-subject-modal .director-subject-hero .student-subject-hero-close {
+    top: 20px !important;
+    right: 10px !important;
+  }
+}
