@@ -6,8 +6,17 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.28
+RoqueObjetiva v175.29
 
+
+## v175.29 · Tabla de asignatura del Director igualada a Docente normal
+
+- La tabla de **Docente → Director de grupo → Cualquier asignatura** usa ahora **exactamente la misma estructura HTML y clases CSS** de la tabla «Estudiantes» de **Docente → Asignaturas**.
+- Eliminados los estilos antiguos del modal que impedían mostrar la misma jerarquía de **apellidos, nombres e ID Prueba**, cada dato en su propio renglón y con el mismo truncamiento `…`.
+- Las columnas mantienen las mismas proporciones **61 % Estudiante / 16 % Nota / 23 % Correctas**, tamaños de fuente **0,91 rem en escritorio y 0,87 rem en móvil** para puntajes/aciertos y el mismo alto de filas.
+- Se conserva la ordenación de las tres columnas, el acceso al detalle de cada estudiante, el modal anidado sin parpadeos y «Ver respuestas correctas».
+- El color del área sigue aplicándose al hero, barras y controles del Director, sin cambiar el tema de Docente normal.
+- No se alteran datos académicos, claves, notas ni Supabase. README y caché PWA actualizados.
 
 ## v175.28 · Hero ajustado a la altura exacta del logo
 

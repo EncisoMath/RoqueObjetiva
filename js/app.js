@@ -4149,11 +4149,21 @@
     const rows = students.map((student) => {
       const stat = statForSubject(student, subject) || {};
       const fullName = displayListName(student);
+      const comma = fullName.indexOf(",");
+      const surnames = comma < 0 ? fullName : fullName.slice(0, comma).trim();
+      const givenNames = comma < 0 ? "" : fullName.slice(comma + 1).trim();
+      // Exactamente la estructura de la tabla de Docente > Asignaturas.
       return `
-        <tr class="table-row-click director-student-row" data-action="open-detail" data-roll="${escAttr(student.roll)}" data-subject="${escAttr(subject)}">
-          <td class="director-student-cell"><strong class="director-student-name" title="${escAttr(fullName)}">${esc(fullName)}</strong></td>
-          <td class="director-student-score">${scoreDisplayHtml(stat)}</td>
-          <td class="director-student-correct"><strong>${stat.correct}/${stat.total}</strong></td>
+        <tr class="table-row-click teacher-compact-student-row" data-action="open-detail" data-roll="${escAttr(student.roll)}" data-subject="${escAttr(subject)}">
+          <td class="teacher-compact-name-cell" title="${escAttr(fullName)}">
+            <span class="teacher-compact-name-cell-inner">
+              <strong class="teacher-compact-surname">${esc(surnames)}</strong>
+              <span class="teacher-compact-given">${esc(givenNames)}</span>
+              <span class="teacher-compact-id">ID Prueba ${esc(student.roll)}</span>
+            </span>
+          </td>
+          <td class="teacher-compact-score">${scoreDisplayHtml(stat)}</td>
+          <td class="teacher-compact-correct"><strong>${Number(stat.correct || 0)}/${Number(stat.total || 0)}</strong></td>
         </tr>
       `;
     }).join("");
@@ -4201,7 +4211,7 @@
             <section class="director-detail-metrics">
               ${teacherAggregateMetricsHtmlForDetails(details, { dashboard: true })}
             </section>
-            <section class="card table-card teacher-table-card teacher-students-card director-detail-table">
+            <section class="card table-card teacher-table-card teacher-students-card teacher-compact-students-card director-detail-table">
               <div class="teacher-students-head">
                 <h3>Estudiantes</h3>
                 <button type="button" class="teacher-answer-link" data-action="open-answer-key"
@@ -4210,7 +4220,7 @@
                 </button>
               </div>
               <div class="table-wrap">
-                <table class="teacher-table">
+                <table class="teacher-table teacher-compact-students-table">
                   <thead><tr><th>${sortHeader("Estudiante", "director-detail", "name")}</th><th>${sortHeader("Nota", "director-detail", "score")}</th><th>${sortHeader("Correctas", "director-detail", "correct")}</th></tr></thead>
                   <tbody>${rows || `<tr><td colspan="3" class="empty-state">No hay estudiantes para esta selección.</td></tr>`}</tbody>
                 </table>
