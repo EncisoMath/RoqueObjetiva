@@ -6,8 +6,16 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.37
+RoqueObjetiva v175.38
 
+
+## v175.38 · Editor navideño visual para ajustar los emojis con mouse
+
+- Abrir `https://encisomath.github.io/RoqueObjetiva/?navidadDebug=1`. El editor **solo se activa con ese parámetro** cuando aparece el login; ninguna otra vista tiene herramientas de edición.
+- Se pueden mover 🎄, los tres 🎁, ☃️ y las dos 🌿 con el mouse o desde un selector. Tirador **↘** para redimensionar; ajuste preciso mediante X, Y y Tamaño en píxeles, botones ±1/±10 px y flechas de posición.
+- **Copiar coordenadas** exporta JSON con medidas en píxeles y porcentajes, tamaño de ventana y referencia al contenedor. Se puede pegar en ChatGPT para aplicar la distribución definitiva.
+- El borrador se guarda solo en el navegador del usuario y únicamente se carga en modo edición con anchura de pantalla compatible. **Restablecer** devuelve las posiciones publicadas y **Salir** regresa a la página normal. No cambia las posiciones de otros visitantes.
+- El `login-card.login-card-dark` mantiene su desenfoque y sigue delante de las decoraciones. Cambios exclusivos del frontend; sin alteración de Supabase, autenticación ni resultados.
 
 ## v175.37 · Árbol y muñeco emoji grandes detrás del login
 
