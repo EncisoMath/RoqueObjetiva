@@ -480,100 +480,179 @@
   }
 }
 
-/* v175.26 — Alineación estructural del hero para Estudiante, Docente y
-   Director. La X y el puntaje ahora forman una misma tercera columna
-   FLEX real (arriba/abajo), sin top absolutos ni align-self:end sobre
-   celdas independientes. Esto evita solapamientos y cortes con nombres
-   cortos, largos o de dos líneas. */
-.student-subject-modal .student-subject-hero {
-  padding: 12px 12px 13px !important;
+/* v175.28 — Hero compartido: todo contenido ocupa EXACTAMENTE el alto
+   del recuadro blanco del icono. Sin compensaciones top/bottom frágiles.
+   Incluye Estudiante, Docente y el área de Director de grupo. */
+#modal-root .student-subject-modal .student-subject-hero {
+  --hero-logo-size: 52px;
+  padding: 10px 12px !important;
+  box-sizing: border-box;
 }
-.student-subject-modal .student-subject-hero .student-subject-hero-main {
-  display: grid;
-  grid-template-columns: 46px minmax(0, 1fr) minmax(66px, max-content);
+#modal-root .director-detail-modal.student-subject-modal .director-subject-hero {
+  --hero-logo-size: 46px;
+}
+#modal-root .student-subject-modal .student-subject-hero .student-subject-hero-main {
+  display: grid !important;
+  grid-template-columns: var(--hero-logo-size) minmax(0, 1fr) 73px !important;
+  column-gap: 9px !important;
+  gap: 9px !important;
+  height: var(--hero-logo-size) !important;
+  min-height: var(--hero-logo-size) !important;
+  max-height: var(--hero-logo-size) !important;
   align-items: stretch !important;
-  column-gap: 9px;
-  min-height: 0 !important;
-  padding-right: 0 !important;
-}
-.student-subject-modal .student-subject-hero .student-subject-hero-icon {
-  align-self: center;
-}
-.student-subject-modal .student-subject-hero .student-subject-hero-info {
-  align-self: start;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-sizing: border-box;
   min-width: 0;
 }
-.student-subject-modal .student-subject-hero .student-subject-hero-info h2 {
-  margin-top: 0 !important;
+#modal-root .student-subject-modal .student-subject-hero .student-subject-hero-icon {
+  width: var(--hero-logo-size) !important;
+  height: var(--hero-logo-size) !important;
+  min-width: var(--hero-logo-size) !important;
+  min-height: var(--hero-logo-size) !important;
+  max-height: var(--hero-logo-size) !important;
+  aspect-ratio: 1;
+  align-self: center !important;
+  box-sizing: border-box;
 }
-.student-subject-modal .student-subject-hero .student-subject-hero-actions {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  justify-content: space-between;
-  align-self: stretch;
-  gap: 8px;
-  min-width: 66px;
+#modal-root .student-subject-modal .student-subject-hero .student-subject-hero-info {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  align-items: stretch !important;
+  align-self: stretch !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  min-width: 0 !important;
+  width: 100%;
+  overflow: hidden !important;
+  box-sizing: border-box;
+}
+#modal-root .student-subject-modal .student-subject-hero .student-subject-hero-info h2,
+#modal-root .student-subject-modal .student-subject-hero .student-subject-hero-info p {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  margin: 0 !important;
   padding: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  overflow-wrap: normal !important;
+  word-break: normal !important;
+  flex: 0 0 auto;
 }
-.student-subject-modal .student-subject-hero .student-subject-hero-actions .student-subject-hero-close {
+#modal-root .student-subject-modal .student-subject-hero .student-subject-hero-info h2 {
+  font-size: clamp(1.04rem, 3.5vw, 1.3rem) !important;
+  line-height: 1.14 !important;
+  font-weight: 900 !important;
+  letter-spacing: -.035em;
+}
+#modal-root .student-subject-modal .student-subject-hero .student-subject-hero-student {
+  font-size: .7rem !important;
+  line-height: 1.18 !important;
+  font-weight: 700 !important;
+}
+#modal-root .student-subject-modal .student-subject-hero .student-subject-hero-course {
+  font-size: .64rem !important;
+  line-height: 1.12 !important;
+}
+/* X y /100 nunca fuerzan que el hero supere el alto del logo. */
+#modal-root .student-subject-modal .student-subject-hero .student-subject-hero-actions {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  align-items: flex-end !important;
+  align-self: stretch !important;
+  gap: 0 !important;
+  height: var(--hero-logo-size) !important;
+  min-height: 0 !important;
+  max-height: var(--hero-logo-size) !important;
+  width: 73px !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box;
+}
+#modal-root .student-subject-modal .student-subject-hero .student-subject-hero-actions .student-subject-hero-close {
   position: static !important;
   inset: auto !important;
-  top: auto !important;
-  right: auto !important;
-  bottom: auto !important;
-  left: auto !important;
   transform: none !important;
-  display: grid;
-  place-items: center;
-  flex: 0 0 29px;
-  align-self: flex-end;
-  width: 29px !important;
-  height: 29px !important;
-  min-width: 29px !important;
-  min-height: 29px !important;
-  margin: 0 !important;
-}
-.student-subject-modal .student-subject-hero .student-subject-hero-actions .student-subject-hero-score {
-  position: static !important;
+  display: grid !important;
+  place-items: center !important;
   align-self: flex-end !important;
-  justify-self: auto !important;
+  flex: 0 0 21px !important;
+  width: 21px !important;
+  min-width: 21px !important;
+  height: 21px !important;
+  min-height: 21px !important;
+  max-height: 21px !important;
   margin: 0 !important;
   padding: 0 !important;
-  white-space: nowrap;
+  border-radius: 5px !important;
+  font-size: .85rem !important;
   line-height: 1 !important;
 }
-.student-subject-modal .student-subject-hero .student-subject-hero-actions .subject-detail-score {
-  margin: 0 !important;
-  line-height: 1 !important;
-}
-
-/* Director conserva el hero/color que ya tiene, pero no las posiciones
-   heredadas que lo hacían desplazar el marcador más abajo del panel. */
-.director-detail-modal.student-subject-modal .director-subject-hero .student-subject-hero-main {
-  grid-template-columns: 46px minmax(0, 1fr) minmax(66px, max-content);
-  padding-right: 0 !important;
-}
-.director-detail-modal.student-subject-modal .director-subject-hero .student-subject-hero-actions .student-subject-hero-close {
+#modal-root .student-subject-modal .student-subject-hero .student-subject-hero-actions .student-subject-hero-score {
   position: static !important;
-  top: auto !important;
-  right: auto !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: flex-end !important;
+  align-self: flex-end !important;
+  width: 100%;
+  min-width: 0;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+}
+#modal-root .student-subject-modal .student-subject-hero .student-subject-hero-actions .subject-detail-score {
+  display: inline-flex !important;
+  align-items: baseline !important;
+  justify-content: flex-end !important;
+  gap: 1px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  font-size: 1.52rem !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+}
+#modal-root .student-subject-modal .student-subject-hero .student-subject-hero-actions .subject-detail-score small {
+  font-size: .38em !important;
+  line-height: 1 !important;
 }
 @media (max-width: 600px) {
-  .student-subject-modal .student-subject-hero {
-    padding: 11px 11px 12px !important;
+  #modal-root .student-subject-modal .student-subject-hero {
+    --hero-logo-size: 46px;
+    padding: 10px 11px !important;
   }
-  .student-subject-modal .student-subject-hero .student-subject-hero-main {
-    grid-template-columns: 44px minmax(0, 1fr) minmax(61px, max-content);
-    column-gap: 8px;
+  #modal-root .director-detail-modal.student-subject-modal .director-subject-hero {
+    --hero-logo-size: 42px;
+    padding: 10px 10px !important;
   }
-  .student-subject-modal .student-subject-hero .student-subject-hero-actions {
-    min-width: 61px;
-    gap: 7px;
+  #modal-root .student-subject-modal .student-subject-hero .student-subject-hero-main {
+    grid-template-columns: var(--hero-logo-size) minmax(0, 1fr) 66px !important;
+    gap: 7px !important;
+    column-gap: 7px !important;
   }
-  .director-detail-modal.student-subject-modal .director-subject-hero .student-subject-hero-main {
-    grid-template-columns: 42px minmax(0, 1fr) minmax(61px, max-content);
-    column-gap: 7px;
+  #modal-root .student-subject-modal .student-subject-hero .student-subject-hero-info h2 {
+    font-size: clamp(.95rem, 4.2vw, 1.1rem) !important;
+  }
+  #modal-root .student-subject-modal .student-subject-hero .student-subject-hero-student {
+    font-size: .62rem !important;
+    line-height: 1.12 !important;
+  }
+  #modal-root .student-subject-modal .student-subject-hero .student-subject-hero-course {
+    font-size: .59rem !important;
+    line-height: 1.1 !important;
+  }
+  #modal-root .student-subject-modal .student-subject-hero .student-subject-hero-actions {
+    width: 66px !important;
+  }
+  #modal-root .student-subject-modal .student-subject-hero .student-subject-hero-actions .subject-detail-score {
+    font-size: 1.36rem !important;
   }
 }
 

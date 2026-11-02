@@ -6,8 +6,17 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.27
+RoqueObjetiva v175.28
 
+
+## v175.28 · Hero ajustado a la altura exacta del logo
+
+- Los heroes de **Estudiante, Docente normal y Director de grupo** utilizan la **altura del recuadro blanco del icono** como altura máxima para el título, la identificación y la columna derecha.
+- Título de asignatura, nombre del estudiante o grupo y grado/edición aparecen **en una sola línea**: los textos que no caben se acortan con `…` y conservan el texto íntegro en `title`.
+- La **X** ahora es más pequeña (21 px), está alineada arriba con el título y no necesita desplazamientos absolutos.
+- La **nota /100** termina a la misma altura que el grado/edición, siempre dentro del alto del logo, y mantiene su alineación a la derecha.
+- Se sustituyen las reglas problemáticas de v175.26 por un layout compacto común con medidas controladas también en móviles. Se preservan los colores por rol.
+- **Sin cambios** en resultados, respuestas, permisos ni Supabase. Actualizados README, versión y caché PWA.
 
 ## v175.27 · Respuestas más limpias en el grid del modal
 

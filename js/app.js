@@ -3538,9 +3538,9 @@
             <div class="student-subject-hero-main">
               <span class="student-subject-hero-icon">${subjectIcon(subject)}</span>
               <div class="student-subject-hero-info">
-                <h2>${esc(subject)}</h2>
-                <p class="student-subject-hero-student">${esc(student.name)}</p>
-                <p class="student-subject-hero-course">${esc(course)} · ${esc(edition)}</p>
+                <h2 title="${escAttr(subject)}">${esc(subject)}</h2>
+                <p class="student-subject-hero-student" title="${escAttr(student.name)}">${esc(student.name)}</p>
+                <p class="student-subject-hero-course" title="${escAttr(course)} · ${escAttr(edition)}">${esc(course)} · ${esc(edition)}</p>
               </div>
               <div class="student-subject-hero-actions">
                 <button type="button" class="icon-btn student-subject-hero-close"
@@ -4174,9 +4174,9 @@
             <div class="student-subject-hero-main">
               <span class="student-subject-hero-icon">${subjectIcon(subject)}</span>
               <div class="student-subject-hero-info">
-                <h2>${esc(subject)}</h2>
-                <p class="student-subject-hero-student">${esc(groupLabel)}</p>
-                <p class="student-subject-hero-course">${esc(edition)}</p>
+                <h2 title="${escAttr(subject)}">${esc(subject)}</h2>
+                <p class="student-subject-hero-student" title="${escAttr(groupLabel)}">${esc(groupLabel)}</p>
+                <p class="student-subject-hero-course" title="${escAttr(edition)}">${esc(edition)}</p>
               </div>
               <div class="student-subject-hero-actions">
                 <button type="button" class="icon-btn student-subject-hero-close"
