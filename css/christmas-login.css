@@ -1,4 +1,4 @@
-/* RoqueObjetiva v175.37 · NAVIDAD 100% CSS/SVG/emoji, sin imágenes de fondo.
+/* RoqueObjetiva v175.41 · login flat, imágenes propias, copos emoji ❄️.
    SOLO la pantalla de ingreso y sus cargadores; respeta el diseño compacto original. */
 
 .login-shell-dark.christmas-login {
@@ -303,7 +303,7 @@
   .christmas-login .winter-login-snow {display:none;}
 }
 
-/* v175.40 · archivos del usuario. Geometría calculada por christmas-responsive.js. */
+/* v175.41 · imágenes del usuario con coordenadas definitivas. */
 .login-shell-dark.christmas-login .winter-decor-image {
   position:absolute !important;
   display:block !important;
@@ -331,18 +331,17 @@
   pointer-events:none;
   filter:none !important;
 }
-.christmas-login .winter-login-snow .winter-flake-sway svg {
-  display:block;
-  width:1em;
-  height:1em;
-  color:#e9f7ff;
+.christmas-login .winter-login-snow .winter-flake-sway {
+  color:#f6fbff;
+  font-family:"Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif;
+  filter:brightness(1.14);
+  line-height:1;
 }
-.boot .winter-loader-flake svg,
-.route-loader-card .winter-loader-flake svg {
-  display:block;
-  width:67px;
-  height:67px;
-  color:#2388bb;
+.boot .winter-loader-flake,
+.route-loader-card .winter-loader-flake {
+  color:#eaf8ff;
+  font-family:"Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif;
+  font-size:58px;
 }
 /* En pantallas 16:9 y ultrawide el script coloca árbol/regalos a la
    izquierda y el personaje a la derecha, sin desplazar la tarjeta central. */

@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.40";
+  const APP_VERSION = "v175.41";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -1491,7 +1491,7 @@
       await wait(180);
       app.innerHTML = `
         <div class="boot">
-          ${isHolidayHeroDate() ? `<div class="winter-loader-flake" aria-hidden="true">${christmasSnowflakeSvg()}</div>` : `<div class="boot-mark"></div>`}
+          ${isHolidayHeroDate() ? `<div class="winter-loader-flake" aria-hidden="true">❄️</div>` : `<div class="boot-mark"></div>`}
           <h1>Consultando resultados</h1>
           <p>Verificando el acceso y la información disponible.</p>
         </div>
@@ -3129,20 +3129,12 @@
     }
   };
 
-  function christmasSnowflakeSvg() {
-    return '<svg viewBox="0 0 36 36" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" focusable="false">' +
-      '<g fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">' +
-      '<path d="M18 2v32 M4.14 10l27.72 16 M4.14 26l27.72-16"/>' +
-      '<path d="M13 7l5 5 5-5 M13 29l5-5 5 5 M8 13l6 1-2-6 M28 23l-6-1 2 6 M8 23l6-1-2 6 M28 13l-6 1 2-6"/>' +
-      '</g></svg>';
-  }
-
   function christmasSnowfall() {
-    const flake = christmasSnowflakeSvg();
+    const flake = "❄️";
     return Array.from({length:72}, (_, i) => {
       const left=(i*41+7)%99, duration=27+(i*7)%18, delay=-(i*19%45);
       const period=7+(i*3%11)/2, size=11+(i*11)%19, sway=8+(i*13)%24;
-      const opacity=(.43+(i%6)*.095).toFixed(2);
+      const opacity=(.73+(i%6)*.045).toFixed(2);
       return '<span class="winter-flake-fall" style="--snow-left:'+left+'%;--snow-duration:'+duration+
         's;--snow-delay:'+delay+'s;--snow-size:'+size+'px;--snow-opacity:'+opacity+
         ';--snow-sway:'+sway+'px;--snow-period:'+period+'s" aria-hidden="true">' +
@@ -9696,7 +9688,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     loader.className = "route-loader";
     loader.innerHTML = `
       <div class="route-loader-card">
-        ${isHolidayHeroDate() ? `<div class="winter-loader-flake" aria-hidden="true">${christmasSnowflakeSvg()}</div>` : `<div class="route-loader-mark"></div>`}
+        ${isHolidayHeroDate() ? `<div class="winter-loader-flake" aria-hidden="true">❄️</div>` : `<div class="route-loader-mark"></div>`}
         <strong>${esc(message || "Preparando resultados...")}</strong>
         <span>Un momento, por favor.</span>
       </div>

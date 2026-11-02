@@ -6,8 +6,18 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.40
+RoqueObjetiva v175.41
 
+
+## v175.41 · Coordenadas definitivas y nieve emoji
+
+- Se fijan **sin almacenamiento temporal** los ajustes exactos proporcionados en el JSON de 360×800: árbol `(-6.8, -18.6, 1)`; regalos `(-18.5, 5.6, .8)`, `(-48.8, -14.6, 1)`, `(-201, -23.1, 1)`; personaje `(-23.3, 132.2, .6)`; hojas `(0,0,1)` y `(0,0,1)`. Los valores representan `(dx,dy,scale)` relativos a los anclajes móviles originales.
+- Referencia móvil exportada: árbol `(-132, 257.5, 297.4)`, regalos `(-5, 728.7, 66.5)`, `(44.9, 699.6, 68.7)`, `(-49.2, 730.2, 49.2)`, personaje `(228.1, 539.7, 137.8)`, hojas `(-61.1, 22.4, 45.1)` y `(104, 22.4, 45.1)`. Estos son `(xPx,yPx,anchoPx)` medidos en 360×800.
+- El diseño continúa **móvil primero**, adaptándose a 16:9 y ultrawide usando el espacio lateral al formulario. El formulario mantiene su capa superior y difuminado.
+- Se retira por completo el **modo debug**: scripts y estilos propios eliminados del repositorio, referencias HTML y precaché eliminadas, borradores locales ignorados. El parámetro `?navidadDebug=1` no activa controles.
+- Los **72 copos de nieve** cambian de SVG a emoji **❄️**, más claros (opacidad .73–.955), con caída lenta y oscilación continua; los cargadores también usan ❄️.
+- Se conservan imágenes del ZIP y un personaje sorteado al entrar entre Santa, Oso, Café o Nieves. `nieves` en el JSON identifica al personaje visible al editar, no anula el sorteo.
+- Cambios exclusivamente frontend. No se modifica Supabase, acceso, datos académicos ni resultados. Caché PWA actualizada.
 
 ## v175.40 · Bienvenida con imágenes propias y composición móvil-primero
 

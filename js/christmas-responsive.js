@@ -1,11 +1,8 @@
-/* v175.40: composicion movil primero. Las posiciones se calculan tomando
-   como referencia el formulario, no coordenadas absolutas de escritorio.
-   En una pantalla ancha el arbol/regalos pasan a la izquierda del card y el
-   personaje al espacio derecho. El editor solo guarda cambios locales. */
+/* v175.41: ajustes definitivos móvil primero (360×800).
+ En escritorio, árbol/regalos usan espacio izquierdo y personaje el derecho.
+ Sin edición, sin persistencia local ni modo debug. */
 (() => {
   "use strict";
-  const enabled = new URLSearchParams(location.search).get("navidadDebug") === "1";
-  const STORAGE = "roque_winter_mobile_first_v17540";
   const defs = [
     {id:"tree",selector:".winter-tree-emoji",parent:"scene",x:-125,bottom:-5,width:290,group:"left",ratio:1672/941},
     {id:"gift1",selector:".winter-gift-one",parent:"scene",x:14,bottom:1,width:81,group:"left",ratio:1199/1312},
@@ -18,10 +15,43 @@
   const byId = Object.fromEntries(defs.map(item=>[item.id,item]));
   const refs = new Map(),defaults = new Map(),layout = new Map();
   let scene = null, card = null, logo = null, root = null, scheduled = false;
-  let edits = {};
-  if (enabled) {
-    try {edits = JSON.parse(localStorage.getItem(STORAGE)||"{}");}catch (_) {edits={};}
-  }
+  const ajustesDefinitivos = {
+      "tree": {
+          "dx": -6.8,
+          "dy": -18.6,
+          "scale": 1
+      },
+      "gift1": {
+          "dx": -18.5,
+          "dy": 5.6,
+          "scale": 0.8
+      },
+      "gift2": {
+          "dx": -48.8,
+          "dy": -14.6,
+          "scale": 1
+      },
+      "gift3": {
+          "dx": -201,
+          "dy": -23.1,
+          "scale": 1
+      },
+      "snowman": {
+          "dx": -23.3,
+          "dy": 132.2,
+          "scale": 0.6
+      },
+      "leafLeft": {
+          "dx": 0,
+          "dy": 0,
+          "scale": 1
+      },
+      "leafRight": {
+          "dx": 0,
+          "dy": 0,
+          "scale": 1
+      }
+  };
   const clamp=(n,min,max)=>Math.min(max,Math.max(min,n));
   const r=n=>Math.round(n*10)/10;
   const mix=(a,b,t)=>a+(b-a)*t;
@@ -70,7 +100,7 @@
       const el=refs.get(def.id);if(!el)continue;
       const base=baseFor(def,ctx);
       defaults.set(def.id,base);
-      const edit=enabled?edits[def.id]:null;
+      const edit=ajustesDefinitivos[def.id];
       const x=r(base.x+(edit?.dx||0)*ctx.unit);
       const y=r(base.y+(edit?.dy||0)*ctx.unit);
       const width=r(base.width*(edit?.scale||1));
@@ -106,39 +136,6 @@
     }
     schedule();
   }
-  function edit(id,position){
-    if(!enabled || !byId[id])return false;
-    const current=defaults.get(id),ctx=context();
-    if(!ctx || !current)return false;
-    const o={
-      dx:r((position.x-current.x)/ctx.unit),
-      dy:r((position.y-current.y)/ctx.unit),
-      scale:r(clamp(position.width/current.width,.08,8))
-    };
-    edits[id]=o;
-    try{localStorage.setItem(STORAGE,JSON.stringify(edits));}catch(_){}
-    refresh();return true;
-  }
-  function reset(){
-    if(!enabled)return;
-    edits={};try{localStorage.removeItem(STORAGE);}catch(_){}
-    refresh();
-  }
-  function serialize(){
-    const position={};
-    for(const def of defs){
-      const p=layout.get(def.id),b=defaults.get(def.id);
-      if(!p||!b)continue;
-      position[def.id]={nombre:def.id,ancla:def.parent==="logo"?"escudo":"formulario",
-        xPx:p.x,yPx:p.y,anchoPx:p.width,regla:"movil-principal, laterales en escritorio",
-        ajustes:edits[def.id]||{dx:0,dy:0,scale:1}};
-    }
-    return {version:"v175.40",referenciaMovil:{ancho:360,alto:780},
-      viewport:{ancho:innerWidth,alto:innerHeight},
-      personaje:window.RoqueWinterPick?.get()||"nieves",
-      descripcion:"Posiciones editables relativas a un diseño base móvil; el escritorio aprovecha los laterales del formulario.",
-      elementos:position};
-  }
   function start(){
     const app=document.getElementById("app");if(!app)return;
     const sync=()=>{
@@ -151,9 +148,7 @@
     window.addEventListener("resize",schedule,{passive:true});
     window.addEventListener("orientationchange",schedule,{passive:true});
   }
-  window.RoqueWinterResponsive={defs,getNode:id=>refs.get(id),getPosition:id=>layout.get(id),
-    getBase:id=>defaults.get(id),getParent:id=>byId[id]?.parent==="logo"?logo:scene,
-    edit,reset,export:serialize,refresh:schedule};
+  window.RoqueWinterResponsive={refresh:schedule};
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start,{once:true});
   else start();
 })();
