@@ -6,8 +6,17 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.21
+RoqueObjetiva v175.22
 
+
+## v175.22 · Tabla compacta de Docente normal, igualada a Director de grupo
+
+- En **Docente → Asignaturas**, la tabla «Estudiantes» deja de mostrar la columna de numeración **#**.
+- El estudiante aparece en tres renglones: **apellidos**, **nombres** e **ID Prueba**, con jerarquía de tamaño y truncamiento por puntos suspensivos igual a Director de grupo.
+- Las columnas **Nota** y **Correctas (x/y)** usan exactamente el mismo tamaño tipográfico: **0,91 rem** en escritorio y **0,87 rem** en móvil, igual al puntaje en la tabla de Director de grupo.
+- La tabla pasa a tres columnas (Estudiante, Nota y Correctas), conserva la ordenación, la apertura del detalle y «Ver respuestas correctas».
+- Los cambios se limitan a la tabla de Docente normal; no modifican los modales ni el tablero del director.
+- Sin modificaciones en calificaciones, respuestas, base de datos o Supabase. Se actualizan README, versión y caché PWA.
 
 ## v175.21 · Tabla de Director de grupo sin botón de eliminar
 

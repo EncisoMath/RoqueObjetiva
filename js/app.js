@@ -3915,15 +3915,25 @@
     const teacherScoreValues = scoresForSubjectAverage(studentsForStats, statsSubject);
     const itemValueInfo = active ? subjectItemValue(active.grade, activeSubjectForStats, activeStatForValue) : { total: 0, value: null, label: "—" };
 
-    const rows = filtered.map((student, index) => {
+    // v175.22: misma jerarquía tipográfica de Director de grupo, sin la columna #.
+    const rows = filtered.map((student) => {
       const stat = statForSubject(student, active) || { score: null, correct: 0, total: 0, absent: true };
       const subjectForDetail = stat.subject || activeSubjectForStats || active?.subject || "";
+      const fullName = displayListName(student);
+      const comma = fullName.indexOf(",");
+      const surnames = comma < 0 ? fullName : fullName.slice(0, comma).trim();
+      const givenNames = comma < 0 ? "" : fullName.slice(comma + 1).trim();
       return `
-        <tr class="table-row-click" data-action="open-detail" data-roll="${escAttr(student.roll)}" data-subject="${escAttr(subjectForDetail)}">
-          <td class="teacher-index">${index + 1}</td>
-          <td><strong>${esc(displayListName(student))}</strong><br><span class="student-subid">ID Prueba ${esc(student.roll)}</span></td>
-          <td>${scoreDisplayHtml(stat)}</td>
-          <td><strong>${Number(stat.correct || 0)}/${Number(stat.total || 0)}</strong></td>
+        <tr class="table-row-click teacher-compact-student-row" data-action="open-detail" data-roll="${escAttr(student.roll)}" data-subject="${escAttr(subjectForDetail)}">
+          <td class="teacher-compact-name-cell" title="${escAttr(fullName)}">
+            <span class="teacher-compact-name-cell-inner">
+              <strong class="teacher-compact-surname">${esc(surnames)}</strong>
+              <span class="teacher-compact-given">${esc(givenNames)}</span>
+              <span class="teacher-compact-id">ID Prueba ${esc(student.roll)}</span>
+            </span>
+          </td>
+          <td class="teacher-compact-score">${scoreDisplayHtml(stat)}</td>
+          <td class="teacher-compact-correct"><strong>${Number(stat.correct || 0)}/${Number(stat.total || 0)}</strong></td>
         </tr>
       `;
     }).join("");
@@ -3967,7 +3977,7 @@
         </section>
       ` : ""}
 
-      <section class="card table-card teacher-table-card teacher-students-card">
+      <section class="card table-card teacher-table-card teacher-students-card teacher-compact-students-card">
         <div class="teacher-students-head">
           <h3>Estudiantes</h3>
           ${active ? `<button type="button" class="teacher-answer-link" data-action="open-answer-key"
@@ -3975,9 +3985,9 @@
             Ver respuestas correctas <span aria-hidden="true">›</span></button>` : ""}
         </div>
         <div class="table-wrap">
-          <table class="teacher-table">
-            <thead><tr><th>#</th><th>${sortHeader("Estudiante", "teacher-active", "name")}</th><th>${sortHeader("Nota", "teacher-active", "score")}</th><th>${sortHeader("Correctas", "teacher-active", "correct")}</th></tr></thead>
-            <tbody>${rows || `<tr><td colspan="4" class="empty-state">No hay estudiantes para esta asignación con los archivos cargados.</td></tr>`}</tbody>
+          <table class="teacher-table teacher-compact-students-table">
+            <thead><tr><th>${sortHeader("Estudiante", "teacher-active", "name")}</th><th>${sortHeader("Nota", "teacher-active", "score")}</th><th>${sortHeader("Correctas", "teacher-active", "correct")}</th></tr></thead>
+            <tbody>${rows || `<tr><td colspan="3" class="empty-state">No hay estudiantes para esta asignación con los archivos cargados.</td></tr>`}</tbody>
           </table>
         </div>
       </section>
