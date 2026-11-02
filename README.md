@@ -6,8 +6,16 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.38
+RoqueObjetiva v175.39
 
+
+## v175.39 · Editor visual: arrastrar el emoji y redimensionar con cuatro círculos
+
+- Modo de edición: `https://encisomath.github.io/RoqueObjetiva/?navidadDebug=1`.
+- El recuadro de selección es completamente **arrastrable con el mouse**: mantén pulsado sobre el emoji o sobre cualquier parte del recuadro y muévelo, sin recurrir al panel lateral.
+- Aparecen **cuatro círculos blancos con borde azul**, uno en cada esquina, al estilo de editores gráficos. Arrastra cualquier círculo para aumentar o reducir proporcionalmente el tamaño, dejando anclada la esquina opuesta.
+- Mantiene selección de los siete elementos 🎄 🎁 🎁 🎁 ☃️ 🌿 🌿, controles numéricos, guardado local temporal y exportación de coordenadas JSON. Ningún cambio afecta la página normal ni los datos académicos.
+- Versiones de recursos y caché PWA actualizadas para que el navegador cargue la interfaz mejorada.
 
 ## v175.38 · Editor navideño visual para ajustar los emojis con mouse
 

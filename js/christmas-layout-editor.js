@@ -1,4 +1,4 @@
-/* v175.38. Inspector temporal; NO altera el portal fuera de ?navidadDebug=1 */
+/* v175.39. Arrastre directo sobre el emoji o su recuadro; 4 manejadores circulares en las esquinas. Solo ?navidadDebug=1. */
 (() => {
 "use strict";
 if (new URLSearchParams(location.search).get("navidadDebug") !== "1") return;
@@ -10,7 +10,7 @@ const defs=[
 {id:"snowman",name:"☃️ Muñeco",selector:".winter-snowman-emoji",parent:".winter-seasonal-emojis"},
 {id:"leafLeft",name:"🌿 Hoja izquierda",selector:".winter-leaf-left",parent:".login-main-logo"},
 {id:"leafRight",name:"🌿 Hoja derecha",selector:".winter-leaf-right",parent:".login-main-logo"}];
-const sheet=document.createElement("link");sheet.rel="stylesheet";sheet.href="css/christmas-layout-editor.css?v=175.38";document.head.appendChild(sheet);
+const sheet=document.createElement("link");sheet.rel="stylesheet";sheet.href="css/christmas-layout-editor.css?v=175.39";document.head.appendChild(sheet);
 const key="roque_xmas_editor_draft_v17538";
 let root=null,panel=null,selection=null,current="tree",active=null,frame=0;
 const nodes=new Map(),originals=new Map(),values=new Map();
@@ -46,7 +46,7 @@ function formatJSON(){
      yPorcentaje:round(d.y/Math.max(r.height,1)*100)};
  }
  return JSON.stringify({
-   version:"v175.38",
+   version:"v175.39",
    viewport:{ancho:innerWidth,alto:innerHeight},
    comentario:"Los valores x/y son relativos al contenedor de cada elemento. Los negativos significan fuera del borde.",
    elementos
@@ -66,6 +66,8 @@ function paint(){
   const el=nodes.get(current);if(!el)return;
   const r=el.getBoundingClientRect();
   Object.assign(selection.style,{left:r.left+"px",top:r.top+"px",width:r.width+"px",height:r.height+"px"});
+  // Mantener los cuatro círculos disponibles aunque parte del emoji salga de la pantalla.
+  selection.dataset.selected=current;
  });
 }
 function refresh(){
@@ -94,18 +96,41 @@ function finish(){
  notice("Borrador guardado localmente. Copia las coordenadas al terminar.");
 }
 function move(e){
- if(!active)return;e.preventDefault();
+ if(!active || (e.pointerId != null && active.pointerId!==e.pointerId)) return;
+ e.preventDefault();
  const d=active,dx=e.clientX-d.startX,dy=e.clientY-d.startY;
  const def=defs.find(x=>x.id===d.id);
- if(d.kind==="size")apply(def,{x:d.x,y:d.y,size:d.size+(dx+dy)*.65});
- else apply(def,{x:d.x+dx,y:d.y+dy,size:d.size});
+ if(d.kind==="corner"){
+   // Escalar proporcionalmente desde la esquina elegida, anclando la opuesta.
+   // El ancho y alto de cada emoji se miden al comenzar a arrastrar.
+   const directionX=d.corner.endsWith("w") ? -1 : 1;
+   const directionY=d.corner.startsWith("n") ? -1 : 1;
+   const increaseX=dx*directionX/Math.max(d.width,1);
+   const increaseY=dy*directionY/Math.max(d.height,1);
+   const factor=Math.max(.08,1+(increaseX+increaseY)/2);
+   const size=clamp(d.size*factor,12,1100);
+   const scale=size/Math.max(d.size,1);
+   const width=d.width*scale,height=d.height*scale;
+   apply(def,{
+     x:d.x+(directionX<0?d.width-width:0),
+     y:d.y+(directionY<0?d.height-height:0),size
+   });
+ } else {
+   apply(def,{x:d.x+dx,y:d.y+dy,size:d.size});
+ }
  refresh();
 }
-function begin(e,id,kind){
+function begin(e,id,kind,corner=null){
  if(e.button!=null&&e.button!==0)return;
  const d=values.get(id);if(!d)return;
  e.preventDefault();e.stopPropagation();select(id);
- active={id,kind,x:d.x,y:d.y,size:d.size,startX:e.clientX,startY:e.clientY};
+ const bounds=nodes.get(id)?.getBoundingClientRect();
+ active={
+   id,kind,corner,pointerId:e.pointerId,
+   x:d.x,y:d.y,size:d.size,
+   width:bounds?.width||d.size,height:bounds?.height||d.size,
+   startX:e.clientX,startY:e.clientY
+ };
  document.body.classList.add("winter-debug-active");
  window.addEventListener("pointermove",move,{passive:false});
  window.addEventListener("pointerup",finish);
@@ -123,14 +148,14 @@ function readInputs(){
  apply(def,{x:n("x"),y:n("y"),size:n("size")});
  store();refresh();
 }
-function setMessage(){notice("Edita, arrastra o usa ↘. Ningún visitante ve los cambios.");}
+function setMessage(){notice("Arrastra con el mouse. Los 4 círculos permiten estirar cada emoji.");}
 function makeUI(){
  panel=document.createElement("aside");panel.id="roque-winter-editor";
  const options=defs.map(x=>'<option value="'+x.id+'">'+x.name+'</option>').join("");
  panel.innerHTML=[
  '<div class="we-top"><b>❄️ Posicionar emojis</b><button type="button" data-minimize title="Minimizar">−</button></div>',
  '<div class="we-body">',
- '<p>Arrastra un emoji o el tirador ✥. Arrastra ↘ para escalar. También puedes ajustar las cifras manualmente.</p>',
+ '<p><b>Haz clic y arrastra el emoji o su recuadro.</b> Para agrandarlo o reducirlo, arrastra cualquiera de los <b>cuatro círculos de las esquinas</b>.</p>',
  '<label>Elemento<select data-pick>',options,'</select></label>',
  '<div class="we-grid">',
  '<label>X (px)<input type="number" step="1" data-field="x"></label>',
@@ -149,7 +174,13 @@ function makeUI(){
  '</div>'].join("");
  document.body.appendChild(panel);
  selection=document.createElement("div");selection.id="roque-winter-selection";
- selection.innerHTML='<button type="button" data-drag title="Mover">✥ MOVER</button><button type="button" data-resize title="Cambiar tamaño">↘</button>';
+ selection.innerHTML=[
+  '<div class="we-selection-caption" aria-hidden="true">ARRASTRAR PARA MOVER</div>',
+  '<button type="button" data-corner="nw" aria-label="Escalar desde esquina superior izquierda" title="Estirar desde arriba a la izquierda"></button>',
+  '<button type="button" data-corner="ne" aria-label="Escalar desde esquina superior derecha" title="Estirar desde arriba a la derecha"></button>',
+  '<button type="button" data-corner="sw" aria-label="Escalar desde esquina inferior izquierda" title="Estirar desde abajo a la izquierda"></button>',
+  '<button type="button" data-corner="se" aria-label="Escalar desde esquina inferior derecha" title="Estirar desde abajo a la derecha"></button>'
+ ].join("");
  document.body.appendChild(selection);
  panel.querySelector("[data-pick]").addEventListener("change",e=>select(e.target.value));
  panel.querySelectorAll("[data-field]").forEach(n=>n.addEventListener("change",readInputs));
@@ -177,8 +208,12 @@ function makeUI(){
  panel.querySelector("[data-exit]").addEventListener("click",()=>{
    const url=new URL(location.href);url.searchParams.delete("navidadDebug");location.assign(url.href);
  });
- selection.querySelector("[data-drag]").addEventListener("pointerdown",e=>begin(e,current,"move"));
- selection.querySelector("[data-resize]").addEventListener("pointerdown",e=>begin(e,current,"size"));
+ // Un clic sostenido en CUALQUIER PARTE del recuadro mueve con el mouse.
+ selection.addEventListener("pointerdown",e=>{
+   const handle=e.target.closest("[data-corner]");
+   if(handle)begin(e,current,"corner",handle.dataset.corner);
+   else begin(e,current,"move");
+ });
  window.addEventListener("scroll",paint,{passive:true});
  window.addEventListener("resize",paint,{passive:true});
  window.addEventListener("keydown",onKey);
