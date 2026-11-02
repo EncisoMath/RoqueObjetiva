@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.35";
+  const APP_VERSION = "v175.36";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -1491,7 +1491,7 @@
       await wait(180);
       app.innerHTML = `
         <div class="boot">
-          ${isHolidayHeroDate() ? `<div class="christmas-loader-head">${christmasSnowmanSvg(true)}</div>` : `<div class="boot-mark"></div>`}
+          ${isHolidayHeroDate() ? `<div class="winter-loader-flake" aria-hidden="true">❄️</div>` : `<div class="boot-mark"></div>`}
           <h1>Consultando resultados</h1>
           <p>Verificando el acceso y la información disponible.</p>
         </div>
@@ -3108,13 +3108,13 @@
   // Navidad: decoración sin imágenes. Nieve con traslación vertical lineal
   // y oscilación horizontal continua e independiente, sin saltos laterales.
   function christmasSnowfall() {
-    return Array.from({length: 31}, (_, index) => {
+    return Array.from({length: 72}, (_, index) => {
       const left = (index * 41 + 7) % 99;
-      const duration = 12 + (index * 7) % 12;
-      const delay = -(index * 17 % 25);
-      const period = 4.2 + (index * 3 % 9) / 3;
-      const size = 10 + (index * 11) % 17;
-      const sway = 9 + (index * 13) % 33;
+      const duration = 27 + (index * 7) % 18;
+      const delay = -(index * 19 % 45);
+      const period = 7 + (index * 3 % 11) / 2;
+      const size = 11 + (index * 11) % 19;
+      const sway = 8 + (index * 13) % 24;
       const opacity = (.43 + (index % 6) * .095).toFixed(2);
       return '<span class="winter-flake-fall" style="--snow-left:' + left +
         '%;--snow-duration:' + duration + 's;--snow-delay:' + delay +
@@ -3124,62 +3124,16 @@
     }).join("");
   }
 
-  // El muñeco se construye exclusivamente con formas SVG (círculos, curvas y polígonos).
-  // La cara y el sombrero oscilan juntos; los dos brazos se mueven por separado.
-  function christmasSnowmanSvg(headOnly = false) {
-    const arms = '<g class="winter-snowman-arm winter-snowman-arm-left">' +
-      '<path d="M86 183 L54 166 30 135 M54 166 L24 168 M42 154 L41 132" fill="none" stroke="#ad713e" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></g>' +
-      '<g class="winter-snowman-arm winter-snowman-arm-right">' +
-      '<path d="M154 183 L188 165 213 135 M188 165 L217 165 M202 151 L201 131" fill="none" stroke="#ad713e" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></g>';
-    const body = '<circle cx="120" cy="199" r="64" fill="#f8fcff" stroke="#d8e9f5" stroke-width="2"/>' +
-      '<circle cx="120" cy="192" r="6" fill="#123451"/><circle cx="120" cy="225" r="6" fill="#123451"/>';
-    const head = '<g class="winter-snowman-head-turn">' +
-      '<circle cx="120" cy="116" r="49" fill="#fff" stroke="#dcebf5" stroke-width="2"/>' +
-      '<g class="winter-snowman-expression">' +
-      '<circle cx="102" cy="112" r="5" fill="#18344c"/><circle cx="133" cy="112" r="5" fill="#18344c"/>' +
-      '<path d="M120 120 L153 127 L120 133 Z" fill="#f58b1f"/>' +
-      '<path d="M108 144 Q121 153 135 141" fill="none" stroke="#18344c" stroke-width="3" stroke-linecap="round"/></g>' +
-      '<g class="winter-snowman-hat">' +
-      '<path d="M84 75 L79 38 Q116 24 150 41 L155 78Z" fill="#173c5e"/>' +
-      '<rect x="82" y="68" width="74" height="8" rx="3" fill="#e74742"/>' +
-      '<ellipse cx="120" cy="78" rx="60" ry="10" fill="#173c5e"/></g></g>' +
-      '<path d="M79 159 Q115 174 159 157 L157 170 Q122 186 84 175Z" fill="#e73d39"/>' +
-      '<path d="M145 166 L156 170 153 199 144 198Z" fill="#e73d39"/>';
-    return '<svg class="winter-snowman-svg' + (headOnly ? ' winter-snowman-head-only' : '') +
-      '" viewBox="' + (headOnly ? '52 22 136 188' : '0 0 240 268') +
-      '" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">' +
-      (headOnly ? '' : arms + body) + head + '</svg>';
-  }
-
-  // Cable y bombillas: elementos vectoriales, sin GIF, PNG, WebP ni fondo ilustrado.
-  function christmasLightGarland() {
-    const colors = ['red','yellow','green','yellow','red','green','yellow','red','green','yellow'];
-    const bulbs = colors.map((color, index) => {
-      const x = 45 + index * 100;
-      const t = x / 1000;
-      const y = Math.round(7 + 91 * 4 * t * (1 - t));
-      return '<g class="winter-light winter-light-' + color + '" style="--light-delay:-' +
-        (index * .37).toFixed(2) + 's" transform="translate(' + x + ' ' + y + ')">' +
-        '<rect x="-6" y="0" width="12" height="12" rx="2" fill="#24485e"/>' +
-        '<ellipse class="winter-light-bulb" cx="0" cy="28" rx="13" ry="22"/></g>';
-    }).join('');
-    return '<svg class="winter-garland" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 160" preserveAspectRatio="none" aria-hidden="true" focusable="false">' +
-      '<path d="M-20 0 Q500 200 1020 0" fill="none" stroke="#163a5b" stroke-width="6" stroke-linecap="round"/>' +
-      bulbs + '</svg>';
-  }
-
-  // Copos, emojis y bancos de nieve se superponen sobre un fondo azul SÓLIDO.
+  // Decoración navideña ligera: copos ❄️, nieve SVG y emojis en primer plano.
   function christmasLoginDecor() {
-    return '<div class="winter-login-lights" aria-hidden="true">' + christmasLightGarland() + '</div>' +
-      '<div class="winter-login-snow" aria-hidden="true">' + christmasSnowfall() + '</div>' +
+    return '<div class="winter-login-snow" aria-hidden="true">' + christmasSnowfall() + '</div>' +
+      '<svg class="winter-snow-banks" viewBox="0 0 1000 155" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+      '<path d="M0 72 Q155 25 320 81 Q490 122 638 75 Q810 14 1000 65 L1000 155 0 155Z" fill="#e1f1fc"/>' +
+      '<path d="M0 117 Q185 78 327 121 Q490 152 656 107 Q839 68 1000 118 L1000 155 0 155Z" fill="#f8fcff"/></svg>' +
       '<div class="winter-seasonal-emojis" aria-hidden="true">' +
       '<span class="winter-tree-emoji">🎄</span>' +
       '<span class="winter-gift-emoji winter-gift-one">🎁</span>' +
-      '<span class="winter-gift-emoji winter-gift-two">🎁</span></div>' +
-      '<div class="winter-login-snowman" aria-hidden="true">' + christmasSnowmanSvg(false) + '</div>' +
-      '<svg class="winter-snow-banks" viewBox="0 0 1000 155" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
-      '<path d="M0 72 Q155 25 320 81 Q490 122 638 75 Q810 14 1000 65 L1000 155 0 155Z" fill="#e1f1fc"/>' +
-      '<path d="M0 117 Q185 78 327 121 Q490 152 656 107 Q839 68 1000 118 L1000 155 0 155Z" fill="#f8fcff"/></svg>';
+      '<span class="winter-gift-emoji winter-gift-two">🎁</span></div>';
   }
 
   function renderLogin(error = "") {
@@ -9711,7 +9665,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     loader.className = "route-loader";
     loader.innerHTML = `
       <div class="route-loader-card">
-        ${isHolidayHeroDate() ? `<div class="christmas-loader-head">${christmasSnowmanSvg(true)}</div>` : `<div class="route-loader-mark"></div>`}
+        ${isHolidayHeroDate() ? `<div class="winter-loader-flake" aria-hidden="true">❄️</div>` : `<div class="route-loader-mark"></div>`}
         <strong>${esc(message || "Preparando resultados...")}</strong>
         <span>Un momento, por favor.</span>
       </div>

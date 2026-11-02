@@ -6,8 +6,17 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.35
+RoqueObjetiva v175.36
 
+
+## v175.36 · Navidad simplificada: sin luces ni muñeco
+
+- Se eliminan completamente el cable y las bombillas navideñas, así como el muñeco de nieve de la bienvenida y los cargadores. Los cargadores de temporada usan un copo ❄️ animado y sin degradados.
+- Fondo más oscuro, azul sólido `#1c77ab`, sin imágenes ni degradados. La tarjeta mantiene su transparencia y desenfoque.
+- Árbol 🎄 y regalos 🎁 más visibles, con `z-index` superior al de las curvas blancas de nieve para que no queden sepultados.
+- Nieve con **72 copos** ❄️ de tamaños variados y velocidades lentas (27 a 44 segundos de caída); movimiento lateral suave de dos extremos con `ease-in-out`, independiente de la caída.
+- Hojas 🌿 más grandes, alineadas verticalmente con el centro del escudo y simétricas (una reflejada).
+- Conserva el acceso, usuarios recientes, la lógica académica y Supabase sin cambios. Actualizadas versión, caché PWA y README.
 
 ## v175.35 · Navidad completamente vectorial, sin imágenes
 

@@ -1,8 +1,8 @@
-/* RoqueObjetiva v175.35 · NAVIDAD 100% CSS/SVG/emoji, sin imágenes de fondo.
+/* RoqueObjetiva v175.36 · NAVIDAD 100% CSS/SVG/emoji, sin imágenes de fondo.
    SOLO la pantalla de ingreso y sus cargadores; respeta el diseño compacto original. */
 
 .login-shell-dark.christmas-login {
-  --winter-blue: #2288c3;
+  --winter-blue: #1c77ab;
   position: relative !important;
   display: block !important;
   width: 100% !important;
@@ -22,7 +22,7 @@
 }
 .christmas-login .login-bg-shapes {display:none !important;}
 .christmas-login .login-panel {
-  z-index: 4 !important;
+  z-index: 6 !important;
   position: relative !important;
   display: flex !important;
   width: 100% !important;
@@ -74,14 +74,18 @@
 }
 .christmas-login .winter-leaf {
   position:absolute;
-  top:42%;
-  font-size:clamp(23px,6vw,31px);
+  top:50%;
+  font-size:clamp(38px,10vw,53px);
   line-height:1;
+  display:block;
+  width:1.15em;
+  text-align:center;
+  transform:translateY(-50%);
   pointer-events:none;
   z-index:1;
 }
-.christmas-login .winter-leaf-left {right:calc(100% + 20px);}
-.christmas-login .winter-leaf-right {left:calc(100% + 20px);transform:scaleX(-1);}
+.christmas-login .winter-leaf-left {right:calc(100% + 12px);}
+.christmas-login .winter-leaf-right {left:calc(100% + 12px);transform:translateY(-50%) scaleX(-1);}
 .christmas-login .login-eyebrow {font-size:.72rem !important;color:#cce0f2 !important;letter-spacing:.055em !important;}
 .christmas-login .login-card-dark h1 {
   margin:5px 0 8px !important;
@@ -149,32 +153,6 @@
   border:1px solid rgba(236,246,255,.40) !important;
 }
 
-/* Cable curvo y lámparas ovaladas: SVG nativo; parpadeo desfasado. */
-.christmas-login .winter-login-lights {
-  position:absolute;
-  top:0;
-  left:0;
-  width:100%;
-  height:clamp(76px,11vh,116px);
-  z-index:2;
-  pointer-events:none;
-}
-.christmas-login .winter-garland {display:block;width:100%;height:100%;overflow:visible;}
-.christmas-login .winter-light-bulb {
-  animation:winterBulbFlicker 3.4s ease-in-out var(--light-delay,0s) infinite;
-}
-.christmas-login .winter-light-red .winter-light-bulb {fill:#ef4d49;}
-.christmas-login .winter-light-yellow .winter-light-bulb {fill:#ffda4a;}
-.christmas-login .winter-light-green .winter-light-bulb {fill:#30bc81;}
-@keyframes winterBulbFlicker {
-  0%,100% {opacity:1;filter:drop-shadow(0 0 8px currentColor);}
-  37% {opacity:.35;filter:none;}
-  63% {opacity:.95;filter:drop-shadow(0 0 5px currentColor);}
-}
-.christmas-login .winter-light-red {color:#ef4d49;}
-.christmas-login .winter-light-yellow {color:#ffda4a;}
-.christmas-login .winter-light-green {color:#30bc81;}
-
 /* Caída vertical LINEAL. El suave vaivén vive en OTRO elemento,
    evitando cambios bruscos al girar; el reinicio sucede fuera de pantalla. */
 .christmas-login .winter-login-snow {
@@ -207,10 +185,8 @@
   to {transform:translate3d(0,calc(100svh + 160px),0);}
 }
 @keyframes winterSnowSway {
-  0%,100% {transform:translate3d(0,0,0) rotate(-10deg);}
-  25% {transform:translate3d(var(--snow-sway),0,0) rotate(11deg);}
-  50% {transform:translate3d(calc(var(--snow-sway) * -.65),0,0) rotate(-9deg);}
-  75% {transform:translate3d(calc(var(--snow-sway) * .6),0,0) rotate(8deg);}
+  0%,100% {transform:translate3d(calc(var(--snow-sway) * -.6),0,0) rotate(-8deg);}
+  50% {transform:translate3d(var(--snow-sway),0,0) rotate(8deg);}
 }
 
 /* 🎄 y 🎁 son emojis reales; bancos de nieve, curvas SVG de color sólido. */
@@ -218,22 +194,22 @@
   position:absolute;
   inset:0;
   pointer-events:none;
-  z-index:2;
+  z-index:5; /* Delante de las curvas de nieve (z=3). */
 }
 .christmas-login .winter-tree-emoji {
   position:absolute;
-  bottom:clamp(28px,6vh,72px);
-  left:clamp(2px,3vw,54px);
-  font-size:clamp(57px,14vw,110px);
+  bottom:clamp(27px,5vh,58px);
+  left:clamp(3px,3vw,54px);
+  font-size:clamp(83px,19vw,118px);
   line-height:1;
 }
 .christmas-login .winter-gift-emoji {
   position:absolute;
-  bottom:clamp(22px,4vh,55px);
+  bottom:clamp(30px,5vh,61px);
   line-height:1;
 }
-.christmas-login .winter-gift-one {left:clamp(65px,20vw,155px);font-size:clamp(31px,7vw,55px);}
-.christmas-login .winter-gift-two {left:clamp(98px,28vw,208px);font-size:clamp(21px,4.5vw,39px);}
+.christmas-login .winter-gift-one {left:clamp(83px,21vw,164px);font-size:clamp(43px,8vw,58px);}
+.christmas-login .winter-gift-two {left:clamp(130px,30vw,224px);font-size:clamp(31px,6vw,44px);}
 .christmas-login .winter-snow-banks {
   position:absolute;
   bottom:-1px;
@@ -244,43 +220,24 @@
   z-index:3;
 }
 
-/* Muñeco vectorial: círculos, rectángulos, polígonos, curvas y brazos SVG. */
-.christmas-login .winter-login-snowman {
-  position:absolute;
-  right:clamp(-12px,2vw,25px);
-  bottom:clamp(15px,3.5vh,43px);
-  width:clamp(118px,26vw,196px);
-  z-index:3;
-  pointer-events:none;
-}
-.christmas-login .winter-snowman-svg {display:block;width:100%;height:auto;overflow:visible;}
-.christmas-login .winter-snowman-arm {transform-box:view-box;will-change:transform;}
-.christmas-login .winter-snowman-arm-left {transform-origin:86px 183px;animation:winterWaveLeft .75s ease-in-out infinite alternate;}
-.christmas-login .winter-snowman-arm-right {transform-origin:154px 183px;animation:winterWaveRight .89s ease-in-out infinite alternate;}
-.christmas-login .winter-snowman-head-turn {
-  transform-box:view-box;
-  transform-origin:120px 153px;
-  animation:winterHeadLook 3.8s ease-in-out infinite alternate;
-}
-@keyframes winterWaveLeft {from {transform:rotate(-16deg);} to {transform:rotate(16deg);}}
-@keyframes winterWaveRight {from {transform:rotate(15deg);} to {transform:rotate(-15deg);}}
-@keyframes winterHeadLook {
-  0%,13% {transform:translateX(-4px) rotate(-3deg);}
-  42%,57% {transform:translateX(0) rotate(0deg);}
-  87%,100% {transform:translateX(4px) rotate(3deg);}
-}
-
-/* Carga de sesión: cabeza del mismo muñeco vectorial, sin cuadrado degradado. */
-.boot .christmas-loader-head,
-.route-loader-card .christmas-loader-head {
-  width:90px;
-  height:104px;
+/* Cargadores de la temporada sin muñeco y sin el antiguo degradado. */
+.boot .winter-loader-flake,
+.route-loader-card .winter-loader-flake {
+  display:grid;
+  place-items:center;
+  width:74px;
+  height:80px;
   margin:0 auto 5px;
-  animation:winterLoaderNod 2.7s ease-in-out infinite alternate;
+  font-size:59px;
+  line-height:1;
+  color:#2587b8;
+  background:none;
+  animation:winterFlakePulse 2.6s ease-in-out infinite;
 }
-.boot .christmas-loader-head svg,
-.route-loader-card .christmas-loader-head svg {display:block;width:100%;height:100%;overflow:visible;}
-@keyframes winterLoaderNod {from{transform:rotate(-3deg) translateY(2px);}to{transform:rotate(3deg) translateY(-2px);}}
+@keyframes winterFlakePulse {
+  0%,100% {transform:scale(.94);opacity:.78;}
+  50% {transform:scale(1.06);opacity:1;}
+}
 
 @media(max-width:680px) {
   .christmas-login .login-panel {
@@ -291,10 +248,10 @@
   }
   .login-shell-dark.christmas-login .login-card-dark {padding:17px 16px 19px !important;}
   .christmas-login .login-main-logo {width:88px !important;height:90px !important;}
-  .christmas-login .winter-leaf-left {right:calc(100% + 14px);}
-  .christmas-login .winter-leaf-right {left:calc(100% + 14px);}
-  .christmas-login .winter-login-snowman {right:-9px;bottom:27px;width:132px;}
-  .christmas-login .winter-tree-emoji {bottom:39px;}
+  .christmas-login .winter-leaf {font-size:clamp(37px,11vw,46px);}
+  .christmas-login .winter-leaf-left {right:calc(100% + 10px);}
+  .christmas-login .winter-leaf-right {left:calc(100% + 10px);}
+  .christmas-login .winter-tree-emoji {bottom:32px;}
 }
 @media(max-height:680px) {
   .christmas-login .login-panel {padding-top:65px !important;padding-bottom:110px !important;}
@@ -302,11 +259,9 @@
   .christmas-login .login-card-dark >p {margin-bottom:9px !important;}
 }
 @media(prefers-reduced-motion:reduce) {
-  .christmas-login .winter-light-bulb,
   .christmas-login .winter-flake-fall,
   .christmas-login .winter-flake-sway,
-  .christmas-login .winter-snowman-arm,
-  .christmas-login .winter-snowman-head-turn,
-  .christmas-loader-head {animation:none !important;transition:none !important;}
+  .boot .winter-loader-flake,
+  .route-loader-card .winter-loader-flake {animation:none !important;transition:none !important;}
   .christmas-login .winter-login-snow {display:none;}
 }
