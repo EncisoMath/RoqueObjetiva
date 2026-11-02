@@ -566,7 +566,6 @@
 .roque-teacher-shell .director-table-card {
   --director-name-width: 214px;
   --director-subject-width: 102px;
-  --director-action-width: 98px;
   overflow: hidden !important;
   min-width: 0;
   background: #fff;
@@ -612,8 +611,8 @@
   outline-offset: -2px;
 }
 .roque-teacher-shell .director-table {
-  width: calc(var(--director-name-width) + var(--director-cols, 10) * var(--director-subject-width) + var(--director-action-width)) !important;
-  min-width: calc(var(--director-name-width) + var(--director-cols, 10) * var(--director-subject-width) + var(--director-action-width)) !important;
+  width: calc(var(--director-name-width) + var(--director-cols, 10) * var(--director-subject-width)) !important;
+  min-width: calc(var(--director-name-width) + var(--director-cols, 10) * var(--director-subject-width)) !important;
   table-layout: fixed;
   border-collapse: separate;
   border-spacing: 0;
@@ -745,23 +744,10 @@
   font-weight: 900 !important;
   letter-spacing: -.02em;
 }
-.roque-teacher-shell .director-table th.director-action-heading,
-.roque-teacher-shell .director-table td.director-action-cell {
-  width: var(--director-action-width);
-  min-width: var(--director-action-width);
-  max-width: var(--director-action-width);
-  text-align: center !important;
-  white-space: nowrap;
-}
-.roque-teacher-shell .director-table .director-delete-student-btn {
-  padding: 5px 6px;
-  font-size: .64rem;
-}
 @media (max-width: 680px) {
   .roque-teacher-shell .director-table-card {
     --director-name-width: 158px;
     --director-subject-width: 86px;
-    --director-action-width: 82px;
   }
   .roque-teacher-shell .director-table-guide {
     padding: 8px 9px 7px;
@@ -809,7 +795,6 @@
 .roque-teacher-shell .director-table-card {
   --director-name-width: 192px;
   --director-subject-width: 62px;
-  --director-action-width: 82px;
   --director-heading-height: 116px;
   --director-row-height: 43px;
   overflow: hidden !important;
@@ -863,8 +848,8 @@
   min-width: 0 !important;
 }
 .roque-teacher-shell .director-grades-table {
-  width: calc(var(--director-cols, 10) * var(--director-subject-width) + var(--director-action-width)) !important;
-  min-width: calc(var(--director-cols, 10) * var(--director-subject-width) + var(--director-action-width)) !important;
+  width: calc(var(--director-cols, 10) * var(--director-subject-width)) !important;
+  min-width: calc(var(--director-cols, 10) * var(--director-subject-width)) !important;
 }
 .roque-teacher-shell .director-fixed-table thead tr,
 .roque-teacher-shell .director-grades-table thead tr,
@@ -898,12 +883,6 @@
   width: var(--director-subject-width) !important;
   min-width: var(--director-subject-width) !important;
   max-width: var(--director-subject-width) !important;
-}
-.roque-teacher-shell .director-grades-table th.director-action-heading,
-.roque-teacher-shell .director-grades-table td.director-action-cell {
-  width: var(--director-action-width) !important;
-  min-width: var(--director-action-width) !important;
-  max-width: var(--director-action-width) !important;
 }
 .roque-teacher-shell .director-grades-table .director-subject-header {
   display: flex;
@@ -1030,18 +1009,10 @@
   line-height: 1 !important;
   font-weight: 900 !important;
 }
-.roque-teacher-shell .director-grades-table .director-action-cell {
-  text-align: center !important;
-}
-.roque-teacher-shell .director-grades-table .director-delete-student-btn {
-  padding: 4px 5px !important;
-  font-size: .6rem !important;
-}
 @media (max-width: 680px) {
   .roque-teacher-shell .director-table-card {
     --director-name-width: 148px;
     --director-subject-width: 56px;
-    --director-action-width: 76px;
     --director-heading-height: 115px;
     --director-row-height: 42px;
   }
@@ -1064,19 +1035,4 @@
     --director-name-width: 138px;
     --director-subject-width: 54px;
   }
-}
-
-/* v175.20 — Mantener las filas de nombres y notas perfectamente alineadas.
-   Causa: .danger-btn global impone min-height:45px y el botón "Eliminar"
-   extendía TODAS las filas de la tabla de calificaciones a ~52px; los
-   nombres tenían 42px, acumulando desfase tras cada estudiante.
-   El control oculto a la derecha ya no determina la altura de la fila. */
-.roque-teacher-shell .director-grades-table tbody .director-delete-student-btn {
-  box-sizing: border-box !important;
-  min-height: 32px !important;
-  height: 32px !important;
-  max-height: 32px !important;
-  padding: 3px 5px !important;
-  line-height: 1 !important;
-  vertical-align: middle;
 }

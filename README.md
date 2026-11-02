@@ -6,8 +6,16 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.20
+RoqueObjetiva v175.21
 
+
+## v175.21 · Tabla de Director de grupo sin botón de eliminar
+
+- Se retiran **«Eliminar»** y la columna **«Acción»** de la tabla general de **Docente → Director de grupo**.
+- Se retiran las acciones y funciones exclusivas de eliminación desde esta tabla y sus estilos obsoletos, incluido el ajuste de tamaño del botón de v175.20.
+- La tabla de calificaciones conserva únicamente las materias, el desplazamiento horizontal y la columna fija de nombres; se libera el ancho anteriormente ocupado por «Acción».
+- Se mantiene la gestión de estudiantes desde las herramientas de administración existentes.
+- No se borra ningún estudiante ni se alteran notas, resultados, claves o Supabase. Actualizados README, versión y caché PWA.
 
 ## v175.20 · Alineación exacta entre estudiantes y notas
 
