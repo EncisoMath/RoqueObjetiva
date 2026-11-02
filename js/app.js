@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.36";
+  const APP_VERSION = "v175.37";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -3133,7 +3133,9 @@
       '<div class="winter-seasonal-emojis" aria-hidden="true">' +
       '<span class="winter-tree-emoji">🎄</span>' +
       '<span class="winter-gift-emoji winter-gift-one">🎁</span>' +
-      '<span class="winter-gift-emoji winter-gift-two">🎁</span></div>';
+      '<span class="winter-gift-emoji winter-gift-two">🎁</span>' +
+      '<span class="winter-gift-emoji winter-gift-three">🎁</span>' +
+      '<span class="winter-snowman-emoji">☃️</span></div>';
   }
 
   function renderLogin(error = "") {

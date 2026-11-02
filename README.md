@@ -6,8 +6,16 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.36
+RoqueObjetiva v175.37
 
+
+## v175.37 · Árbol y muñeco emoji grandes detrás del login
+
+- El 🎄 se amplía hasta cerca de la altura del título **Bienvenido** y se desplaza un 47 % de su ancho fuera del margen izquierdo, tal como la referencia del usuario.
+- Se agrupan tres 🎁 de distintos tamaños y alturas en la parte inferior del árbol; los regalos quedan **por encima de las curvas de nieve**.
+- A la derecha aparece ☃️ como **emoji**, no como SVG ni como imagen, grande y aproximadamente medio fuera de la pantalla.
+- La tarjeta `.login-card.login-card-dark` conserva su fondo translúcido con desenfoque real y una capa superior a los emojis; nada cambia en el formulario y los accesos recientes.
+- Sin modificaciones de Supabase, calificaciones, autenticación, componentes académicos o puntuación. Archivos versionados y caché PWA actualizados.
 
 ## v175.36 · Navidad simplificada: sin luces ni muñeco
 

@@ -1,4 +1,4 @@
-/* RoqueObjetiva v175.36 · NAVIDAD 100% CSS/SVG/emoji, sin imágenes de fondo.
+/* RoqueObjetiva v175.37 · NAVIDAD 100% CSS/SVG/emoji, sin imágenes de fondo.
    SOLO la pantalla de ingreso y sus cargadores; respeta el diseño compacto original. */
 
 .login-shell-dark.christmas-login {
@@ -194,22 +194,51 @@
   position:absolute;
   inset:0;
   pointer-events:none;
-  z-index:5; /* Delante de las curvas de nieve (z=3). */
+  z-index:5; /* Encima de las curvas de nieve (z=3) y DETRÁS del login (z=6). */
 }
+/* Árbol grande: desde el suelo hasta cerca de «Bienvenido».
+   El 47% del ancho del emoji queda recortado fuera del borde izquierdo. */
 .christmas-login .winter-tree-emoji {
   position:absolute;
-  bottom:clamp(27px,5vh,58px);
-  left:clamp(3px,3vw,54px);
-  font-size:clamp(83px,19vw,118px);
+  left:0;
+  bottom:-15px;
+  transform:translateX(-47%);
+  font-size:clamp(340px,72svh,680px);
   line-height:1;
+  white-space:nowrap;
 }
+/* Regalos delante de las curvas de nieve y agrupados al pie del árbol. */
 .christmas-login .winter-gift-emoji {
   position:absolute;
-  bottom:clamp(30px,5vh,61px);
   line-height:1;
+  white-space:nowrap;
 }
-.christmas-login .winter-gift-one {left:clamp(83px,21vw,164px);font-size:clamp(43px,8vw,58px);}
-.christmas-login .winter-gift-two {left:clamp(130px,30vw,224px);font-size:clamp(31px,6vw,44px);}
+.christmas-login .winter-gift-one {
+  left:clamp(3px,2vw,29px);
+  bottom:11px;
+  font-size:clamp(59px,9svh,86px);
+}
+.christmas-login .winter-gift-two {
+  left:clamp(65px,15vw,122px);
+  bottom:22px;
+  font-size:clamp(41px,6.7svh,66px);
+}
+.christmas-login .winter-gift-three {
+  left:clamp(120px,29vw,193px);
+  bottom:5px;
+  font-size:clamp(29px,4.9svh,48px);
+}
+/* Muñeco únicamente emoji ☃️. Cerca de la mitad queda fuera a la derecha;
+   nunca cubre la tarjeta de inicio de sesión. */
+.christmas-login .winter-snowman-emoji {
+  position:absolute;
+  right:0;
+  bottom:-16px;
+  transform:translateX(47%);
+  font-size:clamp(255px,51svh,455px);
+  line-height:1;
+  white-space:nowrap;
+}
 .christmas-login .winter-snow-banks {
   position:absolute;
   bottom:-1px;
@@ -251,7 +280,15 @@
   .christmas-login .winter-leaf {font-size:clamp(37px,11vw,46px);}
   .christmas-login .winter-leaf-left {right:calc(100% + 10px);}
   .christmas-login .winter-leaf-right {left:calc(100% + 10px);}
-  .christmas-login .winter-tree-emoji {bottom:32px;}
+  /* La escala relativa al alto mantiene el árbol cerca de «Bienvenido»
+     sin mover la tarjeta ni recortar el acceso a los campos. */
+  .christmas-login .winter-tree-emoji {
+    font-size:clamp(340px,72svh,650px);
+    bottom:-15px;
+  }
+  .christmas-login .winter-snowman-emoji {
+    font-size:clamp(255px,51svh,415px);
+  }
 }
 @media(max-height:680px) {
   .christmas-login .login-panel {padding-top:65px !important;padding-bottom:110px !important;}
