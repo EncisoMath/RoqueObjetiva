@@ -6,8 +6,16 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.26
+RoqueObjetiva v175.27
 
+
+## v175.27 · Respuestas más limpias en el grid del modal
+
+- En el grid de ítems del modal compartido (**Estudiante, Docente normal y Director de grupo**) se retira la línea «Correcta: X» de las tarjetas.
+- Cada tarjeta conserva solo el **número del ítem** pequeño en la **esquina superior izquierda** y la **opción marcada grande y centrada**.
+- Se mantienen los colores planos de los estados (correcta, incorrecta, doble marca, sin marcar), la navegación al detalle al pulsar una tarjeta y las etiquetas accesibles.
+- Para no perder esa información, **Docente y Administración** pueden consultar la respuesta correcta dentro del detalle del ítem; no se habilita esa información para Estudiante.
+- Ninguna nota, clave o respuesta cambia. Sin escrituras en Supabase. Actualizados README, versión y caché PWA.
 
 ## v175.26 · Alineación vertical real de la nota y del cierre
 

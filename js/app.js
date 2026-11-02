@@ -8072,6 +8072,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     const stat = statForSubject(student, subject);
     const detail = stat?.details.find((d) => d.item === item);
     if (!detail) return;
+    const canSeeCorrect = ["teacher", "admin"].includes(state.activeSession?.role);
 
     modalRoot.innerHTML = `
       <div class="modal-backdrop" data-action="close-modal">
@@ -8084,6 +8085,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
             <div class="grid">
               <div class="card card-pad">
                 <div class="meta-row"><span>Marcó</span><strong>${esc(displayMarked(detail.marked))}</strong></div>
+                ${canSeeCorrect && cleanMarked(detail.correct) ? `<div class="meta-row"><span>Respuesta correcta</span><strong>${esc(displayMarked(detail.correct))}</strong></div>` : ""}
                 <div class="meta-row"><span>Estado</span><strong>${esc(statusLabel(detail.status))}</strong></div>
                 <div class="meta-row"><span>Componente</span><strong>${esc(detail.component || "Sin registro")}</strong></div>
                 <div class="meta-row"><span>Competencia</span><strong>${esc(detail.competence || "Sin registro")}</strong></div>
@@ -9558,10 +9560,9 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
 
   function answerPill(detail, roll, displayIndex = detail.item, showCorrect = false) {
     return `
-      <button class="answer-pill ${detail.status} ${showCorrect ? "with-correct" : ""}" data-action="answer-info" data-roll="${escAttr(roll)}" data-subject="${escAttr(detail.subject)}" data-item="${escAttr(detail.item)}" title="Ver detalle del ítem ${escAttr(displayIndex)}">
-        <strong>${esc(displayIndex)}.</strong>
-        <span>${esc(displayMarked(detail.marked))}</span>
-        ${showCorrect ? `<small>Correcta: ${esc(displayMarked(detail.correct))}</small>` : ""}
+      <button class="answer-pill answer-pill-compact ${detail.status} ${showCorrect ? "with-correct" : ""}" data-action="answer-info" data-roll="${escAttr(roll)}" data-subject="${escAttr(detail.subject)}" data-item="${escAttr(detail.item)}" title="Ver detalle del ítem ${escAttr(displayIndex)}" aria-label="Ítem ${escAttr(displayIndex)}. Marcó: ${escAttr(displayMarked(detail.marked))}. ${escAttr(statusLabel(detail.status))}">
+        <strong class="answer-item-index">${esc(displayIndex)}.</strong>
+        <span class="answer-item-mark">${esc(displayMarked(detail.marked))}</span>
       </button>
     `;
   }
