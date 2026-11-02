@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.43";
+  const APP_VERSION = "v175.44";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -3911,12 +3911,18 @@
 
   // Una sola instancia DOM del dock entre todas las pantallas estudiantiles.
   // Mantener intactos sus botones evita reinicios, pérdidas de foco y parpadeos.
-  // v175.32: el resaltado se desplaza entre botones sin ocultar el dock.
+  // v175.44: el indicador sigue SIEMPRE la sección activa; abrir
+  // Cuenta/Coordinador es un menú temporal y no desplaza el resaltado.
+  // Antes aria-expanded tenía prioridad y dejaba el texto blanco del botón
+  // is-active sin fondo azul (blanco sobre blanco: parecía desaparecer).
   function syncDockMotion(dock) {
     if (!dock) return;
-    const active = dock.querySelector('.t160-dock-btn[aria-expanded="true"]') ||
-      dock.querySelector(".t160-dock-btn.is-active");
-    if (!active) return;
+    const active = dock.querySelector(".t160-dock-btn.is-active") ||
+      dock.querySelector('.t160-dock-btn[aria-expanded="true"]');
+    if (!active) {
+      dock.style.setProperty("--dock-marker-width", "0px");
+      return;
+    }
     dock.style.setProperty("--dock-marker-left", active.offsetLeft + "px");
     dock.style.setProperty("--dock-marker-width", active.offsetWidth + "px");
     if (!dock.classList.contains("dock-motion-ready") && !dock.dataset.motionPending) {

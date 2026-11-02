@@ -233,3 +233,19 @@
   :is(.roque-teacher-shell .t160-dock,#student-dock-root .student-bottom-dock)::before,
   :is(.roque-teacher-shell .t160-dock,#student-dock-root .student-bottom-dock) .t160-dock-btn {transition:none !important;}
 }
+
+/* v175.44: Cuenta/Coordinador son menús superpuestos, no otras páginas.
+   El resaltado azul se conserva en la sección is-active (Carga, Dirección,
+   Coordinación; en estudiantes, Detalle/Historial). Cuando se abre Cuenta,
+   antes el azul abandonaba la sección y sus letras blancas desaparecían
+   sobre el dock blanco. Mostrar Cuenta con acento independiente sin robarle
+   el marcador a la sección seleccionada. */
+:is(.roque-teacher-shell .t160-dock, #student-dock-root .student-bottom-dock)
+  .t160-dock-btn[data-menu][aria-expanded="true"]:not(.is-active) {
+  color: var(--orange) !important;
+  box-shadow: inset 0 -3px 0 var(--orange);
+}
+:is(.roque-teacher-shell .t160-dock, #student-dock-root .student-bottom-dock)
+  .t160-dock-btn.is-active {
+  color: #fff !important;
+}

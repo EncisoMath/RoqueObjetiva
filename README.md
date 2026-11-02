@@ -6,8 +6,16 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.43
+RoqueObjetiva v175.44
 
+
+## v175.44 · Dock persistente: evitar desaparición del botón activo
+
+- Corregida la prioridad del marcador azul en el dock compartido (docente, director de grupo y estudiante): `syncDockMotion` toma primero `.is-active` (sección seleccionada) y utiliza `aria-expanded="true"` solo como respaldo.
+- **Causa:** al abrir el menú `Cuenta`, `aria-expanded="true"` tenía prioridad y desplazaba el marcador del botón activo hacia `Cuenta`. La sección anterior seguía con su texto blanco por `.is-active`, ahora sobre el fondo blanco del dock; parecía desaparecer.
+- El menú abierto se diferencia con texto y subrayado del color principal, sin desplazar el marcador de la sección. Al cerrar vuelve a su estado normal. En estudiantes, `Salir` conserva su color rojo y la selección de Detalle/Historial permanece hasta terminar realmente el cierre de sesión.
+- Si no hay botón activo, el marcador queda a ancho cero en lugar de conservar una posición obsoleta. Se mantiene el DOM persistente, las transiciones y el comportamiento de la sesión; no hay cambios académicos ni de Supabase.
+- Versión web y precaché PWA actualizados para invalidar los estilos anteriores.
 
 ## v175.43 · Bajar Café a una posición intermedia
 
