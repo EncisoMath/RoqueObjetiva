@@ -6,8 +6,18 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.34
+RoqueObjetiva v175.35
 
+
+## v175.35 · Navidad completamente vectorial, sin imágenes
+
+- Corrección íntegra de la bienvenida: fondo **azul claro sólido** `#2288c3`, sin degradados ni fotografías, PNG/WebP ni elementos precocinados. Se descartan todos los recursos navideños gráficos de v175.33 y v175.34.
+- Cable superior y bombillas construidos con **SVG** (trazo curvo, óvalos de colores y brillo intermitente). Bancos de nieve inferiores dibujados mediante curvas SVG con colores sólidos.
+- Muñeco de nieve trazado en **SVG geométrico** con círculos, curvas, ojos, nariz triangular, boca y sombrero; ambos brazos saludan de forma independiente y la cabeza/sombrero giran suavemente.
+- Árbol **🎄**, regalos **🎁**, hojas **🌿** a ambos lados del escudo (una reflejada) y copos **❄️** de tamaños variados.
+- Nieve sin saltos laterales: la traslación vertical continua y la oscilación lateral periódica son animaciones **independientes** anidadas; el retorno al inicio ocurre fuera de la pantalla.
+- Logo institucional **sin gorro**; formulario original compacto, funcional y con `backdrop-filter`. En los cargadores navideños se mantiene la cabeza SVG en vez del cuadro azul. Soporta `prefers-reduced-motion`.
+- Cambios exclusivamente visuales, sin alteraciones a Supabase, notas, autenticación o datos académicos. Caché PWA/versiones renovadas.
 
 ## v175.34 · Recuperación visual fiel de la propuesta navideña
 
