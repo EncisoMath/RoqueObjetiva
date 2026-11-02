@@ -4029,22 +4029,25 @@
         </button>
       `;
     }).join("");
-    // V175.17: el nombre es la primera columna fija; las asignaturas se desplazan.
-    const tableRows = students.map((student) => {
+    // V175.18: dos tablas con la misma lista ordenada y alturas idénticas.
+    // La columna de nombres queda FUERA del contenedor con desplazamiento horizontal.
+    const nameRows = students.map((student) => {
       const fullName = displayListName(student);
       return `
-        <tr>
-          <td class="director-name-sticky" title="${escAttr(fullName)}">
-            <span class="director-name-cell">
-              <strong class="director-student-label">${esc(fullName)}</strong>
-              <span class="director-student-id">ID Prueba ${esc(student.roll)}</span>
-            </span>
-          </td>
-          ${subjects.map((subject) => `<td class="director-subject-grade">${scoreDisplayHtml(student.subjectStats[subject.name])}</td>`).join("")}
-          <td class="director-action-cell"><button class="danger-btn mini-btn director-delete-student-btn" data-action="director-delete-student" data-roll="${escAttr(student.roll)}">Eliminar</button></td>
-        </tr>
+        <tr><td title="${escAttr(fullName)}">
+          <span class="director-name-cell">
+            <strong class="director-student-label">${esc(fullName)}</strong>
+            <span class="director-student-id">ID Prueba ${esc(student.roll)}</span>
+          </span>
+        </td></tr>
       `;
     }).join("");
+    const gradeRows = students.map((student) => `
+      <tr>
+        ${subjects.map((subject) => `<td class="director-subject-grade" title="${escAttr(subject.name)} · ${escAttr(displayListName(student))}">${scoreDisplayHtml(student.subjectStats[subject.name])}</td>`).join("")}
+        <td class="director-action-cell"><button class="danger-btn mini-btn director-delete-student-btn" data-action="director-delete-student" data-roll="${escAttr(student.roll)}">Eliminar</button></td>
+      </tr>
+    `).join("");
 
     renderShell(`
       ${teacherModeTabs(teacher, "director")}
@@ -4067,15 +4070,22 @@
             <strong>Resultados por estudiante</strong>
             <span class="director-table-swipe-hint">Desliza las materias <span aria-hidden="true">→</span></span>
           </div>
-          <div class="table-wrap director-table-wrap" role="region" tabindex="0" aria-label="Calificaciones por asignatura: desliza horizontalmente para ver más materias">
-            <table class="teacher-table director-table">
-              <thead><tr>
-                <th class="director-name-sticky" scope="col">${sortHeader("Estudiante", "director-group", "name")}</th>
-                ${subjects.map((subject) => `<th scope="col" class="director-subject-heading" style="--director-area-color:${STUDENT_AREA_COLORS[subject.name] || "#248bc4"}"><span class="director-subject-header">${subjectIcon(subject.name)}${sortHeader(subject.short || subject.name, "director-group", subject.name)}</span></th>`).join("")}
-                <th class="director-action-heading" scope="col">Acción</th>
-              </tr></thead>
-              <tbody>${tableRows || `<tr><td colspan="${2 + subjects.length}" class="empty-state">No hay estudiantes con resultados en este grupo.</td></tr>`}</tbody>
-            </table>
+          <div class="director-split-layout">
+            <div class="director-fixed-names">
+              <table class="director-fixed-table" aria-label="Estudiantes del grupo">
+                <thead><tr><th scope="col">${sortHeader("Estudiante", "director-group", "name")}</th></tr></thead>
+                <tbody>${nameRows || '<tr><td class="director-empty-name">Sin estudiantes</td></tr>'}</tbody>
+              </table>
+            </div>
+            <div class="director-grades-scroll" role="region" tabindex="0" aria-label="Notas por asignatura: desliza horizontalmente para consultar las demás materias">
+              <table class="director-grades-table" aria-label="Notas de los estudiantes en el mismo orden que la columna fija">
+                <thead><tr>
+                  ${subjects.map((subject) => `<th scope="col" class="director-subject-heading" title="${escAttr(subject.name)}" style="--director-area-color:${STUDENT_AREA_COLORS[subject.name] || "#248bc4"}"><span class="director-subject-header"><span class="director-vertical-title">${sortHeader(subject.short || subject.name, "director-group", subject.name)}</span>${subjectIcon(subject.name)}</span></th>`).join("")}
+                  <th class="director-action-heading" scope="col">Acción</th>
+                </tr></thead>
+                <tbody>${gradeRows || `<tr><td colspan="${1 + subjects.length}" class="empty-state">No hay resultados en este grupo.</td></tr>`}</tbody>
+              </table>
+            </div>
           </div>
         </section>
       ` : `<section class="card card-pad empty-state">No tienes dirección de grupo asignada.</section>`}

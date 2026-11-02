@@ -6,8 +6,16 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.17
+RoqueObjetiva v175.18
 
+
+## v175.18 · Tabla del director realmente fija y más compacta
+
+- La columna **Estudiante** se separa físicamente de la zona de desplazamiento: **no se desplaza** al consultar las notas de las asignaturas. Ambas tablas utilizan la misma lista ordenada.
+- Las filas de estudiantes pasan a **37–38 px**, conservando nombre abreviado con puntos suspensivos e ID Prueba debajo.
+- Cabeceras de asignaturas con **nombre girado 90°** y **el icono institucional debajo, en orientación normal**.
+- Notas más compactas, desplazamiento horizontal limitado al bloque de asignaturas y acción «Eliminar» conservada.
+- Sin cambios en cálculos, claves, calificaciones ni Supabase. Actualizados caché PWA, README y versión.
 
 ## v175.17 · Tabla de Director de grupo: nombres fijos y asignaturas desplazables
 

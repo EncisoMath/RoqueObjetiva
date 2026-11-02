@@ -802,3 +802,247 @@
     font-size: .62rem;
   }
 }
+
+/* v175.18 — Director de grupo. La columna fija ya NO pertenece al scroll
+   horizontal: dos tablas sincronizadas por el mismo orden y altura de filas.
+   Sustituye únicamente el layout v175.17 sin afectar modales ni tarjetas. */
+.roque-teacher-shell .director-table-card {
+  --director-name-width: 192px;
+  --director-subject-width: 78px;
+  --director-action-width: 82px;
+  --director-heading-height: 116px;
+  --director-row-height: 38px;
+  overflow: hidden !important;
+}
+.roque-teacher-shell .director-split-layout {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  background: #fff;
+}
+.roque-teacher-shell .director-fixed-names {
+  flex: 0 0 var(--director-name-width);
+  width: var(--director-name-width);
+  min-width: 0;
+  overflow: hidden;
+  position: relative;
+  z-index: 2;
+  border-right: 1px solid #dce4ec;
+  box-shadow: 5px 0 12px -9px rgba(23,53,82,.4);
+}
+.roque-teacher-shell .director-grades-scroll {
+  display: block;
+  flex: 1 1 0;
+  width: 0;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scrollbar-gutter: auto;
+}
+.roque-teacher-shell .director-grades-scroll:focus-visible {
+  outline: 2px solid #1975ae;
+  outline-offset: -2px;
+}
+.roque-teacher-shell .director-fixed-table,
+.roque-teacher-shell .director-grades-table {
+  margin: 0 !important;
+  border: 0 !important;
+  border-spacing: 0 !important;
+  border-collapse: separate !important;
+  table-layout: fixed !important;
+  background: #fff;
+}
+.roque-teacher-shell .director-fixed-table {
+  width: 100% !important;
+  min-width: 0 !important;
+}
+.roque-teacher-shell .director-grades-table {
+  width: calc(var(--director-cols, 10) * var(--director-subject-width) + var(--director-action-width)) !important;
+  min-width: calc(var(--director-cols, 10) * var(--director-subject-width) + var(--director-action-width)) !important;
+}
+.roque-teacher-shell .director-fixed-table thead tr,
+.roque-teacher-shell .director-grades-table thead tr,
+.roque-teacher-shell .director-fixed-table thead th,
+.roque-teacher-shell .director-grades-table thead th {
+  box-sizing: border-box !important;
+  height: var(--director-heading-height) !important;
+  max-height: var(--director-heading-height) !important;
+}
+.roque-teacher-shell .director-fixed-table thead th,
+.roque-teacher-shell .director-grades-table thead th {
+  padding: 5px 4px 8px !important;
+  vertical-align: bottom !important;
+  background: #f3f5f8 !important;
+  color: #677489;
+  border-bottom: 1px solid #dee5ed;
+  font-size: .66rem;
+  font-weight: 800;
+  text-align: center !important;
+  white-space: nowrap !important;
+}
+.roque-teacher-shell .director-fixed-table thead th {
+  padding: 8px 10px !important;
+  text-align: left !important;
+}
+.roque-teacher-shell .director-fixed-table thead .sort-head {
+  text-align: left !important;
+  font-size: .67rem !important;
+}
+.roque-teacher-shell .director-grades-table th.director-subject-heading {
+  width: var(--director-subject-width) !important;
+  min-width: var(--director-subject-width) !important;
+  max-width: var(--director-subject-width) !important;
+}
+.roque-teacher-shell .director-grades-table th.director-action-heading,
+.roque-teacher-shell .director-grades-table td.director-action-cell {
+  width: var(--director-action-width) !important;
+  min-width: var(--director-action-width) !important;
+  max-width: var(--director-action-width) !important;
+}
+.roque-teacher-shell .director-grades-table .director-subject-header {
+  display: flex;
+  height: 103px;
+  min-height: 0;
+  justify-content: flex-end;
+  align-items: center;
+  flex-direction: column;
+  gap: 3px;
+}
+.roque-teacher-shell .director-grades-table .director-vertical-title {
+  display: flex;
+  flex: 0 1 auto;
+  align-items: center;
+  justify-content: flex-end;
+  min-height: 0;
+  max-height: 77px;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+.roque-teacher-shell .director-grades-table .director-vertical-title .sort-head {
+  display: block;
+  width: auto !important;
+  max-width: 77px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  white-space: nowrap !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: .65rem !important;
+  line-height: 1.1;
+  font-weight: 800;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  color: #3f4a60;
+}
+.roque-teacher-shell .director-grades-table .director-subject-header .subject-icon {
+  display: grid !important;
+  place-items: center;
+  flex: 0 0 22px !important;
+  width: 22px !important;
+  height: 22px !important;
+  min-width: 22px !important;
+  min-height: 22px !important;
+  margin: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  color: var(--director-area-color);
+  font-size: .92rem;
+}
+.roque-teacher-shell .director-grades-table .director-subject-header .subject-icon img {
+  width: 100% !important;
+  height: 100% !important;
+  padding: 0 !important;
+  object-fit: contain;
+  background: transparent !important;
+}
+.roque-teacher-shell .director-fixed-table tbody tr,
+.roque-teacher-shell .director-grades-table tbody tr,
+.roque-teacher-shell .director-fixed-table tbody td,
+.roque-teacher-shell .director-grades-table tbody td {
+  box-sizing: border-box !important;
+  height: var(--director-row-height) !important;
+  max-height: var(--director-row-height) !important;
+}
+.roque-teacher-shell .director-fixed-table tbody td,
+.roque-teacher-shell .director-grades-table tbody td {
+  padding: 3px 5px !important;
+  overflow: hidden;
+  border-bottom: 1px solid #e5eaf0;
+  vertical-align: middle;
+  white-space: nowrap !important;
+  background: #fff;
+}
+.roque-teacher-shell .director-fixed-table tbody td {
+  padding: 3px 8px !important;
+}
+.roque-teacher-shell .director-fixed-table .director-name-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  justify-content: center;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+.roque-teacher-shell .director-fixed-table .director-student-label {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap !important;
+  font-size: .69rem;
+  line-height: 1.12;
+  font-weight: 800;
+  color: #27354d;
+}
+.roque-teacher-shell .director-fixed-table .director-student-id {
+  display: block;
+  font-size: .56rem;
+  color: #8391a3;
+  line-height: 1.05;
+}
+.roque-teacher-shell .director-grades-table .director-subject-grade {
+  text-align: center !important;
+}
+.roque-teacher-shell .director-grades-table .director-subject-grade .teacher-score,
+.roque-teacher-shell .director-grades-table .director-subject-grade .teacher-score.teacher-score-plain {
+  font-size: .91rem !important;
+  line-height: 1 !important;
+  font-weight: 900 !important;
+}
+.roque-teacher-shell .director-grades-table .director-action-cell {
+  text-align: center !important;
+}
+.roque-teacher-shell .director-grades-table .director-delete-student-btn {
+  padding: 4px 5px !important;
+  font-size: .6rem !important;
+}
+@media (max-width: 680px) {
+  .roque-teacher-shell .director-table-card {
+    --director-name-width: 148px;
+    --director-subject-width: 72px;
+    --director-action-width: 76px;
+    --director-heading-height: 115px;
+    --director-row-height: 37px;
+  }
+  .roque-teacher-shell .director-fixed-table .director-student-label {
+    font-size: .65rem;
+  }
+  .roque-teacher-shell .director-grades-table .director-subject-grade .teacher-score,
+  .roque-teacher-shell .director-grades-table .director-subject-grade .teacher-score.teacher-score-plain {
+    font-size: .87rem !important;
+  }
+}
+@media (max-width: 360px) {
+  .roque-teacher-shell .director-table-card {
+    --director-name-width: 138px;
+    --director-subject-width: 70px;
+  }
+}
