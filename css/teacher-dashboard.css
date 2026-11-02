@@ -1148,3 +1148,13 @@
     font-size: .87rem !important;
   }
 }
+
+/* v175.23 — La ficha individual docente reutiliza el modal real de Estudiante.
+   Desde el área del Director se superpone sin destruir el modal padre y
+   queda por encima de su capa y del dock (z-index 221/225). */
+#modal-root .student-subject-modal-backdrop[data-nested-subject-detail="true"] {
+  z-index: 320 !important;
+}
+#modal-root .student-subject-modal-backdrop.teacher-subject-detail-backdrop {
+  z-index: 320 !important;
+}

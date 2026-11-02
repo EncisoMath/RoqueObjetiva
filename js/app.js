@@ -3505,20 +3505,28 @@
 
   // La cabecera, pestañas y barras del modal comparten EXACTAMENTE
   // la misma fuente de color que las tarjetas del informe, sin variantes.
-  function openStudentSubjectModalForRoll(roll, subject, showCorrect = false) {
+  function openStudentSubjectModalForRoll(roll, subject, showCorrect = false, preserveDirectorModal = false) {
     const student = state.computedByRoll.get(cleanId(roll));
     if (!student || !subject) return;
     const stat = student.subjectStats?.[subject];
     if (!stat?.total) return;
     const areaColor = STUDENT_AREA_COLORS[subject] || "#248bc4";
+    // Desde Director se superpone el MISMO modal estudiantil sin desmontar
+    // la ventana del área: así al cerrarlo se recuperan scroll y selección.
+    const parentBackdrop = preserveDirectorModal &&
+      modalRoot.lastElementChild?.classList.contains("director-detail-backdrop")
+      ? modalRoot.lastElementChild : null;
+    const previousMetricTab = state.metricTab;
     const edition = cleanText(state.activeSession?.edition ||
       state.studentSelectedEdition || state.academicEdition || "2026-1S");
     const course = [student.grade ? student.grade + "°" : "", cleanText(student.group || "")]
       .filter(Boolean).join(" ");
     state.metricTab = "components";
     document.body.classList.add("modal-open");
-    modalRoot.innerHTML = `
-      <div class="modal-backdrop student-subject-modal-backdrop" data-action="close-modal">
+    const studentSubjectHtml = `
+      <div class="modal-backdrop student-subject-modal-backdrop${state.activeSession?.role === "teacher" ? " teacher-subject-detail-backdrop" : ""}"
+        ${parentBackdrop ? `data-nested-subject-detail="true" data-restore-metric-tab="${previousMetricTab === "competences" ? "competences" : "components"}"` : ""}
+        data-action="close-modal">
         <section class="modal student-subject-modal"
           style="max-width:760px;--student-area-color:${areaColor}">
           <header class="student-subject-hero">
@@ -3543,6 +3551,12 @@
         </section>
       </div>
     `;
+    if (parentBackdrop) {
+      parentBackdrop.setAttribute("inert", "");
+      modalRoot.insertAdjacentHTML("beforeend", studentSubjectHtml);
+    } else {
+      modalRoot.innerHTML = studentSubjectHtml;
+    }
   }
 
   function openAdminStudentReportModal(roll) {
@@ -3599,14 +3613,18 @@
 
   function updateMetricTabDom() {
     const activeMetric = state.metricTab === "competences" ? "competences" : "components";
-    document.querySelectorAll(".metric-tab").forEach((button) => {
+    // Al abrir el detalle estudiantil sobre el Director no modificar sus
+    // pestañas: actualizar solo el modal que está por encima.
+    const scope = modalRoot.lastElementChild?.hasAttribute("data-nested-subject-detail")
+      ? modalRoot.lastElementChild : document;
+    scope.querySelectorAll(".metric-tab").forEach((button) => {
       const selected = button.dataset.tab === activeMetric;
       button.classList.toggle("active", selected);
       if (button.getAttribute("role") === "tab") {
         button.setAttribute("aria-selected", String(selected));
       }
     });
-    document.querySelectorAll(".metric-grid").forEach((grid) => {
+    scope.querySelectorAll(".metric-grid").forEach((grid) => {
       grid.dataset.active = activeMetric;
       grid.classList.remove("metric-switching");
       void grid.offsetWidth;
@@ -8022,27 +8040,22 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
   }
 
   function openDetailModal(roll, subject) {
-    const student = state.computedByRoll.get(roll);
+    const student = state.computedByRoll.get(cleanId(roll));
     if (!student) return;
     const requestedStat = statForSubject(student, subject);
-    const realSubject = requestedStat?.total ? (requestedStat.subject || subject) : SUBJECTS.find((s) => statForSubject(student, s.name)?.total)?.name;
-    const stat = statForSubject(student, realSubject);
-    modalRoot.innerHTML = `
-      <div class="modal-backdrop teacher-subject-detail-backdrop" data-action="close-modal">
-        <section class="modal">
-          <div class="modal-head">
-            <div>
-              <h2>${esc(student.name)}</h2>
-              <span style="color:#7d8089;font-weight:700;">${esc(realSubject)} · ID ${esc(student.roll)} · ${esc(student.grade)}° ${esc(student.group)}</span>
-            </div>
-            <button type="button" class="icon-btn" data-action="close-modal" aria-label="Cerrar">×</button>
-          </div>
-          <div class="modal-body">
-            <section class="card detail-card">${buildSubjectDetailHtml(student, realSubject, stat, true, true)}</section>
-          </div>
-        </section>
-      </div>
-    `;
+    // Buscar la clave real en subjectStats, pues ciertas cargas usan alias.
+    const realSubject = requestedStat?.total
+      ? (Object.keys(student.subjectStats || {}).find((name) => student.subjectStats[name] === requestedStat)
+        || requestedStat.subject || subject)
+      : SUBJECTS.find((entry) => statForSubject(student, entry.name)?.total)?.name;
+    if (!realSubject) {
+      toast("Este estudiante no tiene detalle de esta asignatura.");
+      return;
+    }
+    // Exactamente el modal utilizado por Estudiante (hero, colores y respuestas).
+    // El docente conserva la vista de claves correctas como antes.
+    const fromDirectorArea = modalRoot.lastElementChild?.classList.contains("director-detail-backdrop");
+    openStudentSubjectModalForRoll(student.roll, realSubject, true, fromDirectorArea);
   }
 
   function openAnswerInfo(roll, subject, item) {
@@ -9391,6 +9404,16 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       modalRoot.innerHTML = "";
       state.modalStack = [];
       document.body.classList.remove("modal-open");
+      return;
+    }
+    // Modal de respuestas de un estudiante abierto desde Director de grupo.
+    // Solo retirar la capa superior; el modal del área nunca se desmontó.
+    if (backdrop.hasAttribute("data-nested-subject-detail")) {
+      const previousTab = backdrop.dataset.restoreMetricTab;
+      backdrop.remove();
+      const directorBackdrop = modalRoot.lastElementChild;
+      directorBackdrop?.removeAttribute("inert");
+      state.metricTab = previousTab === "competences" ? "competences" : "components";
       return;
     }
     // Respuestas anidadas: retirar solo la capa superior, sin cerrar ni repintar el área.

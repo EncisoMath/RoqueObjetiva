@@ -6,8 +6,17 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.22
+RoqueObjetiva v175.23
 
+
+## v175.23 · El mismo modal del Estudiante en Docente y Director de grupo
+
+- Al pulsar un estudiante desde **Docente → Asignaturas** o desde el listado interno de **Docente → Director de grupo**, se abre el **componente real** `openStudentSubjectModalForRoll` ya usado en Estudiantes, no un diseño alternativo.
+- Se comparte exactamente el **hero plano con color e icono de la asignatura**, puntaje, resumen de respuestas, leyenda, tarjetas de ítems, valor de cada ítem y análisis por componentes/competencias con sus estilos originales.
+- Se preserva la capacidad docente de **mostrar la respuesta correcta** junto a cada ítem (el estudiante no recibe ese permiso adicional).
+- Si el detalle se abre sobre el modal del área de Director, este **permanece montado**, conservando desplazamiento y pestaña; al cerrar el detalle se retira únicamente la capa superior, sin parpadeo.
+- Los detalles de Docente normal y Director aparecen **por encima del dock**, con capas aisladas.
+- No se alteran notas, respuestas, resultados, claves, cálculos ni Supabase. Actualizados README, versión y precaché PWA.
 
 ## v175.22 · Tabla compacta de Docente normal, igualada a Director de grupo
 
