@@ -6251,7 +6251,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
 
     const opensNestedModal = new Set([
       "admin-student-subject",
-      "open-answer-key",
+      // La clave se superpone al modal padre real; no se guarda una copia HTML.
       "answer-info",
       "edit-carga-assignment",
       "add-carga-to-teacher",
@@ -7950,8 +7950,10 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     const rows = state.keys
       .filter((key) => (!grade || key.grade === grade) && sameSubject(key.area, subject))
       .sort(compareKeysByOriginalOrder);
-    modalRoot.innerHTML = `
-      <div class="modal-backdrop" data-action="close-modal">
+    // Mantener el modal padre montado: al cerrar las respuestas reaparece sin animación ni reconstrucción.
+    const nested = Boolean(modalRoot.querySelector(".modal-backdrop"));
+    const answerKeyHtml = `
+      <div class="modal-backdrop answer-key-backdrop"${nested ? ' data-nested-answer-key="true"' : ""} data-action="close-modal">
         <section class="modal answer-key-modal">
           <div class="modal-head">
             <div>
@@ -7980,6 +7982,14 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
         </section>
       </div>
     `;
+    if (nested) {
+      const parentBackdrop = modalRoot.lastElementChild;
+      if (parentBackdrop?.classList.contains("modal-backdrop")) parentBackdrop.setAttribute("inert", "");
+      modalRoot.insertAdjacentHTML("beforeend", answerKeyHtml);
+    } else {
+      modalRoot.innerHTML = answerKeyHtml;
+    }
+    document.body.classList.add("modal-open");
   }
 
   function openDetailModal(roll, subject) {
@@ -7989,7 +7999,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     const realSubject = requestedStat?.total ? (requestedStat.subject || subject) : SUBJECTS.find((s) => statForSubject(student, s.name)?.total)?.name;
     const stat = statForSubject(student, realSubject);
     modalRoot.innerHTML = `
-      <div class="modal-backdrop" data-action="close-modal">
+      <div class="modal-backdrop teacher-subject-detail-backdrop" data-action="close-modal">
         <section class="modal">
           <div class="modal-head">
             <div>
@@ -9358,13 +9368,23 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
 
 
   function closeModal() {
-    const backdrop = modalRoot.querySelector(".modal-backdrop");
+    const backdrop = modalRoot.lastElementChild?.classList.contains("modal-backdrop")
+      ? modalRoot.lastElementChild : modalRoot.querySelector(".modal-backdrop");
     if (!backdrop) {
       modalRoot.innerHTML = "";
       state.modalStack = [];
       document.body.classList.remove("modal-open");
       return;
     }
+    // Respuestas anidadas: retirar solo la capa superior, sin cerrar ni repintar el área.
+    if (backdrop.hasAttribute("data-nested-answer-key")) {
+      backdrop.remove();
+      const parentBackdrop = modalRoot.lastElementChild;
+      parentBackdrop?.removeAttribute("inert");
+      parentBackdrop?.querySelector('[data-action="open-answer-key"]')?.focus({ preventScroll: true });
+      return;
+    }
+    if (backdrop.classList.contains("is-closing")) return;
     backdrop.classList.add("is-closing");
     window.setTimeout(() => {
       if (state.modalStack.length) {

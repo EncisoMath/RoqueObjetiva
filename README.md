@@ -6,8 +6,16 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.15
+RoqueObjetiva v175.16
 
+
+## v175.16 · Modales anidados sin parpadeo y por encima del dock
+
+- Desde el modal de asignatura de **Docentes → Director de grupo**, «Ver respuestas correctas» abre una **capa superior real**, conservando el modal del área montado e intacto debajo.
+- Al cerrar «Respuestas correctas», solo se elimina esa capa: **no se cierra, reconstruye ni anima la ventana del área**. Conserva la posición de desplazamiento y el estado de la tabla/resumen.
+- La misma ventana «Respuestas correctas» funciona desde el **docente normal** cuando no hay un modal previo, conservando el cierre habitual.
+- Los modales de área de director, detalle de asignatura de docente normal, y respuestas correctas tienen `z-index` superior al dock de navegación docente/estudiante (sin modificar el dock).
+- Se actualizan versión, README y caché PWA; no se modifican cálculos, notas, respuestas ni Supabase.
 
 ## v175.15 · Barras flat y tabla ampliada en Director de grupo
 

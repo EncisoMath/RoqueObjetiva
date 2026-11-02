@@ -548,3 +548,15 @@
     padding: 8px 3px !important;
   }
 }
+
+/* v175.16 — Modal del área y clave docente SIEMPRE por encima del dock.
+   El dock (.t160-dock, #student-dock-root) usa z-index 221/225.
+   Las respuestas anidadas deben cubrir su modal padre, no sustituirlo. */
+#modal-root .director-detail-backdrop,
+#modal-root .student-subject-modal-backdrop,
+#modal-root .teacher-subject-detail-backdrop {
+  z-index: 300 !important;
+}
+#modal-root .answer-key-backdrop {
+  z-index: 310 !important;
+}
