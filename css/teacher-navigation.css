@@ -173,40 +173,63 @@
   }
 }
 
-/* v175.31: hero y dock persistentes, transición solo del contenido. */
-@keyframes roqueTeacherContentEnter {
-  from { opacity: .42; }
-  to { opacity: 1; }
+/* v175.32 — Dock sin desmontar: aparece suavemente una vez; marcador móvil. */
+@keyframes roqueDockEntrance {from {transform:translate(-50%,10px);clip-path:inset(100% 0 0 0)}to {transform:translate(-50%,0);clip-path:inset(0 0 0 0)}}
+:is(.roque-teacher-shell .t160-dock,#student-dock-root .student-bottom-dock) {
+  isolation:isolate;
+  animation:roqueDockEntrance 350ms cubic-bezier(.2,.8,.2,1) both !important;
 }
-.roque-teacher-shell .page.teacher-page-enter {
-  animation: roqueTeacherContentEnter 210ms ease-out both;
+:is(.roque-teacher-shell .t160-dock,#student-dock-root .student-bottom-dock)::before {
+  content:"";position:absolute;z-index:0;pointer-events:none;top:4px;
+  left:var(--dock-marker-left,6px);width:var(--dock-marker-width,0px);
+  height:52px;border-radius:4px;background:var(--orange);
 }
-.roque-teacher-shell .page.teacher-page-enter > .teacher-toolbar,
+:is(.roque-teacher-shell .t160-dock,#student-dock-root .student-bottom-dock).dock-motion-ready::before {
+  transition:left 290ms cubic-bezier(.22,.8,.24,1),width 290ms cubic-bezier(.22,.8,.24,1);
+}
+:is(.roque-teacher-shell .t160-dock,#student-dock-root .student-bottom-dock) .t160-dock-btn {
+  position:relative;z-index:1;background:transparent !important;border-color:transparent !important;
+  transition:color 250ms ease,transform 170ms ease !important;
+}
+:is(.roque-teacher-shell .t160-dock,#student-dock-root .student-bottom-dock) .t160-dock-btn:is(.is-active,[aria-expanded="true"]) {
+  color:#fff !important;background:transparent !important;border-color:transparent !important;
+}
+:is(.roque-teacher-shell .t160-dock,#student-dock-root .student-bottom-dock) .t160-dock-btn:hover:not(.is-active):not([aria-expanded="true"]) {background:transparent !important;}
+#student-dock-root .student-bottom-dock .t160-dock-btn[data-action="logout"] {color:#af3342 !important;}
+
+/* Cascada docente: contenido por capas, hero y dock completamente estables. */
+@keyframes roqueCascade {from {opacity:0;translate:0 9px;}to {opacity:1;translate:0 0;}}
+.roque-teacher-shell .page.teacher-page-enter {animation:none !important;}
 .roque-teacher-shell .page.teacher-page-enter > .teacher-nav-block,
-.roque-teacher-shell .page.teacher-page-enter > .director-subject-grid,
+.roque-teacher-shell .page.teacher-page-enter > .teacher-assignments-ui > .teacher-nav-block,
+.roque-teacher-shell .page.teacher-page-enter > .teacher-assignments-ui > .teacher-stat-strip,
+.roque-teacher-shell .page.teacher-page-enter > .teacher-assignments-ui > .teacher-metrics-row,
+.roque-teacher-shell .page.teacher-page-enter > .teacher-assignments-ui > .teacher-students-card,
+.roque-teacher-shell .page.teacher-page-enter > .director-table-card,
 .roque-teacher-shell .page.teacher-page-enter > .coordinator-admin-panel {
-  animation: none !important;
+  animation:roqueCascade 370ms cubic-bezier(.2,.8,.2,1) both !important;
 }
-/* Ninguna animación en el dock, ni al activar otra pestaña. */
-.roque-teacher-shell .t160-dock,
-.roque-teacher-shell .t160-dock-btn,
-.roque-teacher-shell .t160-dock-btn .adm151-icon,
-.roque-teacher-shell .t160-dock-btn span {
-  animation: none !important;
-  transition: none !important;
-}
-.roque-teacher-shell .director-subject-card {
-  transition: border-color 180ms ease, background-color 180ms ease;
-}
-.roque-teacher-shell .teacher-table .table-row-click {
-  transition: background-color 160ms ease;
-}
-@media (prefers-reduced-motion: reduce) {
-  .roque-teacher-shell .page.teacher-page-enter {
-    animation: none !important;
+.roque-teacher-shell .page.teacher-page-enter > .teacher-nav-block,
+.roque-teacher-shell .page.teacher-page-enter > .teacher-assignments-ui > .teacher-nav-block {animation-delay:25ms !important;}
+.roque-teacher-shell .page.teacher-page-enter > .teacher-assignments-ui > .teacher-stat-strip,
+.roque-teacher-shell .page.teacher-page-enter > .coordinator-admin-panel {animation-delay:85ms !important;}
+.roque-teacher-shell .page.teacher-page-enter > .teacher-assignments-ui > .teacher-metrics-row {animation-delay:140ms !important;}
+.roque-teacher-shell .page.teacher-page-enter > .teacher-assignments-ui > .teacher-students-card,
+.roque-teacher-shell .page.teacher-page-enter > .director-table-card {animation-delay:190ms !important;}
+.roque-teacher-shell .page.teacher-page-enter > .director-subject-grid {animation:none !important;}
+.roque-teacher-shell .page.teacher-page-enter > .director-subject-grid > .director-subject-card {animation:roqueCascade 350ms cubic-bezier(.2,.8,.2,1) 90ms both !important;}
+.roque-teacher-shell .page.teacher-page-enter > .director-subject-grid > .director-subject-card:nth-child(2n) {animation-delay:125ms !important;}
+.roque-teacher-shell .page.teacher-page-enter > .director-subject-grid > .director-subject-card:nth-child(3n) {animation-delay:160ms !important;}
+.roque-teacher-shell .director-subject-card {transition:border-color 180ms ease,background-color 180ms ease,transform 190ms ease;}
+.roque-teacher-shell .director-subject-card:active {transform:scale(.985);}
+.roque-teacher-shell .teacher-table .table-row-click {transition:background-color 180ms ease;}
+@media (prefers-reduced-motion:reduce) {
+  :is(.roque-teacher-shell .t160-dock,#student-dock-root .student-bottom-dock),
+  .roque-teacher-shell .page.teacher-page-enter > *,
+  .roque-teacher-shell .page.teacher-page-enter > .teacher-assignments-ui > *,
+  .roque-teacher-shell .page.teacher-page-enter > .director-subject-grid > .director-subject-card {
+    animation:none !important;translate:none !important;
   }
-  .roque-teacher-shell .director-subject-card,
-  .roque-teacher-shell .teacher-table .table-row-click {
-    transition: none !important;
-  }
+  :is(.roque-teacher-shell .t160-dock,#student-dock-root .student-bottom-dock)::before,
+  :is(.roque-teacher-shell .t160-dock,#student-dock-root .student-bottom-dock) .t160-dock-btn {transition:none !important;}
 }

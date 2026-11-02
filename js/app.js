@@ -159,6 +159,7 @@
     zeroToleranceShown: false
   };
 
+  window.addEventListener("resize", syncDockPositions, { passive: true });
   document.addEventListener("DOMContentLoaded", init);
   document.addEventListener("submit", handleSubmit);
   document.addEventListener("click", handleCriticalStatsClick, true);
@@ -3349,6 +3350,7 @@
         else button.removeAttribute("aria-current");
         if (button.dataset.menu) button.setAttribute("aria-expanded", "false");
       });
+      syncDockMotion(teacherDock);
       syncPersistentStudentDock();
       return;
     }
@@ -3376,7 +3378,10 @@
         ${state.activeSession?.role === "teacher" ? teacherDockHtml() : ""}
       </div>
     `;
-    if (heroRole === "teacher") state.teacherViewMotionPending = false;
+    if (heroRole === "teacher") {
+      state.teacherViewMotionPending = false;
+      syncDockMotion(app.querySelector(".roque-teacher-shell .t160-dock"));
+    }
     // El dock estudiantil vive FUERA de #app: no se destruye ni desvanece
     // al sustituir el informe, el historial o la cabecera medallista.
     syncPersistentStudentDock();
@@ -3832,6 +3837,7 @@
       el.setAttribute("aria-hidden", "true");
     });
     document.querySelectorAll(".t160-dock-btn[data-menu]").forEach((el) => el.setAttribute("aria-expanded", "false"));
+    syncDockMotion(app.querySelector(".roque-teacher-shell .t160-dock"));
     return true;
   }
 
@@ -3846,10 +3852,32 @@
       el.setAttribute("aria-hidden", String(!open));
     });
     document.querySelectorAll(".t160-dock-btn[data-menu]").forEach((el) => el.setAttribute("aria-expanded", String(el.dataset.menu === state.teacherDockMenu)));
+    syncDockMotion(app.querySelector(".roque-teacher-shell .t160-dock"));
   }
 
   // Una sola instancia DOM del dock entre todas las pantallas estudiantiles.
   // Mantener intactos sus botones evita reinicios, pérdidas de foco y parpadeos.
+  // v175.32: el resaltado se desplaza entre botones sin ocultar el dock.
+  function syncDockMotion(dock) {
+    if (!dock) return;
+    const active = dock.querySelector('.t160-dock-btn[aria-expanded="true"]') ||
+      dock.querySelector(".t160-dock-btn.is-active");
+    if (!active) return;
+    dock.style.setProperty("--dock-marker-left", active.offsetLeft + "px");
+    dock.style.setProperty("--dock-marker-width", active.offsetWidth + "px");
+    if (!dock.classList.contains("dock-motion-ready") && !dock.dataset.motionPending) {
+      dock.dataset.motionPending = "1";
+      window.requestAnimationFrame(() => {
+        delete dock.dataset.motionPending;
+        if (dock.isConnected) dock.classList.add("dock-motion-ready");
+      });
+    }
+  }
+  function syncDockPositions() {
+    syncDockMotion(app.querySelector(".roque-teacher-shell .t160-dock"));
+    syncDockMotion(document.querySelector("#student-dock-root .student-bottom-dock"));
+  }
+
   function syncPersistentStudentDock() {
     const root = document.getElementById("student-dock-root");
     if (!root) return;
@@ -3888,6 +3916,7 @@
       if (active) button.setAttribute("aria-current", "page");
       else button.removeAttribute("aria-current");
     }
+    syncDockMotion(dock);
   }
 
   function studentDockHtml() {

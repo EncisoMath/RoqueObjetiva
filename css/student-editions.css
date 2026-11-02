@@ -57,3 +57,18 @@
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
 }
+
+/* v175.32: portada e historial entran en secuencia suave. */
+.po-editions-screen .po-editions-intro,.po-editions-screen .po-editions-latest,
+.po-editions-screen .po-editions-divider,.po-editions-screen .po-editions-history,
+.po-editions-screen .po-editions-footnote {animation:roqueStudentCascade 380ms cubic-bezier(.2,.8,.2,1) both;}
+.po-editions-screen .po-editions-intro {animation-delay:20ms;}
+.po-editions-screen .po-editions-latest {animation-delay:70ms;}
+.po-editions-screen .po-editions-divider {animation-delay:120ms;}
+.po-editions-screen .po-editions-history {animation-delay:165ms;}
+.po-editions-screen .po-editions-footnote {animation-delay:210ms;}
+@media (prefers-reduced-motion:reduce) {
+  .po-editions-screen .po-editions-intro,.po-editions-screen .po-editions-latest,
+  .po-editions-screen .po-editions-divider,.po-editions-screen .po-editions-history,
+  .po-editions-screen .po-editions-footnote {animation:none !important;translate:none !important;}
+}

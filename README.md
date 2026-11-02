@@ -6,8 +6,16 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.31
+RoqueObjetiva v175.32
 
+
+## v175.32 · Cascadas elegantes y dock persistente con indicador móvil
+
+- En **Docente y Estudiante**, el dock aparece suavemente solo al montarse, pero **permanece visible** al cambiar de vista. El indicador azul se desliza de un botón al siguiente y se recalcula al redimensionar la pantalla.
+- **Carga, Dirección de grupo y Coordinación** muestran selectores, tarjetas, estadísticas y tablas en una cascada corta, sin animar el hero ni reconstruir el dock.
+- El **informe estudiantil y el historial** usan la misma cadencia, sin desenfoques ni esperas prolongadas.
+- Los **modales** comparten transiciones de apertura y cierre, y escalonan la entrada del hero y del contenido; las ventanas padre de los modales anidados permanecen abiertas.
+- Se respeta `prefers-reduced-motion`. No hay cambios en notas, respuestas ni Supabase; README, versión y caché actualizados.
 
 ## v175.31 · El hero y el dock ya no saltan al cambiar de pestaña
 
