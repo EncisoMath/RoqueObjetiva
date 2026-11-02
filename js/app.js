@@ -113,6 +113,7 @@
     teacherActive: null,
     teacherMode: "asignaturas",
     teacherDockMenu: "",
+    teacherViewMotionPending: false,
     teacherDirectorActiveKey: "",
     teacherSearch: "",
     adminTab: "resumen",
@@ -3317,8 +3318,42 @@
     const studentHero = heroRole === "student";
     const hasInstitutionalHero = ["student", "teacher", "admin"].includes(heroRole);
     if (state.activeSession?.role === "teacher") state.teacherDockMenu = "";
+    // v175.31: no reconstruir el hero ni el dock al navegar como docente.
+    // Mantener el mismo DOM evita reiniciar las partículas y el parpadeo.
+    const currentTeacherShell = heroRole === "teacher"
+      && app.firstElementChild?.classList.contains("roque-teacher-shell")
+      && app.firstElementChild.dataset.teacherSession === String(state.activeSession?.id || "")
+      ? app.firstElementChild : null;
+    const teacherPage = currentTeacherShell?.querySelector("main.page");
+    const teacherBanner = currentTeacherShell?.querySelector(".top-banner");
+    const teacherDock = currentTeacherShell?.querySelector(".t160-dock");
+    if (teacherPage && teacherBanner && teacherDock) {
+      teacherPage.classList.remove("teacher-page-enter");
+      teacherPage.innerHTML = content;
+      if (state.teacherViewMotionPending) {
+        void teacherPage.offsetWidth;
+        teacherPage.classList.add("teacher-page-enter");
+      }
+      state.teacherViewMotionPending = false;
+      teacherBanner.style.background = primary;
+      currentTeacherShell.querySelectorAll(".t160-menu-layer").forEach((layer) => {
+        layer.classList.remove("is-open");
+        layer.setAttribute("aria-hidden", "true");
+      });
+      teacherDock.querySelectorAll(".t160-dock-btn").forEach((button) => {
+        const selected = button.dataset.menu === "coord"
+          ? String(state.teacherMode || "").startsWith("coord-")
+          : Boolean(button.dataset.mode && button.dataset.mode === state.teacherMode);
+        button.classList.toggle("is-active", selected);
+        if (selected && button.dataset.mode) button.setAttribute("aria-current", "page");
+        else button.removeAttribute("aria-current");
+        if (button.dataset.menu) button.setAttribute("aria-expanded", "false");
+      });
+      syncPersistentStudentDock();
+      return;
+    }
     app.innerHTML = `
-      <div class="app-shell${hasInstitutionalHero ? " roque-hero-shell" : ""}${heroRole === "admin" ? " adm151-shell" : ""}${heroRole === "teacher" ? " roque-teacher-shell" : ""}${studentHero ? " roque-student-shell" : ""}">
+      <div class="app-shell${hasInstitutionalHero ? " roque-hero-shell" : ""}${heroRole === "admin" ? " adm151-shell" : ""}${heroRole === "teacher" ? " roque-teacher-shell" : ""}${studentHero ? " roque-student-shell" : ""}"${heroRole === "teacher" ? ` data-teacher-session="${escAttr(state.activeSession?.id || "")}"` : ""}>
         <header class="top-banner${bannerClass}" ${bannerStyle}>
           <div class="banner-shapes ${holidayHero ? "banner-winter" : (isMedalBanner ? "banner-stars" : "")}" aria-hidden="true">
             ${holidayHero ? renderHolidayHeroParticles() : renderPlayShapes("banner", isMedalBanner)}
@@ -3770,17 +3805,9 @@
   // CSS-only fallback cuando la API no existe y sin animación para
   // prefers-reduced-motion.
   function renderTeacherWithMotion() {
-    const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches === true;
-    if (!reduceMotion && typeof document.startViewTransition === "function" &&
-        document.querySelector(".roque-teacher-shell .page")) {
-      try {
-        document.startViewTransition(() => renderBySession());
-        return;
-      } catch (error) {
-        // No impedir la navegación si la API nativa falla.
-      }
-    }
-    state.teacherViewMotionPending = !reduceMotion;
+    // Solo transición de opacidad del contenido, sin capturas del hero/dock.
+    const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches === true;
+    state.teacherViewMotionPending = !reduced && Boolean(app.querySelector(".roque-teacher-shell .page"));
     renderBySession();
   }
 

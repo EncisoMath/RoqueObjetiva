@@ -138,21 +138,6 @@
   .roque-teacher-shell .page { padding-bottom: 0 !important; }
 }
 
-/* v161: transición de entrada muy ligera al cambiar de vista docente; no afecta las tablas ni los datos. */
-@keyframes t161ContentEnter { from { opacity: .2; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-.roque-teacher-shell .page > .teacher-toolbar,
-.roque-teacher-shell .page > .teacher-nav-block,
-.roque-teacher-shell .page > .coordinator-admin-panel,
-.roque-teacher-shell .page > .director-subject-grid {
-  animation: t161ContentEnter .24s cubic-bezier(.18,.8,.2,1) both;
-}
-@media (prefers-reduced-motion: reduce) {
-  .roque-teacher-shell .page > .teacher-toolbar,
-  .roque-teacher-shell .page > .teacher-nav-block,
-  .roque-teacher-shell .page > .coordinator-admin-panel,
-  .roque-teacher-shell .page > .director-subject-grid { animation: none !important; }
-}
-
 /* La tarjeta docente conserva su propio espaciado.
    Todos los heroes comparten ahora css/shared-hero.css (v166). */
 .roque-teacher-shell .teacher-toolbar {
@@ -188,54 +173,36 @@
   }
 }
 
-/* v175.30 — Transiciones del panel docente.
-   Con View Transitions solo .page cambia; el dock queda estable. */
-.roque-teacher-shell .page {
-  view-transition-name: roque-teacher-page;
+/* v175.31: hero y dock persistentes, transición solo del contenido. */
+@keyframes roqueTeacherContentEnter {
+  from { opacity: .42; }
+  to { opacity: 1; }
 }
-@keyframes roqueTeacherViewOut {
-  to { opacity: 0; transform: translateY(-5px); }
-}
-@keyframes roqueTeacherViewIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-::view-transition-old(root),
-::view-transition-new(root) {
-  animation: none;
-}
-::view-transition-old(roque-teacher-page) {
-  animation: roqueTeacherViewOut 135ms ease-in both;
-}
-::view-transition-new(roque-teacher-page) {
-  animation: roqueTeacherViewIn 270ms cubic-bezier(.2,.8,.2,1) both;
-}
-/* Fallback para navegadores sin document.startViewTransition. */
 .roque-teacher-shell .page.teacher-page-enter {
-  animation: roqueTeacherViewIn 260ms cubic-bezier(.2,.8,.2,1) both;
+  animation: roqueTeacherContentEnter 210ms ease-out both;
 }
+.roque-teacher-shell .page.teacher-page-enter > .teacher-toolbar,
 .roque-teacher-shell .page.teacher-page-enter > .teacher-nav-block,
 .roque-teacher-shell .page.teacher-page-enter > .director-subject-grid,
 .roque-teacher-shell .page.teacher-page-enter > .coordinator-admin-panel {
   animation: none !important;
 }
-/* Microinteracciones ligeras: tarjetas y filas sin cambiar el layout. */
-.roque-teacher-shell .director-subject-card {
-  transition: border-color 180ms ease, background-color 180ms ease, translate 210ms cubic-bezier(.2,.8,.2,1), box-shadow 210ms ease;
+/* Ninguna animación en el dock, ni al activar otra pestaña. */
+.roque-teacher-shell .t160-dock,
+.roque-teacher-shell .t160-dock-btn,
+.roque-teacher-shell .t160-dock-btn .adm151-icon,
+.roque-teacher-shell .t160-dock-btn span {
+  animation: none !important;
+  transition: none !important;
 }
-.roque-teacher-shell .director-subject-card:active {
-  translate: 0 1px;
+.roque-teacher-shell .director-subject-card {
+  transition: border-color 180ms ease, background-color 180ms ease;
 }
 .roque-teacher-shell .teacher-table .table-row-click {
   transition: background-color 160ms ease;
 }
 @media (prefers-reduced-motion: reduce) {
-  .roque-teacher-shell .page {
-    view-transition-name: none;
-  }
-  .roque-teacher-shell .page.teacher-page-enter,
-  ::view-transition-old(roque-teacher-page),
-  ::view-transition-new(roque-teacher-page) {
+  .roque-teacher-shell .page.teacher-page-enter {
     animation: none !important;
   }
   .roque-teacher-shell .director-subject-card,

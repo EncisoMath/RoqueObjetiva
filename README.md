@@ -6,8 +6,17 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.30
+RoqueObjetiva v175.31
 
+
+## v175.31 · El hero y el dock ya no saltan al cambiar de pestaña
+
+- Se elimina el uso de View Transitions para las pestañas docentes: sus capturas producían superposiciones, glitches y parpadeos al redibujar toda la pantalla.
+- Al cambiar entre **Carga**, **Dirección de grupo** y **Coordinación**, el mismo hero y el mismo dock permanecen montados y **solo se actualiza el contenido central**. Los elementos animados del hero no se reinician.
+- El dock **no se reconstruye ni se anima**: se actualiza instantáneamente el botón activo y se cierran los menús cuando corresponde.
+- Única animación de opacidad de 210 ms en el contenido, sin movimientos de toda la página ni animaciones duplicadas de sus secciones.
+- Las animaciones de modales de v175.30 permanecen. Respeto a `prefers-reduced-motion`.
+- Sin cambios en resultados, notas, datos, autenticación o Supabase. README y versión/caché PWA actualizados.
 
 ## v175.30 · Transiciones fluidas y modales animados
 
