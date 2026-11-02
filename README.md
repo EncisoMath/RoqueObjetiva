@@ -6,8 +6,17 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.33
+RoqueObjetiva v175.34
 
+
+## v175.34 · Recuperación visual fiel de la propuesta navideña
+
+- Se corrige la versión v175.33 que deformó la propuesta: el fondo vuelve a proceder de la imagen aprobada por el usuario, no de un redibujo vectorial simplificado. Se usa un recurso liviano WebP preparado desde dicha imagen, con el formulario impreso retirado para no duplicar controles.
+- El muñeco de nieve reproduce el sombrero oscuro, el rostro y la bufanda roja de la referencia. Se recortaron cabeza y cuerpo como recursos reales independientes y se animan mirada/sombrero y brazos con distintas cadencias naturales.
+- Se mantiene la tarjeta compacta con desenfoque real, tipografía pequeña, árboles/regalos/guirnalda de la ilustración, copos sinuosos y bombillitas intermitentes. El gorro del escudo es dibujo flat, nunca emoji de Papá Noel.
+- «Consultando resultados» y el cargador de navegación usan el recorte real de la cabeza, sin cuadrado degradado. Los recursos se precachean con nueva versión PWA para invalidar la pantalla anterior.
+- El cambio es exclusivamente visual y estacional (1 nov a 6 ene, hora Colombia); sin cambios en SQL, Supabase, credenciales, calificaciones, rankings ni autorizaciones. Los SVG restantes siguen disponibles como respaldo de versiones anteriores.
+- Revisión estática del JS y rutas: no se modifica el flujo de autenticación. Se recomienda comprobar la versión publicada en móvil y escritorio.
 
 ## v175.33 · Inicio navideño flat y muñeco de nieve animado
 
