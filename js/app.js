@@ -4033,10 +4033,15 @@
     // La columna de nombres queda FUERA del contenedor con desplazamiento horizontal.
     const nameRows = students.map((student) => {
       const fullName = displayListName(student);
+      // La visualización ya usa «Apellidos, Nombres». Separar sin tocar el dato.
+      const comma = fullName.indexOf(",");
+      const surnames = comma < 0 ? fullName : fullName.slice(0, comma).trim();
+      const givenNames = comma < 0 ? "" : fullName.slice(comma + 1).trim();
       return `
         <tr><td title="${escAttr(fullName)}">
           <span class="director-name-cell">
-            <strong class="director-student-label">${esc(fullName)}</strong>
+            <strong class="director-student-surname" title="${escAttr(surnames)}">${esc(surnames)}</strong>
+            <span class="director-student-given" title="${escAttr(givenNames)}">${esc(givenNames)}</span>
             <span class="director-student-id">ID Prueba ${esc(student.roll)}</span>
           </span>
         </td></tr>

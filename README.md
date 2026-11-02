@@ -6,8 +6,16 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.18
+RoqueObjetiva v175.19
 
+
+## v175.19 · Asignaturas giradas a la izquierda y estudiantes en tres renglones
+
+- La tabla general de **Docente → Director de grupo** muestra el título de la asignatura **90° hacia la izquierda**, con el icono normal debajo.
+- Columnas de materias más estrechas: **62 px en escritorio, 56 px en móvil y 54 px en pantallas muy estrechas**.
+- La columna fija muestra ahora **apellidos**, **nombres** (algo menores) e **ID Prueba** (más pequeño) en tres líneas, dividiendo el formato visible `Apellidos, Nombres` mediante la coma, con truncamiento por puntos suspensivos.
+- Filas ajustadas a **42–43 px**, manteniendo la alineación entre ambas tablas, el desplazamiento solo de notas y el ordenamiento.
+- Sin cambios en Supabase, nombres originales, notas, permisos ni cálculos. Versión, README y caché PWA actualizados.
 
 ## v175.18 · Tabla del director realmente fija y más compacta
 
