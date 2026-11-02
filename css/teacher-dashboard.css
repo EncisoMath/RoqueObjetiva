@@ -23,7 +23,7 @@
 :is(.roque-teacher-shell .teacher-assignments-ui, .director-detail-modal) .teacher-metric-tabbed{width:100%;min-width:0}
 :is(.roque-teacher-shell .teacher-assignments-ui, .director-detail-modal) .teacher-metric-tabbed .metric-tabs.teacher-metric-tabs{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:0!important;padding:0;margin:0 0 12px!important;border:1px solid #dce6f0;border-radius:8px;background:#fff;box-shadow:0 3px 12px rgba(23,49,78,.04);overflow:hidden}
 :is(.roque-teacher-shell .teacher-assignments-ui, .director-detail-modal) .teacher-metric-tabbed .metric-tab{height:33px;min-height:33px!important;padding:5px 10px!important;border:0!important;border-radius:7px!important;background:#fff!important;color:#5e6b7c!important;font-size:.76rem!important;font-weight:750;box-shadow:none!important;cursor:pointer}
-:is(.roque-teacher-shell .teacher-assignments-ui, .director-detail-modal) .teacher-metric-tabbed .metric-tab.active{background:#1386bf!important;color:#fff!important}
+.roque-teacher-shell .teacher-assignments-ui .teacher-metric-tabbed .metric-tab.active{background:#1386bf!important;color:#fff!important}
 :is(.roque-teacher-shell .teacher-assignments-ui, .director-detail-modal) .teacher-performance-card{margin:0;padding:0 11px 11px;border:1px solid #e0e8f1;border-radius:9px;background:#fff;box-shadow:0 3px 12px rgba(29,52,83,.045)}
 :is(.roque-teacher-shell .teacher-assignments-ui, .director-detail-modal) .teacher-performance-summary{display:flex;align-items:center;justify-content:space-between;min-height:41px;padding:9px 0 7px;list-style:none;color:#243249;font-size:.86rem;font-weight:850;cursor:pointer}
 :is(.roque-teacher-shell .teacher-assignments-ui, .director-detail-modal) .teacher-performance-summary::-webkit-details-marker{display:none}
@@ -54,7 +54,7 @@
 :is(.roque-teacher-shell .teacher-assignments-ui, .director-detail-modal) .teacher-metric-tabbed .metric-bar-head span{color:#455166!important;font-size:.73rem!important;font-weight:600!important;line-height:1.24!important}
 :is(.roque-teacher-shell .teacher-assignments-ui, .director-detail-modal) .teacher-metric-tabbed .metric-bar-head strong{margin-left:auto;font-size:.76rem!important;font-weight:850!important;white-space:nowrap}
 :is(.roque-teacher-shell .teacher-assignments-ui, .director-detail-modal) .teacher-metric-tabbed .metric-progress{height:8px!important;border-radius:2px!important;background:#e6edf6!important}
-:is(.roque-teacher-shell .teacher-assignments-ui, .director-detail-modal) .teacher-metric-tabbed .metric-progress-fill{background:linear-gradient(90deg,#0982be,#41b4df)!important;border-radius:2px!important}
+.roque-teacher-shell .teacher-assignments-ui .teacher-metric-tabbed .metric-progress-fill{background:linear-gradient(90deg,#0982be,#41b4df)!important;border-radius:2px!important}
 
 /* Cabecera y tabla compacta de estudiantes, cuatro columnas siempre visibles. */
 :is(.roque-teacher-shell .teacher-assignments-ui, .director-detail-modal) .teacher-students-card{min-width:0;margin-top:12px;padding:0 9px 8px!important;border:1px solid #e0e8f1;border-radius:9px!important;background:#fff;box-shadow:0 4px 14px rgba(29,52,83,.05)!important}
@@ -477,5 +477,74 @@
   }
   .director-detail-modal .director-detail-table .director-student-score .teacher-score {
     font-size: 1rem !important;
+  }
+}
+
+/* v175.15 — El modal del director tiene colores FLAT, sin el tema azul
+   de la tabla docente general. #modal-root garantiza la precedencia frente
+   a reglas compartidas con :is() sin afectar las otras vistas. */
+#modal-root .director-detail-modal .teacher-metric-tabbed .metric-tab.active {
+  background: var(--director-area-color) !important;
+  background-image: none !important;
+  border-color: var(--director-area-color) !important;
+  color: #fff !important;
+  box-shadow: none !important;
+}
+#modal-root .director-detail-modal .teacher-metric-tabbed .metric-tab:not(.active) {
+  background: #fff !important;
+  background-image: none !important;
+  color: var(--director-area-color) !important;
+  box-shadow: none !important;
+}
+#modal-root .director-detail-modal .teacher-metric-tabbed .metric-progress-fill {
+  background: var(--director-area-color) !important;
+  background-color: var(--director-area-color) !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+#modal-root .director-detail-modal .teacher-metric-tabbed .metric-bar-head strong {
+  color: var(--director-area-color) !important;
+}
+
+/* Sin numeración. Se aprovecha la columna liberada para el nombre. */
+#modal-root .director-detail-modal .director-detail-table .teacher-table {
+  width: 100%;
+  min-width: 0 !important;
+  table-layout: fixed;
+}
+#modal-root .director-detail-modal .director-detail-table .teacher-table th:nth-child(1),
+#modal-root .director-detail-modal .director-detail-table .teacher-table td:nth-child(1) {
+  width: 64% !important;
+  text-align: left !important;
+  white-space: nowrap !important;
+}
+#modal-root .director-detail-modal .director-detail-table .teacher-table th:nth-child(2),
+#modal-root .director-detail-modal .director-detail-table .teacher-table td:nth-child(2) {
+  width: 15% !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+}
+#modal-root .director-detail-modal .director-detail-table .teacher-table th:nth-child(3),
+#modal-root .director-detail-modal .director-detail-table .teacher-table td:nth-child(3) {
+  width: 21% !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+}
+#modal-root .director-detail-modal .director-detail-table .director-student-cell {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#modal-root .director-detail-modal .director-detail-table .director-student-name {
+  display: block !important;
+  max-width: 100%;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+@media (max-width: 560px) {
+  #modal-root .director-detail-modal .director-detail-table .teacher-table th,
+  #modal-root .director-detail-modal .director-detail-table .teacher-table td {
+    padding: 8px 3px !important;
   }
 }

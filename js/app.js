@@ -4083,12 +4083,11 @@
     const studentsForStats = evaluatedStudentsForSubject(students, subject);
     const details = aggregateDetails(studentsForStats, subject);
     const scores = scoresForSubjectAverage(studentsForStats, subject);
-    const rows = students.map((student, index) => {
+    const rows = students.map((student) => {
       const stat = statForSubject(student, subject) || {};
       const fullName = displayListName(student);
       return `
         <tr class="table-row-click director-student-row" data-action="open-detail" data-roll="${escAttr(student.roll)}" data-subject="${escAttr(subject)}">
-          <td class="teacher-index">${index + 1}</td>
           <td class="director-student-cell"><strong class="director-student-name" title="${escAttr(fullName)}">${esc(fullName)}</strong></td>
           <td class="director-student-score">${scoreDisplayHtml(stat)}</td>
           <td class="director-student-correct"><strong>${stat.correct}/${stat.total}</strong></td>
@@ -4148,8 +4147,8 @@
               </div>
               <div class="table-wrap">
                 <table class="teacher-table">
-                  <thead><tr><th>#</th><th>${sortHeader("Estudiante", "director-detail", "name")}</th><th>${sortHeader("Nota", "director-detail", "score")}</th><th>${sortHeader("Correctas", "director-detail", "correct")}</th></tr></thead>
-                  <tbody>${rows || `<tr><td colspan="4" class="empty-state">No hay estudiantes para esta selección.</td></tr>`}</tbody>
+                  <thead><tr><th>${sortHeader("Estudiante", "director-detail", "name")}</th><th>${sortHeader("Nota", "director-detail", "score")}</th><th>${sortHeader("Correctas", "director-detail", "correct")}</th></tr></thead>
+                  <tbody>${rows || `<tr><td colspan="3" class="empty-state">No hay estudiantes para esta selección.</td></tr>`}</tbody>
                 </table>
               </div>
             </section>

@@ -6,8 +6,16 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.14
+RoqueObjetiva v175.15
 
+
+## v175.15 · Barras flat y tabla ampliada en Director de grupo
+
+- Se corrigió la **especificidad CSS** que seguía imponiendo el azul y el degradado del panel general de docentes sobre el modal de Director de grupo.
+- Las pestañas **Componentes / Competencias**, las barras de progreso y sus porcentajes usan ahora un **único color sólido** tomado de `STUDENT_AREA_COLORS` para cada asignatura.
+- La tabla de estudiantes elimina la columna **#** y el número de fila, dando más espacio al nombre (64 % del ancho), sin cambiar el orden ni la opción de ordenar.
+- Se mantienen las columnas **Nota** y **Correctas**, el nombre íntegro en `title` y la navegación al detalle del estudiante.
+- Se actualizan README, `version.json` y caché PWA a `v175.15`. No se alteran datos, notas ni Supabase.
 
 ## v175.14 · Corrección visual del modal Director de grupo
 
