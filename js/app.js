@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.12";
+  const APP_VERSION = "v175.13";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -4015,8 +4015,9 @@
       const values = scoresForSubjectAverage(studentsForSubjectStats, subject.name);
       const display = avg(values);
       const percent = Number.isFinite(Number(display)) ? clamp(Number(display), 0, 100) : 0;
+      const areaColor = STUDENT_AREA_COLORS[subject.name] || "#248bc4";
       return `
-        <button class="director-subject-card" data-action="director-subject-detail" data-key="${escAttr(active?.key || "")}" data-subject="${escAttr(subject.name)}">
+        <button class="director-subject-card" style="--director-area-color:${areaColor}" data-action="director-subject-detail" data-key="${escAttr(active?.key || "")}" data-subject="${escAttr(subject.name)}">
           <span class="director-card-main">
             ${subjectIcon(subject.name)}
             <span class="director-card-text">
@@ -4093,29 +4094,57 @@
         </tr>
       `;
     }).join("");
+    const areaColor = STUDENT_AREA_COLORS[subject] || "#248bc4";
+    const groupLabel = [directorGroup.sede, `${directorGroup.grade}°`, directorGroup.group]
+      .map((value) => cleanText(value)).filter(Boolean).join(" · ");
+    const edition = cleanText(state.activeSession?.edition || state.academicEdition || "2026-1S");
+    const meanScore = avg(scores);
+    // Sólo cuando se abre esta ventana. Conserva la pestaña elegida
+    // mientras se ordena la tabla y permite abrir/cerrar el resumen.
+    state.metricTab = "components";
     document.body.classList.add("modal-open");
     modalRoot.innerHTML = `
       <div class="modal-backdrop director-detail-backdrop" data-action="close-modal">
-        <section class="modal director-detail-modal" style="max-width:980px;">
-          <div class="modal-head">
-            <div>
-              <h2>${esc(subject)}</h2>
-              <span style="color:#7d8089;font-weight:600;">${esc(directorGroup.sede)} · ${esc(directorGroup.grade)}° · ${esc(directorGroup.group)}</span>
+        <section class="modal director-detail-modal student-subject-modal"
+          style="max-width:980px;--student-area-color:${areaColor};--director-area-color:${areaColor}">
+          <header class="student-subject-hero director-subject-hero">
+            <button type="button" class="icon-btn student-subject-hero-close"
+              data-action="close-modal" aria-label="Cerrar detalle de ${escAttr(subject)}">×</button>
+            <div class="student-subject-hero-main">
+              <span class="student-subject-hero-icon">${subjectIcon(subject)}</span>
+              <div class="student-subject-hero-info">
+                <span class="student-subject-hero-kicker">Prueba</span>
+                <h2>${esc(subject)}</h2>
+                <p class="student-subject-hero-student">${esc(groupLabel)}</p>
+                <p class="student-subject-hero-course">${esc(edition)}</p>
+              </div>
+              <div class="student-subject-hero-score">
+                <span class="subject-detail-score">${esc(meanScore)}<small>/100</small></span>
+              </div>
             </div>
-            <button type="button" class="icon-btn" data-action="close-modal" aria-label="Cerrar">×</button>
-          </div>
-          <div class="modal-body">
-            <section class="teacher-stat-strip teacher-stat-strip-two admin-results-stats">
-              <article class="card card-pad teacher-stat"><span>Estudiantes</span><strong>${students.length}</strong></article>
-              <article class="card card-pad teacher-stat"><span>Promedio</span><strong>${avg(scores)}<small>/100</small></strong></article>
+          </header>
+          <div class="modal-body director-detail-content">
+            <section class="teacher-stat-strip teacher-stat-strip-two director-detail-stats" aria-label="Resumen de asignatura">
+              <article class="card teacher-stat">
+                <span class="teacher-stat-icon">${adminNavIcon("users")}</span>
+                <span class="teacher-stat-copy"><strong>${students.length}</strong><span>estudiantes</span></span>
+              </article>
+              <article class="card teacher-stat">
+                <span class="teacher-stat-icon">${adminNavIcon("chart")}</span>
+                <span class="teacher-stat-copy"><span class="teacher-stat-caption">Promedio</span><strong>${esc(meanScore)}<small>/100</small></strong></span>
+              </article>
             </section>
-            <section class="teacher-metrics-row admin-results-metrics">
-              ${teacherAggregateMetricsHtmlForDetails(details)}
+            <section class="director-detail-metrics">
+              ${teacherAggregateMetricsHtmlForDetails(details, { dashboard: true })}
             </section>
-            <section class="teacher-key-actions">
-              <button class="secondary-btn" data-action="open-answer-key" data-grade="${escAttr(directorGroup.grade)}" data-subject="${escAttr(subject)}">Ver respuestas correctas</button>
-            </section>
-            <section class="card table-card teacher-table-card">
+            <section class="card table-card teacher-table-card director-detail-table">
+              <div class="teacher-students-head">
+                <h3>Estudiantes</h3>
+                <button type="button" class="teacher-answer-link" data-action="open-answer-key"
+                  data-grade="${escAttr(directorGroup.grade)}" data-subject="${escAttr(subject)}">
+                  Ver respuestas correctas <span aria-hidden="true">›</span>
+                </button>
+              </div>
               <div class="table-wrap">
                 <table class="teacher-table">
                   <thead><tr><th>#</th><th>${sortHeader("Estudiante", "director-detail", "name")}</th><th>${sortHeader("Nota", "director-detail", "score")}</th><th>${sortHeader("Correctas", "director-detail", "correct")}</th></tr></thead>
