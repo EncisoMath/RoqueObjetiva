@@ -1,4 +1,4 @@
-/* v175.39 · modo Photoshop: arrastrar directamente y escalar desde 4 círculos. Solo debug. */
+/* v175.40 · modo Photoshop: arrastrar directamente y escalar desde 4 círculos. Solo debug. */
 #roque-winter-editor{
  position:fixed;top:12px;right:12px;z-index:2147483000;
  width:min(310px,calc(100vw - 24px));max-height:calc(100dvh - 24px);

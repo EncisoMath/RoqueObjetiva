@@ -6,8 +6,17 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.39
+RoqueObjetiva v175.40
 
+
+## v175.40 · Bienvenida con imágenes propias y composición móvil-primero
+
+- **Móvil como referencia**: el motor `js/christmas-responsive.js` usa un diseño base de 360×780, alturas adaptativas y la posición del formulario como ancla. En escritorio 16:9, 21:9 y ultrawide, el árbol y los regalos ocupan la izquierda y el personaje ocupa la derecha, sin mover la tarjeta. Las hojas se alinean al logo.
+- **ZIP del usuario**: ocho imágenes transparentes optimizadas a WebP en `assets/navidad`: árbol, hoja, regalos 1/2 y los personajes SANTA, OSO, CAFE y NIEVES.
+- **Personaje aleatorio**: una sola de las cuatro imágenes aparece en cada entrada a la página. Un error de inicio de sesión no vuelve a sortearlo.
+- **Editor** `?navidadDebug=1`: permite cambiar el personaje al instante, arrastrar las imágenes con el mouse y escalarlas desde cuatro círculos de selección. Los cambios se guardan como correcciones relativas al diseño móvil para que sigan adaptándose al tamaño de pantalla. **Copiar posiciones** exporta los valores y el personaje seleccionado; esos borradores no afectan a otros visitantes.
+- Las imágenes reemplazan los emojis decorativos. La nieve y el cargador usan copos SVG con caídas suaves en lugar de caracteres emoji.
+- Tarjeta de acceso y datos académicos sin cambios. Actualizados PWA, precaché y versión.
 
 ## v175.39 · Editor visual: arrastrar el emoji y redimensionar con cuatro círculos
 

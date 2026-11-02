@@ -1,271 +1,184 @@
-/* v175.39. Arrastre directo sobre el emoji o su recuadro; 4 manejadores circulares en las esquinas. Solo ?navidadDebug=1. */
+/* v175.40 - Modo posicionador móvil primero, drag + 4 círculos.
+   Accesible exclusivamente con ?navidadDebug=1; no escribe al servidor. */
 (() => {
-"use strict";
-if (new URLSearchParams(location.search).get("navidadDebug") !== "1") return;
-const defs=[
-{id:"tree",name:"🎄 Árbol",selector:".winter-tree-emoji",parent:".winter-seasonal-emojis"},
-{id:"gift1",name:"🎁 Regalo grande",selector:".winter-gift-one",parent:".winter-seasonal-emojis"},
-{id:"gift2",name:"🎁 Regalo mediano",selector:".winter-gift-two",parent:".winter-seasonal-emojis"},
-{id:"gift3",name:"🎁 Regalo pequeño",selector:".winter-gift-three",parent:".winter-seasonal-emojis"},
-{id:"snowman",name:"☃️ Muñeco",selector:".winter-snowman-emoji",parent:".winter-seasonal-emojis"},
-{id:"leafLeft",name:"🌿 Hoja izquierda",selector:".winter-leaf-left",parent:".login-main-logo"},
-{id:"leafRight",name:"🌿 Hoja derecha",selector:".winter-leaf-right",parent:".login-main-logo"}];
-const sheet=document.createElement("link");sheet.rel="stylesheet";sheet.href="css/christmas-layout-editor.css?v=175.39";document.head.appendChild(sheet);
-const key="roque_xmas_editor_draft_v17538";
-let root=null,panel=null,selection=null,current="tree",active=null,frame=0;
-const nodes=new Map(),originals=new Map(),values=new Map();
-const round=n=>Math.round(n*10)/10;
-const parent=def=>root.querySelector(def.parent);
-const clamp=(v,min,max)=>Math.max(min,Math.min(max,Number(v)||0));
-const draft=(()=>{
-  try {const d=JSON.parse(localStorage.getItem(key)||"null");
-    return d&&Math.abs(d.viewport.width-innerWidth)<18?d:null;
-  }catch(_){return null;}
-})();
-function apply(def,data){
- const el=nodes.get(def.id);if(!el)return;
- const x=round(clamp(data.x,-1500,3000)),y=round(clamp(data.y,-1500,3000)),size=round(clamp(data.size,12,1100));
- el.style.setProperty("position","absolute","important");
- el.style.setProperty("inset","auto","important");
- el.style.setProperty("left",x+"px","important");
- el.style.setProperty("top",y+"px","important");
- el.style.setProperty("bottom","auto","important");
- el.style.setProperty("right","auto","important");
- el.style.setProperty("font-size",size+"px","important");
- el.style.setProperty("transform",def.id==="leafRight"?"scaleX(-1)":"none","important");
- values.set(def.id,{x,y,size});paint();
-}
-function formatJSON(){
- const elementos={};
- for(const def of defs){
-   const d=values.get(def.id);if(!d)continue;
-   const r=parent(def).getBoundingClientRect();
-   elementos[def.id]={nombre:def.name,contenedor:def.parent,
-     xPx:d.x,yPx:d.y,tamanoPx:d.size,
-     xPorcentaje:round(d.x/Math.max(r.width,1)*100),
-     yPorcentaje:round(d.y/Math.max(r.height,1)*100)};
- }
- return JSON.stringify({
-   version:"v175.39",
-   viewport:{ancho:innerWidth,alto:innerHeight},
-   comentario:"Los valores x/y son relativos al contenedor de cada elemento. Los negativos significan fuera del borde.",
-   elementos
- },null,2);
-}
-function store(){
- try{localStorage.setItem(key,JSON.stringify({
-  viewport:{width:innerWidth,height:innerHeight},
-  items:Object.fromEntries(values)
- }));}catch(_){}
-}
-function notice(str){const n=panel?.querySelector("[data-status]");if(n)n.textContent=str;}
-function paint(){
- if(frame)return;
- frame=requestAnimationFrame(()=>{
-  frame=0;if(!selection||!root?.isConnected)return;
-  const el=nodes.get(current);if(!el)return;
-  const r=el.getBoundingClientRect();
-  Object.assign(selection.style,{left:r.left+"px",top:r.top+"px",width:r.width+"px",height:r.height+"px"});
-  // Mantener los cuatro círculos disponibles aunque parte del emoji salga de la pantalla.
-  selection.dataset.selected=current;
- });
-}
-function refresh(){
- const d=values.get(current);if(!d||!panel)return;
- for(const field of ["x","y","size"]){
-  const input=panel.querySelector('[data-field="'+field+'"]');if(input)input.value=d[field];
- }
- const def=defs.find(d=>d.id===current),rect=parent(def).getBoundingClientRect();
- panel.querySelector("[data-info]").textContent=
- "X "+d.x+" px ("+round(d.x/rect.width*100)+"%), Y "+d.y+
- " px ("+round(d.y/rect.height*100)+"%), tamaño "+d.size+" px";
-}
-function select(id){
- if(!nodes.has(id))return;current=id;
- nodes.forEach((el,k)=>el.classList.toggle("winter-debug-chosen",k===id));
- if(panel)panel.querySelector("[data-pick]").value=id;
- refresh();paint();
-}
-function finish(){
- if(!active)return;active=null;
- window.removeEventListener("pointermove",move);
- window.removeEventListener("pointerup",finish);
- window.removeEventListener("pointercancel",finish);
- document.body.classList.remove("winter-debug-active");
- store();refresh();
- notice("Borrador guardado localmente. Copia las coordenadas al terminar.");
-}
-function move(e){
- if(!active || (e.pointerId != null && active.pointerId!==e.pointerId)) return;
- e.preventDefault();
- const d=active,dx=e.clientX-d.startX,dy=e.clientY-d.startY;
- const def=defs.find(x=>x.id===d.id);
- if(d.kind==="corner"){
-   // Escalar proporcionalmente desde la esquina elegida, anclando la opuesta.
-   // El ancho y alto de cada emoji se miden al comenzar a arrastrar.
-   const directionX=d.corner.endsWith("w") ? -1 : 1;
-   const directionY=d.corner.startsWith("n") ? -1 : 1;
-   const increaseX=dx*directionX/Math.max(d.width,1);
-   const increaseY=dy*directionY/Math.max(d.height,1);
-   const factor=Math.max(.08,1+(increaseX+increaseY)/2);
-   const size=clamp(d.size*factor,12,1100);
-   const scale=size/Math.max(d.size,1);
-   const width=d.width*scale,height=d.height*scale;
-   apply(def,{
-     x:d.x+(directionX<0?d.width-width:0),
-     y:d.y+(directionY<0?d.height-height:0),size
+ "use strict";
+ if(new URLSearchParams(location.search).get("navidadDebug")!=="1")return;
+ const style=document.createElement("link");style.rel="stylesheet";
+ style.href="css/christmas-layout-editor.css?v=175.40";document.head.appendChild(style);
+ const API=()=>window.RoqueWinterResponsive;
+ const characterList=["santa","oso","cafe","nieves"];
+ const names={tree:"Árbol",gift1:"Regalo rojo grande",gift2:"Regalo amarillo",gift3:"Regalo rojo pequeño",
+   snowman:"Personaje",leafLeft:"Hoja izquierda",leafRight:"Hoja derecha"};
+ let root=null,panel=null,overlay=null,selected="tree",drag=null,frame=0;
+ const round=n=>Math.round(n*10)/10;
+ const curr=()=>API()?.getPosition(selected);
+ function status(msg){const el=panel?.querySelector("[data-status]");if(el)el.textContent=msg;}
+ function draw(){
+   if(frame)return;
+   frame=requestAnimationFrame(()=>{
+     frame=0;
+     if(!root?.isConnected||!overlay)return;
+     const node=API()?.getNode(selected);
+     if(!node)return;
+     const r=node.getBoundingClientRect();
+     Object.assign(overlay.style,{left:r.left+"px",top:r.top+"px",width:r.width+"px",height:r.height+"px"});
    });
- } else {
-   apply(def,{x:d.x+dx,y:d.y+dy,size:d.size});
  }
- refresh();
-}
-function begin(e,id,kind,corner=null){
- if(e.button!=null&&e.button!==0)return;
- const d=values.get(id);if(!d)return;
- e.preventDefault();e.stopPropagation();select(id);
- const bounds=nodes.get(id)?.getBoundingClientRect();
- active={
-   id,kind,corner,pointerId:e.pointerId,
-   x:d.x,y:d.y,size:d.size,
-   width:bounds?.width||d.size,height:bounds?.height||d.size,
-   startX:e.clientX,startY:e.clientY
- };
- document.body.classList.add("winter-debug-active");
- window.addEventListener("pointermove",move,{passive:false});
- window.addEventListener("pointerup",finish);
- window.addEventListener("pointercancel",finish);
-}
-function change(deltaX,deltaY,deltaSize){
- const def=defs.find(x=>x.id===current),d=values.get(current);
- if(!def||!d)return;
- apply(def,{x:d.x+deltaX,y:d.y+deltaY,size:d.size+deltaSize});
- store();refresh();
-}
-function readInputs(){
- const d=values.get(current),def=defs.find(x=>x.id===current);
- const n=field=>Number(panel.querySelector('[data-field="'+field+'"]').value);
- apply(def,{x:n("x"),y:n("y"),size:n("size")});
- store();refresh();
-}
-function setMessage(){notice("Arrastra con el mouse. Los 4 círculos permiten estirar cada emoji.");}
-function makeUI(){
- panel=document.createElement("aside");panel.id="roque-winter-editor";
- const options=defs.map(x=>'<option value="'+x.id+'">'+x.name+'</option>').join("");
- panel.innerHTML=[
- '<div class="we-top"><b>❄️ Posicionar emojis</b><button type="button" data-minimize title="Minimizar">−</button></div>',
- '<div class="we-body">',
- '<p><b>Haz clic y arrastra el emoji o su recuadro.</b> Para agrandarlo o reducirlo, arrastra cualquiera de los <b>cuatro círculos de las esquinas</b>.</p>',
- '<label>Elemento<select data-pick>',options,'</select></label>',
- '<div class="we-grid">',
- '<label>X (px)<input type="number" step="1" data-field="x"></label>',
- '<label>Y (px)<input type="number" step="1" data-field="y"></label>',
- '<label>Tamaño<input type="number" step="1" min="12" max="1100" data-field="size"></label>',
- '</div><div class="we-small-buttons">',
- '<button type="button" data-size="-10">−10</button><button type="button" data-size="-1">−1</button>',
- '<button type="button" data-size="1">+1</button><button type="button" data-size="10">+10</button>',
- '</div><div class="we-small-buttons">',
- '<button type="button" data-move="left">←</button><button type="button" data-move="up">↑</button>',
- '<button type="button" data-move="down">↓</button><button type="button" data-move="right">→</button></div>',
- '<small data-info></small>',
- '<div class="we-actions"><button type="button" data-copy>Copiar coordenadas</button><button type="button" data-reset>Restablecer</button></div>',
- '<label>JSON para enviarme<textarea rows="3" readonly data-json placeholder="Pulsa «Copiar coordenadas»"></textarea></label>',
- '<small data-status></small><button type="button" data-exit>Salir del modo edición</button>',
- '</div>'].join("");
- document.body.appendChild(panel);
- selection=document.createElement("div");selection.id="roque-winter-selection";
- selection.innerHTML=[
-  '<div class="we-selection-caption" aria-hidden="true">ARRASTRAR PARA MOVER</div>',
-  '<button type="button" data-corner="nw" aria-label="Escalar desde esquina superior izquierda" title="Estirar desde arriba a la izquierda"></button>',
-  '<button type="button" data-corner="ne" aria-label="Escalar desde esquina superior derecha" title="Estirar desde arriba a la derecha"></button>',
-  '<button type="button" data-corner="sw" aria-label="Escalar desde esquina inferior izquierda" title="Estirar desde abajo a la izquierda"></button>',
-  '<button type="button" data-corner="se" aria-label="Escalar desde esquina inferior derecha" title="Estirar desde abajo a la derecha"></button>'
- ].join("");
- document.body.appendChild(selection);
- panel.querySelector("[data-pick]").addEventListener("change",e=>select(e.target.value));
- panel.querySelectorAll("[data-field]").forEach(n=>n.addEventListener("change",readInputs));
- panel.querySelectorAll("[data-size]").forEach(n=>n.addEventListener("click",()=>change(0,0,Number(n.dataset.size))));
- panel.querySelectorAll("[data-move]").forEach(n=>n.addEventListener("click",()=>{
-  const v=n.dataset.move;
-  change(v==="left"?-1:v==="right"?1:0,v==="up"?-1:v==="down"?1:0,0);
- }));
- panel.querySelector("[data-minimize]").addEventListener("click",()=>{
-  const minimized=panel.classList.toggle("we-collapsed");
-  panel.querySelector("[data-minimize]").textContent=minimized?"+":"−";
- });
- panel.querySelector("[data-copy]").addEventListener("click",async()=>{
-   const json=formatJSON(),out=panel.querySelector("[data-json]");out.value=json;
-   try{if(!navigator.clipboard?.writeText)throw Error("Clipboard unavailable");
-     await navigator.clipboard.writeText(json);notice("¡Copiado! Pega el JSON en ChatGPT.");
-   }catch(_){out.focus();out.select();notice("Seleccionado: usa Ctrl+C y pégalo en ChatGPT.");}
- });
- panel.querySelector("[data-reset]").addEventListener("click",()=>{
-   try{localStorage.removeItem(key);}catch(_){}
-   defs.forEach(def=>{const el=nodes.get(def.id);if(el)el.setAttribute("style",originals.get(def.id)||"");});
-   values.clear();defs.forEach(def=>initialize(def,false));select(current);
-   notice("Restablecido al diseño publicado.");
- });
- panel.querySelector("[data-exit]").addEventListener("click",()=>{
-   const url=new URL(location.href);url.searchParams.delete("navidadDebug");location.assign(url.href);
- });
- // Un clic sostenido en CUALQUIER PARTE del recuadro mueve con el mouse.
- selection.addEventListener("pointerdown",e=>{
-   const handle=e.target.closest("[data-corner]");
-   if(handle)begin(e,current,"corner",handle.dataset.corner);
-   else begin(e,current,"move");
- });
- window.addEventListener("scroll",paint,{passive:true});
- window.addEventListener("resize",paint,{passive:true});
- window.addEventListener("keydown",onKey);
-}
-function onKey(e){
- if(!panel||e.target.matches("input,textarea,select"))return;
- const k=e.key,s=e.shiftKey?10:1;
- if(!["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(k))return;
- e.preventDefault();change(k==="ArrowLeft"?-s:k==="ArrowRight"?s:0,k==="ArrowUp"?-s:k==="ArrowDown"?s:0,0);
-}
-function initialize(def,restore){
- const node=nodes.get(def.id),par=parent(def);
- if(!node||!par)return;
- const b=node.getBoundingClientRect(),p=par.getBoundingClientRect();
- const d=restore?draft?.items?.[def.id]:null;
- apply(def,d&&Number.isFinite(d.size)?d:{
-   x:round(b.left-p.left),y:round(b.top-p.top),
-   size:round(parseFloat(getComputedStyle(node).fontSize)||80)
- });
-}
-function mount(next){
- if(root===next)return;
- unmount();root=next;
- for(const def of defs){
-  const node=root.querySelector(def.selector);if(!node)continue;
-  nodes.set(def.id,node);originals.set(def.id,node.getAttribute("style"));
-  node.classList.add("winter-debug-movable");
-  node.addEventListener("pointerdown",e=>begin(e,def.id,"move"));
+ function refreshFields(){
+   if(!panel)return;
+   const v=curr();if(!v)return;
+   for(const key of ["x","y","width"]){
+     const input=panel.querySelector('[data-field="'+key+'"]');
+     if(input)input.value=round(v[key]);
+   }
+   const rootRect=API()?.getParent(selected)?.getBoundingClientRect();
+   if(rootRect)panel.querySelector('[data-coords]').textContent=
+     `X: ${round(v.x)} (${round(v.x/rootRect.width*100)}%) · Y: ${round(v.y)} (${round(v.y/rootRect.height*100)}%) · Ancho: ${round(v.width)} px`;
  }
- if(!nodes.size)return;
- makeUI();defs.forEach(def=>initialize(def,true));select(current);
- if(draft)notice("Recuperé tus posiciones anteriores de este tamaño de pantalla.");
- else setMessage();
-}
-function unmount(){
- if(!root)return;
- finish();panel?.remove();selection?.remove();
- panel=null;selection=null;root=null;
- nodes.clear();originals.clear();values.clear();
- window.removeEventListener("scroll",paint);
- window.removeEventListener("resize",paint);
- window.removeEventListener("keydown",onKey);
-}
-function start(){
- const app=document.getElementById("app");if(!app)return;
- const sync=()=>{
-  const next=app.querySelector(".christmas-login");
-  if(next)mount(next);else if(root)unmount();
- };
- new MutationObserver(sync).observe(app,{childList:true});
- sync();
-}
-if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start,{once:true});
-else start();
+ function select(id){
+   const n=API()?.getNode(id);if(!n)return;
+   selected=id;
+   panel.querySelector('[data-pick]').value=id;
+   root.querySelectorAll('.winter-decor-image, .winter-leaf').forEach(el=>el.classList.toggle('winter-debug-chosen',el===n));
+   refreshFields();draw();
+ }
+ function set(v){if(API()?.edit(selected,v)){refreshFields();draw();}}
+ function finish(){
+   if(!drag)return;
+   drag=null;
+   window.removeEventListener('pointermove',move);
+   window.removeEventListener('pointerup',finish);
+   window.removeEventListener('pointercancel',finish);
+   document.body.classList.remove('winter-debug-active');
+   status('Guardado en este navegador. Copia los valores al terminar.');
+ }
+ function move(e){
+   if(!drag||(e.pointerId!==undefined&&drag.pointerId!==e.pointerId))return;
+   e.preventDefault();
+   const d=drag,dx=e.clientX-d.mx,dy=e.clientY-d.my;
+   if(d.kind==='move'){
+     set({x:d.x+dx,y:d.y+dy,width:d.width});return;
+   }
+   const sx=d.corner.endsWith('w')?-1:1;
+   const sy=d.corner.startsWith('n')?-1:1;
+   const delta=(dx*sx/Math.max(d.rect.width,1)+dy*sy/Math.max(d.rect.height,1))/2;
+   const width=Math.max(12,Math.min(1200,d.width*(1+delta)));
+   const factor=width/d.width;
+   const h=d.rect.height*factor;
+   set({x:d.x+(sx<0?d.rect.width-width:0),y:d.y+(sy<0?d.rect.height-h:0),width});
+ }
+ function begin(e,id,kind,corner){
+   if(e.button!==undefined&&e.button!==0)return;
+   const data=API()?.getPosition(id),node=API()?.getNode(id);
+   if(!data||!node)return;
+   e.preventDefault();e.stopPropagation();select(id);
+   drag={id,kind,corner,pointerId:e.pointerId,mx:e.clientX,my:e.clientY,
+     x:data.x,y:data.y,width:data.width,rect:node.getBoundingClientRect()};
+   document.body.classList.add('winter-debug-active');
+   window.addEventListener('pointermove',move,{passive:false});
+   window.addEventListener('pointerup',finish);
+   window.addEventListener('pointercancel',finish);
+ }
+ function change(dx,dy,dwidth){const d=curr();if(d)set({x:d.x+dx,y:d.y+dy,width:d.width+dwidth});}
+ function attach(){
+   panel=document.createElement('aside');panel.id='roque-winter-editor';
+   panel.innerHTML=[
+     '<div class="we-top"><b>❄️ Editor de Navidad</b><button data-minimize type="button" title="Minimizar">−</button></div>',
+     '<div class="we-body"><p><b>Mueve los gráficos con tu mouse.</b> Estira los círculos de las esquinas para cambiar su tamaño. La distribución se adapta a móvil, 16:9 y ultrawide.</p>',
+     '<label>Elemento<select data-pick>',
+     API().defs.map(d=>'<option value="'+d.id+'">'+names[d.id]+'</option>').join(''),
+     '</select></label>',
+     '<label>Personaje visible (solo uno a la vez)<select data-character>',
+     characterList.map(v=>'<option value="'+v+'">'+v.toUpperCase()+'</option>').join(''),
+     '</select></label>',
+     '<div class="we-grid"><label>X (px)<input type="number" step="1" data-field="x"></label>',
+     '<label>Y (px)<input type="number" step="1" data-field="y"></label>',
+     '<label>Ancho (px)<input type="number" step="1" min="12" data-field="width"></label></div>',
+     '<div class="we-small-buttons"><button data-size="-10">−10</button><button data-size="-1">−1</button><button data-size="1">+1</button><button data-size="10">+10</button></div>',
+     '<div class="we-small-buttons"><button data-move="left">←</button><button data-move="up">↑</button><button data-move="down">↓</button><button data-move="right">→</button></div>',
+     '<small data-coords></small><div class="we-actions"><button type="button" data-copy>Copiar posiciones</button><button type="button" data-reset>Restablecer</button></div>',
+     '<label>Datos para ChatGPT<textarea rows="3" readonly data-json></textarea></label>',
+     '<small data-status></small><button type="button" data-exit>Salir del editor</button></div>'
+   ].join('');
+   document.body.appendChild(panel);
+   overlay=document.createElement('div');overlay.id='roque-winter-selection';
+   overlay.innerHTML='<span class="we-selection-caption">ARRASTRAR PARA MOVER</span>'+['nw','ne','sw','se'].map(v=>
+     '<button type="button" data-corner="'+v+'" aria-label="Estirar desde la esquina '+v+'" title="Arrastra esta esquina"></button>').join('');
+   document.body.appendChild(overlay);
+   overlay.addEventListener('pointerdown',e=>{
+     const handle=e.target.closest('[data-corner]');
+     begin(e,selected,handle?'corner':'move',handle?.dataset.corner);
+   });
+   for(const def of API().defs){
+     const el=API().getNode(def.id);
+     if(el){el.classList.add('winter-debug-movable');
+       el.addEventListener('pointerdown',e=>begin(e,def.id,'move'));}
+   }
+   panel.querySelector('[data-pick]').addEventListener('change',e=>select(e.target.value));
+   panel.querySelector('[data-character]').value=window.RoqueWinterPick?.get()||'santa';
+   panel.querySelector('[data-character]').addEventListener('change',e=>{
+     window.RoqueWinterPick?.set(e.target.value);API().refresh();select('snowman');
+     status('Personaje cambiado. Se sorteará otro al volver a entrar en la página.');
+   });
+   for(const input of panel.querySelectorAll('[data-field]'))input.addEventListener('change',()=>{
+     const value=k=>Number(panel.querySelector('[data-field="'+k+'"]').value);
+     set({x:value('x'),y:value('y'),width:value('width')});
+   });
+   panel.querySelectorAll('[data-size]').forEach(button=>button.addEventListener('click',()=>change(0,0,Number(button.dataset.size))));
+   panel.querySelectorAll('[data-move]').forEach(button=>button.addEventListener('click',()=>{
+     const t=button.dataset.move;
+     change(t==='left'?-1:t==='right'?1:0,t==='up'?-1:t==='down'?1:0,0);
+   }));
+   panel.querySelector('[data-minimize]').addEventListener('click',()=>{
+     const c=panel.classList.toggle('we-collapsed');panel.querySelector('[data-minimize]').textContent=c?'+':'−';
+   });
+   panel.querySelector('[data-copy]').addEventListener('click',async()=>{
+     const text=JSON.stringify(API().export(),null,2),out=panel.querySelector('[data-json]');out.value=text;
+     try{await navigator.clipboard.writeText(text);status('Copiado. Pega los números en ChatGPT.');}
+     catch(_){out.focus();out.select();status('Seleccionado. Usa Ctrl+C para copiar los números.');}
+   });
+   panel.querySelector('[data-reset]').addEventListener('click',()=>{API().reset();select(selected);status('Posiciones restablecidas.');});
+   panel.querySelector('[data-exit]').addEventListener('click',()=>{
+     const url=new URL(location.href);url.searchParams.delete('navidadDebug');location.assign(url.href);
+   });
+   window.addEventListener('roqueWinterReflow',onReflow);
+   window.addEventListener('scroll',draw,{passive:true});
+   window.addEventListener('resize',draw,{passive:true});
+   window.addEventListener('keydown',onKey);
+   select(selected);
+ }
+ function onKey(e){
+   if(!panel||e.target.matches('input,textarea,select'))return;
+   const n=e.shiftKey?10:1;
+   if(e.key==='ArrowLeft')change(-n,0,0);
+   else if(e.key==='ArrowRight')change(n,0,0);
+   else if(e.key==='ArrowUp')change(0,-n,0);
+   else if(e.key==='ArrowDown')change(0,n,0);
+   else return;
+   e.preventDefault();
+ }
+ function onReflow(){refreshFields();draw();}
+ function unmount(){
+   if(!root)return;finish();
+   window.removeEventListener('roqueWinterReflow',onReflow);
+   window.removeEventListener('scroll',draw);
+   window.removeEventListener('resize',draw);
+   window.removeEventListener('keydown',onKey);
+   panel?.remove();overlay?.remove();root=null;panel=null;overlay=null;
+ }
+ function start(){
+   const app=document.getElementById('app');if(!app)return;
+   const sync=()=>{
+     const candidate=app.querySelector('.christmas-login');
+     if(candidate===root)return;
+     unmount();if(!candidate)return;
+     root=candidate;requestAnimationFrame(()=>{
+       if(!root?.isConnected)return;
+       API()?.refresh();attach();
+     });
+   };
+   new MutationObserver(sync).observe(app,{childList:true});sync();
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});
+ else start();
 })();

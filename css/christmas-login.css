@@ -302,3 +302,50 @@
   .route-loader-card .winter-loader-flake {animation:none !important;transition:none !important;}
   .christmas-login .winter-login-snow {display:none;}
 }
+
+/* v175.40 · archivos del usuario. Geometría calculada por christmas-responsive.js. */
+.login-shell-dark.christmas-login .winter-decor-image {
+  position:absolute !important;
+  display:block !important;
+  max-width:none !important;
+  max-height:none !important;
+  height:auto !important;
+  object-fit:contain !important;
+  object-position:center !important;
+  opacity:1 !important;
+  filter:none !important;
+  user-select:none !important;
+  -webkit-user-drag:none !important;
+  pointer-events:none;
+  line-height:normal !important;
+  vertical-align:top;
+}
+.login-shell-dark.christmas-login .winter-leaf {
+  max-width:none !important;
+  max-height:none !important;
+  height:auto !important;
+  object-fit:contain !important;
+  display:block !important;
+  user-select:none !important;
+  -webkit-user-drag:none !important;
+  pointer-events:none;
+  filter:none !important;
+}
+.christmas-login .winter-login-snow .winter-flake-sway svg {
+  display:block;
+  width:1em;
+  height:1em;
+  color:#e9f7ff;
+}
+.boot .winter-loader-flake svg,
+.route-loader-card .winter-loader-flake svg {
+  display:block;
+  width:67px;
+  height:67px;
+  color:#2388bb;
+}
+/* En pantallas 16:9 y ultrawide el script coloca árbol/regalos a la
+   izquierda y el personaje a la derecha, sin desplazar la tarjeta central. */
+.christmas-login .login-panel {z-index:6 !important;}
+.christmas-login .winter-seasonal-emojis {z-index:5 !important;}
+.christmas-login .winter-snow-banks {z-index:3 !important;}

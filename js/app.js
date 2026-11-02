@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.39";
+  const APP_VERSION = "v175.40";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -1491,7 +1491,7 @@
       await wait(180);
       app.innerHTML = `
         <div class="boot">
-          ${isHolidayHeroDate() ? `<div class="winter-loader-flake" aria-hidden="true">❄️</div>` : `<div class="boot-mark"></div>`}
+          ${isHolidayHeroDate() ? `<div class="winter-loader-flake" aria-hidden="true">${christmasSnowflakeSvg()}</div>` : `<div class="boot-mark"></div>`}
           <h1>Consultando resultados</h1>
           <p>Verificando el acceso y la información disponible.</p>
         </div>
@@ -3107,35 +3107,64 @@
   // Navidad 2026: elementos puramente visuales; no cambian credenciales ni datos.
   // Navidad: decoración sin imágenes. Nieve con traslación vertical lineal
   // y oscilación horizontal continua e independiente, sin saltos laterales.
-  function christmasSnowfall() {
-    return Array.from({length: 72}, (_, index) => {
-      const left = (index * 41 + 7) % 99;
-      const duration = 27 + (index * 7) % 18;
-      const delay = -(index * 19 % 45);
-      const period = 7 + (index * 3 % 11) / 2;
-      const size = 11 + (index * 11) % 19;
-      const sway = 8 + (index * 13) % 24;
-      const opacity = (.43 + (index % 6) * .095).toFixed(2);
-      return '<span class="winter-flake-fall" style="--snow-left:' + left +
-        '%;--snow-duration:' + duration + 's;--snow-delay:' + delay +
-        's;--snow-size:' + size + 'px;--snow-opacity:' + opacity +
-        ';--snow-sway:' + sway + 'px;--snow-period:' + period +
-        's" aria-hidden="true"><span class="winter-flake-sway">❄️</span></span>';
-    }).join("");
+  // Decoracion de acceso 100% basada en recursos del usuario.
+  // Un solo personaje se sortea por carga de pagina, no por cada render del login.
+  const WINTER_PERSONAS = ["santa", "oso", "cafe", "nieves"];
+  let winterCharacter = WINTER_PERSONAS[Math.floor(Math.random() * WINTER_PERSONAS.length)];
+  const winterAsset = name => "assets/navidad/" + name + ".webp";
+  window.RoqueWinterPick = {
+    list: [...WINTER_PERSONAS],
+    get: () => winterCharacter,
+    set: name => {
+      if (!WINTER_PERSONAS.includes(name)) return false;
+      winterCharacter = name;
+      const img = document.querySelector(".christmas-login .winter-snowman-emoji");
+      if (img) {
+        img.src = winterAsset(name);
+        img.dataset.character = name;
+        img.onload = () => window.RoqueWinterResponsive?.refresh();
+        window.RoqueWinterResponsive?.refresh();
+      }
+      return true;
+    }
+  };
+
+  function christmasSnowflakeSvg() {
+    return '<svg viewBox="0 0 36 36" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" focusable="false">' +
+      '<g fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">' +
+      '<path d="M18 2v32 M4.14 10l27.72 16 M4.14 26l27.72-16"/>' +
+      '<path d="M13 7l5 5 5-5 M13 29l5-5 5 5 M8 13l6 1-2-6 M28 23l-6-1 2 6 M8 23l6-1-2 6 M28 13l-6 1 2-6"/>' +
+      '</g></svg>';
   }
 
-  // Decoración navideña ligera: copos ❄️, nieve SVG y emojis en primer plano.
+  function christmasSnowfall() {
+    const flake = christmasSnowflakeSvg();
+    return Array.from({length:72}, (_, i) => {
+      const left=(i*41+7)%99, duration=27+(i*7)%18, delay=-(i*19%45);
+      const period=7+(i*3%11)/2, size=11+(i*11)%19, sway=8+(i*13)%24;
+      const opacity=(.43+(i%6)*.095).toFixed(2);
+      return '<span class="winter-flake-fall" style="--snow-left:'+left+'%;--snow-duration:'+duration+
+        's;--snow-delay:'+delay+'s;--snow-size:'+size+'px;--snow-opacity:'+opacity+
+        ';--snow-sway:'+sway+'px;--snow-period:'+period+'s" aria-hidden="true">' +
+        '<span class="winter-flake-sway">'+flake+'</span></span>';
+    }).join('');
+  }
+
   function christmasLoginDecor() {
+    const img = (extra, src, alt='', data='') =>
+      '<img class="winter-decor-image '+extra+'" src="'+winterAsset(src)+'" alt="'+alt+
+      '" '+data+' draggable="false" decoding="async">';
     return '<div class="winter-login-snow" aria-hidden="true">' + christmasSnowfall() + '</div>' +
       '<svg class="winter-snow-banks" viewBox="0 0 1000 155" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
       '<path d="M0 72 Q155 25 320 81 Q490 122 638 75 Q810 14 1000 65 L1000 155 0 155Z" fill="#e1f1fc"/>' +
       '<path d="M0 117 Q185 78 327 121 Q490 152 656 107 Q839 68 1000 118 L1000 155 0 155Z" fill="#f8fcff"/></svg>' +
       '<div class="winter-seasonal-emojis" aria-hidden="true">' +
-      '<span class="winter-tree-emoji">🎄</span>' +
-      '<span class="winter-gift-emoji winter-gift-one">🎁</span>' +
-      '<span class="winter-gift-emoji winter-gift-two">🎁</span>' +
-      '<span class="winter-gift-emoji winter-gift-three">🎁</span>' +
-      '<span class="winter-snowman-emoji">☃️</span></div>';
+      img('winter-tree-emoji','arbol') +
+      img('winter-gift-emoji winter-gift-one','regalo1') +
+      img('winter-gift-emoji winter-gift-two','regalo2') +
+      img('winter-gift-emoji winter-gift-three','regalo1') +
+      img('winter-snowman-emoji',winterCharacter,'','data-character="'+winterCharacter+'"') +
+      '</div>';
   }
 
   function renderLogin(error = "") {
@@ -3169,7 +3198,7 @@
         ${winterLogin ? christmasLoginDecor() : `<div class="login-bg-shapes" aria-hidden="true">${renderPlayShapes("login")}</div>`}
         <div class="login-panel">
           <div class="login-card login-card-dark">
-            ${logo ? `<div class="login-main-logo">${winterLogin ? '<span class="winter-leaf winter-leaf-left" aria-hidden="true">🌿</span>' : ""}<img src="${escAttr(logo)}" alt="Logo institucional">${winterLogin ? '<span class="winter-leaf winter-leaf-right" aria-hidden="true">🌿</span>' : ""}</div>` : ""}
+            ${logo ? `<div class="login-main-logo">${winterLogin ? '<img class="winter-leaf winter-leaf-left" src="assets/navidad/hoja.webp" alt="" aria-hidden="true" draggable="false">' : ""}<img src="${escAttr(logo)}" alt="Logo institucional">${winterLogin ? '<img class="winter-leaf winter-leaf-right" src="assets/navidad/hoja.webp" alt="" aria-hidden="true" draggable="false">' : ""}</div>` : ""}
             <span class="login-eyebrow">Consulta de resultados</span>
             <h1>Bienvenido</h1>
             <p>Ingresa con el ID de tu prueba o tu número de documento de identidad.</p>
@@ -9667,7 +9696,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     loader.className = "route-loader";
     loader.innerHTML = `
       <div class="route-loader-card">
-        ${isHolidayHeroDate() ? `<div class="winter-loader-flake" aria-hidden="true">❄️</div>` : `<div class="route-loader-mark"></div>`}
+        ${isHolidayHeroDate() ? `<div class="winter-loader-flake" aria-hidden="true">${christmasSnowflakeSvg()}</div>` : `<div class="route-loader-mark"></div>`}
         <strong>${esc(message || "Preparando resultados...")}</strong>
         <span>Un momento, por favor.</span>
       </div>
