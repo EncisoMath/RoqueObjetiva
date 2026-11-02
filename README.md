@@ -6,8 +6,18 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.16
+RoqueObjetiva v175.17
 
+
+## v175.17 · Tabla de Director de grupo: nombres fijos y asignaturas desplazables
+
+- Rediseño de la **tabla general inferior** en Docente → Director de grupo, sin modificar las tarjetas de asignaturas ni el modal.
+- Se elimina la numeración **#** para recuperar espacio horizontal.
+- Primera columna **Estudiante** fija durante el desplazamiento horizontal; nombre más pequeño y truncado con puntos suspensivos, nombre completo disponible al mantener pulsado/pasar el cursor, e **ID Prueba** debajo.
+- Columnas de asignaturas compactas, con **icono institucional de la materia** en la cabecera y notas un poco más grandes que los nombres.
+- Se muestra parte de la primera asignatura junto al estudiante desde el inicio y se agrega la pista móvil **«Desliza las materias →»**.
+- Se conservan la ordenación de notas, el botón administrativo «Eliminar» y las calificaciones reales, sin cambios en Supabase.
+- Actualizados README, versión y caché PWA.
 
 ## v175.16 · Modales anidados sin parpadeo y por encima del dock
 

@@ -4029,14 +4029,22 @@
         </button>
       `;
     }).join("");
-    const tableRows = students.map((student, index) => `
-      <tr>
-        <td class="teacher-index">${index + 1}</td>
-        <td><strong>${esc(displayListName(student))}</strong><br><span class="student-subid">ID Prueba ${esc(student.roll)}</span></td>
-        ${subjects.map((subject) => `<td>${scoreDisplayHtml(student.subjectStats[subject.name])}</td>`).join("")}
-        <td><button class="danger-btn mini-btn director-delete-student-btn" data-action="director-delete-student" data-roll="${escAttr(student.roll)}">Eliminar</button></td>
-      </tr>
-    `).join("");
+    // V175.17: el nombre es la primera columna fija; las asignaturas se desplazan.
+    const tableRows = students.map((student) => {
+      const fullName = displayListName(student);
+      return `
+        <tr>
+          <td class="director-name-sticky" title="${escAttr(fullName)}">
+            <span class="director-name-cell">
+              <strong class="director-student-label">${esc(fullName)}</strong>
+              <span class="director-student-id">ID Prueba ${esc(student.roll)}</span>
+            </span>
+          </td>
+          ${subjects.map((subject) => `<td class="director-subject-grade">${scoreDisplayHtml(student.subjectStats[subject.name])}</td>`).join("")}
+          <td class="director-action-cell"><button class="danger-btn mini-btn director-delete-student-btn" data-action="director-delete-student" data-roll="${escAttr(student.roll)}">Eliminar</button></td>
+        </tr>
+      `;
+    }).join("");
 
     renderShell(`
       ${teacherModeTabs(teacher, "director")}
@@ -4055,10 +4063,18 @@
           ${subjectCards || `<div class="card card-pad empty-state">No hay resultados por asignatura para este grupo.</div>`}
         </section>
         <section class="card table-card teacher-table-card director-table-card" style="--director-cols:${subjects.length};">
-          <div class="table-wrap director-table-wrap">
+          <div class="director-table-guide">
+            <strong>Resultados por estudiante</strong>
+            <span class="director-table-swipe-hint">Desliza las materias <span aria-hidden="true">→</span></span>
+          </div>
+          <div class="table-wrap director-table-wrap" role="region" tabindex="0" aria-label="Calificaciones por asignatura: desliza horizontalmente para ver más materias">
             <table class="teacher-table director-table">
-              <thead><tr><th>#</th><th>${sortHeader("Estudiante", "director-group", "name")}</th>${subjects.map((subject) => `<th>${sortHeader(subject.short || subject.name, "director-group", subject.name)}</th>`).join("")}<th>Acción</th></tr></thead>
-              <tbody>${tableRows || `<tr><td colspan="${3 + subjects.length}" class="empty-state">No hay estudiantes con resultados en este grupo.</td></tr>`}</tbody>
+              <thead><tr>
+                <th class="director-name-sticky" scope="col">${sortHeader("Estudiante", "director-group", "name")}</th>
+                ${subjects.map((subject) => `<th scope="col" class="director-subject-heading" style="--director-area-color:${STUDENT_AREA_COLORS[subject.name] || "#248bc4"}"><span class="director-subject-header">${subjectIcon(subject.name)}${sortHeader(subject.short || subject.name, "director-group", subject.name)}</span></th>`).join("")}
+                <th class="director-action-heading" scope="col">Acción</th>
+              </tr></thead>
+              <tbody>${tableRows || `<tr><td colspan="${2 + subjects.length}" class="empty-state">No hay estudiantes con resultados en este grupo.</td></tr>`}</tbody>
             </table>
           </div>
         </section>
