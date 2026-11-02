@@ -6,8 +6,17 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.19
+RoqueObjetiva v175.20
 
+
+## v175.20 · Alineación exacta entre estudiantes y notas
+
+- Corregido el **desfase vertical acumulativo** entre la columna fija `Estudiante` y las notas por asignatura de **Docente → Director de grupo**.
+- Causa localizada: el botón administrativo **«Eliminar»** heredaba `min-height: 45px`, ensanchaba todas las filas de notas hasta aproximadamente 52 px, mientras los nombres se distribuían en filas de 42 px.
+- Se limita **solo ese botón dentro de la tabla del director** a 32 px de altura, por debajo de las filas de 42–43 px, para que ambos lados compartan la misma geometría.
+- La columna fija, las cabeceras verticales, los iconos, el ID de prueba, las notas y el desplazamiento horizontal permanecen iguales.
+- Validación de geometría en Chromium con varias filas: desfase acumulado de 110 px antes y 0 px después en una prueba de 12 estudiantes.
+- No se modificaron calificaciones, ordenamiento, datos ni Supabase. Actualizados README, versión y caché PWA.
 
 ## v175.19 · Asignaturas giradas a la izquierda y estudiantes en tres renglones
 

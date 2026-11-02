@@ -1065,3 +1065,18 @@
     --director-subject-width: 54px;
   }
 }
+
+/* v175.20 — Mantener las filas de nombres y notas perfectamente alineadas.
+   Causa: .danger-btn global impone min-height:45px y el botón "Eliminar"
+   extendía TODAS las filas de la tabla de calificaciones a ~52px; los
+   nombres tenían 42px, acumulando desfase tras cada estudiante.
+   El control oculto a la derecha ya no determina la altura de la fila. */
+.roque-teacher-shell .director-grades-table tbody .director-delete-student-btn {
+  box-sizing: border-box !important;
+  min-height: 32px !important;
+  height: 32px !important;
+  max-height: 32px !important;
+  padding: 3px 5px !important;
+  line-height: 1 !important;
+  vertical-align: middle;
+}
