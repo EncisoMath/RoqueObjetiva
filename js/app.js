@@ -4085,12 +4085,13 @@
     const scores = scoresForSubjectAverage(studentsForStats, subject);
     const rows = students.map((student, index) => {
       const stat = statForSubject(student, subject) || {};
+      const fullName = displayListName(student);
       return `
-        <tr class="table-row-click" data-action="open-detail" data-roll="${escAttr(student.roll)}" data-subject="${escAttr(subject)}">
+        <tr class="table-row-click director-student-row" data-action="open-detail" data-roll="${escAttr(student.roll)}" data-subject="${escAttr(subject)}">
           <td class="teacher-index">${index + 1}</td>
-          <td><strong>${esc(displayListName(student))}</strong><br><span class="student-subid">ID Prueba ${esc(student.roll)}</span></td>
-          <td>${scoreDisplayHtml(stat)}</td>
-          <td><strong>${stat.correct}/${stat.total}</strong></td>
+          <td class="director-student-cell"><strong class="director-student-name" title="${escAttr(fullName)}">${esc(fullName)}</strong></td>
+          <td class="director-student-score">${scoreDisplayHtml(stat)}</td>
+          <td class="director-student-correct"><strong>${stat.correct}/${stat.total}</strong></td>
         </tr>
       `;
     }).join("");
@@ -4137,7 +4138,7 @@
             <section class="director-detail-metrics">
               ${teacherAggregateMetricsHtmlForDetails(details, { dashboard: true })}
             </section>
-            <section class="card table-card teacher-table-card director-detail-table">
+            <section class="card table-card teacher-table-card teacher-students-card director-detail-table">
               <div class="teacher-students-head">
                 <h3>Estudiantes</h3>
                 <button type="button" class="teacher-answer-link" data-action="open-answer-key"

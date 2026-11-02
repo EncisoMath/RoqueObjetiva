@@ -253,3 +253,229 @@
     padding: 11px 9px 16px !important;
   }
 }
+
+/* v175.14 — Afinado EXCLUSIVO del modal Docentes > Director de grupo.
+   Se reutiliza --director-area-color definido en js/app.js (STUDENT_AREA_COLORS).
+   No afecta el modal de Estudiantes ni la tabla general de docentes. */
+
+/* Centrado real en horizontal y vertical, sin desplazamientos laterales. */
+.director-detail-backdrop.modal-backdrop {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  width: 100%;
+  max-width: 100%;
+  padding: 12px !important;
+  overflow-x: hidden;
+}
+.director-detail-backdrop > .director-detail-modal.student-subject-modal {
+  box-sizing: border-box !important;
+  position: relative !important;
+  inset: auto !important;
+  width: min(760px, 100%) !important;
+  max-width: 100% !important;
+  max-height: min(88dvh, 850px) !important;
+  margin: 0 auto !important;
+  transform: none !important;
+  animation: none !important;
+}
+
+/* Hero compacto: el botón de cerrar conserva su espacio reservado. */
+.director-detail-modal .student-subject-hero.director-subject-hero {
+  min-height: 0 !important;
+  padding: 13px 12px !important;
+  background: var(--director-area-color) !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+.director-detail-modal .director-subject-hero .student-subject-hero-main {
+  grid-template-columns: 46px minmax(0, 1fr) auto;
+  gap: 9px;
+  padding-right: 29px;
+  min-width: 0;
+}
+.director-detail-modal .director-subject-hero .student-subject-hero-icon {
+  width: 46px;
+  height: 46px;
+}
+.director-detail-modal .director-subject-hero .student-subject-hero-info h2 {
+  margin: 1px 0 3px;
+  font-size: clamp(1.02rem, 3.6vw, 1.36rem);
+  line-height: 1.08;
+}
+.director-detail-modal .director-subject-hero .student-subject-hero-kicker {
+  font-size: .65rem;
+}
+.director-detail-modal .director-subject-hero .student-subject-hero-info p {
+  line-height: 1.15;
+}
+.director-detail-modal .director-subject-hero .student-subject-hero-course {
+  margin-top: 1px !important;
+}
+.director-detail-modal .director-subject-hero .student-subject-hero-score .subject-detail-score {
+  font-size: clamp(1.42rem, 5.4vw, 1.95rem);
+}
+.director-detail-modal .director-subject-hero .student-subject-hero-close {
+  top: 7px;
+  right: 7px;
+  width: 27px;
+  height: 27px;
+  min-width: 27px;
+}
+
+/* Flat: iconos, pestañas, porcentajes y enlaces usan el color de la materia. */
+.director-detail-modal .director-detail-stats .teacher-stat-icon,
+.director-detail-modal .teacher-performance-chevron {
+  color: var(--director-area-color) !important;
+  background: #fff !important;
+  background-image: none !important;
+  border: 1px solid #dce5ef !important;
+  box-shadow: none !important;
+}
+.director-detail-modal .teacher-performance-summary:hover .teacher-performance-chevron {
+  color: var(--director-area-color) !important;
+  background: #f5f7fa !important;
+  border-color: var(--director-area-color) !important;
+}
+.director-detail-modal .teacher-answer-link {
+  color: var(--director-area-color) !important;
+  background: transparent !important;
+  background-image: none !important;
+}
+.director-detail-modal .teacher-metric-tabbed .metric-tab.active {
+  color: #fff !important;
+  background: var(--director-area-color) !important;
+  background-image: none !important;
+  border-color: var(--director-area-color) !important;
+  box-shadow: none !important;
+}
+.director-detail-modal .teacher-metric-tabbed .metric-tab:not(.active) {
+  color: var(--director-area-color) !important;
+  background: #fff !important;
+  background-image: none !important;
+}
+.director-detail-modal .teacher-metric-tabbed .metric-progress-fill {
+  background: var(--director-area-color) !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+.director-detail-modal .teacher-metric-tabbed .metric-progress-fill::before,
+.director-detail-modal .teacher-metric-tabbed .metric-progress-fill::after {
+  content: none !important;
+}
+.director-detail-modal .teacher-metric-tabbed .metric-progress {
+  background: #e6ebf0 !important;
+  background-image: none !important;
+}
+
+/* Una fila física por estudiante, sin mostrar ID Prueba. */
+.director-detail-modal .director-detail-table.teacher-students-card {
+  box-sizing: border-box;
+  margin-top: 12px;
+  padding: 0 9px 8px !important;
+}
+.director-detail-modal .director-detail-table .teacher-students-head {
+  box-sizing: border-box;
+  padding: 10px 3px 8px !important;
+  min-width: 0;
+}
+.director-detail-modal .director-detail-table .teacher-students-head h3 {
+  margin: 0;
+  padding-left: 2px;
+}
+.director-detail-modal .director-detail-table .table-wrap {
+  width: 100%;
+  min-width: 0;
+  overflow-x: hidden !important;
+}
+.director-detail-modal .director-detail-table .teacher-table {
+  width: 100%;
+  min-width: 0 !important;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+.director-detail-modal .director-detail-table .teacher-table th,
+.director-detail-modal .director-detail-table .teacher-table td {
+  padding: 9px 4px !important;
+  vertical-align: middle;
+  line-height: 1.15;
+}
+.director-detail-modal .director-detail-table .teacher-table th:nth-child(1),
+.director-detail-modal .director-detail-table .teacher-table td:nth-child(1) {
+  width: 8%;
+  text-align: center;
+}
+.director-detail-modal .director-detail-table .teacher-table th:nth-child(2),
+.director-detail-modal .director-detail-table .teacher-table td:nth-child(2) {
+  width: 55%;
+  text-align: left !important;
+}
+.director-detail-modal .director-detail-table .teacher-table td:nth-child(2) {
+  white-space: nowrap !important;
+  overflow: hidden;
+}
+.director-detail-modal .director-detail-table .teacher-table th:nth-child(3),
+.director-detail-modal .director-detail-table .teacher-table td:nth-child(3) {
+  width: 16%;
+  text-align: center;
+  white-space: nowrap !important;
+}
+.director-detail-modal .director-detail-table .teacher-table th:nth-child(4),
+.director-detail-modal .director-detail-table .teacher-table td:nth-child(4) {
+  width: 21%;
+  text-align: center;
+  white-space: nowrap !important;
+}
+.director-detail-modal .director-detail-table .director-student-name {
+  display: block !important;
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap !important;
+  text-overflow: ellipsis;
+  overflow-wrap: normal !important;
+  font-size: clamp(.65rem, 2.4vw, .76rem) !important;
+  font-weight: 800;
+  line-height: 1.16;
+}
+.director-detail-modal .director-detail-table .director-student-score .teacher-score {
+  font-size: 1.06rem !important;
+  font-weight: 900 !important;
+  line-height: 1;
+}
+.director-detail-modal .director-detail-table .director-student-correct strong {
+  white-space: nowrap;
+  font-size: .78rem;
+  font-weight: 800;
+}
+.director-detail-modal .director-detail-table .director-student-row {
+  height: 44px;
+}
+@media (max-width: 560px) {
+  .director-detail-backdrop.modal-backdrop {
+    padding: 10px !important;
+  }
+  .director-detail-modal .director-subject-hero .student-subject-hero-main {
+    grid-template-columns: 42px minmax(0, 1fr) auto;
+    gap: 7px;
+    padding-right: 27px;
+  }
+  .director-detail-modal .director-subject-hero .student-subject-hero-icon {
+    width: 42px;
+    height: 42px;
+  }
+  .director-detail-modal .student-subject-hero.director-subject-hero {
+    padding: 11px 10px !important;
+  }
+  .director-detail-modal .director-detail-table .teacher-table th,
+  .director-detail-modal .director-detail-table .teacher-table td {
+    padding: 8px 3px !important;
+  }
+  .director-detail-modal .director-detail-table .teacher-table th {
+    font-size: .63rem !important;
+  }
+  .director-detail-modal .director-detail-table .director-student-score .teacher-score {
+    font-size: 1rem !important;
+  }
+}

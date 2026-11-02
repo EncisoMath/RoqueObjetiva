@@ -6,8 +6,18 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v174
+RoqueObjetiva v175.14
 
+
+## v175.14 · Corrección visual del modal Director de grupo
+
+- Modal de asignatura **centrado horizontal y verticalmente** en móvil y escritorio, con márgenes simétricos.
+- **Hero compacto** con el título, el grupo, la edición y el promedio conservados.
+- **Estilo flat** sin degradados: iconos, pestañas, barras de componentes/competencias y enlaces usan el color real de la asignatura, tomado de `STUDENT_AREA_COLORS`.
+- **Tabla de estudiantes en una línea por registro**: nombre y apellidos compactos, nota y aciertos alineados; el **ID Prueba ya no se muestra**. El nombre íntegro permanece en el atributo `title` y se accede al detalle pulsando la fila.
+- Encabezado «Estudiantes» con separación lateral correcta; restauradas las reglas de tarjeta compacta que no se aplicaban por faltar `teacher-students-card`.
+- Ajuste de versión y caché PWA a `v175.14`; se incluye `css/student-subject-modal.css` en la precarga.
+- **Sin cambios** en notas, cálculos, autenticación, claves de respuesta ni base de datos Supabase.
 
 ## v172.1 · Evaluaciones antes del informe
 
