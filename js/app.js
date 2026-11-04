@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.44";
+  const APP_VERSION = "v175.45";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -114,6 +114,11 @@
     teacherMode: "asignaturas",
     teacherDockMenu: "",
     teacherViewMotionPending: false,
+    teacherEditionCatalog: [],
+    teacherEditionSelected: "2026-1S",
+    teacherEditionMessage: "",
+    teacherEditionBusy: false,
+    teacherEditionRequestSerial: 0,
     teacherDirectorActiveKey: "",
     teacherSearch: "",
     adminTab: "resumen",
@@ -192,6 +197,8 @@
         if (saved.role === "student" && SUPABASE_CONFIG.enabled) {
           // No abrir un informe con datos sin autenticar tras refrescar la PWA.
           await loginWithSupabase(cleanId(saved.roll), "", { restore: true });
+        } else if (saved.role === "teacher" && SUPABASE_CONFIG.enabled) {
+          await loginWithSupabase(cleanId(saved.id), "", { restore: true });
         } else {
           state.activeSession = saved;
           renderBySession();
@@ -1051,7 +1058,7 @@
     });
     // Captura las claves reales ANTES de los overrides locales del navegador.
     state.keys.forEach((key) => state.originalKeyAnswers.set(keyId(key), cleanOption(key.correct)));
-    applyAnswerOverrides();
+    if (state.academicEdition === "2026-1S") applyAnswerOverrides();
 
     (resultados || []).forEach((group) => {
       if (Array.isArray(group?.rows)) {
@@ -1068,7 +1075,7 @@
         parseResultFile(JSON.stringify([group]), { grade: toInt(group.grade || group.grado), session: 0, startItem: 1, path: "SUPABASE/resultados" });
       }
     });
-    applyResultOverrides();
+    if (state.academicEdition === "2026-1S") applyResultOverrides();
     applyRankingMetadataRows(rankings);
   }
 
@@ -1293,6 +1300,99 @@
     };
     return { enabled: true, badge: "DISPONIBLE",
       description: "Tus resultados, puntajes y puestos están listos para consultar." };
+  }
+
+  // Catálogo docente dinámico; no se muestran notas de ediciones no publicadas.
+  async function loadTeacherEditionCatalog() {
+    let editions = [];
+    try {
+      const response = await supabaseRpc("roque_v5_portada_ediciones", {});
+      if (response?.ok && Array.isArray(response.ediciones)) editions = response.ediciones;
+    } catch (err) {
+      console.warn("Catálogo docente no disponible:", err?.message || err);
+    }
+    const rows = editions
+      .filter(e => /^\d{4}-[12]S$/.test(String(e?.codigo || "")))
+      .map(e => ({
+        codigo:String(e.codigo), titulo:cleanText(e.titulo || "Prueba objetiva"),
+        anio:Number(e.anio) || Number(String(e.codigo).slice(0,4)),
+        semestre:Number(e.semestre) || Number(String(e.codigo).slice(5,6)),
+        estado:cleanText(e.estado || ""), resultados_visibles:e.resultados_visibles === true
+      }))
+      .sort((x,y) => y.anio-x.anio || y.semestre-x.semestre);
+    if (!rows.length) rows.push({
+      codigo:"2026-1S",titulo:"Prueba objetiva",anio:2026,semestre:1,
+      estado:"cerrada",resultados_visibles:true
+    });
+    state.teacherEditionCatalog=rows;
+    return rows;
+  }
+
+  function teacherEditionPickerHtml() {
+    const current = cleanText(state.teacherEditionSelected || state.academicEdition || "2026-1S");
+    const catalog = state.teacherEditionCatalog || [];
+    const editions = catalog.some(e => e.codigo === current) ? catalog :
+      [...catalog,{codigo:current,estado:"",resultados_visibles:false}];
+    const options = editions.map(e => {
+      const available = e.resultados_visibles === true && ["publicada","cerrada"].includes(e.estado);
+      return '<option value="' + escAttr(e.codigo) + '"' +
+        (e.codigo===current ? ' selected' : '') + '>' +
+        esc(e.codigo + (available ? "" : " · Sin publicar")) + '</option>';
+    }).join("");
+    return '<label class="teacher-edition-picker" for="teacher-edition-select">' +
+      '<span>Prueba a consultar</span><select id="teacher-edition-select" ' +
+      'data-teacher-edition="true" aria-label="Seleccionar prueba objetiva"' +
+      (state.teacherEditionBusy ? ' disabled' : '') + '>' + options + '</select></label>';
+  }
+
+  async function selectTeacherEdition(value) {
+    if (state.activeSession?.role !== "teacher" || state.teacherEditionBusy) return;
+    const id = cleanId(state.activeSession.id);
+    const serial = ++state.teacherEditionRequestSerial;
+    const editions = await loadTeacherEditionCatalog();
+    if (serial !== state.teacherEditionRequestSerial || state.activeSession?.id !== id) return;
+    const code = cleanText(value);
+    const edition = editions.find(e => e.codigo===code);
+    if (!edition) {
+      toast("Esta prueba no está disponible en Supabase.");renderBySession();return;
+    }
+    state.teacherEditionSelected = code;
+    state.teacherEditionBusy = true;
+    state.teacherEditionMessage = "Preparando la prueba " + code + "...";
+    renderTeacherWithMotion();
+    try {
+      if (!(edition.resultados_visibles === true &&
+        ["publicada","cerrada"].includes(edition.estado))) {
+        state.teacherEditionMessage = "Esta prueba todavía no tiene resultados publicados. " +
+          "Cuando estén disponibles podrás consultarlos aquí.";
+        state.academicEdition = code;
+        return;
+      }
+      const payload = await supabaseRpc("roque_v6_docente_datos_edicion",{
+        p_user:id, p_edicion:code,
+        p_terminal:terminalIdForConsultation(),p_device:deviceInfoText()
+      });
+      if (serial !== state.teacherEditionRequestSerial || state.activeSession?.id !== id) return;
+      if (!payload?.ok || payload?.session?.role !== "teacher" ||
+          cleanId(payload?.session?.id) !== id || payload.edicion !== code) {
+        throw new Error(payload?.error || "No hay resultados disponibles para esta prueba.");
+      }
+      // Fijar la edición antes de hidratar para aislar los ajustes de 2026-1S.
+      state.academicEdition = code;
+      state.academicDataSource = cleanText(payload.origen_academico || "");
+      hydrateSupabasePayload(payload);
+      buildRepository();
+      state.teacherActive = null;
+      state.teacherDirectorActiveKey = "";
+      state.teacherEditionMessage = "";
+    } catch (err) {
+      state.academicEdition = code;
+      state.teacherEditionMessage = cleanText(err?.message || "No fue posible cargar esta prueba.");
+    } finally {
+      if (serial===state.teacherEditionRequestSerial && state.activeSession?.id===id) {
+        state.teacherEditionBusy = false;renderTeacherWithMotion();
+      }
+    }
   }
 
   function editionTileHtml(ed, featured = false) {
@@ -1535,6 +1635,10 @@
         const id = cleanId(session.id);
         const teacher = state.teachers.get(id);
         if (!teacher) return renderLogin("No encontré ese docente en Supabase.");
+        state.teacherEditionSelected = cleanText(state.academicEdition || "2026-1S");
+        state.teacherEditionMessage = "";
+        state.teacherEditionBusy = false;
+        await loadTeacherEditionCatalog();
         state.teacherActive = null;
         state.teacherMode = "asignaturas";
         state.teacherDirectorActiveKey = "";
@@ -3391,6 +3495,8 @@
       }
       state.teacherViewMotionPending = false;
       teacherBanner.style.background = primary;
+      const editionSlot = teacherBanner.querySelector(".teacher-edition-slot");
+      if (editionSlot) editionSlot.innerHTML = teacherEditionPickerHtml();
       currentTeacherShell.querySelectorAll(".t160-menu-layer").forEach((layer) => {
         layer.classList.remove("is-open");
         layer.setAttribute("aria-hidden", "true");
@@ -3418,6 +3524,7 @@
             <div class="banner-copy">
               <h1>${esc(heroTitle)}</h1>
               <p>${esc(heroSubtitle)}</p>
+              ${heroRole === "teacher" ? `<div class="teacher-edition-slot">${teacherEditionPickerHtml()}</div>` : ""}
             </div>
             <div class="banner-brand">
               ${cfg.logoImage ? `<span class="banner-logo-frame"><img class="banner-logo" src="${escAttr(cfg.logoImage)}" alt="Logo"></span>` : `<div class="banner-mark-text">Resultados</div>`}
@@ -3802,6 +3909,14 @@
   }
 
   function renderTeacher(teacher) {
+    if (state.teacherEditionMessage) {
+      renderShell('<section class="teacher-edition-empty" role="status">' +
+        '<span class="teacher-edition-empty-icon" aria-hidden="true">📋</span><div>' +
+        '<span>EDICIÓN ' + esc(state.teacherEditionSelected) + '</span>' +
+        '<h2>' + (state.teacherEditionBusy ? 'Cargando evaluación' : 'Resultados aún no disponibles') + '</h2>' +
+        '<p>' + esc(state.teacherEditionMessage) + '</p></div></section>', navFor("teacher"));
+      return;
+    }
     const assignments = teacher.assignments || [];
     const directorGroups = teacher.directorGroups || [];
     const hasAssignments = assignments.length > 0;
@@ -7288,6 +7403,10 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
 
   function handleChange(event) {
     const target = event.target;
+    if (target.dataset.teacherEdition && state.activeSession?.role === "teacher") {
+      void selectTeacherEdition(target.value);
+      return;
+    }
     if (target.dataset.teacherSelect && state.activeSession?.role === "teacher") {
       const teacher = state.teachers.get(state.activeSession.id);
       if (!teacher) return;

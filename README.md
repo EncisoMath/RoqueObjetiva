@@ -6,8 +6,16 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.44
+RoqueObjetiva v175.45
 
+
+## v175.45 · Selector de ediciones por docente
+
+- Cabecera Panel Docente: desplegable **Prueba a consultar** debajo del nombre, con las ediciones presentes y futuras obtenidas de la RPC `roque_v5_portada_ediciones`. Se preserva el hero y el dock persistentes al navegar.
+- Al elegir una edición publicada, la nueva RPC `roque_v6_docente_datos_edicion` valida el rol docente y recupera estudiantes, claves y respuestas exclusivamente de la edición elegida, restringidos a la carga o dirección de grupo del profesor (o la totalidad para coordinadores).
+- Ediciones en borrador, incluyendo 2026-2S mientras no tenga resultados publicados, muestran aviso específico sin mezclar resultados ni simular calificaciones.
+- Los ajustes de respuestas/claves históricos locales solo se aplican a 2026-1S. Al reanudar una sesión docente se vuelven a cargar sus datos desde Supabase.
+- SQL conservado en `supabase/25_selector_ediciones_docentes_v175_45.sql`. Caché PWA actualizada. No se modifican datos de notas ni estados de publicación.
 
 ## v175.44 · Dock persistente: evitar desaparición del botón activo
 

@@ -249,3 +249,50 @@
   .t160-dock-btn.is-active {
   color: #fff !important;
 }
+
+
+/* v175.45: Prueba a consultar bajo el nombre docente, sin degradados. */
+.roque-teacher-shell .banner-copy .teacher-edition-slot {
+  position:relative;z-index:3;display:block;width:min(100%,260px);margin-top:8px;
+}
+.roque-teacher-shell .banner-copy .teacher-edition-picker {
+  display:flex;flex-direction:column;gap:3px;width:100%;color:#fff;
+  font-size:.64rem;font-weight:700;line-height:1.2;
+}
+.roque-teacher-shell .teacher-edition-picker span {color:rgba(255,255,255,.94);}
+.roque-teacher-shell .banner-copy .teacher-edition-picker select {
+  box-sizing:border-box;display:block;width:100%;min-width:0;height:34px;min-height:34px;
+  border:1px solid rgba(255,255,255,.8);border-radius:7px;padding:5px 30px 5px 11px;
+  background:#fff;background-image:none;color:#1b3551;
+  font-family:inherit;font-size:.82rem;font-weight:750;line-height:1.2;
+  text-overflow:ellipsis;white-space:nowrap;cursor:pointer;box-shadow:none;
+}
+.roque-teacher-shell .teacher-edition-picker select:disabled {opacity:.7;cursor:progress;}
+.roque-teacher-shell .teacher-edition-picker select:focus-visible {
+  outline:3px solid #fff;outline-offset:2px;
+}
+.roque-teacher-shell .teacher-edition-empty {
+  display:flex;align-items:flex-start;gap:14px;max-width:780px;margin:8px auto 20px;
+  padding:23px;border:1px solid #d4e5f3;border-radius:10px;
+  background:#fff;color:#233a56;
+}
+.roque-teacher-shell .teacher-edition-empty-icon {
+  display:grid;place-items:center;width:48px;height:48px;flex:0 0 48px;
+  border-radius:10px;background:#eaf4fb;font-size:1.6rem;
+}
+.roque-teacher-shell .teacher-edition-empty div>span {
+  color:#337bad;font-size:.65rem;font-weight:800;letter-spacing:.07em;
+}
+.roque-teacher-shell .teacher-edition-empty h2 {
+  margin:5px 0 7px;font-size:clamp(1rem,3vw,1.4rem);font-weight:850;color:#203651;
+}
+.roque-teacher-shell .teacher-edition-empty p {
+  margin:0;color:#637387;font-size:.82rem;line-height:1.5;
+}
+@media(max-width:680px){
+  .roque-teacher-shell .banner-copy .teacher-edition-slot {width:min(100%,210px);margin-top:7px;}
+  .roque-teacher-shell .banner-copy .teacher-edition-picker select {
+    height:30px;min-height:30px;padding:4px 26px 4px 8px;font-size:.75rem;
+  }
+  .roque-teacher-shell .teacher-edition-empty {padding:16px;gap:10px;}
+}
