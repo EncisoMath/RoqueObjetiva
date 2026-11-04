@@ -6,8 +6,16 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.45
+RoqueObjetiva v175.46
 
+
+## v175.46 · Modal inicial de elección de evaluación docente
+
+- **Antes de ver las estadísticas** el docente debe elegir la prueba a consultar en un modal responsivo que cubre el panel. La más reciente (por año y semestre) aparece como tarjeta azul destacada, con código grande, estado de publicación y botón de entrada. Las anteriores se eligen desde un desplegable independiente.
+- El modal usa el mismo catálogo dinámico `roque_v5_portada_ediciones` que el selector existente en el hero. El selector en la cabecera se conserva para cambiar de edición después de entrar; las nuevas ediciones aparecerán automáticamente.
+- La pantalla docente no representa tablas ni promedios detrás del modal hasta que se elija edición. Se impide cerrar el modal con Escape o tocando fuera, y se bloquean los controles del fondo.
+- Elegir una prueba publicada llama a `roque_v6_docente_datos_edicion` y carga exclusivamente sus registros autorizados. Si la más reciente está en borrador (2026-2S actualmente), presenta el estado «Sin publicar» sin recurrir a calificaciones históricas; el docente puede escoger posteriormente 2026-1S en el hero.
+- Solo cambia el frontend y la caché PWA. No hay escrituras en Supabase, permisos, ediciones ni resultados de estudiantes.
 
 ## v175.45 · Selector de ediciones por docente
 

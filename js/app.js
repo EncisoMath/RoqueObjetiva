@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.45";
+  const APP_VERSION = "v175.46";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -119,6 +119,7 @@
     teacherEditionMessage: "",
     teacherEditionBusy: false,
     teacherEditionRequestSerial: 0,
+    teacherEditionGateOpen: false,
     teacherDirectorActiveKey: "",
     teacherSearch: "",
     adminTab: "resumen",
@@ -1345,6 +1346,75 @@
       (state.teacherEditionBusy ? ' disabled' : '') + '>' + options + '</select></label>';
   }
 
+
+  // v175.46: la elección de edición ocurre ANTES de renderizar resultados docentes.
+  // El catálogo de Supabase ya se cargó en el login y está ordenado por semestre.
+  function renderTeacherEditionGate() {
+    if (state.activeSession?.role !== "teacher") return;
+    const editions = Array.isArray(state.teacherEditionCatalog) ? state.teacherEditionCatalog : [];
+    const recent = editions[0] || {
+      codigo:"2026-1S",titulo:"Prueba objetiva",semestre:1,anio:2026,
+      estado:"cerrada",resultados_visibles:true
+    };
+    const historic = editions.slice(1);
+    const available = recent.resultados_visibles === true &&
+      ["publicada","cerrada"].includes(recent.estado);
+    const subtitle = recent.semestre === 1 ? "Primer semestre" : "Segundo semestre";
+    const options = historic.map((ed) => {
+      const published = ed.resultados_visibles === true &&
+        ["publicada","cerrada"].includes(ed.estado);
+      return '<option value="' + escAttr(ed.codigo) + '">' +
+        esc(ed.codigo + (published ? "" : " · Sin publicar")) + '</option>';
+    }).join("");
+    state.teacherEditionGateOpen = true;
+    // La página inicial deliberadamente NO tiene datos de estudiantes.
+    // Así ninguna nota de 2026-1S aparece antes de escoger otra edición.
+    renderShell('<section class="teacher-edition-gate-stage" aria-hidden="true"></section>',
+      navFor("teacher"));
+    modalRoot.innerHTML =
+      '<div class="modal-backdrop teacher-edition-gate-backdrop">' +
+      '<section class="modal teacher-edition-gate-panel" role="dialog" aria-modal="true" ' +
+      'aria-labelledby="teacher-edition-gate-title" aria-describedby="teacher-edition-gate-desc">' +
+      '<header class="teacher-edition-gate-heading">' +
+      '<span class="teacher-edition-gate-eyebrow">PANEL DOCENTE · EVALUACIONES</span>' +
+      '<h2 id="teacher-edition-gate-title">¿Qué prueba quieres revisar?</h2>' +
+      '<p id="teacher-edition-gate-desc">Selecciona la evaluación cuyos resultados quieres consultar.</p>' +
+      '</header><div class="teacher-edition-gate-body">' +
+      '<button type="button" class="teacher-edition-gate-featured" ' +
+      'data-action="teacher-gate-open" data-edicion="' + escAttr(recent.codigo) + '">' +
+      '<span class="teacher-edition-gate-featured-top"><span>PRUEBA MÁS RECIENTE</span>' +
+      '<span class="teacher-edition-gate-tag">' +
+      esc(available ? "Disponible" : "Sin publicar") + '</span></span>' +
+      '<strong class="teacher-edition-gate-code">' + esc(recent.codigo) + '</strong>' +
+      '<span class="teacher-edition-gate-semester">' + esc(subtitle + " de " + recent.anio) + '</span>' +
+      '<span class="teacher-edition-gate-featured-foot">' +
+      esc(available ? "Consultar resultados" : "Ver estado de la prueba") +
+      '<span aria-hidden="true">›</span></span></button>' +
+      '<div class="teacher-edition-gate-history">' +
+      '<label for="teacher-edition-gate-history">Pruebas anteriores</label>' +
+      '<div class="teacher-edition-gate-history-controls"><div class="teacher-edition-gate-select-wrap">' +
+      '<select id="teacher-edition-gate-history" aria-label="Seleccionar prueba anterior"' +
+      (historic.length ? "" : " disabled") + '>' +
+      (options || '<option>Sin evaluaciones anteriores</option>') + '</select></div>' +
+      '<button type="button" data-action="teacher-gate-open-history"' +
+      (historic.length ? "" : " disabled") + '>Abrir</button></div>' +
+      '</div></div></section></div>';
+    document.body.classList.add("modal-open");
+    // Bloquear el dock y el hero de fondo mientras esta decisión es obligatoria.
+    app.inert = true;
+    window.requestAnimationFrame(() => {
+      modalRoot.querySelector(".teacher-edition-gate-featured")?.focus({preventScroll:true});
+    });
+  }
+
+  function finishTeacherEditionGate() {
+    if (!state.teacherEditionGateOpen) return;
+    state.teacherEditionGateOpen = false;
+    modalRoot.querySelector(".teacher-edition-gate-backdrop")?.remove();
+    document.body.classList.remove("modal-open");
+    app.inert = false;
+  }
+
   async function selectTeacherEdition(value) {
     if (state.activeSession?.role !== "teacher" || state.teacherEditionBusy) return;
     const id = cleanId(state.activeSession.id);
@@ -1645,7 +1715,7 @@
         if (!(teacher?.assignments || []).length && (teacher?.directorGroups || []).length) state.teacherMode = "director";
         if (!(teacher?.assignments || []).length && !(teacher?.directorGroups || []).length && teacher?.coordinator) state.teacherMode = "coord-estudiantes";
         state.zeroToleranceShown = false;
-        return enterSessionWithLoader({ role: "teacher", id }, () => renderTeacher(teacher), "Preparando vista docente...");
+        return enterSessionWithLoader({ role: "teacher", id }, () => renderTeacherEditionGate(), "Preparando selección de prueba...");
       }
 
       if (session.role === "student") {
@@ -6575,6 +6645,17 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
   async function handleClick(event) {
     const target = event.target.closest("[data-action]");
     if (!target) return;
+    if (state.teacherEditionGateOpen) {
+      const action = target.dataset.action;
+      if (action !== "teacher-gate-open" && action !== "teacher-gate-open-history") return;
+      const selectedCode = action === "teacher-gate-open"
+        ? target.dataset.edicion
+        : modalRoot.querySelector("#teacher-edition-gate-history")?.value;
+      if (!(state.teacherEditionCatalog || []).some(ed => ed.codigo === selectedCode)) return;
+      finishTeacherEditionGate();
+      await selectTeacherEdition(selectedCode);
+      return;
+    }
     if (target.classList.contains("modal-backdrop") && event.target !== target) return;
 
     const action = target.dataset.action;
@@ -9671,6 +9752,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
 
 
   function closeModal() {
+    if (state.teacherEditionGateOpen) return;
     const backdrop = modalRoot.lastElementChild?.classList.contains("modal-backdrop")
       ? modalRoot.lastElementChild : modalRoot.querySelector(".modal-backdrop");
     if (!backdrop) {
@@ -9742,6 +9824,11 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
   }
 
   function clearSession() {
+    finishTeacherEditionGate();
+    state.teacherEditionCatalog = [];
+    state.teacherEditionMessage = "";
+    state.teacherEditionBusy = false;
+    ++state.teacherEditionRequestSerial;
     if (window.RoqueEdiciones) window.RoqueEdiciones.logout();
     document.getElementById("student-dock-root")?.replaceChildren();
     state.activeSession = null;
