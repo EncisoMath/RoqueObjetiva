@@ -1,4 +1,137 @@
-/* v175.54: transiciones visuales de Personal Docente */
-.rp-root .rp-tab-content{animation:rp-panel-enter .25s ease both}
-@keyframes rp-panel-enter{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
-/* ajustes de animación y tamaño del módulo Docentes */
+/* RoqueObjetiva v175.54 · Movimiento y jerarquía de Personal Docente.
+   Los elementos ajenos a este módulo (hero, dock y navegación docente) permanecen intactos. */
+.rp-root{view-transition-name:roque-personal-docente}
+::view-transition-old(roque-personal-docente){
+  animation:rp-view-leave .17s cubic-bezier(.4,0,.85,.4) both;
+}
+::view-transition-new(roque-personal-docente){
+  animation:rp-view-enter .24s cubic-bezier(.18,.7,.2,1) both;
+}
+@keyframes rp-view-leave{
+  from{opacity:1;transform:translateY(0)}
+  to{opacity:0;transform:translateY(-5px)}
+}
+@keyframes rp-view-enter{
+  from{opacity:0;transform:translateY(7px)}
+  to{opacity:1;transform:translateY(0)}
+}
+/* Si no hay View Transitions, se mantiene una entrada suave por CSS. */
+@keyframes rp-panel-enter{
+  from{opacity:0;transform:translateY(7px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes rp-disclose{
+  from{opacity:0;transform:translateY(-6px);clip-path:inset(0 0 90% 0)}
+  to{opacity:1;transform:translateY(0);clip-path:inset(0 0 0 0)}
+}
+.rp-root .rp-ui-icon{width:18px;height:18px;flex:0 0 18px;display:inline-block;vertical-align:middle}
+.rp-root .rp-title-strip .rp-head-icon .rp-ui-icon{width:22px;height:22px;flex-basis:22px;stroke-width:2}
+.rp-root .rp-list-head strong{display:inline-flex;align-items:center;gap:6px}
+.rp-root .rp-list-head strong .rp-ui-icon{width:17px;height:17px;flex-basis:17px;color:#537493}
+.rp-root .rp-avatar{
+  font-size:.76rem;font-weight:900;letter-spacing:.015em;line-height:1;
+  font-variant:normal;text-transform:uppercase;
+}
+.rp-root .rp-big-avatar{
+  font-size:1.07rem;font-weight:900;letter-spacing:.025em;line-height:1;
+  font-variant:normal;text-transform:uppercase;
+}
+.rp-root .rp-tabs{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:6px;
+}
+.rp-root .rp-tabs button{
+  min-height:48px;
+  height:48px;
+  gap:2px;
+  padding:4px 3px;
+  border-radius:4px;
+  font-size:.63rem;
+  line-height:1.1;
+  transition:color .19s ease,background-color .19s ease,border-color .19s ease,transform .18s ease,box-shadow .19s ease;
+}
+.rp-root .rp-tabs button .rp-ui-icon{
+  width:18px;height:18px;flex:0 0 18px;
+  transition:transform .2s ease,stroke-width .2s ease;
+}
+.rp-root .rp-tabs button .rp-tab-label{
+  display:block;
+  font-size:.61rem;
+  line-height:1.1;
+  max-width:100%;
+  text-wrap:balance;
+  text-align:center;
+}
+.rp-root .rp-tabs button.active .rp-ui-icon{stroke-width:2.2}
+.rp-root .rp-tabs button:hover:not(.active){background:#e6f4fc;color:#157aaf;border-color:#a8d3e9}
+.rp-root .rp-tabs button:active{transform:scale(.97)}
+.rp-root .rp-tabs button:hover .rp-ui-icon{transform:translateY(-1px)}
+.rp-root .rp-section-title h3 .rp-ui-icon,
+.rp-root .rp-feature-heading h3 .rp-ui-icon{
+  width:18px;height:18px;flex-basis:18px;margin-right:4px;stroke-width:2;color:#1484b9;
+}
+.rp-root .rp-subject-icon{
+  position:relative;
+  overflow:hidden;
+  display:grid;place-items:center;
+  width:39px;height:39px;flex:0 0 39px;
+}
+.rp-root .rp-subject-image{
+  display:block;
+  object-fit:contain;
+  width:29px;height:29px;
+  max-width:calc(100% - 4px);
+  max-height:calc(100% - 4px);
+  border:0;
+  filter:none;
+  opacity:1;
+}
+.rp-root .rp-subject-glyph{font-size:1.36rem;line-height:1;color:white;font-weight:800}
+.rp-root .rp-person,
+.rp-root .rp-teacher-head,
+.rp-root .rp-assignment-card,
+.rp-root .rp-section,
+.rp-root .rp-director-card{
+  transition:background-color .2s ease,border-color .2s ease,box-shadow .2s ease,transform .2s cubic-bezier(.18,.75,.2,1);
+}
+.rp-root .rp-person:hover{transform:translateY(-1px);box-shadow:0 4px 13px rgba(29,77,116,.105)}
+.rp-root .rp-person:active{transform:scale(.99)}
+.rp-root .rp-assignment-card:hover{background:#f6fbff;border-color:#afcfe6}
+.rp-root .rp-assign,
+.rp-root .rp-new,
+.rp-root .rp-primary,
+.rp-root .rp-edit-icon,
+.rp-root .rp-form-actions button,
+.rp-root .rp-dots{
+  transition:color .18s ease,background-color .18s ease,border-color .18s ease,transform .17s ease,opacity .17s ease;
+}
+.rp-root .rp-assign:active,
+.rp-root .rp-new:active,
+.rp-root .rp-primary:active,
+.rp-root .rp-edit-icon:active,
+.rp-root .rp-dots:active{transform:scale(.97)}
+.rp-root .rp-add-form,
+.rp-root .rp-assignment-details{
+  animation:rp-disclose .27s cubic-bezier(.2,.75,.25,1) both;
+  transform-origin:top center;
+}
+.rp-root .rp-director-card,.rp-root .rp-summary-grid>div{animation:rp-panel-enter .24s ease both}
+.rp-root .rp-form input,.rp-root .rp-form select,
+.rp-root .rp-add-form input,.rp-root .rp-add-form select,
+.rp-root .rp-search input,.rp-root .rp-filter-row select{
+  transition:border-color .18s ease,background-color .18s ease,box-shadow .18s ease;
+}
+.rp-root .rp-search input:focus,
+.rp-root .rp-form input:focus,
+.rp-root .rp-add-form select:focus{border-color:#69afe0;box-shadow:0 0 0 2px rgba(64,166,219,.1)}
+@media(max-width:355px){
+  .rp-root .rp-tabs{gap:4px}
+  .rp-root .rp-tabs button{min-height:47px;height:47px;padding:3px 2px}
+  .rp-root .rp-tabs button .rp-tab-label{font-size:.57rem}
+  .rp-root .rp-tabs button .rp-ui-icon{width:17px;height:17px;flex-basis:17px}
+}
+@media(prefers-reduced-motion:reduce){
+  .rp-root,.rp-root *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  ::view-transition-old(roque-personal-docente),
+  ::view-transition-new(roque-personal-docente){animation:none!important}
+}
