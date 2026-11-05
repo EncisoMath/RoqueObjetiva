@@ -6,8 +6,15 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.48
+RoqueObjetiva v175.49
 
+
+## v175.49 · Hero continuo, movimientos fluidos y aviso opcional
+
+- **Hero de Estudiantes:** al alternar Detalle, Historial y otras vistas, la disolvencia se aplica al contenido, preservando el banner y sus partículas. Corregida la precedencia CSS que impedía desvanecer los copos y muñecos de nieve cuando cambia la apariencia de los puestos 1.º, 2.º y 3.º; las capas salientes terminan su transición incluso con navegación rápida.
+- **Bienvenida del coordinador:** el estudiante sigue la tarjeta flotante con el dedo sincronizado; al salir de un curso, los compañeros restantes se recolocan mediante animación FLIP, y al llegar se funden tarjeta y dedo suavemente.
+- **No volver a mostrar este mensaje:** casilla antes de «¡Dale!» que guarda la preferencia en el almacenamiento local de este navegador, asociada al ID del coordinador. No altera sesiones ni autorizaciones.
+- **PWA:** actualizados HTML, scripts, estilos, caché y documentación a v175.49. No se modifican resultados, matrículas, roles ni datos de Supabase.
 
 ## v175.48 · Modal de coordinación rediseñado y sin claves individuales
 
