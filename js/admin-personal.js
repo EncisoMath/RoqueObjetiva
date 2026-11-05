@@ -202,19 +202,59 @@
         (S.view==="detail"?detailView():'<div class="rp-desktop-placeholder">Selecciona un docente para gestionar sus datos y asignaciones.</div>')+
       '</div></div>';
   };
-  const draw=()=>requestAnimationFrame(()=>{
-    const root=document.getElementById("roque-personal");
-    if(root)root.innerHTML=view();
-  });
-  async function reload(){
-    if(!ctx?.rpc||S.loading)return;
+  // Animar exclusivamente el panel Docentes; el dock y el hero no se reinician.
+  let drawSerial=0;
+  let activeTransition=null;
+  const draw=()=>{
+    const serial=++drawSerial;
+    requestAnimationFrame(()=>{
+      if(serial!==drawSerial)return;
+      const root=document.getElementById("roque-personal");
+      if(!root)return;
+      const previousScroll=root.querySelector(".rp-roster")?.scrollTop||0;
+      const update=()=>{
+        if(serial!==drawSerial||!root.isConnected)return;
+        root.innerHTML=view();
+        const roster=root.querySelector(".rp-roster");
+        if(roster)roster.scrollTop=previousScroll;
+      };
+      const reduced=window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches===true;
+      if(!reduced&&document.startViewTransition&&!activeTransition){
+        try{
+          const transition=document.startViewTransition(update);
+          activeTransition=transition;
+          transition.finished.catch(()=>{}).finally(()=>{
+            if(activeTransition===transition)activeTransition=null;
+          });
+          return;
+        }catch(error){ /* Fallback sin View Transitions. */ }
+      }
+      update();
+      if(!reduced){
+        root.querySelector(".rp-tab-content, .rp-detail-view, .rp-roster-view")?.animate([
+          {opacity:.52,transform:"translateY(6px)"},
+          {opacity:1,transform:"translateY(0)"}
+        ],{duration:215,easing:"cubic-bezier(.18,.75,.2,1)"});
+      }
+    });
+  };
+  async function reload(paint=true){
+    if(!ctx?.rpc||S.loading)return false;
     S.loading=true;S.error="";
+    let success=false;
     try{
       const p=await ctx.rpc("roque_v9_admin_personal_listar",{});
       if(!p?.ok||!Array.isArray(p.docentes))throw Error(p?.error||"No se pudo cargar personal docente.");
       S.items=p.docentes;S.loaded=true;
-    }catch(err){S.error=String(err?.message||err);ctx?.notify?.(S.error);}
-    finally{S.loading=false;draw();}
+      success=true;
+    }catch(err){
+      S.error=String(err?.message||err);
+      if(paint)ctx?.notify?.(S.error);
+    }finally{
+      S.loading=false;
+      if(paint)draw();
+    }
+    return success;
   }
   function render(context) {
     if(context)ctx=context;
@@ -224,14 +264,23 @@
   async function save(op,payload){
     if(S.busy||!ctx?.rpc)return false;
     S.busy=true;
+    let saved=false;
     try{
       const p=await ctx.rpc("roque_v9_admin_personal_guardar",{p_operacion:op,p_datos:payload});
       if(!p?.ok)throw Error(p?.error||"No se guardaron los cambios.");
-      await reload();
-      ctx.notify?.("Cambios guardados correctamente.");
-      return true;
-    }catch(err){ctx.notify?.(String(err?.message||err));return false;}
-    finally{S.busy=false;}
+      const refreshed=await reload(false);
+      if(op==="crear"){
+        S.selected=String(payload.id||"").trim();S.view="detail";S.tab="gestion";
+      }
+      S.editor="";
+      saved=true;
+      ctx.notify?.(refreshed?"Cambios guardados correctamente.":"Guardado en Supabase; no se pudo actualizar el listado todavía.");
+    }catch(err){ctx.notify?.(String(err?.message||err));}
+    finally{
+      S.busy=false;
+      if(saved)draw();
+    }
+    return saved;
   }
   document.addEventListener("click",async event=>{
     const b=event.target.closest("[data-rp-action]");
@@ -311,8 +360,7 @@
     }else if(t&&form.dataset.rpForm==="direction"){
       success=await save("direccion",{id:t.id,sede:data.sede,grado:Number(data.grado),curso:data.curso});
     }
-    if(success){S.editor="";draw();}
-    else if(button){button.disabled=false;button.textContent="Volver a intentar";}
+    if(!success&&button){button.disabled=false;button.textContent="Volver a intentar";}
   });
   window.RoquePersonal={render,reset:()=>{S.loaded=false;S.loading=false;S.items=[];S.selected="";S.view="list";S.tab="gestion";}};
 })();
