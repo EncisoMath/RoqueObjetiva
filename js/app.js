@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.46";
+  const APP_VERSION = "v175.47";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -120,6 +120,10 @@
     teacherEditionBusy: false,
     teacherEditionRequestSerial: 0,
     teacherEditionGateOpen: false,
+    coordIntroShown: false, coordIntroOpen: false, coordPin: "",
+    coordRoster: [], coordCourses: [], coordEditionLoaded: "",
+    coordBusy: false, coordError: "", coordSearch: "",
+    coordGrade: "all", coordSede: "all", coordCurso: "all", coordLimit: 48,
     teacherDirectorActiveKey: "",
     teacherSearch: "",
     adminTab: "resumen",
@@ -1460,7 +1464,12 @@
       state.teacherEditionMessage = cleanText(err?.message || "No fue posible cargar esta prueba.");
     } finally {
       if (serial===state.teacherEditionRequestSerial && state.activeSession?.id===id) {
-        state.teacherEditionBusy = false;renderTeacherWithMotion();
+        state.teacherEditionBusy = false;
+        renderTeacherWithMotion();
+        if (state.teachers.get(id)?.coordinator) {
+          if (state.teacherMode==="coord-mover" && state.coordPin) void loadCoordRoster();
+          if (!state.coordIntroShown && !state.teacherEditionGateOpen) openCoordIntro();
+        }
       }
     }
   }
@@ -1705,6 +1714,8 @@
         const id = cleanId(session.id);
         const teacher = state.teachers.get(id);
         if (!teacher) return renderLogin("No encontré ese docente en Supabase.");
+        state.coordIntroShown=false; state.coordIntroOpen=false; state.coordPin="";
+        state.coordRoster=[];state.coordCourses=[];state.coordEditionLoaded="";
         state.teacherEditionSelected = cleanText(state.academicEdition || "2026-1S");
         state.teacherEditionMessage = "";
         state.teacherEditionBusy = false;
@@ -3584,9 +3595,49 @@
       syncPersistentStudentDock();
       return;
     }
+
+    // Reusar hero de estudiante sin reiniciar partículas entre Detalle e Historial.
+    const studentShell = studentHero &&
+      app.firstElementChild?.classList.contains("roque-student-shell") &&
+      app.firstElementChild.dataset.studentSession === String(state.activeSession?.roll || "")
+      ? app.firstElementChild : null;
+    const studentPage = studentShell?.querySelector("main.page");
+    const studentBanner = studentShell?.querySelector(".top-banner");
+    if (studentPage && studentBanner) {
+      studentPage.innerHTML = content;
+      const tone = isMedalBanner ? bannerToneClass : "";
+      if ((studentBanner.dataset.heroTone || "") !== tone) {
+        studentBanner.querySelector(".student-tone-wash")?.remove();
+        studentBanner.querySelectorAll(".banner-shapes.student-hero-out").forEach(el=>el.remove());
+        const old = studentBanner.querySelector(".banner-shapes");
+        const wash = document.createElement("div");
+        wash.className="student-tone-wash";
+        wash.style.backgroundColor=getComputedStyle(studentBanner).backgroundColor;
+        studentBanner.insertBefore(wash,studentBanner.firstChild);
+        const incoming=document.createElement("div");
+        incoming.className="banner-shapes student-hero-in "+(isMedalBanner?"banner-stars":(holidayHero?"banner-winter":""));
+        incoming.setAttribute("aria-hidden","true");
+        incoming.innerHTML=holidayHero?renderHolidayHeroParticles():renderPlayShapes("banner",isMedalBanner);
+        old?.insertAdjacentElement("afterend",incoming);
+        if (!old) studentBanner.insertBefore(incoming,studentBanner.querySelector(".banner-inner"));
+        old?.classList.add("student-hero-out");
+        studentBanner.classList.remove("banner-rank-gold","banner-rank-silver","banner-rank-bronze");
+        if (tone) studentBanner.classList.add(tone);
+        studentBanner.dataset.heroTone=tone;
+        studentBanner.style.background=primary;
+        requestAnimationFrame(()=>requestAnimationFrame(()=>{
+          wash.classList.add("fade");
+          incoming.classList.add("show");
+          old?.classList.add("fade");
+        }));
+        setTimeout(()=>{wash.remove();old?.remove();incoming.classList.remove("student-hero-in","show");},570);
+      }
+      syncPersistentStudentDock();
+      return;
+    }
     app.innerHTML = `
-      <div class="app-shell${hasInstitutionalHero ? " roque-hero-shell" : ""}${heroRole === "admin" ? " adm151-shell" : ""}${heroRole === "teacher" ? " roque-teacher-shell" : ""}${studentHero ? " roque-student-shell" : ""}"${heroRole === "teacher" ? ` data-teacher-session="${escAttr(state.activeSession?.id || "")}"` : ""}>
-        <header class="top-banner${bannerClass}" ${bannerStyle}>
+      <div class="app-shell${hasInstitutionalHero ? " roque-hero-shell" : ""}${heroRole === "admin" ? " adm151-shell" : ""}${heroRole === "teacher" ? " roque-teacher-shell" : ""}${studentHero ? " roque-student-shell" : ""}"${heroRole === "teacher" ? ` data-teacher-session="${escAttr(state.activeSession?.id || "")}"` : ""}${studentHero ? ` data-student-session="${escAttr(state.activeSession?.roll || "")}"` : ""}>
+        <header class="top-banner${bannerClass}" ${bannerStyle}${studentHero ? ` data-hero-tone="${escAttr(isMedalBanner?bannerToneClass:"")}"` : ""}>
           <div class="banner-shapes ${holidayHero ? "banner-winter" : (isMedalBanner ? "banner-stars" : "")}" aria-hidden="true">
             ${holidayHero ? renderHolidayHeroParticles() : renderPlayShapes("banner", isMedalBanner)}
           </div>
@@ -3979,7 +4030,7 @@
   }
 
   function renderTeacher(teacher) {
-    if (state.teacherEditionMessage) {
+    if (state.teacherEditionMessage && state.teacherMode !== "coord-mover") {
       renderShell('<section class="teacher-edition-empty" role="status">' +
         '<span class="teacher-edition-empty-icon" aria-hidden="true">📋</span><div>' +
         '<span>EDICIÓN ' + esc(state.teacherEditionSelected) + '</span>' +
@@ -4008,11 +4059,168 @@
     return renderTeacherAssignments(teacher);
   }
 
+
+  // Coordinación: saludo tras elegir una prueba, con gesto animado por CSS.
+  function openCoordIntro() {
+    if (!state.teachers.get(state.activeSession?.id)?.coordinator ||
+        state.coordIntroShown || state.teacherEditionGateOpen) return;
+    state.coordIntroShown=true;state.coordIntroOpen=true;
+    modalRoot.innerHTML='<div class="modal-backdrop coord-intro-backdrop">'+
+      '<section class="modal coord-intro-modal" role="dialog" aria-modal="true" aria-labelledby="coord-intro-title">'+
+      '<div class="coord-intro-header"><span>✨ NUEVA FUNCIÓN</span><h2 id="coord-intro-title">¡Hey! Eres coordinador en esta prueba!</h2>'+
+      '<p>Ahora puedes organizar los cursos como son en la realidad.</p></div>'+
+      '<div class="coord-intro-anim" aria-hidden="true"><div class="coord-intro-grades"><b>6°</b><b>7°</b><b>8°</b></div>'+
+      '<div class="coord-intro-tracks"><div class="coord-intro-track"><small>6° · 1PPAL</small><span>👩‍🎓 Ana</span></div>'+
+      '<div class="coord-intro-track"><small>6° · 2PPAL</small><i>Nuevo curso</i></div>'+
+      '<div class="coord-intro-moving">👩‍🎓 Ana</div><div class="coord-intro-finger">☝️</div></div>'+
+      '<small class="coord-intro-caption">ARRASTRA · ORGANIZA · CONFIRMA</small></div>'+
+      '<p class="coord-intro-text">Sabemos que las listas pueden cambiar. Con <strong>Mover estudiantes</strong> '+
+      'puedes actualizar el <strong>curso</strong> de cada estudiante sin alterar su grado ni su sede. '+
+      'Estamos mejorando nuestros procesos para que los resultados reflejen las listas reales. '+
+      '¡Prueba la nueva pestaña del menú Coordinador!</p>'+
+      '<button type="button" class="coord-intro-accept" data-action="coord-intro-accept">¡Dale!</button>'+
+      '</section></div>';
+    document.body.classList.add("modal-open");
+    app.inert=true;
+    requestAnimationFrame(()=>modalRoot.querySelector(".coord-intro-accept")?.focus({preventScroll:true}));
+  }
+  function closeCoordIntro() {
+    if (!state.coordIntroOpen) return;
+    state.coordIntroOpen=false;
+    modalRoot.querySelector(".coord-intro-backdrop")?.remove();
+    document.body.classList.remove("modal-open");
+    app.inert=false;
+  }
+  function coordOptions(s) {
+    const options=(state.coordCourses||[]).filter(c=>Number(c.grado)===Number(s.grado) &&
+      cleanText(c.sede).toLowerCase()===cleanText(s.sede).toLowerCase())
+      .map(c=>cleanText(c.curso)).filter(Boolean);
+    return [...new Set(options)].sort((a,b)=>a.localeCompare(b,"es",{numeric:true}));
+  }
+  function coordFiltered() {
+    const q=normalizeText(state.coordSearch);
+    return (state.coordRoster||[]).filter(s=>
+      (state.coordGrade==="all"||String(s.grado)===state.coordGrade) &&
+      (state.coordSede==="all"||cleanText(s.sede)===state.coordSede) &&
+      (state.coordCurso==="all"||cleanText(s.curso)===state.coordCurso) &&
+      (!q||normalizeText(s.nombre+" "+s.roll+" "+s.curso+" "+s.sede).includes(q)));
+  }
+  function coordRowsHtml() {
+    const filtered=coordFiltered(),visible=filtered.slice(0,state.coordLimit);
+    const cards=visible.map(s=>{
+      const current=cleanText(s.curso);
+      const options=coordOptions(s);
+      if (current&&!options.includes(current)) options.unshift(current);
+      const color=["#128abb","#26a789","#a273cc","#e5a13d"][Number(s.grado)%4];
+      return '<article class="coord-move-card" data-coord-roll="'+escAttr(s.roll)+'">'+
+        '<div class="coord-move-profile"><span class="coord-move-grade" style="--c:'+color+'">'+esc(s.grado)+'°</span>'+
+        '<div><strong>'+esc(s.nombre)+'</strong><small>Prueba '+esc(s.roll)+' · '+esc(s.sede)+'</small></div></div>'+
+        '<div class="coord-move-controls"><span class="coord-move-original">Actual <b>'+esc(current||"Sin curso")+'</b></span>'+
+        '<label><span>Nuevo curso</span><select data-coord-destination="'+escAttr(s.roll)+'"'+(options.length<2?" disabled":"")+'>'+
+        options.map(x=>'<option value="'+escAttr(x)+'"'+(x===current?' selected':'')+'>'+esc(x)+'</option>').join("")+
+        '</select></label><button type="button" data-action="coord-move-one" data-roll="'+escAttr(s.roll)+'" disabled>Guardar</button></div></article>';
+    }).join("");
+    return '<div class="coord-move-count"><b>'+filtered.length+' estudiantes</b><small>Mostrando '+visible.length+'</small></div>'+
+      (cards||'<div class="coord-move-empty">No hay estudiantes con esos filtros.</div>')+
+      (filtered.length>visible.length?'<button type="button" class="coord-move-more" data-action="coord-move-more">Mostrar más ('+
+        (filtered.length-visible.length)+')</button>':'');
+  }
+  function coordRefreshRows() {
+    const el=app.querySelector("#coord-move-results");
+    if(el) el.innerHTML=coordRowsHtml();
+  }
+  function renderCoordinatorMover() {
+    const code=cleanText(state.teacherEditionSelected||state.academicEdition||"2026-1S");
+    const head='<div class="coord-move-head"><span class="coord-move-head-icon">⇄</span><div>'+
+      '<h3>Mover estudiantes</h3><p>Actualiza el curso real sin cambiar el grado ni la sede.</p></div></div>';
+    if (!state.coordPin) return '<section class="coord-move-shell">'+head+
+      '<div class="coord-move-lock"><b>🔐 ACCESO DE COORDINACIÓN</b><h4>Activa los movimientos</h4>'+
+      '<p>Introduce tu clave personal. Cada movimiento quedará registrado en Supabase.</p>'+
+      '<label for="coord-pin">Clave individual</label><input id="coord-pin" type="password" autocomplete="off" spellcheck="false" maxlength="60" placeholder="Clave de coordinación">'+
+      '<button type="button" data-action="coord-unlock"'+(state.coordBusy?" disabled":"")+'>'+
+      (state.coordBusy?"Verificando…":"Activar movimientos")+'</button>'+
+      (state.coordError?'<p class="coord-move-error" role="alert">'+esc(state.coordError)+'</p>':'')+'</div></section>';
+    if (state.coordBusy||state.coordEditionLoaded!==code) return '<section class="coord-move-shell">'+head+
+      '<div class="coord-move-empty" role="status">Consultando cursos de '+esc(code)+'…</div></section>';
+    const students=state.coordRoster||[];
+    const grades=[...new Set(students.map(x=>Number(x.grado)))].sort((a,b)=>a-b);
+    const sedes=[...new Set(students.map(x=>cleanText(x.sede)))].sort((a,b)=>a.localeCompare(b,"es"));
+    const cursos=[...new Set(students.map(x=>cleanText(x.curso)))].sort((a,b)=>a.localeCompare(b,"es",{numeric:true}));
+    const select=(key,title,values,selected,label=(x)=>x)=>'<label><span>'+title+'</span><select data-coord-filter="'+key+'">'+
+      '<option value="all">Todos</option>'+values.map(x=>'<option value="'+escAttr(String(x))+'"'+
+      (String(x)===selected?' selected':'')+'>'+esc(label(x))+'</option>').join("")+'</select></label>';
+    return '<section class="coord-move-shell">'+head+
+      '<div class="coord-move-stats"><div><b>'+students.length+'</b><small>Estudiantes</small></div>'+
+      '<div><b>'+grades.length+'</b><small>Grados</small></div><div><b>'+sedes.length+'</b><small>Sedes</small></div></div>'+
+      '<label class="coord-move-search"><span>Buscar estudiante o ID</span><input id="coord-search" type="search" placeholder="Nombre o ID de prueba" autocomplete="off" value="'+escAttr(state.coordSearch)+'"></label>'+
+      '<div class="coord-move-filters">'+select("grade","Grado",grades,state.coordGrade,x=>x+"°")+
+        select("sede","Sede",sedes,state.coordSede)+select("course","Curso",cursos,state.coordCurso)+'</div>'+
+      '<p class="coord-move-help">Cada cambio se guarda individualmente y queda en el registro de auditoría.</p>'+
+      '<div id="coord-move-results" aria-live="polite">'+coordRowsHtml()+'</div></section>';
+  }
+  async function loadCoordRoster(pin=state.coordPin) {
+    const teacher=state.teachers.get(state.activeSession?.id);
+    if (!teacher?.coordinator||!pin||state.coordBusy) return;
+    const id=cleanId(state.activeSession.id);
+    const edition=cleanText(state.teacherEditionSelected||state.academicEdition);
+    state.coordBusy=true;state.coordError="";renderTeacherWithMotion();
+    try {
+      const p=await supabaseRpc("roque_v7_coordinador_listar",{p_docente:id,p_clave:pin,p_edicion:edition});
+      if (state.activeSession?.id!==id) return;
+      if (!p?.ok||p.edicion!==edition||!Array.isArray(p.estudiantes)||!Array.isArray(p.cursos))
+        throw Error(p?.error||"No se pudo consultar la lista.");
+      state.coordPin=pin;state.coordRoster=p.estudiantes;state.coordCourses=p.cursos;
+      state.coordEditionLoaded=edition;state.coordLimit=48;
+      state.coordGrade="all";state.coordSede="all";state.coordCurso="all";state.coordSearch="";
+    } catch(e) {
+      state.coordPin="";state.coordRoster=[];state.coordEditionLoaded="";
+      state.coordError=cleanText(e?.message||"Acceso no autorizado.");
+    } finally {
+      state.coordBusy=false;
+      if(state.activeSession?.id===id) renderTeacherWithMotion();
+    }
+  }
+  async function saveCoordMove(roll,button) {
+    const teacher=state.teachers.get(state.activeSession?.id);
+    if (!teacher?.coordinator||!state.coordPin||state.coordBusy) return;
+    const s=state.coordRoster.find(x=>String(x.roll)===String(roll));
+    const newCourse=button.closest(".coord-move-card")?.querySelector("select[data-coord-destination]")?.value;
+    if(!s||!newCourse||newCourse===s.curso||!coordOptions(s).includes(newCourse)) return;
+    const id=cleanId(state.activeSession.id),edition=state.coordEditionLoaded;
+    state.coordBusy=true;button.disabled=true;button.textContent="Guardando…";
+    try {
+      const p=await supabaseRpc("roque_v7_coordinador_mover",{
+        p_docente:id,p_clave:state.coordPin,p_edicion:edition,p_roll:roll,
+        p_curso_anterior:cleanText(s.curso),p_curso_nuevo:newCourse
+      });
+      if(!p?.ok) throw Error(p?.error||"No fue posible guardar.");
+      // Actualizar el universo docente autorizado y los listados de coordinación.
+      if(state.teacherEditionCatalog.some(e=>e.codigo===edition&&e.resultados_visibles&&
+        ["publicada","cerrada"].includes(e.estado))) {
+        const fresh=await supabaseRpc("roque_v6_docente_datos_edicion",{
+          p_user:id,p_edicion:edition,p_terminal:terminalIdForConsultation(),p_device:deviceInfoText()});
+        if(fresh?.ok&&fresh.edicion===edition){
+          state.academicEdition=edition;hydrateSupabasePayload(fresh);buildRepository();
+        }
+      }
+      state.coordBusy=false;
+      await loadCoordRoster();
+      toast("Curso actualizado a "+newCourse+".");
+    } catch(e) {
+      state.coordBusy=false;
+      if(button.isConnected){button.disabled=false;button.textContent="Guardar";}
+      toast(cleanText(e?.message||"No se pudo guardar el cambio."));
+    }
+  }
+
   function renderCoordinatorPanel(teacher) {
     const mode = state.teacherMode || "coord-estudiantes";
     let title = "Estudiantes";
     let content = adminStudentsHtml();
-    if (mode === "coord-resultados") {
+    if (mode === "coord-mover") {
+      title = "Mover estudiantes";
+      content = renderCoordinatorMover();
+    } else if (mode === "coord-resultados") {
       title = "Resultados";
       content = adminResultsHtml();
     } else if (mode === "coord-estadisticas") {
@@ -4040,7 +4248,7 @@
     if (!teacher) return false;
     if (mode === "asignaturas") return (teacher.assignments || []).length > 0;
     if (mode === "director") return (teacher.directorGroups || []).length > 0;
-    if (["coord-estudiantes", "coord-resultados", "coord-estadisticas", "coord-claves"].includes(mode)) return !!teacher.coordinator;
+    if (["coord-estudiantes", "coord-resultados", "coord-estadisticas", "coord-claves", "coord-mover"].includes(mode)) return !!teacher.coordinator;
     return false;
   }
 
@@ -4066,6 +4274,8 @@
     state.teacherMode = mode;
     state.teacherDockMenu = "";
     renderTeacherWithMotion();
+    if (mode==="coord-mover" && state.coordPin &&
+        state.coordEditionLoaded!==state.teacherEditionSelected) void loadCoordRoster();
   }
 
   function closeTeacherDockMenu() {
@@ -4207,6 +4417,7 @@
     if (teacher.coordinator) {
       const links = [
         ["coord-estudiantes", "Estudiantes", "users"],
+        ["coord-mover", "Mover estudiantes", "move"],
         ["coord-resultados", "Resultados", "chart"],
         ["coord-claves", "Claves de respuestas", "key"],
         ["coord-estadisticas", "Estadísticas", "chart"]
@@ -6645,6 +6856,10 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
   async function handleClick(event) {
     const target = event.target.closest("[data-action]");
     if (!target) return;
+    if (state.coordIntroOpen) {
+      if(target.dataset.action==="coord-intro-accept") closeCoordIntro();
+      return;
+    }
     if (state.teacherEditionGateOpen) {
       const action = target.dataset.action;
       if (action !== "teacher-gate-open" && action !== "teacher-gate-open-history") return;
@@ -6674,6 +6889,13 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       state.modalStack.push(modalRoot.innerHTML);
     }
 
+    if (action==="coord-unlock") {
+      const pin=String(app.querySelector("#coord-pin")?.value||"").trim().toUpperCase();
+      if(pin) await loadCoordRoster(pin);
+      return;
+    }
+    if (action==="coord-move-one") {await saveCoordMove(target.dataset.roll||"",target);return;}
+    if (action==="coord-move-more") {state.coordLimit+=48;coordRefreshRows();return;}
     if (action === "retry") {
       init();
     }
@@ -7394,6 +7616,9 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
 
   function handleInput(event) {
     const target = event.target;
+    if (target.id==="coord-search" && state.activeSession?.role==="teacher") {
+      state.coordSearch=target.value;state.coordLimit=48;coordRefreshRows();return;
+    }
 
     if (target.id === "loginUser") {
       const passField = document.getElementById("loginPasswordField");
@@ -7484,6 +7709,18 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
 
   function handleChange(event) {
     const target = event.target;
+    if (target.dataset.coordDestination && state.activeSession?.role==="teacher") {
+      const s=state.coordRoster.find(x=>String(x.roll)===target.dataset.coordDestination);
+      const button=target.closest(".coord-move-card")?.querySelector('[data-action="coord-move-one"]');
+      if(button) button.disabled=!s||target.value===s.curso;
+      return;
+    }
+    if (target.dataset.coordFilter && state.activeSession?.role==="teacher") {
+      if(target.dataset.coordFilter==="grade")state.coordGrade=target.value;
+      if(target.dataset.coordFilter==="sede")state.coordSede=target.value;
+      if(target.dataset.coordFilter==="course")state.coordCurso=target.value;
+      state.coordLimit=48;coordRefreshRows();return;
+    }
     if (target.dataset.teacherEdition && state.activeSession?.role === "teacher") {
       void selectTeacherEdition(target.value);
       return;
@@ -9752,7 +9989,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
 
 
   function closeModal() {
-    if (state.teacherEditionGateOpen) return;
+    if (state.teacherEditionGateOpen || state.coordIntroOpen) return;
     const backdrop = modalRoot.lastElementChild?.classList.contains("modal-backdrop")
       ? modalRoot.lastElementChild : modalRoot.querySelector(".modal-backdrop");
     if (!backdrop) {
@@ -9824,6 +10061,9 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
   }
 
   function clearSession() {
+    closeCoordIntro();
+    state.coordIntroShown=false;state.coordPin="";state.coordRoster=[];
+    state.coordCourses=[];state.coordEditionLoaded="";
     finishTeacherEditionGate();
     state.teacherEditionCatalog = [];
     state.teacherEditionMessage = "";
