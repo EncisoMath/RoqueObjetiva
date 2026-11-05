@@ -105,6 +105,19 @@
     z-index:230;transform:translateX(-50%)!important;
     animation:none!important;transition:none!important;
   }
+  .adm151-shell .adm151-dock-item{
+    transform:none!important;
+    animation:none!important;
+    transition:background-color .16s ease,color .16s ease,border-color .16s ease!important;
+  }
+  .adm151-shell .adm151-dock-item:active,
+  .adm151-shell .adm151-dock-item:hover,
+  .adm151-shell .adm151-dock-item .adm151-icon,
+  .adm151-shell .adm151-dock-item:hover .adm151-icon{
+    transform:none!important;
+  }
+  .adm151-shell .adm151-dock-item .adm151-icon{transition:none!important}
+  .rp-root .rp-back{transform:none!important;animation:none!important;transition:color .15s ease!important}
 }
 #modal-root{
   position:fixed;inset:0;z-index:1000;
