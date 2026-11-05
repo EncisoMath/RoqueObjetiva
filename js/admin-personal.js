@@ -317,7 +317,9 @@
   function render(context) {
     if(context)ctx=context;
     if(!S.loaded&&!S.loading)void reload();
-    return '<div id="roque-personal" class="rp-root">'+view()+'</div>';
+    return '<div id="roque-personal" class="rp-root" data-view="'+e(S.view)+
+      '" data-selected="'+e(S.selected)+'" data-tab="'+e(S.tab)+
+      '" data-revision="'+dataRevision+'">'+view()+'</div>';
   }
   async function save(op,payload){
     if(S.busy||!ctx?.rpc)return false;
