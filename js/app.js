@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.50";
+  const APP_VERSION = "v175.51";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -4230,10 +4230,10 @@
       '<small>ID '+esc(s.roll)+'<span aria-hidden="true"> · </span>'+esc(s.sede||"Sin sede")+'</small></div>'+
       '<span class="coord-move-grade" style="--c:'+color+'">'+esc(s.grado)+'°</span></div>'+
       '<div class="coord-move-controls">'+
-      '<div class="coord-move-original"><span>Actual</span><b data-coord-current>'+esc(current||"—")+'</b></div>'+
+      '<div class="coord-move-original"><span>Curso actual</span><b data-coord-current>'+esc(current||"—")+'</b></div>'+
       '<span class="coord-move-arrow" aria-hidden="true">→</span>'+
-      '<label class="coord-move-destination"><span>Nuevo curso</span>'+
-      '<select aria-label="Nuevo curso de '+escAttr(s.nombre)+'" data-coord-destination="'+escAttr(s.roll)+'"'+(disabled?' disabled':'')+'>'+
+      '<label class="coord-move-destination"><span>Mover a</span>'+
+      '<select aria-label="Mover a '+escAttr(s.nombre)+' al curso" data-coord-destination="'+escAttr(s.roll)+'"'+(disabled?' disabled':'')+'>'+
       options.map(x=>'<option value="'+escAttr(x)+'"'+(x===current?' selected':'')+'>'+esc(x)+'</option>').join("")+
       '</select></label>'+
       '<button type="button" data-action="coord-move-one" data-roll="'+escAttr(s.roll)+'" disabled>Guardar</button>'+
@@ -4242,7 +4242,9 @@
   function coordRowsHtml() {
     const filtered=coordFiltered(),visible=filtered.slice(0,state.coordLimit);
     const cards=visible.map(coordCardHtml).join("");
-    return '<div class="coord-move-count"><b>'+filtered.length+' estudiantes</b><small>'+visible.length+' visibles</small></div>'+
+    return '<div class="coord-move-count"><div class="coord-move-count-main">'+
+      '<svg class="coord-move-count-icon" aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.7 0 3-1.3 3-3s-1.3-3-3-3c-.5 0-1 .1-1.4.4a5 5 0 0 1 0 5.2c.4.3.9.4 1.4.4ZM8.5 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm0 2C5.5 14 2 15.5 2 18v2h13v-2c0-2.5-3.5-4-6.5-4Zm7.5-1c-.8 0-1.6.1-2.2.3 2.1 1.1 3.2 2.7 3.2 4.7v2h5v-2c0-3-3.7-5-6-5Z"/></svg>'+
+      '<b>'+filtered.length+' estudiantes</b></div><small>'+visible.length+' visibles</small></div>'+
       (cards?'<div class="coord-move-list">'+cards+'</div>':
         '<div class="coord-move-empty">No hay estudiantes con esos filtros.</div>')+
       (filtered.length>visible.length?'<button type="button" class="coord-move-more" data-action="coord-move-more">Mostrar más ('+
