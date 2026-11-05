@@ -1,4 +1,4 @@
-/* RoqueObjetiva v175.53 | Personal Docente
+/* RoqueObjetiva v175.54 | Personal Docente
    Admin solamente: identidad, carga academica, direccion de grupo y coordinador. */
 (() => {
   "use strict";
