@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.52";
+  const APP_VERSION = "v175.53";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -3003,7 +3003,7 @@
   }
 
   function adminTabIds() {
-    return new Set(["resumen", "mapa-grado", "asignaturas-areas", "apariencia", "logos", "github"]);
+    return new Set(["resumen", "docentes", "mapa-grado", "asignaturas-areas", "apariencia", "logos", "github"]);
   }
 
   function handleHashRoute() {
@@ -4914,6 +4914,7 @@
   // Únicamente las pantallas administrativas que siguen disponibles.
   const ADMIN_MENU_GROUPS = [
     { id: "inicio", title: "Inicio", items: [["resumen", "Resumen", "house"]] },
+    { id: "personal", title: "Personal", items: [["docentes", "Docentes", "users"]] },
     { id: "analisis", title: "Análisis", items: [["mapa-grado", "Mapa por grado", "map"]] },
     { id: "configuracion", title: "Configuración", items: [
       ["asignaturas-areas", "Asignaturas y áreas", "book"],
@@ -4989,6 +4990,7 @@
       </aside>`,
       mobile: `<nav class="adm151-dock" aria-label="Navegación móvil de administración">
         ${dockItem("Inicio", "house", "admin-tab", "", state.adminTab === "resumen")}
+        ${dockItem("Docentes", "users", "admin-tab", "", state.adminTab === "docentes", "docentes")}
         ${dockItem("Mapa", "map", "admin-tab", "", state.adminTab === "mapa-grado", "mapa-grado")}
         ${dockItem("Ajustes", "menu", "admin-nav-open", "otros", activeSection?.id === "configuracion")}
       </nav>
@@ -5129,6 +5131,13 @@
 
   function renderAdminTab() {
     switch (state.adminTab) {
+      case "docentes": return window.RoquePersonal ? window.RoquePersonal.render({
+        rpc:supabaseRpc,notify:toast,subjects:availableSubjects(),
+        sites:uniqueValues(state.studentsRegistry.map(x=>x.sede)),
+        grades:uniqueValues(state.studentsRegistry.map(x=>x.grade)).map(Number).filter(Boolean),
+        courses:state.studentsRegistry.map(x=>({sede:cleanText(x.sede),grado:Number(x.grade),curso:cleanText(x.group)}))
+          .filter(x=>x.sede&&x.grado&&x.curso)
+      }) : '<div class="empty-state">Módulo de Personal Docente no disponible.</div>';
       case "mapa-grado": return adminGradeMapHtml();
       case "asignaturas-areas": return adminSubjectAreasHtml();
       case "apariencia": return adminAppearanceHtml();
@@ -10172,6 +10181,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
   function clearSession() {
     closeCoordIntro();
     state.coordIntroShown=false;state.coordSession="";state.coordPendingMoves.clear();state.coordRoster=[];
+    window.RoquePersonal?.reset();
     state.coordCourses=[];state.coordEditionLoaded="";
     finishTeacherEditionGate();
     state.teacherEditionCatalog = [];
