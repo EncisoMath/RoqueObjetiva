@@ -69,10 +69,10 @@
       (S.rol==="all"||(S.rol==="coordinador"?t.coordinador:!t.coordinador)) &&
       (!S.search||norm(t.nombre+" "+t.id).includes(norm(S.search))));
     const total=rows.length;
-    return '<div class="rp-list-head"><strong>♟ '+total+' docentes</strong>'+
+    return '<div class="rp-list-head"><strong>'+svgIcon("direccion")+' '+total+' docentes</strong>'+
       '<button type="button" class="rp-new" data-rp-action="new">＋ Nuevo docente</button></div>'+
       '<div class="rp-roster">'+(rows.map(t=>'<button type="button" class="rp-person'+(S.selected===t.id&&S.view==="detail"?" is-current":"")+'" data-rp-action="select" data-id="'+e(t.id)+'">'+
-        '<span class="rp-avatar" aria-hidden="true">♙</span><span class="rp-person-info"><span class="rp-person-name">'+e(t.nombre)+'</span>'+
+        '<span class="rp-avatar" aria-hidden="true">'+e(initials(t.nombre))+'</span><span class="rp-person-info"><span class="rp-person-name">'+e(t.nombre)+'</span>'+
         '<span class="rp-person-id">ID '+e(t.id)+(t.activo===false?' · Inactivo':'')+'</span>'+overview(t)+'</span>'+
         (t.coordinador?'<span class="rp-role-tag">Coordinador</span>':'')+
         '<span class="rp-chevron" aria-hidden="true">›</span></button>').join("")+
@@ -80,7 +80,7 @@
       '</div>';
   };
   const rosterView=()=>'<div class="rp-roster-view">'+
-    '<header class="rp-title-strip"><span class="rp-head-icon">♟</span><div><h2>Personal Docente</h2>'+
+    '<header class="rp-title-strip"><span class="rp-head-icon">'+svgIcon("direccion")+'</span><div><h2>Personal Docente</h2>'+
     '<p>Gestiona docentes, cargas, direcciones y roles.</p></div></header>'+
     '<label class="rp-search"><span class="rp-sr">Buscar docente</span><input type="search" id="rp-search" value="'+e(S.search)+'" placeholder="⌕  Buscar por nombre o identificación" autocomplete="off"></label>'+
     '<div class="rp-filter-row"><label><span>Sede</span><select id="rp-site-filter"><option value="all">Todas</option>'+
@@ -90,19 +90,19 @@
     '<option value="coordinador"'+(S.rol==="coordinador"?" selected":"")+'>Coordinador</option></select></label></div>'+
     '<div id="rp-list-wrap">'+sidebarList()+'</div></div>';
   const teacherHead=t=>'<div class="rp-teacher-head">'+
-    '<span class="rp-big-avatar">♙</span><div class="rp-teacher-summary"><strong>'+e(t.nombre)+'</strong>'+
+    '<span class="rp-big-avatar" aria-hidden="true">'+e(initials(t.nombre))+'</span><div class="rp-teacher-summary"><strong>'+e(t.nombre)+'</strong>'+
     '<small>ID '+e(t.id)+'</small>'+overview(t)+'</div>'+
     (t.coordinador?'<span class="rp-role-tag">Coordinador</span>':'')+'</div>';
   const tabs=()=>'<nav class="rp-tabs" aria-label="Personal docente">'+
-    [["gestion","☷","Gestión"],["carga","▣","Carga académica"],["direccion","♧","Dirección de grupo"]]
-      .map(([value,ico,label])=>'<button type="button" class="'+(S.tab===value?"active":"")+
-      '" data-rp-action="tab" data-tab="'+value+'"><span>'+ico+'</span>'+label+'</button>').join("")+'</nav>';
+    [["gestion","Gestión"],["carga","Carga académica"],["direccion","Dirección de grupo"]]
+      .map(([value,label])=>'<button type="button" aria-current="'+(S.tab===value?"page":"false")+'" class="'+(S.tab===value?"active":"")+
+      '" data-rp-action="tab" data-tab="'+value+'">'+svgIcon(value)+'<span class="rp-tab-label">'+label+'</span></button>').join("")+'</nav>';
   const management=t=>'<div class="rp-manage">'+
     '<section class="rp-section"><h3>♢ Rol y permisos</h3>'+
     '<div class="rp-permissions"><label><span>Rol</span><select disabled><option>Docente</option></select></label>'+
     '<label class="rp-toggle-field"><span>¿Es coordinador?</span><input type="checkbox" data-rp-role="coord"'+(t.coordinador?" checked":"")+
     (S.busy?" disabled":"")+'><span class="rp-toggle-ui"></span></label></div></section>'+
-    '<section class="rp-section"><div class="rp-section-title"><h3>♙ Información docente</h3>'+
+    '<section class="rp-section"><div class="rp-section-title"><h3>'+svgIcon("perfil")+' Información docente</h3>'+
     '<button class="rp-edit-icon" type="button" data-rp-action="toggle-edit">✎</button></div>'+
     '<form data-rp-form="identity" class="rp-form">'+
       '<label><span>Nombre</span><input name="nombre" required maxlength="160" value="'+e(t.nombre)+'"'+(S.editor==="identity"?"":" readonly")+'></label>'+
@@ -125,7 +125,7 @@
     return [...group].sort((a,b)=>a[0].localeCompare(b[0],"es")).map(([subject,records])=>{
       const opened=S.expanded===subject;
       return '<article class="rp-assignment-card"><div class="rp-assignment-top">'+
-        '<span class="rp-subject-icon '+palette(subject)+'">'+e(icon(subject))+'</span>'+
+        '<span class="rp-subject-icon '+palette(subject)+'">'+subjectImage(subject)+'</span>'+
         '<div class="rp-subject-copy"><strong>'+e(subject)+'</strong><small>'+records.length+' '+(records.length===1?"curso":"cursos")+'</small></div>'+
         '<div class="rp-grade-chips">'+gradeChips(records)+'</div>'+
         '<button type="button" class="rp-dots" aria-expanded="'+opened+'" data-rp-action="expand" data-subject="'+e(subject)+'">⋮</button></div>'+
@@ -149,7 +149,7 @@
       '<div class="rp-form-actions"><button type="button" data-rp-action="close-editor">Cancelar</button><button type="submit" class="rp-primary">Guardar asignación</button></div></form>';
   };
   const loadView=t=>'<section class="rp-section rp-screen-card"><div class="rp-feature-heading">'+
-    '<h3>▣ Carga académica</h3><button type="button" class="rp-assign" data-rp-action="assign-load">＋ Asignar</button></div>'+
+    '<h3>'+svgIcon("carga")+' Carga académica</h3><button type="button" class="rp-assign" data-rp-action="assign-load">＋ Asignar</button></div>'+
     (S.editor==="load"?assignmentForm():"")+
     '<div class="rp-assignments">'+(groupedAssignments(t)||'<p class="rp-empty">Este docente aún no tiene asignaturas.</p>')+'</div>'+
     '</section>';
@@ -168,7 +168,7 @@
   };
   const directionView=t=>{
     const d=t.direccion;
-    return '<section class="rp-section rp-screen-card"><div class="rp-feature-heading"><h3>♧ Dirección de grupo</h3>'+
+    return '<section class="rp-section rp-screen-card"><div class="rp-feature-heading"><h3>'+svgIcon("direccion")+' Dirección de grupo</h3>'+
       '<button type="button" class="rp-assign" data-rp-action="assign-direction">＋ Asignar</button></div>'+
       (S.editor==="direction"?directionForm(t):"")+
       (d?.grado?'<div class="rp-director-card"><span class="rp-director-grade">'+e(d.grado)+'°-'+e(d.curso)+'</span>'+
@@ -183,8 +183,9 @@
     return '<div class="rp-detail-view">'+
       '<button type="button" class="rp-back" data-rp-action="back">‹ Volver a docentes</button>'+
       teacherHead(t)+tabs()+
+      '<div class="rp-tab-content" data-rp-panel="'+S.tab+'">'+
       (S.tab==="gestion"?management(t):S.tab==="carga"?loadView(t):directionView(t))+
-      '</div>';
+      '</div></div>';
   };
   const newTeacherView=()=>'<div class="rp-detail-view"><button class="rp-back" type="button" data-rp-action="back">‹ Volver a docentes</button>'+
     '<section class="rp-section rp-new-panel"><h2>＋ Nuevo docente</h2><p>Registra al docente antes de asignarle cursos o direcciones.</p>'+
