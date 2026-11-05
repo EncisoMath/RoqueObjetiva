@@ -4305,36 +4305,73 @@
       if(state.activeSession?.id===id) renderTeacherWithMotion();
     }
   }
+  // Un único RPC y actualización por tarjeta, sin reinstanciar el panel.
   async function saveCoordMove(roll,button) {
     const teacher=state.teachers.get(state.activeSession?.id);
-    if (!teacher?.coordinator||!state.coordSession||state.coordBusy) return;
-    const s=state.coordRoster.find(x=>String(x.roll)===String(roll));
-    const newCourse=button.closest(".coord-move-card")?.querySelector("select[data-coord-destination]")?.value;
-    if(!s||!newCourse||newCourse===s.curso||!coordOptions(s).includes(newCourse)) return;
+    const row=button?.closest(".coord-move-card");
+    const select=row?.querySelector("select[data-coord-destination]");
+    if (!teacher?.coordinator||!state.coordSession||state.coordBusy||!row||!select) return;
+    const key=String(roll);
+    if (state.coordPendingMoves.has(key)) return;
+    const s=state.coordRoster.find(x=>String(x.roll)===key);
+    const newCourse=cleanText(select.value);
+    const oldCourse=cleanText(s?.curso);
+    if(!s||!newCourse||newCourse===oldCourse||!coordOptions(s).includes(newCourse)) return;
     const id=cleanId(state.activeSession.id),edition=state.coordEditionLoaded;
-    state.coordBusy=true;button.disabled=true;button.textContent="Guardando…";
+    const feedback=row.querySelector(".coord-move-feedback");
+    state.coordPendingMoves.add(key);
+    row.classList.add("is-saving");
+    row.classList.remove("is-saved","has-error");
+    button.disabled=true;button.textContent="Guardando…";select.disabled=true;
+    if(feedback) feedback.textContent="Guardando cambio…";
     try {
       const p=await supabaseRpc("roque_v8_coordinador_mover",{
         p_docente:id,p_sesion:state.coordSession,p_edicion:edition,p_roll:roll,
-        p_curso_anterior:cleanText(s.curso),p_curso_nuevo:newCourse
+        p_curso_anterior:oldCourse,p_curso_nuevo:newCourse
       });
-      if(!p?.ok) throw Error(p?.error||"No fue posible guardar.");
-      // Actualizar el universo docente autorizado y los listados de coordinación.
-      if(state.teacherEditionCatalog.some(e=>e.codigo===edition&&e.resultados_visibles&&
-        ["publicada","cerrada"].includes(e.estado))) {
-        const fresh=await supabaseRpc("roque_v6_docente_datos_edicion",{
-          p_user:id,p_edicion:edition,p_terminal:terminalIdForConsultation(),p_device:deviceInfoText()});
-        if(fresh?.ok&&fresh.edicion===edition){
-          state.academicEdition=edition;hydrateSupabasePayload(fresh);buildRepository();
+      if(!p?.ok) throw Error(p.error||"No fue posible guardar.");
+      // No contaminar la nueva sesión si el usuario cambió de prueba.
+      if(state.activeSession?.id===id&&state.coordEditionLoaded===edition){
+        s.curso=newCourse;
+        if(cleanText(state.academicEdition)===edition){
+          const registry=state.registryByExamId.get(cleanId(roll));
+          if(registry) registry.group=newCourse;
+          for(const entry of state.studentsRegistry){
+            if(cleanId(entry.examId)===cleanId(roll)) entry.group=newCourse;
+          }
+          const computed=state.computedByRoll.get(cleanId(roll));
+          if(computed) computed.group=newCourse;
+          const response=state.responsesByRoll.get(cleanId(roll));
+          if(response) response.group=newCourse;
         }
       }
-      state.coordBusy=false;
-      await loadCoordRoster();
+      if(row.isConnected){
+        const currentLabel=row.querySelector("[data-coord-current]");
+        if(currentLabel) currentLabel.textContent=newCourse;
+        row.classList.add("is-saved");
+        if(feedback) feedback.textContent="✓ Curso actualizado";
+        window.setTimeout(()=>{
+          if(!row.isConnected)return;
+          row.classList.remove("is-saved");
+          if(feedback?.textContent==="✓ Curso actualizado")feedback.textContent="";
+        },2700);
+      }
       toast("Curso actualizado a "+newCourse+".");
-    } catch(e) {
-      state.coordBusy=false;
-      if(button.isConnected){button.disabled=false;button.textContent="Guardar";}
+    }catch(e){
+      if(row.isConnected){
+        row.classList.add("has-error");
+        if(feedback)feedback.textContent=cleanText(e?.message||"No se pudo guardar el cambio.");
+      }
       toast(cleanText(e?.message||"No se pudo guardar el cambio."));
+    }finally{
+      state.coordPendingMoves.delete(key);
+      if(row.isConnected){
+        row.classList.remove("is-saving");
+        select.disabled=coordOptions(s).length<2;
+        button.textContent="Guardar";
+        button.disabled=!s||cleanText(select.value)===cleanText(s.curso)||
+          !coordOptions(s).includes(cleanText(select.value));
+      }
     }
   }
 
@@ -11137,47 +11174,44 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
   function registerPWA() {
     if (!("serviceWorker" in navigator)) return;
 
-    let reloadingForUpdate = false;
-    const reloadForUpdate = () => {
-      if (reloadingForUpdate) return;
-      reloadingForUpdate = true;
-      try { toast("Actualizando aplicación..."); } catch (error) {}
-      window.setTimeout(() => window.location.reload(), 450);
+    // Nunca recargar automáticamente una sesión activa mientras se guardan datos.
+    let updateNotified=false;
+    const notifyInstalledUpdate=()=>{
+      if(updateNotified)return;
+      updateNotified=true;
+      if(state.activeSession)toast("Nueva versión instalada. Se aplicará al volver a abrir.");
     };
-
-    const checkLatestVersion = async (registration) => {
-      try {
-        const response = await fetch(`version.json?t=${Date.now()}`, { cache: "no-store" });
-        if (!response.ok) return;
-        const info = await response.json();
-        if (info?.version && info.version !== APP_VERSION) {
+    const checkLatestVersion=async(registration)=>{
+      try{
+        const response=await fetch("version.json?t="+Date.now(),{cache:"no-store"});
+        if(!response.ok)return;
+        const info=await response.json();
+        if(info?.version&&info.version!==APP_VERSION){
           await registration.update();
-          if (registration.waiting) registration.waiting.postMessage({ type: "SKIP_WAITING" });
+          if(registration.waiting)registration.waiting.postMessage({type:"SKIP_WAITING"});
+          notifyInstalledUpdate();
         }
-      } catch (error) {
-        /* Si no hay red, se conserva la versión instalada. */
+      }catch(error){
+        /* Sin red se conserva la vista y la versión actuales. */
       }
     };
-
-    navigator.serviceWorker.addEventListener("controllerchange", reloadForUpdate);
-    navigator.serviceWorker.addEventListener("message", (event) => {
-      if (event.data?.type === "APP_UPDATED") reloadForUpdate();
+    navigator.serviceWorker.addEventListener("controllerchange",notifyInstalledUpdate);
+    navigator.serviceWorker.addEventListener("message",(event)=>{
+      if(event.data?.type==="APP_UPDATED"&&event.data.version!==APP_VERSION)notifyInstalledUpdate();
     });
-
-    window.addEventListener("load", async () => {
-      try {
-        const registration = await navigator.serviceWorker.register("service-worker.js", { updateViaCache: "none" });
-        if (registration.waiting) registration.waiting.postMessage({ type: "SKIP_WAITING" });
+    window.addEventListener("load",async()=>{
+      try{
+        const registration=await navigator.serviceWorker.register("service-worker.js",{updateViaCache:"none"});
+        if(registration.waiting)registration.waiting.postMessage({type:"SKIP_WAITING"});
         await registration.update();
         await checkLatestVersion(registration);
-
-        window.setInterval(() => checkLatestVersion(registration), 15 * 60 * 1000);
-        window.addEventListener("focus", () => checkLatestVersion(registration));
-        document.addEventListener("visibilitychange", () => {
-          if (document.visibilityState === "visible") checkLatestVersion(registration);
+        window.setInterval(()=>checkLatestVersion(registration),15*60*1000);
+        window.addEventListener("focus",()=>checkLatestVersion(registration));
+        document.addEventListener("visibilitychange",()=>{
+          if(document.visibilityState==="visible")checkLatestVersion(registration);
         });
-      } catch (error) {
-        /* La app sigue funcionando aunque el registro PWA falle. */
+      }catch(error){
+        /* La aplicación funciona aunque no se registre la PWA. */
       }
     });
   }
