@@ -1,4 +1,4 @@
-/* RoqueObjetiva v175.54 | Personal Docente
+/* RoqueObjetiva v175.55 | Personal Docente
    Admin solamente: identidad, carga academica, direccion de grupo y coordinador. */
 (() => {
   "use strict";
@@ -202,39 +202,92 @@
         (S.view==="detail"?detailView():'<div class="rp-desktop-placeholder">Selecciona un docente para gestionar sus datos y asignaciones.</div>')+
       '</div></div>';
   };
-  // Animar exclusivamente el panel Docentes; el dock y el hero no se reinician.
+  // Render incremental v175.55: los botones, el encabezado y el listado conservan
+  // su DOM. Solo cambia el contenido necesario; nunca capturar el viewport global.
   let drawSerial=0;
-  let activeTransition=null;
+  let dataRevision=0;
+  let listScrollBeforeDetail=0;
+  let requestedScroll=null;
   const draw=()=>{
     const serial=++drawSerial;
     requestAnimationFrame(()=>{
       if(serial!==drawSerial)return;
       const root=document.getElementById("roque-personal");
       if(!root)return;
-      const previousScroll=root.querySelector(".rp-roster")?.scrollTop||0;
-      const update=()=>{
-        if(serial!==drawSerial||!root.isConnected)return;
-        root.innerHTML=view();
-        const roster=root.querySelector(".rp-roster");
-        if(roster)roster.scrollTop=previousScroll;
+      let layout=root.querySelector(".rp-layout");
+      const stamp=()=>{
+        root.dataset.view=S.view;
+        root.dataset.selected=S.selected;
+        root.dataset.tab=S.tab;
+        root.dataset.revision=String(dataRevision);
       };
-      const reduced=window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches===true;
-      if(!reduced&&document.startViewTransition&&!activeTransition){
-        try{
-          const transition=document.startViewTransition(update);
-          activeTransition=transition;
-          transition.finished.catch(()=>{}).finally(()=>{
-            if(activeTransition===transition)activeTransition=null;
-          });
-          return;
-        }catch(error){ /* Fallback sin View Transitions. */ }
+      if(!layout){
+        root.innerHTML=view();
+        stamp();
+        return;
       }
-      update();
-      if(!reduced){
-        root.querySelector(".rp-tab-content, .rp-detail-view, .rp-roster-view")?.animate([
-          {opacity:.52,transform:"translateY(6px)"},
-          {opacity:1,transform:"translateY(0)"}
-        ],{duration:215,easing:"cubic-bezier(.18,.75,.2,1)"});
+      const listPane=layout.querySelector(".rp-list-pane");
+      const detailPane=layout.querySelector(".rp-detail-pane");
+      if(!listPane||!detailPane){
+        root.innerHTML=view();
+        stamp();
+        return;
+      }
+      const oldView=root.dataset.view||"list";
+      const oldSelected=root.dataset.selected||"";
+      const oldTab=root.dataset.tab||"";
+      const freshData=Number(root.dataset.revision||"-1")!==dataRevision;
+      const listResults=listPane.querySelector("#rp-list-wrap");
+      if(S.view==="list"){
+        listPane.classList.remove("rp-list-hidden");
+        detailPane.classList.remove("rp-detail-visible");
+        if(listResults)listResults.innerHTML=sidebarList();
+      }else{
+        listPane.classList.add("rp-list-hidden");
+        detailPane.classList.add("rp-detail-visible");
+        const fullDetail=oldView!=="detail"||oldSelected!==S.selected||!detailPane.querySelector(".rp-detail-view");
+        if(fullDetail){
+          detailPane.innerHTML=detailView();
+        }else if(S.selected!=="__new"){
+          const teacher=current();
+          const detail=detailPane.querySelector(".rp-detail-view");
+          if(freshData&&teacher){
+            const head=detail.querySelector(".rp-teacher-head");
+            if(head)head.outerHTML=teacherHead(teacher);
+            if(listResults)listResults.innerHTML=sidebarList();
+          }
+          const selectedTab=detail.querySelector(".rp-tabs");
+          if(selectedTab){
+            selectedTab.querySelectorAll("[data-rp-action='tab']").forEach(button=>{
+              const chosen=button.dataset.tab===S.tab;
+              button.classList.toggle("active",chosen);
+              button.setAttribute("aria-current",chosen?"page":"false");
+            });
+          }
+          const panel=detail.querySelector(".rp-tab-content");
+          if(panel){
+            panel.dataset.rpPanel=S.tab;
+            panel.innerHTML=S.tab==="gestion"?management(teacher):S.tab==="carga"?loadView(teacher):directionView(teacher);
+            // Un único fade leve sobre el contenido nuevo, jamás sobre los botones.
+            if(oldTab!==S.tab && !window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches){
+              panel.animate([{opacity:.94},{opacity:1}],{duration:140,easing:"ease-out"});
+            }
+          }
+        }
+      }
+      stamp();
+      // La navegación móvil recupera la posición del listado al volver.
+      if(window.matchMedia?.("(max-width: 1000px)")?.matches&&requestedScroll){
+        const mode=requestedScroll;
+        requestedScroll=null;
+        if(mode==="detail"){
+          const y=window.scrollY+root.getBoundingClientRect().top-8;
+          window.scrollTo({top:Math.max(0,y),behavior:"instant"});
+        }else if(mode==="list"){
+          window.scrollTo({top:listScrollBeforeDetail,behavior:"instant"});
+        }
+      }else{
+        requestedScroll=null;
       }
     });
   };
@@ -246,6 +299,7 @@
       const p=await ctx.rpc("roque_v9_admin_personal_listar",{});
       if(!p?.ok||!Array.isArray(p.docentes))throw Error(p?.error||"No se pudo cargar personal docente.");
       S.items=p.docentes;S.loaded=true;
+      dataRevision++;
       success=true;
     }catch(err){
       S.error=String(err?.message||err);
@@ -286,10 +340,10 @@
     const b=event.target.closest("[data-rp-action]");
     if(!b||!document.getElementById("roque-personal"))return;
     const a=b.dataset.rpAction;
-    if(a==="back"){S.view="list";S.editor="";draw();return;}
-    if(a==="new"){S.selected="__new";S.view="detail";S.editor="";draw();return;}
-    if(a==="select"){S.selected=b.dataset.id;S.tab="gestion";S.editor="";S.expanded="";S.view="detail";draw();return;}
-    if(a==="tab"){S.tab=b.dataset.tab;S.editor="";draw();return;}
+    if(a==="back"){S.view="list";S.editor="";requestedScroll="list";draw();return;}
+    if(a==="new"){listScrollBeforeDetail=window.scrollY;requestedScroll="detail";S.selected="__new";S.view="detail";S.editor="";draw();return;}
+    if(a==="select"){listScrollBeforeDetail=window.scrollY;requestedScroll="detail";S.selected=b.dataset.id;S.tab="gestion";S.editor="";S.expanded="";S.view="detail";draw();return;}
+    if(a==="tab"){if(S.tab===b.dataset.tab)return;S.tab=b.dataset.tab;S.editor="";draw();return;}
     if(a==="toggle-edit"){S.editor=S.editor==="identity"?"":"identity";draw();return;}
     if(a==="close-editor"){S.editor="";draw();return;}
     if(a==="assign-load"){S.editor=S.editor==="load"?"":"load";draw();return;}
