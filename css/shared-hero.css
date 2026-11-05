@@ -245,3 +245,31 @@
     animation: none !important;
   }
 }
+
+
+/* v175.47 · El hero de estudiantes permanece en el DOM al cambiar de pestaña.
+   Los premios 1.º, 2.º y 3.º usan transición del fondo y crossfade de partículas. */
+.roque-student-shell .top-banner{
+  transition:background-color .5s cubic-bezier(.22,.8,.25,1),color .3s ease;
+}
+.roque-student-shell .top-banner .student-tone-wash{
+  position:absolute;inset:0;z-index:0;opacity:1;pointer-events:none;
+  transition:opacity .5s cubic-bezier(.22,.8,.25,1);
+}
+.roque-student-shell .top-banner .student-tone-wash.fade{opacity:0}
+.roque-student-shell .top-banner .banner-shapes.student-hero-in{
+  opacity:0;transition:opacity .5s ease;
+}
+.roque-student-shell .top-banner .banner-shapes.student-hero-in.show{opacity:1}
+.roque-student-shell .top-banner .banner-shapes.student-hero-out{
+  opacity:1;pointer-events:none;transition:opacity .5s ease;
+}
+.roque-student-shell .top-banner .banner-shapes.student-hero-out.fade{opacity:0}
+@media(prefers-reduced-motion:reduce){
+ .roque-student-shell .top-banner,
+ .roque-student-shell .top-banner .student-tone-wash,
+ .roque-student-shell .top-banner .banner-shapes.student-hero-in,
+ .roque-student-shell .top-banner .banner-shapes.student-hero-out {
+  transition:none!important;
+ }
+}
