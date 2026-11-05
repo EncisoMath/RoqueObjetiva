@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.48";
+  const APP_VERSION = "v175.50";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -123,7 +123,7 @@
     coordIntroShown: false, coordIntroOpen: false, coordSession: "",
     coordRoster: [], coordCourses: [], coordEditionLoaded: "",
     coordIntroEpoch: 0, coordIntroTimer: null, coordIntroMotion: null,
-    coordBusy: false, coordError: "", coordSearch: "",
+    coordBusy: false, coordPendingMoves: new Set(), coordError: "", coordSearch: "",
     coordGrade: "all", coordSede: "all", coordCurso: "all", coordLimit: 48,
     teacherDirectorActiveKey: "",
     teacherSearch: "",
@@ -4220,23 +4220,31 @@
       (state.coordCurso==="all"||cleanText(s.curso)===state.coordCurso) &&
       (!q||normalizeText(s.nombre+" "+s.roll+" "+s.curso+" "+s.sede).includes(q)));
   }
+  function coordCardHtml(s) {
+    const current=cleanText(s.curso), options=coordOptions(s);
+    if(current&&!options.includes(current)) options.unshift(current);
+    const color=["#128abb","#26a789","#a273cc","#e5a13d"][Number(s.grado)%4];
+    const disabled=options.length<2 || state.coordPendingMoves.has(String(s.roll));
+    return '<article class="coord-move-card" data-coord-roll="'+escAttr(s.roll)+'">'+
+      '<div class="coord-move-top"><div class="coord-move-profile"><strong>'+esc(s.nombre)+'</strong>'+
+      '<small>ID '+esc(s.roll)+'<span aria-hidden="true"> · </span>'+esc(s.sede||"Sin sede")+'</small></div>'+
+      '<span class="coord-move-grade" style="--c:'+color+'">'+esc(s.grado)+'°</span></div>'+
+      '<div class="coord-move-controls">'+
+      '<div class="coord-move-original"><span>Actual</span><b data-coord-current>'+esc(current||"—")+'</b></div>'+
+      '<span class="coord-move-arrow" aria-hidden="true">→</span>'+
+      '<label class="coord-move-destination"><span>Nuevo curso</span>'+
+      '<select aria-label="Nuevo curso de '+escAttr(s.nombre)+'" data-coord-destination="'+escAttr(s.roll)+'"'+(disabled?' disabled':'')+'>'+
+      options.map(x=>'<option value="'+escAttr(x)+'"'+(x===current?' selected':'')+'>'+esc(x)+'</option>').join("")+
+      '</select></label>'+
+      '<button type="button" data-action="coord-move-one" data-roll="'+escAttr(s.roll)+'" disabled>Guardar</button>'+
+      '</div><div class="coord-move-feedback" aria-live="polite"></div></article>';
+  }
   function coordRowsHtml() {
     const filtered=coordFiltered(),visible=filtered.slice(0,state.coordLimit);
-    const cards=visible.map(s=>{
-      const current=cleanText(s.curso);
-      const options=coordOptions(s);
-      if (current&&!options.includes(current)) options.unshift(current);
-      const color=["#128abb","#26a789","#a273cc","#e5a13d"][Number(s.grado)%4];
-      return '<article class="coord-move-card" data-coord-roll="'+escAttr(s.roll)+'">'+
-        '<div class="coord-move-profile"><span class="coord-move-grade" style="--c:'+color+'">'+esc(s.grado)+'°</span>'+
-        '<div><strong>'+esc(s.nombre)+'</strong><small>Prueba '+esc(s.roll)+' · '+esc(s.sede)+'</small></div></div>'+
-        '<div class="coord-move-controls"><span class="coord-move-original">Actual <b>'+esc(current||"Sin curso")+'</b></span>'+
-        '<label><span>Nuevo curso</span><select data-coord-destination="'+escAttr(s.roll)+'"'+(options.length<2?" disabled":"")+'>'+
-        options.map(x=>'<option value="'+escAttr(x)+'"'+(x===current?' selected':'')+'>'+esc(x)+'</option>').join("")+
-        '</select></label><button type="button" data-action="coord-move-one" data-roll="'+escAttr(s.roll)+'" disabled>Guardar</button></div></article>';
-    }).join("");
-    return '<div class="coord-move-count"><b>'+filtered.length+' estudiantes</b><small>Mostrando '+visible.length+'</small></div>'+
-      (cards||'<div class="coord-move-empty">No hay estudiantes con esos filtros.</div>')+
+    const cards=visible.map(coordCardHtml).join("");
+    return '<div class="coord-move-count"><b>'+filtered.length+' estudiantes</b><small>'+visible.length+' visibles</small></div>'+
+      (cards?'<div class="coord-move-list">'+cards+'</div>':
+        '<div class="coord-move-empty">No hay estudiantes con esos filtros.</div>')+
       (filtered.length>visible.length?'<button type="button" class="coord-move-more" data-action="coord-move-more">Mostrar más ('+
         (filtered.length-visible.length)+')</button>':'');
   }
@@ -4246,8 +4254,8 @@
   }
   function renderCoordinatorMover() {
     const code=cleanText(state.teacherEditionSelected||state.academicEdition||"2026-1S");
-    const head='<div class="coord-move-head"><span class="coord-move-head-icon">⇄</span><div>'+
-      '<h3>Mover estudiantes</h3><p>Actualiza el curso real sin cambiar el grado ni la sede.</p></div></div>';
+    const head='<div class="coord-move-head"><span class="coord-move-head-icon" aria-hidden="true">⇄</span><div>'+
+      '<h3>Mover estudiantes</h3><p>Cambia el curso sin modificar el grado ni la sede.</p></div></div>';
     if (!state.coordSession) {
       return '<section class="coord-move-shell">'+head+
         '<div class="coord-move-empty" role="alert">La sesión de coordinación ha vencido. '+
@@ -4267,13 +4275,11 @@
       '<option value="all">Todos</option>'+values.map(x=>'<option value="'+escAttr(String(x))+'"'+
       (String(x)===selected?' selected':'')+'>'+esc(label(x))+'</option>').join("")+'</select></label>';
     return '<section class="coord-move-shell">'+head+
-      '<div class="coord-move-stats"><div><b>'+students.length+'</b><small>Estudiantes</small></div>'+
-      '<div><b>'+grades.length+'</b><small>Grados</small></div><div><b>'+sedes.length+'</b><small>Sedes</small></div></div>'+
       '<label class="coord-move-search"><span>Buscar estudiante o ID</span><input id="coord-search" type="search" placeholder="Nombre o ID de prueba" autocomplete="off" value="'+escAttr(state.coordSearch)+'"></label>'+
       '<div class="coord-move-filters">'+select("grade","Grado",grades,state.coordGrade,x=>x+"°")+
         select("sede","Sede",sedes,state.coordSede)+select("course","Curso",cursos,state.coordCurso)+'</div>'+
-      '<p class="coord-move-help">Cada cambio se guarda individualmente y queda en el registro de auditoría.</p>'+
-      '<div id="coord-move-results" aria-live="polite">'+coordRowsHtml()+'</div></section>';
+      '<p class="coord-move-help">Los cambios quedan registrados en auditoría.</p>'+
+      '<div id="coord-move-results">'+coordRowsHtml()+'</div></section>';
   }
   async function loadCoordRoster() {
     const teacher=state.teachers.get(state.activeSession?.id);
@@ -4350,14 +4356,15 @@
       content = adminKeysHtml();
     }
     renderShell(`
+      ${mode === "coord-mover" ? "" : `
       <section class="toolbar teacher-toolbar">
         <div>
           <span class="section-eyebrow">Coordinación académica</span>
           <h2 style="margin:8px 0 0;font-size:clamp(1.4rem,4vw,2.2rem);font-weight:900;letter-spacing:-.04em;">${esc(teacher.name || "Coordinador")}</h2>
           <p class="teacher-active-label">${esc(title)} · vistas administrativas habilitadas</p>
         </div>
-      </section>
-      <section class="coordinator-admin-panel">${content}</section>
+      </section>`}
+      <section class="coordinator-admin-panel${mode === "coord-mover" ? " coord-mover-panel" : ""}">${content}</section>
     `, navFor("teacher"));
   }
 
@@ -7832,7 +7839,8 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     if (target.dataset.coordDestination && state.activeSession?.role==="teacher") {
       const s=state.coordRoster.find(x=>String(x.roll)===target.dataset.coordDestination);
       const button=target.closest(".coord-move-card")?.querySelector('[data-action="coord-move-one"]');
-      if(button) button.disabled=!s||target.value===s.curso;
+      if(button) button.disabled=!s||state.coordPendingMoves.has(String(s.roll))||
+        cleanText(target.value)===cleanText(s.curso)||!coordOptions(s).includes(cleanText(target.value));
       return;
     }
     if (target.dataset.coordFilter && state.activeSession?.role==="teacher") {
@@ -10182,7 +10190,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
 
   function clearSession() {
     closeCoordIntro();
-    state.coordIntroShown=false;state.coordSession="";state.coordRoster=[];
+    state.coordIntroShown=false;state.coordSession="";state.coordPendingMoves.clear();state.coordRoster=[];
     state.coordCourses=[];state.coordEditionLoaded="";
     finishTeacherEditionGate();
     state.teacherEditionCatalog = [];
