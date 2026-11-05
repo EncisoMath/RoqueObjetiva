@@ -1,4 +1,4 @@
-/* RoqueObjetiva v175.50 · Coordinación: lista compacta, móvil y sin re-render al guardar. */
+/* RoqueObjetiva v175.51 · Tarjetas de estudiantes fieles a la referencia visual móvil. */
 .coord-mover-panel{min-width:0}
 .coord-move-shell{
   box-sizing:border-box;max-width:1050px;min-width:0;margin:0 auto 28px;
@@ -113,6 +113,91 @@
 @media(prefers-reduced-motion:reduce){
   .coord-move-card,.coord-move-controls button{transition:none}
 }
+
+
+/* v175.51 · Equilibrio visual y alineación exacta de las tarjetas.
+   Sólo aplica a Mover estudiantes: no altera otros paneles ni el modal. */
+.coord-move-count{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:9px 2px 6px;gap:12px;
+}
+.coord-move-count-main{display:flex;align-items:center;gap:8px;min-width:0}
+.coord-move-count-icon{width:18px;height:18px;flex:0 0 18px;color:#526e89}
+.coord-move-count b{font-size:.82rem;line-height:1.25;color:#243e58;font-weight:900}
+.coord-move-count small{font-size:.72rem;line-height:1.25;color:#6b8095;white-space:nowrap}
+.coord-move-list{gap:12px}
+.coord-move-card{
+  gap:10px;min-width:0;padding:12px 13px 13px;
+  border:1px solid #dce7f0;border-radius:4px;
+  box-shadow:0 3px 10px rgba(38,68,104,.07);
+}
+.coord-move-top{
+  align-items:center;gap:12px;padding:0 0 9px;
+  border-bottom:1px solid #e3ebf3;
+}
+.coord-move-profile{gap:4px;min-width:0}
+.coord-move-profile strong{
+  font-size:clamp(.82rem,3.75vw,.94rem);font-weight:900;
+  line-height:1.3;letter-spacing:-.015em;color:#233a55;
+}
+.coord-move-profile small{font-size:.72rem;line-height:1.3;color:#73879d;font-weight:550}
+.coord-move-grade{
+  flex:0 0 36px;width:36px;height:26px;
+  border-radius:4px;font-size:.86rem;font-weight:900;
+  box-shadow:0 1px 2px rgba(69,44,92,.12);
+}
+.coord-move-controls{
+  display:grid;grid-template-columns:minmax(0,.80fr) 20px minmax(0,1.27fr) 88px;
+  align-items:end;column-gap:10px;min-width:0;
+}
+.coord-move-original,.coord-move-destination{display:grid;gap:5px;min-width:0;align-content:end}
+.coord-move-original{min-height:0}
+.coord-move-original span,.coord-move-destination span{
+  font-size:.67rem;line-height:1.2;color:#657c93;font-weight:800;
+}
+.coord-move-original b{
+  display:flex;align-items:center;box-sizing:border-box;width:100%;
+  height:30px;padding:0 11px;border:1px solid transparent;border-radius:4px;
+  background:#e1f1fd;color:#244a6b;
+  font-size:.79rem;font-weight:900;line-height:1;min-width:0;
+}
+.coord-move-arrow{
+  height:30px;align-self:end;
+  font-size:1.3rem;font-weight:600;color:#8194a9;
+}
+.coord-move-destination select{
+  box-sizing:border-box;width:100%;height:30px;
+  padding:0 7px;border:1px solid #c8d6e5;
+  border-radius:4px;background:#fff;color:#294762;
+  font-size:.79rem;font-weight:800;
+}
+.coord-move-controls button{
+  box-sizing:border-box;width:88px;height:30px;padding:0 5px;
+  border-radius:4px;background:#167eae;color:white;
+  font-size:.76rem;font-weight:850;
+}
+.coord-move-controls button:disabled{
+  background:#187eae;color:#fff;opacity:.78;
+}
+.coord-move-card.is-saving .coord-move-controls button{font-size:.68rem}
+@media(max-width:380px){
+  .coord-move-controls{
+    grid-template-columns:minmax(0,.78fr) 17px minmax(0,1.30fr) 76px;
+    column-gap:6px;
+  }
+  .coord-move-controls button{width:76px;font-size:.7rem}
+  .coord-move-card{padding:11px 11px 12px}
+  .coord-move-profile strong{font-size:.82rem}
+  .coord-move-profile small{font-size:.66rem}
+  .coord-move-original span,.coord-move-destination span{font-size:.62rem}
+  .coord-move-original b,.coord-move-destination select{font-size:.73rem}
+}
+@media(max-width:330px){
+  .coord-move-controls{grid-template-columns:minmax(0,.68fr) 14px minmax(0,1.32fr) 67px;column-gap:4px}
+  .coord-move-controls button{width:67px;font-size:.67rem}
+  .coord-move-original b{padding:0 6px}
+}
+@media(prefers-reduced-motion:reduce){.coord-move-card{transition:none}}
 
 /* v175.48: modal flat (máximo 4px), cinco estudiantes y dedo montado en su misma tarjeta */
 #modal-root .coord-intro-backdrop{
