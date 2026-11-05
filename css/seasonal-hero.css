@@ -104,3 +104,26 @@
     will-change: auto;
   }
 }
+
+/* v175.49: la nieve tenía opacity:1 !important y bloqueaba el crossfade
+   al pasar de los puestos 1.º–3.º al historial o viceversa. */
+.roque-student-shell.roque-hero-shell .top-banner .banner-shapes.banner-winter.student-hero-in,
+.roque-student-shell.roque-hero-shell .top-banner .banner-shapes.banner-winter.student-hero-out {
+  transition:opacity .52s ease !important;
+}
+.roque-student-shell.roque-hero-shell .top-banner .banner-shapes.banner-winter.student-hero-in {
+  opacity:0 !important;
+}
+.roque-student-shell.roque-hero-shell .top-banner .banner-shapes.banner-winter.student-hero-in.show,
+.roque-student-shell.roque-hero-shell .top-banner .banner-shapes.banner-winter.student-hero-out {
+  opacity:1 !important;
+}
+.roque-student-shell.roque-hero-shell .top-banner .banner-shapes.banner-winter.student-hero-out.fade {
+  opacity:0 !important;
+}
+@media(prefers-reduced-motion:reduce){
+  .roque-student-shell.roque-hero-shell .top-banner .banner-shapes.banner-winter.student-hero-in,
+  .roque-student-shell.roque-hero-shell .top-banner .banner-shapes.banner-winter.student-hero-out {
+    transition:none !important;
+  }
+}
