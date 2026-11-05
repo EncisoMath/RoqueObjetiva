@@ -1,0 +1,136 @@
+/* RoqueObjetiva v175.53 | Personal Docente · diseño flat y móvil primero */
+.rp-root{--rp-blue:#1686bd;--rp-navy:#1c3455;--rp-border:#cfdff0;--rp-muted:#7890a8;color:var(--rp-navy);font-family:Montserrat,sans-serif;max-width:1160px;margin:0 auto;min-width:0}
+.rp-root *{box-sizing:border-box}
+.rp-root button,.rp-root input,.rp-root select{font-family:inherit}
+.rp-root button{cursor:pointer}
+.rp-root button:focus-visible,.rp-root select:focus-visible,.rp-root input:focus-visible{outline:2px solid #40a6db;outline-offset:2px}
+.rp-root :is(button,select,input){border-radius:4px}
+.rp-root .rp-sr{position:absolute;clip:rect(0,0,0,0);overflow:hidden;width:1px;height:1px}
+.rp-layout{display:grid;grid-template-columns:minmax(0,1fr);gap:13px;min-width:0}
+.rp-roster-view,.rp-detail-view{display:grid;gap:11px;min-width:0}
+.rp-title-strip{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid #badcf2;border-radius:4px;background:#ecf7ff}
+.rp-head-icon{flex:0 0 37px;width:37px;height:37px;display:grid;place-items:center;border-radius:4px;background:#1683b9;color:#fff;font-size:1.45rem}
+.rp-title-strip h2{font-size:1rem;font-weight:900;margin:0 0 3px;line-height:1.2}
+.rp-title-strip p{font-size:.61rem;margin:0;color:#668198;line-height:1.35}
+.rp-search input{height:39px;width:100%;padding:0 10px;background:#fff;border:1px solid #cbdce9;color:#2e4660;font-size:.72rem}
+.rp-search input::placeholder{color:#8095ab}
+.rp-filter-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}
+.rp-filter-row label,.rp-form label,.rp-add-form label{display:grid;gap:5px;min-width:0}
+.rp-filter-row label span,.rp-form label>span,.rp-add-form label>span{font-weight:800;font-size:.67rem;color:#456179}
+.rp-filter-row select{width:100%;height:35px;background:#fff;border:1px solid #cbddec;padding:0 8px;color:#2c4865;font-size:.7rem;font-weight:750}
+.rp-list-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:5px 0 2px}
+.rp-list-head strong{font-size:.78rem;font-weight:900;color:#283e58}
+.rp-new,.rp-assign{height:31px;padding:0 9px;background:#fff;border:1px solid #128bd1;color:#0c7db3;font-size:.69rem;font-weight:850;white-space:nowrap}
+.rp-new:hover,.rp-assign:hover{background:#eaf6ff}
+.rp-roster{display:grid;gap:7px}
+.rp-person{width:100%;display:flex;align-items:center;gap:8px;text-align:left;background:#fff;border:1px solid #dbe7f3;padding:9px 9px 9px 7px;min-width:0;box-shadow:0 2px 8px rgba(29,77,116,.07);position:relative}
+.rp-person:hover,.rp-person.is-current{border-color:#90c6e8;background:#f7fcff}
+.rp-avatar{display:grid;place-items:center;flex:0 0 31px;width:31px;height:32px;border-radius:4px;background:#cce9fb;color:#176a9a;font-size:1.2rem;font-weight:800}
+.rp-person-info{display:grid;gap:3px;flex:1;min-width:0}
+.rp-person-name{font-weight:900;font-size:.69rem;line-height:1.27;color:#213651;overflow-wrap:anywhere}
+.rp-person-id{font-size:.59rem;line-height:1.25;font-weight:600;color:#788da3}
+.rp-mini-meta{display:flex;flex-wrap:wrap;column-gap:8px;row-gap:3px;font-size:.56rem;font-weight:750;color:#607a96}
+.rp-role-tag{align-self:flex-start;background:#f1e4fa;padding:5px 6px;border-radius:4px;color:#8a4db0;font-size:.52rem;font-weight:900;white-space:nowrap}
+.rp-chevron{font-size:1.2rem;font-weight:650;color:#3e6482;align-self:center}
+.rp-empty{margin:0;padding:20px 10px;text-align:center;color:#748ca2;font-size:.73rem;line-height:1.5}
+.rp-detail-view{gap:10px}
+.rp-back{justify-self:start;border:0;background:transparent;color:#2877a5;font-size:.73rem;padding:3px 0;font-weight:800}
+.rp-teacher-head{display:flex;align-items:center;gap:8px;min-width:0;padding:11px 10px;background:#fff;border:1px solid #d7e4f0;box-shadow:0 2px 8px rgba(18,71,110,.07)}
+.rp-big-avatar{display:grid;place-items:center;flex:0 0 43px;width:43px;height:43px;border-radius:4px;background:#cbe7fa;color:#157ab5;font-size:1.85rem}
+.rp-teacher-summary{display:grid;gap:4px;min-width:0;flex:1}
+.rp-teacher-summary strong{font-size:.8rem;line-height:1.25;font-weight:900;overflow-wrap:anywhere}
+.rp-teacher-summary>small{font-size:.63rem;color:#7188a1}
+.rp-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.rp-tabs button{min-width:0;min-height:56px;padding:7px 5px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;border:1px solid #cddfee;background:#f3f8fe;color:#365678;font-size:.63rem;line-height:1.22;font-weight:750}
+.rp-tabs button span{font-size:1.25rem;line-height:1.1}
+.rp-tabs button.active{background:var(--rp-blue);border-color:var(--rp-blue);color:#fff;font-weight:900}
+.rp-manage{display:grid;gap:9px}
+.rp-section{background:#fff;border:1px solid #dae7f3;padding:11px;border-radius:4px;box-shadow:0 2px 8px rgba(18,71,110,.055);min-width:0}
+.rp-section h3{color:#26415d;margin:0 0 11px;font-size:.83rem;font-weight:900;line-height:1.25}
+.rp-section-title,.rp-feature-heading{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.rp-section-title h3,.rp-feature-heading h3{margin:0}
+.rp-section-title{margin-bottom:11px}
+.rp-permissions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.rp-permissions>label{display:grid;gap:5px}
+.rp-permissions>label>span:first-child{font-size:.65rem;color:#334a66;font-weight:750}
+.rp-permissions select,.rp-form input,.rp-form select,.rp-add-form input,.rp-add-form select{min-width:0;width:100%;height:34px;padding:0 9px;background:#f4f9fe;border:1px solid #d7e6f3;color:#2c4d67;font-size:.68rem;font-weight:750}
+.rp-permissions select:disabled{opacity:1;color:#385976}
+.rp-toggle-field{justify-content:start;align-content:start;position:relative}
+.rp-toggle-field input{position:absolute;opacity:0;width:41px;height:23px;top:21px;left:0;z-index:1;margin:0;cursor:pointer}
+.rp-toggle-ui{display:block;width:40px;height:22px;border-radius:22px;background:#c3d5e2;position:relative;pointer-events:none;transition:background-color .2s}
+.rp-toggle-ui:after{content:"";position:absolute;left:3px;top:3px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .2s}
+.rp-toggle-field input:checked+.rp-toggle-ui{background:#168bc1}
+.rp-toggle-field input:checked+.rp-toggle-ui:after{transform:translateX(18px)}
+.rp-edit-icon{display:grid;place-items:center;border:1px solid #b1d9ed;background:#dff3ff;width:29px;height:28px;font-size:1rem;color:#1a8ac2}
+.rp-form,.rp-add-form{display:grid;gap:9px}
+.rp-form input[readonly]{background:#eaf4fd;color:#617e92}
+.rp-form select:disabled{opacity:1;background:#eaf4fd;color:#617e92}
+.rp-form .rp-primary{justify-self:stretch}
+.rp-primary{border:0;background:#1785bc;color:#fff;padding:10px;font-size:.74rem;font-weight:900;min-height:36px}
+.rp-primary:disabled{opacity:.55;cursor:wait}
+.rp-summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.rp-summary-grid>div{display:grid;grid-template-columns:auto 1fr;align-items:center;column-gap:8px;padding:9px 10px;border-radius:4px;background:#e6f4fd;min-height:58px}
+.rp-summary-grid>div:nth-child(2){background:#f0e9fb}
+.rp-summary-grid>div>span{grid-row:span 2;font-size:1.25rem;color:#1688bd}
+.rp-summary-grid>div:nth-child(2)>span{color:#9959b5}
+.rp-summary-grid strong{font-size:1.02rem;line-height:1.1}
+.rp-summary-grid small{font-size:.58rem;line-height:1.2}
+.rp-danger-action button{padding:7px 0;border:0;background:transparent;color:#9a5265;font-size:.64rem;font-weight:750}
+.rp-feature-heading{margin-bottom:10px}
+.rp-feature-heading h3{font-size:.94rem}
+.rp-screen-card{padding:11px}
+.rp-assignments{display:grid;gap:7px}
+.rp-assignment-card{border:1px solid #cfddec;background:#f9fbfe;border-radius:4px;overflow:hidden}
+.rp-assignment-top{display:flex;align-items:center;gap:8px;min-height:50px;padding:7px 8px;min-width:0}
+.rp-subject-icon{display:grid;place-items:center;flex:0 0 39px;width:39px;height:39px;border-radius:4px;font-size:1.45rem;font-weight:800;background:#4bace5;color:white}
+.rp-subject-icon.math{background:#2a9cda}.rp-subject-icon.science{background:#8ac22c}
+.rp-subject-icon.tech{background:#a663d4}.rp-subject-icon.sport{background:#df5796}
+.rp-subject-icon.other{background:#4da8b1}
+.rp-subject-copy{display:grid;gap:3px;min-width:0;flex:1}
+.rp-subject-copy strong{font-size:.76rem;font-weight:900;line-height:1.22;overflow-wrap:anywhere}
+.rp-subject-copy small{font-size:.65rem;color:#657d94;font-weight:650}
+.rp-grade-chips{display:flex;flex-wrap:wrap;justify-content:end;gap:4px;max-width:43%}
+.rp-grade-chip{background:#dbeafb;padding:5px 6px;font-size:.66rem;font-weight:900;color:#294767;border-radius:4px;white-space:nowrap}
+.rp-dots{border:0;background:transparent;font-size:1.3rem;line-height:1;color:#244864;padding:7px 2px;min-width:17px}
+.rp-assignment-details{display:grid;gap:0;padding:2px 9px 6px;border-top:1px solid #dce8f1}
+.rp-assignment-details>div{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:7px 1px;font-size:.65rem;color:#375b77;border-bottom:1px solid #e5edf4}
+.rp-assignment-details>div:last-child{border:0}
+.rp-assignment-details button{background:#fff;border:1px solid #ebc3c3;color:#a33e43;font-size:.62rem;font-weight:800;padding:6px}
+.rp-add-form{margin:0 0 11px;padding:10px;background:#f3f9fe;border:1px solid #c5e1f3}
+.rp-add-form h4{font-size:.76rem;margin:0;color:#2a4b66}
+.rp-duo{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.rp-form-actions{display:flex;justify-content:flex-end;gap:7px}
+.rp-form-actions button{border:1px solid #cbdcea;background:#fff;color:#315675;font-size:.69rem;font-weight:850;padding:8px}
+.rp-form-actions .rp-primary{background:#1684bd;color:#fff;border-color:#1684bd}
+.rp-director-card{display:flex;align-items:center;gap:9px;padding:9px;border:1px solid #cbddec;background:#f9fbff;border-radius:4px}
+.rp-director-grade{display:grid;place-items:center;padding:0 8px;min-width:64px;min-height:43px;background:#d8edfc;border-radius:4px;color:#27628e;font-size:1rem;font-weight:900}
+.rp-director-card>div{display:grid;gap:5px;min-width:0;flex:1}
+.rp-director-card strong{font-size:.72rem;font-weight:850}
+.rp-director-card small{font-size:.66rem;color:#66819a}
+.rp-info{margin:0;padding:11px;border:1px solid #bed9ec;border-radius:4px;background:#e5f4fe;color:#406984;font-size:.67rem;line-height:1.5}
+.rp-new-panel h2{font-size:1rem;margin:0}.rp-new-panel p{color:#718aa1;font-size:.68rem;line-height:1.5}
+.rp-check{display:flex!important;align-items:center;gap:8px;font-size:.69rem;font-weight:700}
+.rp-check input{width:17px;height:17px}
+.rp-desktop-placeholder{display:none}
+.rp-loading,.rp-error{padding:22px;text-align:center;border:1px solid #bfddec;background:#f0f9ff;color:#315875;font-size:.76rem}
+.rp-error button{display:block;margin:10px auto 0;padding:7px 12px;background:#1685bb;color:#fff;border:0}
+@media(max-width:1000px){
+ .rp-list-pane.rp-list-hidden{display:none}
+ .rp-detail-pane:not(.rp-detail-visible){display:none}
+}
+@media(min-width:1001px){
+ .rp-layout{grid-template-columns:minmax(275px,.8fr) minmax(340px,1.2fr);align-items:start}
+ .rp-list-pane{min-width:0}
+ .rp-detail-pane{display:block;min-width:0}
+ .rp-detail-pane .rp-back{display:none}
+ .rp-desktop-placeholder{display:block;padding:35px 20px;background:#fff;border:1px dashed #c3d9e8;border-radius:4px;color:#7890a3;font-size:.77rem;text-align:center}
+ .rp-roster{max-height:calc(100vh - 330px);overflow-y:auto;padding:2px}
+}
+@media(max-width:355px){
+ .rp-person{padding:7px 5px;gap:5px}.rp-person-name{font-size:.65rem}
+ .rp-avatar{flex-basis:28px;width:28px}.rp-role-tag{font-size:.48rem}
+ .rp-tabs button{font-size:.58rem;padding:6px 3px}
+ .rp-grade-chips{max-width:36%}
+ .rp-teacher-head{gap:6px;padding:9px 7px}
+}
+@media(prefers-reduced-motion:reduce){.rp-root *{transition:none!important}}
