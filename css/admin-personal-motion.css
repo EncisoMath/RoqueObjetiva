@@ -111,10 +111,8 @@
   pointer-events:none;
 }
 #modal-root:empty{display:none}
-#modal-root > .modal-backdrop:not(.is-closing),
-#modal-root > .student-subject-modal-backdrop:not(.is-closing){pointer-events:auto}
-#modal-root > .modal-backdrop.is-closing,
-#modal-root > .student-subject-modal-backdrop.is-closing{pointer-events:none}
+#modal-root > :not(.is-closing){pointer-events:auto}
+#modal-root > .is-closing{pointer-events:none!important}
 #toast{z-index:1100}
 @media(max-width:355px){
   .rp-root .rp-tabs{gap:4px}
