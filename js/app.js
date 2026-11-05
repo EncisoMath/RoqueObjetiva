@@ -3609,9 +3609,9 @@
       studentPage.innerHTML = content;
       const tone = isMedalBanner ? bannerToneClass : "";
       if ((studentBanner.dataset.heroTone || "") !== tone) {
-        studentBanner.querySelector(".student-tone-wash")?.remove();
-        studentBanner.querySelectorAll(".banner-shapes.student-hero-out").forEach(el=>el.remove());
-        const old = studentBanner.querySelector(".banner-shapes");
+        // Conservar las capas anteriores hasta que completen su fade, incluso
+        // al cambiar de pestaña varias veces seguidas.
+        const old = studentBanner.querySelector(".banner-shapes:not(.student-hero-out)");
         const wash = document.createElement("div");
         wash.className="student-tone-wash";
         wash.style.backgroundColor=getComputedStyle(studentBanner).backgroundColor;
@@ -3622,6 +3622,7 @@
         incoming.innerHTML=holidayHero?renderHolidayHeroParticles():renderPlayShapes("banner",isMedalBanner);
         old?.insertAdjacentElement("afterend",incoming);
         if (!old) studentBanner.insertBefore(incoming,studentBanner.querySelector(".banner-inner"));
+        old?.classList.remove("student-hero-in","show");
         old?.classList.add("student-hero-out");
         studentBanner.classList.remove("banner-rank-gold","banner-rank-silver","banner-rank-bronze");
         if (tone) studentBanner.classList.add(tone);
@@ -4062,10 +4063,19 @@
   }
 
 
-  // Coordinación: saludo tras elegir una prueba, con gesto animado por CSS.
+  // La preferencia corresponde a cada coordinador y persiste en este dispositivo.
+  function coordIntroHiddenKey() {
+    return "roque_coord_intro_hidden_v1_" + cleanId(state.activeSession?.id || "");
+  }
+  function isCoordIntroHidden() {
+    try { return !!state.activeSession?.id && localStorage.getItem(coordIntroHiddenKey()) === "1"; }
+    catch (error) { return false; }
+  }
+
+  // Coordinación: saludo tras elegir una prueba.
   function openCoordIntro() {
     if (!state.teachers.get(state.activeSession?.id)?.coordinator ||
-        state.coordIntroShown || state.teacherEditionGateOpen) return;
+        state.coordIntroShown || state.teacherEditionGateOpen || isCoordIntroHidden()) return;
     state.coordIntroShown=true;state.coordIntroOpen=true;
     // Cinco tarjetas reales: 3 en 1PPAL y 2 en 2PPAL.
     // El dedo es hijo de la tarjeta flotante: ambos comparten SIEMPRE la misma trayectoria.
@@ -4092,6 +4102,7 @@
       'puedes actualizar el <strong>curso</strong> de cada estudiante sin alterar su grado ni su sede. '+
       'Estamos mejorando nuestros procesos para que los resultados reflejen las listas reales. '+
       '¡Prueba la nueva pestaña del menú Coordinador!</p>'+
+      '<label class="coord-intro-hide"><input type="checkbox" id="coord-intro-hide"><span>No volver a mostrar este mensaje</span></label>'+
       '<button type="button" class="coord-intro-accept" data-action="coord-intro-accept">¡Dale!</button>'+
       '</section></div>';
     document.body.classList.add("modal-open");
@@ -4102,51 +4113,87 @@
     });
   }
   function startCoordIntroMotion() {
-    const epoch=++state.coordIntroEpoch;
-    const stage=modalRoot.querySelector("#coord-intro-stage");
-    if(!stage || window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches) return;
-    const cycle=()=>{
-      if (!state.coordIntroOpen || epoch!==state.coordIntroEpoch || !stage.isConnected) return;
-      const sides=[...stage.querySelectorAll("[data-coord-demo-side]")];
-      const primary=sides.find(side=>side.querySelectorAll(".coord-intro-student").length===3);
-      const other=sides.find(side=>side!==primary);
-      const available=primary?.querySelectorAll(".coord-intro-student");
-      const destination=other?.querySelector(".coord-intro-students");
-      if (!available?.length || !destination) return;
-      // Aleatorio: uno de los tres de origen, en cualquier dirección.
-      // Cada ciclo invierte el lado de tres y el de dos.
-      const card=available[Math.floor(Math.random()*available.length)];
-      const fromRect=card.getBoundingClientRect();
-      const stageRect=stage.getBoundingClientRect();
-      const targetRect=destination.getBoundingClientRect();
-      const targetY=targetRect.top + destination.children.length*(fromRect.height+6);
-      const shiftX=targetRect.left-fromRect.left;
-      const shiftY=targetY-fromRect.top;
-      const float=document.createElement("span");
-      float.className="coord-intro-floating";
-      float.style.left=(fromRect.left-stageRect.left)+"px";
-      float.style.top=(fromRect.top-stageRect.top)+"px";
-      float.style.width=fromRect.width+"px";
-      float.innerHTML=card.outerHTML+'<span class="coord-intro-finger" aria-hidden="true">👆</span>';
+    const epoch = ++state.coordIntroEpoch;
+    const stage = modalRoot.querySelector("#coord-intro-stage");
+    if (!stage || window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches) return;
+
+    const cycle = () => {
+      if (!state.coordIntroOpen || epoch !== state.coordIntroEpoch || !stage.isConnected) return;
+      const sides = [...stage.querySelectorAll("[data-coord-demo-side]")];
+      const primary = sides.find(side => side.querySelectorAll(".coord-intro-student").length === 3);
+      const other = sides.find(side => side !== primary);
+      const available = [...(primary?.querySelectorAll(".coord-intro-student") || [])];
+      const destination = other?.querySelector(".coord-intro-students");
+      if (!available.length || !destination) return;
+
+      // La tarjeta elegida y la mano se desplazan juntas; cualquiera de los lados puede ser origen.
+      const card = available[Math.floor(Math.random() * available.length)];
+      const source = card.parentElement;
+      const remaining = [...source.children].filter(node => node !== card);
+      const before = new Map(remaining.map(node => [node, node.getBoundingClientRect()]));
+      const fromRect = card.getBoundingClientRect();
+      const stageRect = stage.getBoundingClientRect();
+      const targetRect = destination.getBoundingClientRect();
+      const targetY = targetRect.top + destination.children.length * (fromRect.height + 6);
+      const shiftX = targetRect.left - fromRect.left;
+      const shiftY = targetY - fromRect.top;
+      const float = document.createElement("span");
+      float.className = "coord-intro-floating";
+      float.style.left = (fromRect.left - stageRect.left) + "px";
+      float.style.top = (fromRect.top - stageRect.top) + "px";
+      float.style.width = fromRect.width + "px";
+      float.innerHTML = card.outerHTML + '<span class="coord-intro-finger" aria-hidden="true">👆</span>';
       stage.appendChild(float);
-      card.style.opacity="0";
-      const anim=float.animate([
-        {transform:"translate3d(0,0,0) scale(1)",offset:0},
-        {transform:"translate3d(0,-5px,0) scale(1.04)",offset:.2},
-        {transform:"translate3d("+shiftX+"px,"+(shiftY-5)+"px,0) scale(1.04)",offset:.82},
-        {transform:"translate3d("+shiftX+"px,"+shiftY+"px,0) scale(1)",offset:1}
-      ],{duration:1250,easing:"cubic-bezier(.43,.02,.2,1)",fill:"forwards"});
-      state.coordIntroMotion=anim;
-      anim.onfinish=()=>{
-        if (epoch!==state.coordIntroEpoch || !stage.isConnected) return;
+
+      // FLIP: al retirar la tarjeta, las restantes conservan su posición visual
+      // y ascienden gradualmente para cerrar el espacio, sin saltos de layout.
+      card.remove();
+      remaining.forEach(node => {
+        const previous = before.get(node);
+        const next = node.getBoundingClientRect();
+        const dx = previous.left - next.left;
+        const dy = previous.top - next.top;
+        if (Math.abs(dx) + Math.abs(dy) < .5) return;
+        node.animate([
+          { transform: "translate3d(" + dx + "px," + dy + "px,0)" },
+          { transform: "translate3d(0,0,0)" }
+        ], { duration: 720, easing: "cubic-bezier(.2,.75,.2,1)" });
+      });
+
+      const flight = float.animate([
+        { transform: "translate3d(0,0,0) scale(1)", offset: 0 },
+        { transform: "translate3d(0,-5px,0) scale(1.04)", offset: .2 },
+        { transform: "translate3d(" + shiftX + "px," + (shiftY-5) + "px,0) scale(1.04)", offset: .82 },
+        { transform: "translate3d(" + shiftX + "px," + shiftY + "px,0) scale(1)", offset: 1 }
+      ], { duration: 1250, easing: "cubic-bezier(.43,.02,.2,1)", fill: "forwards" });
+      state.coordIntroMotion = flight;
+
+      flight.onfinish = () => {
+        if (epoch !== state.coordIntroEpoch || !stage.isConnected) return;
         destination.appendChild(card);
-        card.style.opacity="";
-        float.remove();
-        state.coordIntroMotion=null;
-        state.coordIntroTimer=window.setTimeout(cycle,750);
+        card.style.opacity = "0";
+        float.querySelector(".coord-intro-finger")?.classList.add("is-releasing");
+        const fade = float.animate([
+          { opacity: 1, offset: 0 },
+          { opacity: 1, offset: .22 },
+          { opacity: 0, offset: 1 }
+        ], { duration: 370, easing: "ease-out", fill: "forwards" });
+        const landing = card.animate([
+          { opacity: 0, transform: "scale(.98)" },
+          { opacity: 1, transform: "scale(1)" }
+        ], { duration: 310, delay: 90, easing: "ease-out", fill: "forwards" });
+        state.coordIntroMotion = landing;
+        fade.onfinish = () => float.remove();
+        landing.onfinish = () => {
+          if (epoch !== state.coordIntroEpoch || !stage.isConnected) return;
+          card.style.opacity = "";
+          landing.cancel();
+          state.coordIntroMotion = null;
+          state.coordIntroTimer = window.setTimeout(cycle, 700);
+        };
       };
     };
-    state.coordIntroTimer=window.setTimeout(cycle,650);
+    state.coordIntroTimer = window.setTimeout(cycle, 650);
   }
   function closeCoordIntro() {
     if (!state.coordIntroOpen) return;
@@ -6929,7 +6976,13 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     const target = event.target.closest("[data-action]");
     if (!target) return;
     if (state.coordIntroOpen) {
-      if(target.dataset.action==="coord-intro-accept") closeCoordIntro();
+      if(target.dataset.action==="coord-intro-accept") {
+        if (modalRoot.querySelector("#coord-intro-hide")?.checked) {
+          try { localStorage.setItem(coordIntroHiddenKey(), "1"); }
+          catch (error) { console.warn("No se pudo guardar la preferencia del aviso:", error); }
+        }
+        closeCoordIntro();
+      }
       return;
     }
     if (state.teacherEditionGateOpen) {
@@ -10150,9 +10203,25 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     sessionStorage.removeItem("po_supabase_admin_password");
   }
 
-  // Transición de navegación estudiantil: conserva la disolvencia y el
-  // escalonado CSS sin simular otra carga cuando los datos ya están disponibles.
+  // Mantener visible el hero (y sus partículas) cuando solo cambia la pantalla
+  // del mismo estudiante; la disolvencia se limita al contenido de la página.
   async function transitionStudentView(renderFn) {
+    const page = state.activeSession?.role === "student"
+      ? app.querySelector(".roque-student-shell main.page") : null;
+    if (page) {
+      page.classList.add("student-page-leave");
+      await wait(190);
+      renderFn();
+      const nextPage = app.querySelector(".roque-student-shell main.page");
+      if (nextPage) {
+        nextPage.classList.remove("student-page-leave");
+        nextPage.classList.add("student-page-enter");
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          if (nextPage.isConnected) nextPage.classList.remove("student-page-enter");
+        }));
+      }
+      return;
+    }
     fadeAppOut();
     await wait(190);
     renderFn();
