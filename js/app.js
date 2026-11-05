@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.47";
+  const APP_VERSION = "v175.48";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -120,8 +120,9 @@
     teacherEditionBusy: false,
     teacherEditionRequestSerial: 0,
     teacherEditionGateOpen: false,
-    coordIntroShown: false, coordIntroOpen: false, coordPin: "",
+    coordIntroShown: false, coordIntroOpen: false, coordSession: "",
     coordRoster: [], coordCourses: [], coordEditionLoaded: "",
+    coordIntroEpoch: 0, coordIntroTimer: null, coordIntroMotion: null,
     coordBusy: false, coordError: "", coordSearch: "",
     coordGrade: "all", coordSede: "all", coordCurso: "all", coordLimit: 48,
     teacherDirectorActiveKey: "",
@@ -1184,7 +1185,7 @@
       // v169: mismo login protegido, datos academicos de roque_private (2026-1S).
       // La funcion SQL conserva el control de consultas y revierte a public
       // si detecta diferencias entre los datos de ambos esquemas.
-      return await supabaseRpc("roque_v4_login_controlado_private", params);
+      return await supabaseRpc("roque_v8_login_controlado_private", params);
     } catch (error) {
       // Solo si la nueva funcion NO EXISTE aun en el servidor.
       // No sortear bloqueos, errores de acceso ni restricciones por rol.
@@ -1467,7 +1468,7 @@
         state.teacherEditionBusy = false;
         renderTeacherWithMotion();
         if (state.teachers.get(id)?.coordinator) {
-          if (state.teacherMode==="coord-mover" && state.coordPin) void loadCoordRoster();
+          if (state.teacherMode==="coord-mover" && state.coordSession) void loadCoordRoster();
           if (!state.coordIntroShown && !state.teacherEditionGateOpen) openCoordIntro();
         }
       }
@@ -1714,7 +1715,8 @@
         const id = cleanId(session.id);
         const teacher = state.teachers.get(id);
         if (!teacher) return renderLogin("No encontré ese docente en Supabase.");
-        state.coordIntroShown=false; state.coordIntroOpen=false; state.coordPin="";
+        state.coordIntroShown=false; state.coordIntroOpen=false;
+        state.coordSession=cleanText(payload.coordinator_session || "");
         state.coordRoster=[];state.coordCourses=[];state.coordEditionLoaded="";
         state.teacherEditionSelected = cleanText(state.academicEdition || "2026-1S");
         state.teacherEditionMessage = "";
@@ -4065,15 +4067,27 @@
     if (!state.teachers.get(state.activeSession?.id)?.coordinator ||
         state.coordIntroShown || state.teacherEditionGateOpen) return;
     state.coordIntroShown=true;state.coordIntroOpen=true;
+    // Cinco tarjetas reales: 3 en 1PPAL y 2 en 2PPAL.
+    // El dedo es hijo de la tarjeta flotante: ambos comparten SIEMPRE la misma trayectoria.
     modalRoot.innerHTML='<div class="modal-backdrop coord-intro-backdrop">'+
       '<section class="modal coord-intro-modal" role="dialog" aria-modal="true" aria-labelledby="coord-intro-title">'+
       '<div class="coord-intro-header"><span>✨ NUEVA FUNCIÓN</span><h2 id="coord-intro-title">¡Hey! Eres coordinador en esta prueba!</h2>'+
       '<p>Ahora puedes organizar los cursos como son en la realidad.</p></div>'+
-      '<div class="coord-intro-anim" aria-hidden="true"><div class="coord-intro-grades"><b>6°</b><b>7°</b><b>8°</b></div>'+
-      '<div class="coord-intro-tracks"><div class="coord-intro-track"><small>6° · 1PPAL</small><span>👩‍🎓 Ana</span></div>'+
-      '<div class="coord-intro-track"><small>6° · 2PPAL</small><i>Nuevo curso</i></div>'+
-      '<div class="coord-intro-moving">👩‍🎓 Ana</div><div class="coord-intro-finger">☝️</div></div>'+
-      '<small class="coord-intro-caption">ARRASTRA · ORGANIZA · CONFIRMA</small></div>'+
+      '<div class="coord-intro-anim" aria-label="Animación de alumnos pasando entre cursos">'+
+      '<div class="coord-intro-grades" aria-hidden="true"><b>6°</b><b>7°</b><b>8°</b></div>'+
+      '<div class="coord-intro-tracks" id="coord-intro-stage" aria-hidden="true">'+
+      '<div class="coord-intro-track" data-coord-demo-side="left"><small>6° · 1PPAL</small>'+
+      '<div class="coord-intro-students">'+
+      '<span class="coord-intro-student"><i>👩‍🎓</i><b>Ana</b></span>'+
+      '<span class="coord-intro-student"><i>👨‍🎓</i><b>Leo</b></span>'+
+      '<span class="coord-intro-student"><i>👩‍🎓</i><b>Sara</b></span>'+
+      '</div></div>'+
+      '<div class="coord-intro-track" data-coord-demo-side="right"><small>6° · 2PPAL</small>'+
+      '<div class="coord-intro-students">'+
+      '<span class="coord-intro-student"><i>👨‍🎓</i><b>Juan</b></span>'+
+      '<span class="coord-intro-student"><i>👩‍🎓</i><b>Lina</b></span>'+
+      '</div></div></div>'+
+      '<small class="coord-intro-caption">ELIGE · MUEVE · CONFIRMA</small></div>'+
       '<p class="coord-intro-text">Sabemos que las listas pueden cambiar. Con <strong>Mover estudiantes</strong> '+
       'puedes actualizar el <strong>curso</strong> de cada estudiante sin alterar su grado ni su sede. '+
       'Estamos mejorando nuestros procesos para que los resultados reflejen las listas reales. '+
@@ -4082,11 +4096,65 @@
       '</section></div>';
     document.body.classList.add("modal-open");
     app.inert=true;
-    requestAnimationFrame(()=>modalRoot.querySelector(".coord-intro-accept")?.focus({preventScroll:true}));
+    requestAnimationFrame(()=>{
+      modalRoot.querySelector(".coord-intro-accept")?.focus({preventScroll:true});
+      startCoordIntroMotion();
+    });
+  }
+  function startCoordIntroMotion() {
+    const epoch=++state.coordIntroEpoch;
+    const stage=modalRoot.querySelector("#coord-intro-stage");
+    if(!stage || window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches) return;
+    const cycle=()=>{
+      if (!state.coordIntroOpen || epoch!==state.coordIntroEpoch || !stage.isConnected) return;
+      const sides=[...stage.querySelectorAll("[data-coord-demo-side]")];
+      const primary=sides.find(side=>side.querySelectorAll(".coord-intro-student").length===3);
+      const other=sides.find(side=>side!==primary);
+      const available=primary?.querySelectorAll(".coord-intro-student");
+      const destination=other?.querySelector(".coord-intro-students");
+      if (!available?.length || !destination) return;
+      // Aleatorio: uno de los tres de origen, en cualquier dirección.
+      // Cada ciclo invierte el lado de tres y el de dos.
+      const card=available[Math.floor(Math.random()*available.length)];
+      const fromRect=card.getBoundingClientRect();
+      const stageRect=stage.getBoundingClientRect();
+      const targetRect=destination.getBoundingClientRect();
+      const targetY=targetRect.top + destination.children.length*(fromRect.height+6);
+      const shiftX=targetRect.left-fromRect.left;
+      const shiftY=targetY-fromRect.top;
+      const float=document.createElement("span");
+      float.className="coord-intro-floating";
+      float.style.left=(fromRect.left-stageRect.left)+"px";
+      float.style.top=(fromRect.top-stageRect.top)+"px";
+      float.style.width=fromRect.width+"px";
+      float.innerHTML=card.outerHTML+'<span class="coord-intro-finger" aria-hidden="true">👆</span>';
+      stage.appendChild(float);
+      card.style.opacity="0";
+      const anim=float.animate([
+        {transform:"translate3d(0,0,0) scale(1)",offset:0},
+        {transform:"translate3d(0,-5px,0) scale(1.04)",offset:.2},
+        {transform:"translate3d("+shiftX+"px,"+(shiftY-5)+"px,0) scale(1.04)",offset:.82},
+        {transform:"translate3d("+shiftX+"px,"+shiftY+"px,0) scale(1)",offset:1}
+      ],{duration:1250,easing:"cubic-bezier(.43,.02,.2,1)",fill:"forwards"});
+      state.coordIntroMotion=anim;
+      anim.onfinish=()=>{
+        if (epoch!==state.coordIntroEpoch || !stage.isConnected) return;
+        destination.appendChild(card);
+        card.style.opacity="";
+        float.remove();
+        state.coordIntroMotion=null;
+        state.coordIntroTimer=window.setTimeout(cycle,750);
+      };
+    };
+    state.coordIntroTimer=window.setTimeout(cycle,650);
   }
   function closeCoordIntro() {
     if (!state.coordIntroOpen) return;
     state.coordIntroOpen=false;
+    ++state.coordIntroEpoch;
+    window.clearTimeout(state.coordIntroTimer);
+    state.coordIntroMotion?.cancel();
+    state.coordIntroMotion=null;
     modalRoot.querySelector(".coord-intro-backdrop")?.remove();
     document.body.classList.remove("modal-open");
     app.inert=false;
@@ -4133,15 +4201,17 @@
     const code=cleanText(state.teacherEditionSelected||state.academicEdition||"2026-1S");
     const head='<div class="coord-move-head"><span class="coord-move-head-icon">⇄</span><div>'+
       '<h3>Mover estudiantes</h3><p>Actualiza el curso real sin cambiar el grado ni la sede.</p></div></div>';
-    if (!state.coordPin) return '<section class="coord-move-shell">'+head+
-      '<div class="coord-move-lock"><b>🔐 ACCESO DE COORDINACIÓN</b><h4>Activa los movimientos</h4>'+
-      '<p>Introduce tu clave personal. Cada movimiento quedará registrado en Supabase.</p>'+
-      '<label for="coord-pin">Clave individual</label><input id="coord-pin" type="password" autocomplete="off" spellcheck="false" maxlength="60" placeholder="Clave de coordinación">'+
-      '<button type="button" data-action="coord-unlock"'+(state.coordBusy?" disabled":"")+'>'+
-      (state.coordBusy?"Verificando…":"Activar movimientos")+'</button>'+
-      (state.coordError?'<p class="coord-move-error" role="alert">'+esc(state.coordError)+'</p>':'')+'</div></section>';
-    if (state.coordBusy||state.coordEditionLoaded!==code) return '<section class="coord-move-shell">'+head+
-      '<div class="coord-move-empty" role="status">Consultando cursos de '+esc(code)+'…</div></section>';
+    if (!state.coordSession) {
+      return '<section class="coord-move-shell">'+head+
+        '<div class="coord-move-empty" role="alert">La sesión de coordinación ha vencido. '+
+        'Cierra sesión y vuelve a ingresar para continuar.</div></section>';
+    }
+    if (state.coordBusy||state.coordEditionLoaded!==code) {
+      return '<section class="coord-move-shell">'+head+
+        '<div class="coord-move-empty" role="status">'+
+        (state.coordError ? esc(state.coordError) : 'Consultando estudiantes de '+esc(code)+'…')+
+        '</div></section>';
+    }
     const students=state.coordRoster||[];
     const grades=[...new Set(students.map(x=>Number(x.grado)))].sort((a,b)=>a-b);
     const sedes=[...new Set(students.map(x=>cleanText(x.sede)))].sort((a,b)=>a.localeCompare(b,"es"));
@@ -4158,23 +4228,25 @@
       '<p class="coord-move-help">Cada cambio se guarda individualmente y queda en el registro de auditoría.</p>'+
       '<div id="coord-move-results" aria-live="polite">'+coordRowsHtml()+'</div></section>';
   }
-  async function loadCoordRoster(pin=state.coordPin) {
+  async function loadCoordRoster() {
     const teacher=state.teachers.get(state.activeSession?.id);
-    if (!teacher?.coordinator||!pin||state.coordBusy) return;
+    if (!teacher?.coordinator||!state.coordSession||state.coordBusy) return;
     const id=cleanId(state.activeSession.id);
     const edition=cleanText(state.teacherEditionSelected||state.academicEdition);
     state.coordBusy=true;state.coordError="";renderTeacherWithMotion();
     try {
-      const p=await supabaseRpc("roque_v7_coordinador_listar",{p_docente:id,p_clave:pin,p_edicion:edition});
+      const p=await supabaseRpc("roque_v8_coordinador_listar",{
+        p_docente:id,p_sesion:state.coordSession,p_edicion:edition
+      });
       if (state.activeSession?.id!==id) return;
       if (!p?.ok||p.edicion!==edition||!Array.isArray(p.estudiantes)||!Array.isArray(p.cursos))
         throw Error(p?.error||"No se pudo consultar la lista.");
-      state.coordPin=pin;state.coordRoster=p.estudiantes;state.coordCourses=p.cursos;
+      state.coordRoster=p.estudiantes;state.coordCourses=p.cursos;
       state.coordEditionLoaded=edition;state.coordLimit=48;
       state.coordGrade="all";state.coordSede="all";state.coordCurso="all";state.coordSearch="";
     } catch(e) {
-      state.coordPin="";state.coordRoster=[];state.coordEditionLoaded="";
-      state.coordError=cleanText(e?.message||"Acceso no autorizado.");
+      state.coordRoster=[];state.coordEditionLoaded=edition;
+      state.coordError=cleanText(e?.message||"No fue posible acceder al listado.");
     } finally {
       state.coordBusy=false;
       if(state.activeSession?.id===id) renderTeacherWithMotion();
@@ -4182,15 +4254,15 @@
   }
   async function saveCoordMove(roll,button) {
     const teacher=state.teachers.get(state.activeSession?.id);
-    if (!teacher?.coordinator||!state.coordPin||state.coordBusy) return;
+    if (!teacher?.coordinator||!state.coordSession||state.coordBusy) return;
     const s=state.coordRoster.find(x=>String(x.roll)===String(roll));
     const newCourse=button.closest(".coord-move-card")?.querySelector("select[data-coord-destination]")?.value;
     if(!s||!newCourse||newCourse===s.curso||!coordOptions(s).includes(newCourse)) return;
     const id=cleanId(state.activeSession.id),edition=state.coordEditionLoaded;
     state.coordBusy=true;button.disabled=true;button.textContent="Guardando…";
     try {
-      const p=await supabaseRpc("roque_v7_coordinador_mover",{
-        p_docente:id,p_clave:state.coordPin,p_edicion:edition,p_roll:roll,
+      const p=await supabaseRpc("roque_v8_coordinador_mover",{
+        p_docente:id,p_sesion:state.coordSession,p_edicion:edition,p_roll:roll,
         p_curso_anterior:cleanText(s.curso),p_curso_nuevo:newCourse
       });
       if(!p?.ok) throw Error(p?.error||"No fue posible guardar.");
@@ -4274,7 +4346,7 @@
     state.teacherMode = mode;
     state.teacherDockMenu = "";
     renderTeacherWithMotion();
-    if (mode==="coord-mover" && state.coordPin &&
+    if (mode==="coord-mover" && state.coordSession &&
         state.coordEditionLoaded!==state.teacherEditionSelected) void loadCoordRoster();
   }
 
@@ -6889,11 +6961,6 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       state.modalStack.push(modalRoot.innerHTML);
     }
 
-    if (action==="coord-unlock") {
-      const pin=String(app.querySelector("#coord-pin")?.value||"").trim().toUpperCase();
-      if(pin) await loadCoordRoster(pin);
-      return;
-    }
     if (action==="coord-move-one") {await saveCoordMove(target.dataset.roll||"",target);return;}
     if (action==="coord-move-more") {state.coordLimit+=48;coordRefreshRows();return;}
     if (action === "retry") {
@@ -10062,7 +10129,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
 
   function clearSession() {
     closeCoordIntro();
-    state.coordIntroShown=false;state.coordPin="";state.coordRoster=[];
+    state.coordIntroShown=false;state.coordSession="";state.coordRoster=[];
     state.coordCourses=[];state.coordEditionLoaded="";
     finishTeacherEditionGate();
     state.teacherEditionCatalog = [];
