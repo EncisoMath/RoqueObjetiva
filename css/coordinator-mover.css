@@ -86,3 +86,38 @@
   .coord-intro-student{gap:3px;font-size:.65rem}
 }
 @media(prefers-reduced-motion:reduce){.coord-intro-floating{display:none}}
+
+/* v175.49: el reordenamiento de tarjetas lo anima FLIP en JS.
+   La mano se retira suavemente al aterrizar y la preferencia mantiene el flat de 4px. */
+.coord-intro-finger {
+  opacity:1;
+  transition:opacity .32s ease-out,transform .32s cubic-bezier(.2,.7,.2,1);
+}
+.coord-intro-finger.is-releasing {
+  opacity:0;
+  transform:translateX(-50%) translateY(9px) scale(.83) rotate(-12deg);
+}
+.coord-intro-hide {
+  display:flex;
+  align-items:center;
+  gap:9px;
+  margin:0 1px 13px;
+  cursor:pointer;
+  color:#597189;
+  font-size:.72rem;
+  line-height:1.35;
+  font-weight:700;
+}
+.coord-intro-hide input {
+  width:17px;
+  height:17px;
+  flex:0 0 17px;
+  margin:0;
+  cursor:pointer;
+  accent-color:#1685b5;
+  border-radius:3px;
+}
+.coord-intro-hide:focus-within { outline:2px solid #79c9e8; outline-offset:3px; }
+@media(prefers-reduced-motion:reduce) {
+  .coord-intro-finger { transition:none!important; }
+}
