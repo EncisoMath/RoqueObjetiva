@@ -1,39 +1,39 @@
-const APP_VERSION = "v175.49";
-const CACHE_VERSION = "resultados-pwa-v175-49-hero-y-coord-motion";
+const APP_VERSION = "v175.50";
+const CACHE_VERSION = "resultados-pwa-v175-50-guardado-sin-reload";
 const CACHE_PREFIXES = ["resultados-pwa-", "resultados-pruebas-"];
 
 const APP_SHELL = [
   "./",
   "index.html",
-  "css/app.css?v=175.49",
-  "css/login-performance.css?v=175.49",
-  "css/christmas-login.css?v=175.49",
-  "css/ediciones.css?v=175.49",
-  "css/admin-navigation.css?v=175.49",
-  "css/teacher-navigation.css?v=175.49",
-  "css/teacher-dashboard.css?v=175.49",
-  "css/coordinator-mover.css?v=175.49",
-  "css/shared-hero.css?v=175.49",
-  "css/seasonal-hero.css?v=175.49",
-  "css/student-editions.css?v=175.49",
-  "css/student-dock.css?v=175.49",
-  "css/student-dashboard.css?v=175.49",
-  "css/student-subject-modal.css?v=175.49",
-  "js/app.js?v=175.49",
-  "js/christmas-responsive.js?v=175.49",
-  "js/ediciones.js?v=175.49",
+  "css/app.css?v=175.50",
+  "css/login-performance.css?v=175.50",
+  "css/christmas-login.css?v=175.50",
+  "css/ediciones.css?v=175.50",
+  "css/admin-navigation.css?v=175.50",
+  "css/teacher-navigation.css?v=175.50",
+  "css/teacher-dashboard.css?v=175.50",
+  "css/coordinator-mover.css?v=175.50",
+  "css/shared-hero.css?v=175.50",
+  "css/seasonal-hero.css?v=175.50",
+  "css/student-editions.css?v=175.50",
+  "css/student-dock.css?v=175.50",
+  "css/student-dashboard.css?v=175.50",
+  "css/student-subject-modal.css?v=175.50",
+  "js/app.js?v=175.50",
+  "js/christmas-responsive.js?v=175.50",
+  "js/ediciones.js?v=175.50",
   "version.json",
   "config/data-manifest.json",
   "config/site-config.json",
-  "config/supabase-config.js?v=175.49",
-  "manifest.webmanifest?v=175.49",
+  "config/supabase-config.js?v=175.50",
+  "manifest.webmanifest?v=175.50",
   "icons/icon-192.png",
   "icons/icon-512.png",
   "icons/maskable-512.png",
   "icons/apple-touch-icon.png",
   "icons/favicon-16.png",
   "icons/favicon-32.png",
-  "assets/logo-principal.png?v=175.49",
+  "assets/logo-principal.png?v=175.50",
   "assets/navidad/arbol.webp",
   "assets/navidad/hoja.webp",
   "assets/navidad/regalo1.webp",
@@ -73,10 +73,11 @@ self.addEventListener("activate", (event) => {
 
     await self.clients.claim();
 
+    // Informar sin recargar ni navegar a los usuarios activos:
+    // formularios, movimientos y selección de pestaña no deben interrumpirse.
     const clients = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
     await Promise.all(clients.map(async (client) => {
       try { client.postMessage({ type: "APP_UPDATED", version: APP_VERSION }); } catch (error) {}
-      try { await client.navigate(client.url); } catch (error) {}
     }));
   })());
 });
