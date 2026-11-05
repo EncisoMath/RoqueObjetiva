@@ -1,48 +1,119 @@
-
-/* RoqueObjetiva v175.47 · Coordinador: Mover estudiantes · interfaz móvil flat */
-.coord-move-shell{max-width:1000px;margin:0 auto 30px;display:grid;gap:13px;min-width:0;color:#23384d}
-.coord-move-head{display:flex;align-items:center;gap:10px;padding:15px 13px;background:#eaf6fd;border:1px solid #cbe5f4;border-radius:4px}
-.coord-move-head-icon{display:grid;place-items:center;flex:0 0 42px;width:42px;height:42px;background:#1885b5;border-radius:4px;color:#fff;font-size:1.7rem;font-weight:850}
-.coord-move-head h3{font-size:1.03rem;line-height:1.2;margin:0 0 4px;font-weight:900;color:#1e3851}
-.coord-move-head p{font-size:.73rem;line-height:1.4;margin:0;color:#61778d}
-.coord-move-lock{display:grid;gap:11px;padding:20px 16px;background:#fff;border-radius:4px;border:1px solid #d7e6f0}
-.coord-move-lock>b{color:#1285b1;font-size:.67rem;letter-spacing:.04em}
-.coord-move-lock h4{margin:0;font-size:1.1rem;color:#273c52}
-.coord-move-lock p{margin:0;color:#64778b;font-size:.78rem;line-height:1.5}
-.coord-move-lock label,.coord-move-search span,.coord-move-filters span{color:#455c72;font-size:.7rem;font-weight:850}
-.coord-move-lock input,.coord-move-search input{box-sizing:border-box;width:100%;height:45px;padding:0 12px;border-radius:4px;border:1px solid #cbdcea;background:#fff;font-family:inherit;font-size:.8rem;color:#263f58}
-.coord-move-lock button{height:44px;border:0;border-radius:4px;background:#147db4;color:#fff;font-size:.8rem;font-weight:900;cursor:pointer}
-.coord-move-error{color:#bf2d44!important;font-weight:750!important}
-.coord-move-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.coord-move-stats>div{display:grid;align-content:center;gap:2px;min-width:0;min-height:64px;padding:10px;background:#fff;border:1px solid #dce6f0;border-radius:4px}
-.coord-move-stats b{font-size:1.2rem;color:#1383b3;font-weight:900;line-height:1.06}
-.coord-move-stats small{font-size:.62rem;font-weight:700;color:#728295}
-.coord-move-search{display:grid;gap:5px}
+/* RoqueObjetiva v175.50 · Coordinación: lista compacta, móvil y sin re-render al guardar. */
+.coord-mover-panel{min-width:0}
+.coord-move-shell{
+  box-sizing:border-box;max-width:1050px;min-width:0;margin:0 auto 28px;
+  display:grid;gap:10px;color:#253d53;
+}
+.coord-move-head{
+  display:flex;align-items:center;gap:10px;padding:11px 12px;
+  background:#f4faff;border:1px solid #d1e6f3;border-left:3px solid #1688bc;
+  border-radius:4px;
+}
+.coord-move-head-icon{
+  display:grid;place-items:center;flex:0 0 34px;width:34px;height:34px;
+  background:#1885b5;border-radius:4px;color:#fff;font-size:1.35rem;font-weight:800;
+}
+.coord-move-head h3{font-size:.95rem;line-height:1.25;margin:0 0 3px;font-weight:900;color:#233d55}
+.coord-move-head p{font-size:.68rem;line-height:1.38;margin:0;color:#607b91}
+.coord-move-search{display:grid;gap:5px;min-width:0}
+.coord-move-search span,.coord-move-filters span{color:#38546e;font-size:.67rem;font-weight:800}
+.coord-move-search input{
+  box-sizing:border-box;width:100%;height:41px;padding:0 12px;
+  border:1px solid #cedfeb;border-radius:4px;background:#fff;
+  font-family:inherit;font-size:.77rem;color:#253e54;
+}
+.coord-move-search input::placeholder{color:#8d9ead}
 .coord-move-filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
 .coord-move-filters label{display:grid;gap:4px;min-width:0}
-.coord-move-filters select{box-sizing:border-box;width:100%;min-width:0;height:39px;padding:0 6px;border:1px solid #d2e0ed;border-radius:4px;background:#fff;color:#2d4760;font-family:inherit;font-size:.74rem;font-weight:750}
-.coord-move-help{margin:0;font-size:.69rem;line-height:1.46;color:#748298}
-.coord-move-count{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:3px 0 9px;font-size:.77rem}
-.coord-move-count b{color:#2b4a65;font-weight:900}
-.coord-move-count small{color:#6f8597;font-size:.64rem}
-.coord-move-card{display:grid;gap:11px;margin-bottom:9px;padding:12px;background:#fff;border:1px solid #dbe7f1;border-radius:4px;box-shadow:0 2px 9px rgba(22,57,86,.035)}
-.coord-move-profile{display:flex;align-items:center;gap:9px;min-width:0}
-.coord-move-grade{display:grid;place-items:center;width:38px;height:38px;flex:0 0 38px;background:var(--c,#1482ac);color:#fff;border-radius:4px;font-size:.88rem;font-weight:900}
-.coord-move-profile>div{display:grid;gap:3px;min-width:0}
-.coord-move-profile strong{font-size:.78rem;color:#263a50;font-weight:850;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.coord-move-profile small{font-size:.6rem;line-height:1.3;color:#728398}
-.coord-move-controls{display:flex;align-items:flex-end;gap:7px;min-width:0}
-.coord-move-original{display:grid;align-content:center;gap:2px;min-width:51px;flex:0 0 21%;font-size:.65rem;color:#768495}
-.coord-move-original b{font-size:.73rem;color:#2c4b63}
-.coord-move-controls label{display:grid;flex:1 1 auto;min-width:0;gap:4px}
-.coord-move-controls label span{font-size:.62rem;color:#718196;font-weight:750}
-.coord-move-controls select{box-sizing:border-box;width:100%;min-width:0;height:38px;padding:0 6px;border:1px solid #c9dce9;border-radius:4px;background:#f6fbff;font-size:.74rem;font-weight:850;color:#27516c}
-.coord-move-controls button{flex:0 0 auto;height:38px;min-width:65px;padding:0 8px;border:0;border-radius:4px;background:#1385ba;color:#fff;font-size:.69rem;font-weight:900;cursor:pointer}
-.coord-move-controls button:disabled{opacity:.42;cursor:not-allowed}
-.coord-move-empty{padding:25px 12px;border:1px dashed #bfd8e8;background:#fff;border-radius:4px;text-align:center;color:#70869b;font-size:.8rem}
-.coord-move-more{width:100%;padding:12px;background:#e5f4fb;border:1px solid #d2e8f4;border-radius:4px;color:#116b9c;font-size:.78rem;font-weight:900;cursor:pointer}
-.coord-move-shell :is(button,select,input):focus-visible{outline:3px solid #84ceef;outline-offset:2px}
-@media(max-width:380px){.coord-move-filters{gap:4px}.coord-move-filters select{font-size:.68rem;padding:0 3px}.coord-move-card{padding:10px}.coord-move-controls{gap:5px}.coord-move-controls button{min-width:60px;padding:0 5px}}
+.coord-move-filters select{
+  box-sizing:border-box;width:100%;min-width:0;height:37px;padding:0 6px;
+  border:1px solid #cedfeb;border-radius:4px;background:#fff;
+  color:#2d4c64;font-family:inherit;font-size:.72rem;font-weight:800;
+}
+.coord-move-help{margin:0 0 1px;color:#73899c;font-size:.64rem;line-height:1.4}
+#coord-move-results{display:grid;gap:8px;min-width:0}
+.coord-move-count{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:5px 1px 2px}
+.coord-move-count b{color:#2b4960;font-size:.75rem;font-weight:900}
+.coord-move-count small{color:#7f93a4;font-size:.65rem}
+.coord-move-list{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
+.coord-move-card{
+  box-sizing:border-box;display:grid;gap:9px;min-width:0;margin:0;padding:11px 12px;
+  background:#fff;border:1px solid #d9e5ed;border-radius:4px;
+  box-shadow:0 1px 3px rgba(30,68,100,.035);
+  transition:border-color .2s ease,background-color .2s ease;
+}
+.coord-move-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;min-width:0}
+.coord-move-profile{display:grid;gap:4px;min-width:0;flex:1}
+.coord-move-profile strong{
+  font-size:.81rem;line-height:1.28;font-weight:900;color:#263d56;
+  overflow-wrap:anywhere;
+}
+.coord-move-profile small{color:#7c8ea1;font-size:.64rem;font-weight:550;line-height:1.3;overflow-wrap:anywhere}
+.coord-move-grade{
+  box-sizing:border-box;display:grid;place-items:center;flex:0 0 33px;
+  width:33px;height:27px;color:#fff;background:var(--c,#1885b5);
+  border-radius:4px;font-size:.78rem;font-weight:900;
+}
+.coord-move-controls{
+  display:grid;grid-template-columns:minmax(43px,.45fr) 14px minmax(0,1.45fr) 74px;
+  gap:6px;align-items:end;min-width:0;
+}
+.coord-move-original{display:grid;gap:4px;align-content:end;min-width:0;min-height:37px}
+.coord-move-original span,.coord-move-destination span{
+  font-size:.6rem;line-height:1.2;font-weight:800;color:#7b8fa1;white-space:nowrap;
+}
+.coord-move-original b{
+  color:#28506e;font-size:.71rem;font-weight:900;line-height:1.2;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.coord-move-arrow{align-self:end;display:grid;place-items:center;height:36px;color:#83a4b9;font-size:1rem;font-weight:800}
+.coord-move-destination{display:grid;gap:4px;min-width:0}
+.coord-move-destination select{
+  box-sizing:border-box;width:100%;min-width:0;height:36px;padding:0 6px;
+  border:1px solid #c9deea;border-radius:4px;background:#f6fbfe;
+  color:#235878;font-size:.73rem;font-family:inherit;font-weight:850;
+}
+.coord-move-destination select:disabled{opacity:.65}
+.coord-move-controls button{
+  box-sizing:border-box;width:74px;height:36px;margin:0;padding:0 4px;
+  border:0;border-radius:4px;background:#1888bb;color:#fff;
+  font-family:inherit;font-size:.66rem;font-weight:900;cursor:pointer;
+  transition:background-color .17s ease;
+}
+.coord-move-controls button:disabled{background:#d5eaf4;color:#7094a9;cursor:default}
+.coord-move-card.is-saving{border-color:#94cde6}
+.coord-move-card.is-saving .coord-move-controls button{font-size:.58rem}
+.coord-move-card.is-saved{border-color:#8ad0b6;background:#f8fefa}
+.coord-move-card.has-error{border-color:#efbbb9}
+.coord-move-feedback{color:#23805c;font-size:.64rem;font-weight:750;line-height:1.3}
+.coord-move-feedback:empty{display:none}
+.coord-move-card.is-saving .coord-move-feedback{color:#55869d}
+.coord-move-card.has-error .coord-move-feedback{color:#bc4f47}
+.coord-move-empty{
+  padding:21px 12px;border:1px dashed #bfd7e6;border-radius:4px;
+  background:#fff;text-align:center;color:#758ba0;font-size:.76rem;
+}
+.coord-move-more{
+  box-sizing:border-box;width:100%;padding:11px;border:1px solid #d1e8f4;
+  background:#eaf6fd;border-radius:4px;color:#176f9c;
+  font-family:inherit;font-size:.76rem;font-weight:900;cursor:pointer;
+}
+.coord-move-shell :is(button,select,input):focus-visible{outline:2px solid #6ebde1;outline-offset:2px}
+@media(min-width:760px){
+  .coord-move-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .coord-move-search{max-width:100%}
+}
+@media(max-width:355px){
+  .coord-move-card{padding:10px 8px}
+  .coord-move-controls{grid-template-columns:minmax(41px,.4fr) 12px minmax(0,1.5fr) 65px;gap:4px}
+  .coord-move-controls button{width:65px;font-size:.63rem}
+  .coord-move-filters{gap:4px}
+  .coord-move-filters select{font-size:.68rem;padding:0 3px}
+}
+@media(prefers-reduced-motion:reduce){
+  .coord-move-card,.coord-move-controls button{transition:none}
+}
+
 /* v175.48: modal flat (máximo 4px), cinco estudiantes y dedo montado en su misma tarjeta */
 #modal-root .coord-intro-backdrop{
   z-index:910!important;background:rgba(13,36,59,.68);
