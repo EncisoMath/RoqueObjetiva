@@ -6,8 +6,17 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.53
+RoqueObjetiva v175.54
 
+
+## v175.54 · Transiciones y recursos visuales de Personal Docente
+
+- **Navegación suave:** animación de entrada/salida de la ficha de docente y cambios Gestión / Carga académica / Dirección de grupo; se usa View Transitions cuando el navegador lo admite, con alternativa Web Animations. Solo se anima `#roque-personal`, dejando hero y dock intactos. Se respeta `prefers-reduced-motion`.
+- **Guardado fluido:** se evita el doble redibujado después de un RPC confirmado, se mantiene el desplazamiento del listado y el estado de la pestaña. Cada operación continúa verificada por Supabase.
+- **Pestañas:** altura compactada a 48 px (47 px en teléfonos pequeños), iconos SVG de ajustes, libro abierto y grupo de personas. Esquinas de máximo 4 px.
+- **Docentes:** avatar de iniciales (primer nombre y primer apellido; ejemplo CARLOS JULIO PÉREZ → CP) tanto en el listado como en la ficha.
+- **Asignaturas:** los recursos originales `ICONOS/*.png` reemplazan los símbolos de relleno. Aritmética, Estadística, Álgebra, Geometría, Cálculo y Matemáticas comparten `ICONOS/matematicas.png`; el resto de áreas usa el PNG correspondiente cuando existe.
+- **PWA:** módulo y hojas de estilo versionados v175.54, nuevo `css/admin-personal-motion.css` precacheado. Sin cambios en bases de datos ni roles.
 
 ## v175.53 · Personal Docente (solo Administrador)
 
