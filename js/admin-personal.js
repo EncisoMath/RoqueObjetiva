@@ -18,23 +18,45 @@
   const getSubjects = () => [...new Set([...(ctx?.subjects||[]),...S.items.flatMap(t=>assignments(t).map(c=>c.asignatura))].filter(Boolean))].sort((a,b)=>a.localeCompare(b,"es"));
   const options = (values,selected,placeholder="Selecciona") =>
     '<option value="">'+e(placeholder)+'</option>'+values.map(v=>'<option value="'+e(v)+'"'+(String(v)===String(selected)?" selected":"")+'>'+e(v)+'</option>').join("");
-  const icon = name => {
-    const n=norm(name);
-    if(n.includes("matem"))return "▦";
-    if(n.includes("natural")||n.includes("ciencia"))return "⚗";
-    if(n.includes("informa"))return "▣";
-    if(n.includes("fisica")||n.includes("deporte"))return "↗";
-    if(n.includes("ingles"))return "EN";
-    if(n.includes("leng")||n.includes("human"))return "Aa";
-    if(n.includes("social"))return "◉";
-    return "✦";
+  // Iniciales de primer nombre y primer apellido.
+  const initials = name => {
+    const words=String(name||"").trim().split(/\s+/).filter(Boolean);
+    const first=words[0]?.charAt(0)||"D";
+    const surname=words.length>=3?words[2]:words[1]||words[0]||"";
+    return (first+(surname.charAt(0)||"")).toLocaleUpperCase("es");
   };
-  const palette = name =>{
+  const svgIcon = type => {
+    const paths={
+      gestion:'<path d="M4 7h16M4 17h16M9 4v6M15 14v6"/><circle cx="9" cy="7" r="2"/><circle cx="15" cy="17" r="2"/>',
+      carga:'<path d="M12 7.5c-2-2-4.5-2.7-9-2.5v14c4.7-.2 7 .6 9 2 2-1.4 4.3-2.2 9-2V5c-4.5-.2-7 .5-9 2.5ZM12 7.5V21"/>',
+      direccion:'<path d="M16 20v-2c0-1.7-1.6-3-4-3H6c-2.4 0-4 1.3-4 3v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM19 20v-2c0-1.5-1-2.5-2.5-2.9M17 3.2a4 4 0 0 1 0 7.6"/>',
+      perfil:'<circle cx="12" cy="8" r="4"/><path d="M4 21v-2c0-3 3-5 8-5s8 2 8 5v2"/>'
+    };
+    return '<svg class="rp-ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round">'+(paths[type]||paths.perfil)+'</svg>';
+  };
+  const subjectImage = subject => {
+    const n=norm(subject);
+    let file="";
+    if(/matemat|aritmet|estadist|algebra|geometr|trigonom|calculo|probabil/.test(n))file="matematicas.png";
+    else if(/educacion fisica|deporte|recreacion/.test(n))file="educacion-fisica.png";
+    else if(/natural|biolog|quimic|fisica|ambiental/.test(n))file="ciencias-naturales.png";
+    else if(/social|historia|geografia|ciudadania|politic/.test(n))file="ciencias-sociales-y-ciudadania.png";
+    else if(/informat|tecnolog|sistem|comput/.test(n))file="informatica.png";
+    else if(/ingles|english/.test(n))file="ingles.png";
+    else if(/lenguaje|humanidad|espanol|castellano|lectura|literatura/.test(n))file="lenguaje.png";
+    else if(/etica|valores|convivencia|filosofi/.test(n))file="etica-y-valores.png";
+    else if(/artist|musica|danza|dibujo|arte/.test(n))file="artistica.png";
+    else if(/religion|espiritual/.test(n))file="religion.png";
+    return file
+      ? '<img class="rp-subject-image" src="ICONOS/'+file+'" alt="" width="30" height="30" loading="eager" decoding="async">'
+      : '<span class="rp-subject-glyph" aria-hidden="true">✦</span>';
+  };
+  const palette = name => {
     const n=norm(name);
-    if(n.includes("matem"))return "math";
-    if(n.includes("natural")||n.includes("ciencia"))return "science";
-    if(n.includes("informa"))return "tech";
-    if(n.includes("fisica")||n.includes("deporte"))return "sport";
+    if(/matemat|aritmet|estadist|algebra|geometr|trigonom|calculo|probabil/.test(n))return "math";
+    if(/natural|biolog|quimic|fisica/.test(n)&&!/educacion fisica/.test(n))return "science";
+    if(/informat|tecnolog|sistem|comput/.test(n))return "tech";
+    if(/educacion fisica|deporte|recreacion/.test(n))return "sport";
     return "other";
   };
   const overview = t => {
