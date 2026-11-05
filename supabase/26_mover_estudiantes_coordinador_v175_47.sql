@@ -1,3 +1,5 @@
+-- DEPRECADA desde v175.48: NO EJECUTAR. Usaba PIN individuales, ya retirados.
+-- Véase supabase/27_coordinadores_sesion_temporal_v175_48.md.
 -- RoqueObjetiva v175.47 · Mover estudiantes mediante coordinación
 -- Instalado en Supabase el 2026-11-05.
 -- IMPORTANTE: no se incluyen códigos, contraseñas ni hashes individuales en este archivo.
