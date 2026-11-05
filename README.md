@@ -6,8 +6,18 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.52
+RoqueObjetiva v175.53
 
+
+## v175.53 · Personal Docente (solo Administrador)
+
+- **Nueva pestaña Docentes:** aparece en el menú lateral y en el dock móvil del Administrador. Se muestran ficha del docente, búsqueda por nombre/ID, filtros por sede/rol y contador real de Supabase. En escritorio, lista y detalle en columnas; en móvil, navegación lista → ficha.
+- **Gestión:** crear docente, modificar nombre/sede, activar o desactivar, y habilitar o deshabilitar el rol de coordinador. El identificador institucional es inmutable después de crear la ficha para no romper relaciones.
+- **Carga académica:** ver asignaturas agrupadas con sus grados y cursos, agregar asignaciones y retirarlas individualmente. La retirada desactiva la fila de carga sin borrar su histórico.
+- **Dirección de grupo:** asignar, cambiar o retirar una sede, grado y curso por docente.
+- **Supabase:** migración `supabase/27_personal_docente_v175_53.sql` aplicada. Dos RPC: `roque_v9_admin_personal_listar` y `roque_v9_admin_personal_guardar`, restringidas a JWT de administradores activos en `roque_private.operadores_admin`. Auditoría de operaciones en `roque_private.auditoria_personal_docente`, sin permisos de lectura pública.
+- **Fuentes de verdad:** `public.docentes` (50 fichas al desplegar) y `public.carga_docente` (496 cargas activas). Las imágenes de referencia contienen datos ilustrativos; se muestran los registros reales, no una cifra ficticia de 63.
+- **Frontend:** `js/admin-personal.js` y `css/admin-personal.css`, cargados y precacheados por la PWA v175.53. Los cambios se aplican dentro del módulo sin reiniciar el portal. No se han modificado notas, ítems ni resultados.
 
 ## v175.52 · Limpieza de pantallas de Administrador y Coordinador
 
