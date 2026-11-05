@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.54";
+  const APP_VERSION = "v175.55";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -5087,6 +5087,74 @@
   function renderAdmin() {
     if (!adminTabIds().has(state.adminTab)) state.adminTab = "resumen";
     const navigation = adminNavigationHtml();
+
+    // v175.55: mantener vivos el hero, el sidebar y el dock del Administrador.
+    // Antes renderShell recreaba TODO el DOM al abrir cualquier pestaña.
+    // Eso reiniciaba partículas, foco, z-index y animaciones del dock móvil.
+    const adminShell = state.activeSession?.role === "admin"
+      && app.firstElementChild?.classList.contains("adm151-shell")
+      ? app.firstElementChild : null;
+    const workspace=adminShell?.querySelector(".adm151-workspace");
+    const panel=workspace?.querySelector(".adm151-main .admin-panel");
+    const dock=adminShell?.querySelector(".adm151-dock");
+    if (workspace && panel && dock) {
+      const cfg=state.config;
+      const primary=normalizeColor(cfg.primaryColor || "#1975ae");
+      const rgb=hexToRgb(primary);
+      document.documentElement.style.setProperty("--orange",primary);
+      document.documentElement.style.setProperty("--orange-2",mixWithWhite(primary,34));
+      document.documentElement.style.setProperty("--orange-3",shadeColor(primary,-18));
+      document.documentElement.style.setProperty("--primary",primary);
+      document.documentElement.style.setProperty("--primary-soft",mixWithWhite(primary,34));
+      document.documentElement.style.setProperty("--primary-rgb",`${rgb.r}, ${rgb.g}, ${rgb.b}`);
+      document.documentElement.style.setProperty("--button-radius",`${Number(cfg.cornerRadius ?? cfg.buttonRadius ?? 4)}px`);
+      document.documentElement.style.setProperty("--corner-radius",`${Number(cfg.cornerRadius ?? cfg.buttonRadius ?? 4)}px`);
+      document.documentElement.style.setProperty("--logo-zoom",`${Number(cfg.logoZoom ?? 1)}`);
+      document.documentElement.removeAttribute("data-theme");
+      document.querySelector('meta[name="theme-color"]')?.setAttribute("content",primary);
+      applyAppMeta(primary);
+      const banner=adminShell.querySelector(".top-banner");
+      if(banner){
+        banner.style.background=primary;
+        const heroTitle=banner.querySelector(".banner-copy h1");
+        const heroSubtitle=banner.querySelector(".banner-copy p");
+        if(heroTitle && heroTitle.textContent!==cfg.title)heroTitle.textContent=cfg.title;
+        if(heroSubtitle && heroSubtitle.textContent!==cfg.subtitle)heroSubtitle.textContent=cfg.subtitle;
+        const logo=banner.querySelector(".banner-brand");
+        if(logo){
+          const image=logo.querySelector(".banner-logo");
+          if(cfg.logoImage && image?.getAttribute("src")!==cfg.logoImage)
+            logo.innerHTML=`<span class="banner-logo-frame"><img class="banner-logo" src="${escAttr(cfg.logoImage)}" alt="Logo"></span>`;
+          else if(!cfg.logoImage && !logo.querySelector(".banner-mark-text"))
+            logo.innerHTML='<div class="banner-mark-text">Resultados</div>';
+        }
+      }
+      const title=workspace.querySelector(".adm151-current-heading h2");
+      if(title && title.textContent!==navigation.currentTitle)
+        title.textContent=navigation.currentTitle;
+      workspace.querySelectorAll(".adm151-sidebar .adm151-link[data-tab], .adm151-overlay .adm151-link[data-tab]").forEach(link=>{
+        const active=link.dataset.tab===state.adminTab;
+        link.classList.toggle("is-active",active);
+        if(active)link.setAttribute("aria-current","page");
+        else link.removeAttribute("aria-current");
+        const mark=link.querySelector(".adm151-current-mark");
+        if(!active)mark?.remove();
+        else if(!mark){
+          const marker=document.createElement("span");
+          marker.className="adm151-current-mark";
+          marker.setAttribute("aria-hidden","true");
+          link.appendChild(marker);
+        }
+      });
+      dock.querySelectorAll(".adm151-dock-item[data-tab]").forEach(button=>{
+        const active=button.dataset.tab===state.adminTab;
+        button.classList.toggle("is-active",active);
+        if(active)button.setAttribute("aria-current","page");
+        else button.removeAttribute("aria-current");
+      });
+      panel.innerHTML=renderAdminTab();
+      return;
+    }
     renderShell(`
       <div class="adm151-workspace">
         ${navigation.sidebar}
