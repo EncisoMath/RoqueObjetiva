@@ -6,8 +6,15 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.50
+RoqueObjetiva v175.51
 
+
+## v175.51 · Tarjetas de Mover estudiantes fieles a referencia
+
+- Tarjetas uniformes con nombre del alumno y su ID/sede a la izquierda, grado en una pequeña insignia púrpura a la derecha, separador fino y controles inferiores alineados: **Curso actual → Mover a → Guardar**.
+- Mejorada la proporción entre selectores, tipografías, espacios y botones; el curso actual usa fondo azul claro y se mantiene el límite de 4 px en las esquinas. En pantallas pequeñas se reajustan las cuatro columnas sin desbordamientos.
+- Encabezado de listado con icono de estudiantes y contador de visibles. Se mantiene el guardado por fila sin recargar la pantalla, con verificación por RPC y auditoría existente.
+- Renovada la caché PWA y los recursos a v175.51; sin cambios en Supabase.
 
 ## v175.50 · Coordinación compacta, guardado por fila y PWA sin recargas
 
