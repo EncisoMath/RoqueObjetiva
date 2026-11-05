@@ -6,8 +6,15 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.49
+RoqueObjetiva v175.50
 
+
+## v175.50 · Coordinación compacta, guardado por fila y PWA sin recargas
+
+- **Mover estudiantes:** quitado el bloque duplicado con nombre/rol del coordinador en esta pestaña; encabezado de acción más compacto, sin las tarjetas de estadísticas. Lista móvil rediseñada con nombre, ID, sede, distintivo de grado, curso actual, selector y guardado alineados. En escritorio aparecen dos columnas.
+- **Guardado:** una sola llamada a `roque_v8_coordinador_mover` por estudiante. Eliminados los RPC extra de descarga académica y la recarga total de los 877 estudiantes después de confirmar. Durante la solicitud solo se bloquea esa tarjeta; en éxito se actualiza el curso local y el resultado de esa fila, preservando búsqueda, filtros y scroll. Se mantiene la verificación/autorización y auditoría en Supabase.
+- **PWA:** corregida la constante `APP_VERSION` que estaba desfasada respecto de `version.json`. Desactivadas las recargas automáticas en `controllerchange`, mensajes de actualización y activación del service worker; la nueva versión se aplica cuando el usuario vuelve a abrir o recarga voluntariamente.
+- Sin migraciones ni modificaciones de registros o permisos de Supabase.
 
 ## v175.49 · Hero continuo, movimientos fluidos y aviso opcional
 
