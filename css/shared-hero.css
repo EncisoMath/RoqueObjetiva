@@ -273,3 +273,17 @@
   transition:none!important;
  }
 }
+
+/* v175.49: navegaciones dentro de la sesión estudiantil dejan quieto el hero.
+   Solo la página se disuelve; el dock independiente permanece fijo. */
+.roque-student-shell main.page {
+  transition:opacity .22s ease, transform .22s cubic-bezier(.2,.7,.2,1);
+}
+.roque-student-shell main.page.student-page-leave,
+.roque-student-shell main.page.student-page-enter {
+  opacity:0;
+  transform:translateY(5px);
+}
+@media(prefers-reduced-motion:reduce) {
+  .roque-student-shell main.page { transition:none !important; }
+}
