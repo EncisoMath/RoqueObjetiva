@@ -36,7 +36,7 @@
   .adm151-sidebar { display:none; }
   .adm151-current-heading { margin:4px 0 17px; }
   .adm151-current-heading h2 { font-size:1.32rem; }
-  .adm151-dock { position:fixed; bottom:0; left:0; right:0; z-index:202; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:3px; padding:7px 6px calc(7px + env(safe-area-inset-bottom)); background:rgba(255,255,255,.97); border-top:1px solid #cbdfe9; box-shadow:0 -9px 30px rgba(6,48,80,.15); backdrop-filter:blur(12px); }
+  .adm151-dock { position:fixed; bottom:0; left:0; right:0; z-index:202; display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:3px; padding:7px 6px calc(7px + env(safe-area-inset-bottom)); background:rgba(255,255,255,.97); border-top:1px solid #cbdfe9; box-shadow:0 -9px 30px rgba(6,48,80,.15); backdrop-filter:blur(12px); }
   .adm151-dock-item { border:0; background:transparent; border-radius:10px; min-width:0; padding:8px 4px 6px; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:4px; font:inherit; font-size:.7rem; font-weight:800; color:#667789; cursor:pointer; }
   .adm151-dock-item .adm151-icon { width:22px; height:22px; flex-basis:22px; }
   .adm151-dock-item.is-active { background:#e5f3fc; color:var(--adm151-blue); }
@@ -88,7 +88,7 @@
     padding-bottom: calc(86px + env(safe-area-inset-bottom));
   }
 
-  /* Barra blanca compacta: 52px, tres accesos, radios <=4px. */
+  /* Barra blanca compacta: 52px, cuatro accesos, radios <=4px. */
   .adm151-dock {
     position: fixed;
     z-index: 230;
@@ -97,7 +97,7 @@
     right: auto;
     transform: translateX(-50%);
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 4px;
     width: min(100%, 760px);
     padding: 4px 6px calc(5px + env(safe-area-inset-bottom));
