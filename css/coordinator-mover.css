@@ -1,33 +1,33 @@
 
 /* RoqueObjetiva v175.47 · Coordinador: Mover estudiantes · interfaz móvil flat */
 .coord-move-shell{max-width:1000px;margin:0 auto 30px;display:grid;gap:13px;min-width:0;color:#23384d}
-.coord-move-head{display:flex;align-items:center;gap:10px;padding:15px 13px;background:#eaf6fd;border:1px solid #cbe5f4;border-radius:11px}
-.coord-move-head-icon{display:grid;place-items:center;flex:0 0 42px;width:42px;height:42px;background:#1885b5;border-radius:10px;color:#fff;font-size:1.7rem;font-weight:850}
+.coord-move-head{display:flex;align-items:center;gap:10px;padding:15px 13px;background:#eaf6fd;border:1px solid #cbe5f4;border-radius:4px}
+.coord-move-head-icon{display:grid;place-items:center;flex:0 0 42px;width:42px;height:42px;background:#1885b5;border-radius:4px;color:#fff;font-size:1.7rem;font-weight:850}
 .coord-move-head h3{font-size:1.03rem;line-height:1.2;margin:0 0 4px;font-weight:900;color:#1e3851}
 .coord-move-head p{font-size:.73rem;line-height:1.4;margin:0;color:#61778d}
-.coord-move-lock{display:grid;gap:11px;padding:20px 16px;background:#fff;border-radius:11px;border:1px solid #d7e6f0}
+.coord-move-lock{display:grid;gap:11px;padding:20px 16px;background:#fff;border-radius:4px;border:1px solid #d7e6f0}
 .coord-move-lock>b{color:#1285b1;font-size:.67rem;letter-spacing:.04em}
 .coord-move-lock h4{margin:0;font-size:1.1rem;color:#273c52}
 .coord-move-lock p{margin:0;color:#64778b;font-size:.78rem;line-height:1.5}
 .coord-move-lock label,.coord-move-search span,.coord-move-filters span{color:#455c72;font-size:.7rem;font-weight:850}
-.coord-move-lock input,.coord-move-search input{box-sizing:border-box;width:100%;height:45px;padding:0 12px;border-radius:8px;border:1px solid #cbdcea;background:#fff;font-family:inherit;font-size:.8rem;color:#263f58}
-.coord-move-lock button{height:44px;border:0;border-radius:8px;background:#147db4;color:#fff;font-size:.8rem;font-weight:900;cursor:pointer}
+.coord-move-lock input,.coord-move-search input{box-sizing:border-box;width:100%;height:45px;padding:0 12px;border-radius:4px;border:1px solid #cbdcea;background:#fff;font-family:inherit;font-size:.8rem;color:#263f58}
+.coord-move-lock button{height:44px;border:0;border-radius:4px;background:#147db4;color:#fff;font-size:.8rem;font-weight:900;cursor:pointer}
 .coord-move-error{color:#bf2d44!important;font-weight:750!important}
 .coord-move-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.coord-move-stats>div{display:grid;align-content:center;gap:2px;min-width:0;min-height:64px;padding:10px;background:#fff;border:1px solid #dce6f0;border-radius:9px}
+.coord-move-stats>div{display:grid;align-content:center;gap:2px;min-width:0;min-height:64px;padding:10px;background:#fff;border:1px solid #dce6f0;border-radius:4px}
 .coord-move-stats b{font-size:1.2rem;color:#1383b3;font-weight:900;line-height:1.06}
 .coord-move-stats small{font-size:.62rem;font-weight:700;color:#728295}
 .coord-move-search{display:grid;gap:5px}
 .coord-move-filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
 .coord-move-filters label{display:grid;gap:4px;min-width:0}
-.coord-move-filters select{box-sizing:border-box;width:100%;min-width:0;height:39px;padding:0 6px;border:1px solid #d2e0ed;border-radius:8px;background:#fff;color:#2d4760;font-family:inherit;font-size:.74rem;font-weight:750}
+.coord-move-filters select{box-sizing:border-box;width:100%;min-width:0;height:39px;padding:0 6px;border:1px solid #d2e0ed;border-radius:4px;background:#fff;color:#2d4760;font-family:inherit;font-size:.74rem;font-weight:750}
 .coord-move-help{margin:0;font-size:.69rem;line-height:1.46;color:#748298}
 .coord-move-count{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:3px 0 9px;font-size:.77rem}
 .coord-move-count b{color:#2b4a65;font-weight:900}
 .coord-move-count small{color:#6f8597;font-size:.64rem}
-.coord-move-card{display:grid;gap:11px;margin-bottom:9px;padding:12px;background:#fff;border:1px solid #dbe7f1;border-radius:10px;box-shadow:0 2px 9px rgba(22,57,86,.035)}
+.coord-move-card{display:grid;gap:11px;margin-bottom:9px;padding:12px;background:#fff;border:1px solid #dbe7f1;border-radius:4px;box-shadow:0 2px 9px rgba(22,57,86,.035)}
 .coord-move-profile{display:flex;align-items:center;gap:9px;min-width:0}
-.coord-move-grade{display:grid;place-items:center;width:38px;height:38px;flex:0 0 38px;background:var(--c,#1482ac);color:#fff;border-radius:9px;font-size:.88rem;font-weight:900}
+.coord-move-grade{display:grid;place-items:center;width:38px;height:38px;flex:0 0 38px;background:var(--c,#1482ac);color:#fff;border-radius:4px;font-size:.88rem;font-weight:900}
 .coord-move-profile>div{display:grid;gap:3px;min-width:0}
 .coord-move-profile strong{font-size:.78rem;color:#263a50;font-weight:850;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .coord-move-profile small{font-size:.6rem;line-height:1.3;color:#728398}
@@ -36,39 +36,53 @@
 .coord-move-original b{font-size:.73rem;color:#2c4b63}
 .coord-move-controls label{display:grid;flex:1 1 auto;min-width:0;gap:4px}
 .coord-move-controls label span{font-size:.62rem;color:#718196;font-weight:750}
-.coord-move-controls select{box-sizing:border-box;width:100%;min-width:0;height:38px;padding:0 6px;border:1px solid #c9dce9;border-radius:8px;background:#f6fbff;font-size:.74rem;font-weight:850;color:#27516c}
-.coord-move-controls button{flex:0 0 auto;height:38px;min-width:65px;padding:0 8px;border:0;border-radius:8px;background:#1385ba;color:#fff;font-size:.69rem;font-weight:900;cursor:pointer}
+.coord-move-controls select{box-sizing:border-box;width:100%;min-width:0;height:38px;padding:0 6px;border:1px solid #c9dce9;border-radius:4px;background:#f6fbff;font-size:.74rem;font-weight:850;color:#27516c}
+.coord-move-controls button{flex:0 0 auto;height:38px;min-width:65px;padding:0 8px;border:0;border-radius:4px;background:#1385ba;color:#fff;font-size:.69rem;font-weight:900;cursor:pointer}
 .coord-move-controls button:disabled{opacity:.42;cursor:not-allowed}
-.coord-move-empty{padding:25px 12px;border:1px dashed #bfd8e8;background:#fff;border-radius:10px;text-align:center;color:#70869b;font-size:.8rem}
-.coord-move-more{width:100%;padding:12px;background:#e5f4fb;border:1px solid #d2e8f4;border-radius:9px;color:#116b9c;font-size:.78rem;font-weight:900;cursor:pointer}
+.coord-move-empty{padding:25px 12px;border:1px dashed #bfd8e8;background:#fff;border-radius:4px;text-align:center;color:#70869b;font-size:.8rem}
+.coord-move-more{width:100%;padding:12px;background:#e5f4fb;border:1px solid #d2e8f4;border-radius:4px;color:#116b9c;font-size:.78rem;font-weight:900;cursor:pointer}
 .coord-move-shell :is(button,select,input):focus-visible{outline:3px solid #84ceef;outline-offset:2px}
 @media(max-width:380px){.coord-move-filters{gap:4px}.coord-move-filters select{font-size:.68rem;padding:0 3px}.coord-move-card{padding:10px}.coord-move-controls{gap:5px}.coord-move-controls button{min-width:60px;padding:0 5px}}
-/* Modal de bienvenida, dedo animado que mueve una tarjeta de 6° entre cursos. */
-#modal-root .coord-intro-backdrop{z-index:910!important;background:rgba(13,36,59,.69);backdrop-filter:blur(7px);padding:14px}
-#modal-root .coord-intro-modal{box-sizing:border-box;width:min(440px,100%);max-height:92dvh;overflow-y:auto;padding:0 19px 19px;background:#fff;border-radius:15px;box-shadow:0 21px 55px rgba(5,24,45,.3)}
-.coord-intro-header{padding:23px 5px 9px;text-align:center}
-.coord-intro-header>span{display:block;margin-bottom:8px;color:#1385af;font-size:.63rem;font-weight:900;letter-spacing:.07em}
-.coord-intro-header h2{margin:0;color:#1c3552;line-height:1.21;font-size:clamp(1.18rem,5.1vw,1.55rem);font-weight:900;letter-spacing:-.024em}
-.coord-intro-header p{font-size:.74rem;line-height:1.38;margin:9px 0 0;color:#728399}
-.coord-intro-anim{overflow:hidden;padding:13px 11px 9px;margin:8px 0 15px;border:1px solid #cfe7f4;border-radius:12px;background:#ebf7fd}
-.coord-intro-grades{display:flex;justify-content:center;gap:9px;margin-bottom:10px}
-.coord-intro-grades b{display:grid;place-items:center;width:52px;height:31px;border-radius:7px;border:1px solid #cadfeb;background:#fff;color:#3281a8;font-size:.81rem}
+/* v175.48: modal flat (máximo 4px), cinco estudiantes y dedo montado en su misma tarjeta */
+#modal-root .coord-intro-backdrop{
+  z-index:910!important;background:rgba(13,36,59,.68);
+  backdrop-filter:blur(6px);padding:14px;
+}
+#modal-root .coord-intro-modal{
+  box-sizing:border-box;width:min(440px,100%);max-height:92dvh;overflow-y:auto;
+  padding:0 19px 19px;background:#fff;border-radius:4px;
+  box-shadow:0 18px 48px rgba(5,24,45,.26);
+}
+.coord-intro-header{padding:23px 4px 10px;text-align:center}
+.coord-intro-header>span{display:block;margin-bottom:8px;color:#1385af;font-size:.63rem;font-weight:900;letter-spacing:.06em}
+.coord-intro-header h2{margin:0;color:#1c3552;line-height:1.2;font-size:clamp(1.2rem,5.1vw,1.55rem);font-weight:900;letter-spacing:-.02em}
+.coord-intro-header p{font-size:.74rem;line-height:1.4;margin:9px 0 0;color:#728399}
+.coord-intro-anim{overflow:hidden;padding:12px 10px 9px;margin:9px 0 16px;border:1px solid #cfe7f4;border-radius:4px;background:#eaf6fd}
+.coord-intro-grades{display:flex;justify-content:center;gap:8px;margin-bottom:11px}
+.coord-intro-grades b{display:grid;place-items:center;width:52px;height:31px;border-radius:4px;border:1px solid #cadfeb;background:#fff;color:#3281a8;font-size:.82rem;font-weight:850}
 .coord-intro-grades b:first-child{background:#1889b8;color:#fff;border-color:#1889b8}
-.coord-intro-tracks{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:9px;height:103px}
-.coord-intro-track{display:grid;align-content:start;justify-items:center;gap:8px;padding:8px 5px;background:#fff;border-radius:8px;border:1px solid #d5e8f2;min-width:0}
-.coord-intro-track small{font-size:.62rem;font-weight:850;color:#53809d}
-.coord-intro-track span{font-size:.67rem;padding:6px 7px;border-radius:7px;background:#e8f1ff;color:#396d9f;font-weight:800;animation:coordOldStudent 4.7s ease-in-out infinite}
-.coord-intro-track i{font-size:.64rem;display:grid;place-items:center;min-height:29px;padding:5px;border:2px dashed #82d5b1;border-radius:7px;color:#379e78;font-style:normal;animation:coordNewTarget 4.7s ease-in-out infinite}
-.coord-intro-moving{position:absolute;left:9%;top:40px;display:flex;align-items:center;gap:4px;background:#258aba;color:#fff;border-radius:7px;padding:6px 8px;font-size:.68rem;font-weight:850;box-shadow:0 4px 13px rgba(36,111,166,.16);animation:coordStudentTravel 4.7s cubic-bezier(.45,.06,.25,1) infinite}
-.coord-intro-finger{position:absolute;z-index:3;left:30%;top:55px;font-size:2rem;filter:drop-shadow(0 2px 2px rgba(24,52,72,.17));animation:coordFingerTravel 4.7s cubic-bezier(.45,.06,.25,1) infinite}
-.coord-intro-caption{display:block;text-align:center;margin-top:9px;font-size:.59rem;letter-spacing:.07em;font-weight:850;color:#488cae}
+.coord-intro-tracks{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:9px;min-height:170px}
+.coord-intro-track{display:grid;grid-template-rows:23px 1fr;justify-items:stretch;gap:4px;min-width:0;padding:8px 7px;border:1px solid #d5e8f2;border-radius:4px;background:#fff}
+.coord-intro-track small{display:block;text-align:center;font-size:.63rem;white-space:nowrap;color:#53809d;font-weight:850}
+.coord-intro-students{display:flex;flex-direction:column;gap:6px;min-height:116px}
+.coord-intro-student{box-sizing:border-box;display:flex;align-items:center;justify-content:center;gap:6px;width:100%;height:30px;min-height:30px;padding:3px 4px;border:1px solid #cfe4f4;border-radius:4px;background:#e6f3ff;color:#326a93;white-space:nowrap;font-size:.69rem;font-weight:850}
+.coord-intro-student i{font-size:1rem;font-style:normal;line-height:1}
+.coord-intro-student b{font-size:.7rem;font-weight:850}
+.coord-intro-track[data-coord-demo-side="right"] .coord-intro-student{background:#e8f8f3;border-color:#d0ece3;color:#2f7a6d}
+.coord-intro-floating{position:absolute;display:block;z-index:10;pointer-events:none;will-change:transform;filter:drop-shadow(0 4px 7px rgba(19,78,114,.13))}
+.coord-intro-floating .coord-intro-student{border:1px solid #3aa8d5;background:#d6effe;color:#16678d;width:100%;box-shadow:0 2px 8px rgba(13,107,162,.12)}
+.coord-intro-finger{position:absolute;z-index:11;left:50%;bottom:-15px;transform:translateX(-50%) rotate(-12deg);font-size:1.9rem;line-height:1;pointer-events:none;filter:drop-shadow(0 1px 2px rgba(0,0,0,.17))}
+.coord-intro-caption{display:block;text-align:center;margin-top:10px;font-size:.59rem;letter-spacing:.07em;font-weight:850;color:#488cae}
 .coord-intro-text{margin:0 1px 16px;font-size:.75rem;line-height:1.55;color:#5d7085;text-align:center}
 .coord-intro-text strong{color:#1977a9;font-weight:850}
-.coord-intro-accept{display:block;width:100%;height:45px;background:#1b83b8;color:#fff;font-size:.88rem;font-weight:900;border:0;border-radius:9px;cursor:pointer}
+.coord-intro-accept{display:block;width:100%;height:45px;background:#1b83b8;color:#fff;font-size:.88rem;font-weight:900;border:0;border-radius:4px;cursor:pointer}
+.coord-intro-accept:hover{background:#146d9e}
 .coord-intro-accept:focus-visible{outline:3px solid #73c9ee;outline-offset:2px}
-@keyframes coordOldStudent{0%,19%,79%,100%{opacity:1}28%,72%{opacity:0}}
-@keyframes coordStudentTravel{0%,18%{opacity:0;transform:translate(0,7px) scale(.94)}25%{opacity:1;transform:translate(0,0) scale(1)}51%,64%{opacity:1;transform:translate(110%,0) scale(1)}78%,100%{opacity:0;transform:translate(110%,7px) scale(.94)}}
-@keyframes coordFingerTravel{0%,17%{opacity:0;transform:translate(-17px,10px) rotate(-6deg)}23%{opacity:1;transform:translate(0,0)}51%,63%{opacity:1;transform:translate(91px,-4px) rotate(8deg)}78%,100%{opacity:0;transform:translate(91px,-14px)}}
-@keyframes coordNewTarget{0%,38%,78%,100%{background:transparent;border-color:#82d5b1}49%,69%{background:#def8ea;border-color:#29af81}}
-@media(max-width:370px){#modal-root .coord-intro-modal{padding:0 14px 15px}.coord-intro-anim{padding:10px 7px}}
-@media(prefers-reduced-motion:reduce){.coord-intro-track span,.coord-intro-track i,.coord-intro-moving,.coord-intro-finger{animation:none!important}.coord-intro-moving,.coord-intro-finger{opacity:0}}
+@media(max-width:370px){
+  #modal-root .coord-intro-modal{padding:0 13px 14px}
+  .coord-intro-anim{padding:9px 6px}
+  .coord-intro-tracks{gap:6px}
+  .coord-intro-track{padding:7px 4px}
+  .coord-intro-student{gap:3px;font-size:.65rem}
+}
+@media(prefers-reduced-motion:reduce){.coord-intro-floating{display:none}}
