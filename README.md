@@ -6,8 +6,16 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.51
+RoqueObjetiva v175.52
 
+
+## v175.52 · Limpieza de pantallas de Administrador y Coordinador
+
+- **Ambos roles:** retiradas del menú y del enrutamiento las pantallas independientes **Estudiantes**, **Resultados**, **Claves de respuestas** y **Estadísticas**. Se preservan los cálculos y utilidades compartidas necesarios para otras vistas.
+- **Solo Administrador:** retiradas además **Ediciones y pruebas**, **Exámenes sin estudiante**, **Alertas de sesiones**, **Matriz de estudiantes** y **Docentes**. Se impide reabrir pantallas eliminadas por enlaces antiguos; cualquier pestaña retirada se reconduce a Inicio.
+- **Coordinador:** único acceso dentro de su menú: **Mover estudiantes**, incluyendo docentes coordinadores que no tengan asignaturas ni dirección de grupo. Se conservan el acceso docente independiente a Carga y Dirección de grupo cuando existan, la selección de evaluación, el guardado por estudiante y su auditoría.
+- **Administrador:** quedan **Inicio, Mapa por grado, Asignaturas y áreas, Apariencia, Logos y Supabase**. El dock móvil muestra Inicio, Mapa y Ajustes; la opción Cerrar sesión permanece en Ajustes. No quedan grupos de menú vacíos.
+- **PWA:** incrementada la versión de caché a v175.52. Sin borrados de datos, tablas o RPC de Supabase ni cambios de permisos.
 
 ## v175.51 · Tarjetas de Mover estudiantes fieles a referencia
 
