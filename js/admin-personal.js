@@ -119,6 +119,11 @@
       (t.activo===false?"Reactivar docente":"Desactivar docente")+'</button></div>'+
     '</div>';
   const gradeChips = entries => [...new Set(entries.map(c=>String(c.grado)+"°"))].sort((a,b)=>parseInt(a)-parseInt(b)).map(x=>'<span class="rp-grade-chip">'+e(x)+'</span>').join("");
+  const assignmentDetailsHtml = records =>
+    '<div class="rp-assignment-details">'+records.map(c=>
+      '<div><span>'+e(c.grado)+'° · '+e(c.curso)+' · '+e(c.sede)+'</span>'+
+      '<button type="button" data-rp-action="remove-load" data-load="'+e(c.id)+'">Quitar</button></div>'
+    ).join("")+'</div>';
   const groupedAssignments=t=>{
     const group=new Map();
     for(const c of assignments(t)) {if(!group.has(c.asignatura))group.set(c.asignatura,[]);group.get(c.asignatura).push(c);}
@@ -129,8 +134,7 @@
         '<div class="rp-subject-copy"><strong>'+e(subject)+'</strong><small>'+records.length+' '+(records.length===1?"curso":"cursos")+'</small></div>'+
         '<div class="rp-grade-chips">'+gradeChips(records)+'</div>'+
         '<button type="button" class="rp-dots" aria-expanded="'+opened+'" data-rp-action="expand" data-subject="'+e(subject)+'">⋮</button></div>'+
-        (opened?'<div class="rp-assignment-details">'+records.map(c=>'<div><span>'+e(c.grado)+'° · '+e(c.curso)+' · '+e(c.sede)+'</span>'+
-          '<button type="button" data-rp-action="remove-load" data-load="'+e(c.id)+'">Quitar</button></div>').join("")+'</div>':'')+
+        (opened?assignmentDetailsHtml(records):'')+
         '</article>';
     }).join("");
   };
@@ -344,11 +348,58 @@
     if(a==="new"){listScrollBeforeDetail=window.scrollY;requestedScroll="detail";S.selected="__new";S.view="detail";S.editor="";draw();return;}
     if(a==="select"){listScrollBeforeDetail=window.scrollY;requestedScroll="detail";S.selected=b.dataset.id;S.tab="gestion";S.editor="";S.expanded="";S.view="detail";draw();return;}
     if(a==="tab"){if(S.tab===b.dataset.tab)return;S.tab=b.dataset.tab;S.editor="";draw();return;}
-    if(a==="toggle-edit"){S.editor=S.editor==="identity"?"":"identity";draw();return;}
-    if(a==="close-editor"){S.editor="";draw();return;}
-    if(a==="assign-load"){S.editor=S.editor==="load"?"":"load";draw();return;}
-    if(a==="assign-direction"){S.editor=S.editor==="direction"?"":"direction";draw();return;}
-    if(a==="expand"){S.expanded=S.expanded===b.dataset.subject?"":b.dataset.subject;draw();return;}
+    if(a==="toggle-edit"){
+      S.editor=S.editor==="identity"?"":"identity";
+      const oldSection=b.closest(".rp-section");
+      const teacher=current();
+      if(oldSection&&teacher){
+        const scratch=document.createElement("div");
+        scratch.innerHTML=management(teacher);
+        const updated=scratch.querySelectorAll(".rp-section")[1];
+        if(updated)oldSection.replaceWith(updated);
+      }
+      return;
+    }
+    if(a==="close-editor"){
+      S.editor="";
+      b.closest(".rp-add-form")?.remove();
+      return;
+    }
+    if(a==="assign-load"||a==="assign-direction"){
+      const mode=a==="assign-load"?"load":"direction";
+      const card=b.closest(".rp-screen-card");
+      if(!card)return;
+      const existing=card.querySelector(".rp-add-form");
+      if(S.editor===mode){
+        S.editor="";
+        existing?.remove();
+      }else{
+        S.editor=mode;
+        existing?.remove();
+        card.querySelector(".rp-feature-heading")?.insertAdjacentHTML(
+          "afterend",mode==="load"?assignmentForm():directionForm(current())
+        );
+      }
+      return;
+    }
+    if(a==="expand"){
+      const subject=b.dataset.subject||"";
+      const card=b.closest(".rp-assignment-card");
+      const teacher=current();
+      if(!card||!teacher)return;
+      const alreadyOpen=S.expanded===subject;
+      document.querySelectorAll("#roque-personal .rp-assignment-details").forEach(node=>node.remove());
+      document.querySelectorAll("#roque-personal [data-rp-action='expand']").forEach(button=>
+        button.setAttribute("aria-expanded","false")
+      );
+      S.expanded=alreadyOpen?"":subject;
+      if(!alreadyOpen){
+        const rows=assignments(teacher).filter(c=>c.asignatura===subject);
+        card.insertAdjacentHTML("beforeend",assignmentDetailsHtml(rows));
+        b.setAttribute("aria-expanded","true");
+      }
+      return;
+    }
     if(a==="reload"){void reload();return;}
     const t=current();
     if(!t||S.busy)return;
