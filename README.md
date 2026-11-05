@@ -6,8 +6,17 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.47
+RoqueObjetiva v175.48
 
+
+## v175.48 · Modal de coordinación rediseñado y sin claves individuales
+
+- **Esquinas:** todos los elementos nuevos del panel Mover estudiantes y del modal de introducción tienen un radio máximo de 4 px.
+- **Animación:** cinco tarjetas, tres en el curso 1PPAL y dos en 2PPAL. Cada ciclo escoge al azar uno de los tres estudiantes del lado más lleno y lo mueve al otro curso; los sentidos se alternan naturalmente. La tarjeta y el dedo comparten el mismo elemento flotante para que nunca se desfasen, y hay alternativa sin animación para reducir movimiento.
+- **Sin clave adicional:** el login controlado del portal (`roque_v8_login_controlado_private`) emite una sesión temporal para docentes marcados `coordinador=true`. Las RPC de lectura y movimiento (`roque_v8_coordinador_listar` y `roque_v8_coordinador_mover`) requieren el identificador de sesión temporal y comprueban su vigencia y el rol. El token únicamente vive en memoria, nunca en localStorage. Los accesos anteriores basados en PIN y su tabla se retiraron de Supabase.
+- **Auditoría:** `roque_private.movimientos_curso` sigue registrando edición, estudiante, curso anterior/nuevo, coordinador y fecha. Los movimientos solo modifican el curso; no modifican grado, sede ni resultados.
+- **Seguridad pendiente:** el login institucional actual identifica a docentes por número de documento sin contraseña; para prevenir la suplantación de coordinadores se recomienda migrarlo a un inicio de sesión individual verificado. Una sesión temporal evita llamadas arbitrarias a las RPC, pero no resuelve por sí sola esa limitación de identificación.
+- Actualizadas versiones de JavaScript, CSS y precaché PWA.
 
 ## v175.47 · Hero estudiantil persistente y «Mover estudiantes» para coordinadores
 
