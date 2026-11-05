@@ -6,8 +6,18 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.46
+RoqueObjetiva v175.47
 
+
+## v175.47 · Hero estudiantil persistente y «Mover estudiantes» para coordinadores
+
+- En Estudiantes, al cambiar entre Historial y Detalle se conserva el mismo nodo del hero y la animación navideña NO se reinicia. Si aparece un 1.º, 2.º o 3.º puesto, el color de medalla y las partículas cambian con un fundido de 500 ms; hay adaptación a movimientos reducidos.
+- En el menú **Coordinador** se añade la pestaña **Mover estudiantes**: tarjetas móviles con colores por grado, búsqueda de nombre/ID y filtros por sede, grado y curso; selector limitado a cursos **del mismo grado y misma sede**, botón Guardar por estudiante y paginación «Mostrar más».
+- El guardado requiere clave individual de 14 caracteres, solo conservada en memoria de la sesión. Las 4 claves se entregan al responsable **por separado**, nunca en GitHub. Las funciones Supabase **roque_v7_coordinador_listar** y **roque_v7_coordinador_mover** verifican rol coordinador activo y clave bcrypt, bloquean intentos excesivos, validan el curso antiguo y auditan todos los cambios.
+- Para **2026-1S**, cada cambio sincroniza `roque_private.inscripciones` y `public.estudiantes` de forma atómica para conservar la paridad histórica. Para ediciones siguientes opera sobre su propia inscripción; las notas, grados, sedes y respuestas quedan intactas.
+- Tras elegir la evaluación, el coordinador ve una bienvenida «¡Hey! Eres coordinador en esta prueba!» con una animación fluida del dedo que traslada una tarjeta entre cursos. Se cierra mediante «¡Dale!».
+- El SQL utilizado queda registrado en `supabase/26_mover_estudiantes_coordinador_v175_47.sql` (sin secretos). La edición 2026-2S todavía no tiene inscripciones, por lo que presentará listado vacío hasta que se carguen.
+- Se actualizan CSS, JS, caché y versión PWA. Esta implementación no mueve estudiantes existentes por sí sola.
 
 ## v175.46 · Modal inicial de elección de evaluación docente
 
