@@ -6,8 +6,18 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.54
+RoqueObjetiva v175.55
 
+
+## v175.55 · Corrección estructural del parpadeo en Docentes
+
+- **Administrador:** `renderAdmin()` conserva el DOM del hero, sidebar, dock móvil y menú al cambiar de pantallas. Actualiza solo el contenido del panel, el título, el indicador activo y el tema. Así no se reinician partículas ni posiciones del dock.
+- **Docentes:** eliminado `document.startViewTransition()` sobre toda la página, sus pseudo-elementos y animaciones que trasladaban/escalaban contenedores. Los cambios de Gestión / Carga académica / Dirección de grupo sustituyen únicamente `.rp-tab-content`; los botones de las pestañas y la cabecera mantienen su nodo y posición.
+- **Controles internos:** abrir/cerrar edición de información o asignaciones, y desplegar cursos de una materia, actualiza únicamente el formulario o tarjeta afectada. No reemplaza el resto de contenedores ni las imágenes PNG. Se mantiene búsqueda, scroll y contexto del docente al volver.
+- **Dock y Volver:** eliminados escalados al pulsar, traslaciones de iconos y animaciones que alteraban la posición. Alturas estables en móvil.
+- **Íconos:** los PNG de `ICONOS/` se muestran directamente, sin ningún recuadro de color, fondo ni borde en el contenedor del icono.
+- **Modales:** `#modal-root` tiene una capa global por encima del dock administrativo, con interacción en sus hijos y el toast aún más arriba. El resto de la página sigue debajo.
+- **Sin cambios en Supabase:** se conservan RPC, permisos, datos, asignaciones y auditoría. Recursos y caché PWA actualizados a v175.55.
 
 ## v175.54 · Transiciones y recursos visuales de Personal Docente
 
