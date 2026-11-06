@@ -175,26 +175,26 @@
 
 /* v175.32 — Dock sin desmontar: aparece suavemente una vez; marcador móvil. */
 @keyframes roqueDockEntrance {from {transform:translate(-50%,10px);clip-path:inset(100% 0 0 0)}to {transform:translate(-50%,0);clip-path:inset(0 0 0 0)}}
-:is(.roque-teacher-shell .t160-dock,#student-dock-root .student-bottom-dock) {
+:is(.roque-teacher-shell .t160-dock,.adm151-shell .t160-dock,#student-dock-root .student-bottom-dock) {
   isolation:isolate;
   animation:roqueDockEntrance 350ms cubic-bezier(.2,.8,.2,1) both !important;
 }
-:is(.roque-teacher-shell .t160-dock,#student-dock-root .student-bottom-dock)::before {
+:is(.roque-teacher-shell .t160-dock,.adm151-shell .t160-dock,#student-dock-root .student-bottom-dock)::before {
   content:"";position:absolute;z-index:0;pointer-events:none;top:4px;
   left:var(--dock-marker-left,6px);width:var(--dock-marker-width,0px);
   height:52px;border-radius:4px;background:var(--orange);
 }
-:is(.roque-teacher-shell .t160-dock,#student-dock-root .student-bottom-dock).dock-motion-ready::before {
+:is(.roque-teacher-shell .t160-dock,.adm151-shell .t160-dock,#student-dock-root .student-bottom-dock).dock-motion-ready::before {
   transition:left 290ms cubic-bezier(.22,.8,.24,1),width 290ms cubic-bezier(.22,.8,.24,1);
 }
-:is(.roque-teacher-shell .t160-dock,#student-dock-root .student-bottom-dock) .t160-dock-btn {
+:is(.roque-teacher-shell .t160-dock,.adm151-shell .t160-dock,#student-dock-root .student-bottom-dock) .t160-dock-btn {
   position:relative;z-index:1;background:transparent !important;border-color:transparent !important;
   transition:color 250ms ease,transform 170ms ease !important;
 }
-:is(.roque-teacher-shell .t160-dock,#student-dock-root .student-bottom-dock) .t160-dock-btn:is(.is-active,[aria-expanded="true"]) {
+:is(.roque-teacher-shell .t160-dock,.adm151-shell .t160-dock,#student-dock-root .student-bottom-dock) .t160-dock-btn:is(.is-active,[aria-expanded="true"]) {
   color:#fff !important;background:transparent !important;border-color:transparent !important;
 }
-:is(.roque-teacher-shell .t160-dock,#student-dock-root .student-bottom-dock) .t160-dock-btn:hover:not(.is-active):not([aria-expanded="true"]) {background:transparent !important;}
+:is(.roque-teacher-shell .t160-dock,.adm151-shell .t160-dock,#student-dock-root .student-bottom-dock) .t160-dock-btn:hover:not(.is-active):not([aria-expanded="true"]) {background:transparent !important;}
 #student-dock-root .student-bottom-dock .t160-dock-btn[data-action="logout"] {color:#af3342 !important;}
 
 /* Cascada docente: contenido por capas, hero y dock completamente estables. */
@@ -224,14 +224,14 @@
 .roque-teacher-shell .director-subject-card:active {transform:scale(.985);}
 .roque-teacher-shell .teacher-table .table-row-click {transition:background-color 180ms ease;}
 @media (prefers-reduced-motion:reduce) {
-  :is(.roque-teacher-shell .t160-dock,#student-dock-root .student-bottom-dock),
+  :is(.roque-teacher-shell .t160-dock,.adm151-shell .t160-dock,#student-dock-root .student-bottom-dock),
   .roque-teacher-shell .page.teacher-page-enter > *,
   .roque-teacher-shell .page.teacher-page-enter > .teacher-assignments-ui > *,
   .roque-teacher-shell .page.teacher-page-enter > .director-subject-grid > .director-subject-card {
     animation:none !important;translate:none !important;
   }
-  :is(.roque-teacher-shell .t160-dock,#student-dock-root .student-bottom-dock)::before,
-  :is(.roque-teacher-shell .t160-dock,#student-dock-root .student-bottom-dock) .t160-dock-btn {transition:none !important;}
+  :is(.roque-teacher-shell .t160-dock,.adm151-shell .t160-dock,#student-dock-root .student-bottom-dock)::before,
+  :is(.roque-teacher-shell .t160-dock,.adm151-shell .t160-dock,#student-dock-root .student-bottom-dock) .t160-dock-btn {transition:none !important;}
 }
 
 /* v175.44: Cuenta/Coordinador son menús superpuestos, no otras páginas.
