@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.55";
+  const APP_VERSION = "v175.56";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -3003,7 +3003,7 @@
   }
 
   function adminTabIds() {
-    return new Set(["resumen", "docentes", "mapa-grado", "asignaturas-areas", "apariencia", "logos", "github"]);
+    return new Set(["resumen", "docentes", "estadisticas", "mapa-grado", "asignaturas-areas", "apariencia", "logos", "github"]);
   }
 
   function handleHashRoute() {
@@ -4033,7 +4033,7 @@
   }
 
   function renderTeacher(teacher) {
-    if (state.teacherEditionMessage && state.teacherMode !== "coord-mover") {
+    if (state.teacherEditionMessage && !["coord-mover","coord-estadisticas"].includes(state.teacherMode)) {
       renderShell('<section class="teacher-edition-empty" role="status">' +
         '<span class="teacher-edition-empty-icon" aria-hidden="true">📋</span><div>' +
         '<span>EDICIÓN ' + esc(state.teacherEditionSelected) + '</span>' +
@@ -4378,9 +4378,15 @@
   }
 
   function renderCoordinatorPanel(teacher) {
-    state.teacherMode = "coord-mover";
+    const stats=state.teacherMode==="coord-estadisticas";
+    const content=stats
+      ? (window.RoqueStatistics ? window.RoqueStatistics.render({
+          rpc:supabaseRpc,notify:toast,role:"teacher",
+          id:state.activeSession?.id,session:state.coordSession
+        }) : '<div class="empty-state">Módulo Estadísticas no disponible.</div>')
+      : renderCoordinatorMover();
     renderShell(`
-      <section class="coordinator-admin-panel coord-mover-panel">${renderCoordinatorMover()}</section>
+      <section class="coordinator-admin-panel ${stats ? "coord-stats-panel" : "coord-mover-panel"}">${content}</section>
     `, navFor("teacher"));
   }
 
@@ -4389,7 +4395,7 @@
     if (!teacher) return false;
     if (mode === "asignaturas") return (teacher.assignments || []).length > 0;
     if (mode === "director") return (teacher.directorGroups || []).length > 0;
-    if (mode === "coord-mover") return !!teacher.coordinator;
+    if (mode === "coord-mover" || mode === "coord-estadisticas") return !!teacher.coordinator;
     return false;
   }
 
@@ -4557,7 +4563,8 @@
     const menus = [];
     if (teacher.coordinator) {
       const links = [
-        ["coord-mover", "Mover estudiantes", "move"]
+        ["coord-mover", "Mover estudiantes", "move"],
+        ["coord-estadisticas", "Estadísticas", "chart"]
       ].map(([id, label, icon]) =>
         '<button type="button" class="t160-menu-item' + (mode === id ? ' is-active' : '') +
         '" data-action="teacher-dock-mode" data-mode="' + id + '">' + adminNavIcon(icon) + '<span>' + label + '</span></button>'
@@ -4915,7 +4922,10 @@
   const ADMIN_MENU_GROUPS = [
     { id: "inicio", title: "Inicio", items: [["resumen", "Resumen", "house"]] },
     { id: "personal", title: "Personal", items: [["docentes", "Docentes", "users"]] },
-    { id: "analisis", title: "Análisis", items: [["mapa-grado", "Mapa por grado", "map"]] },
+    { id: "analisis", title: "Análisis", items: [
+      ["estadisticas", "Estadísticas", "chart"],
+      ["mapa-grado", "Mapa por grado", "map"]
+    ] },
     { id: "configuracion", title: "Configuración", items: [
       ["asignaturas-areas", "Asignaturas y áreas", "book"],
       ["apariencia", "Apariencia", "palette"],
@@ -4991,6 +5001,7 @@
       mobile: `<nav class="adm151-dock" aria-label="Navegación móvil de administración">
         ${dockItem("Inicio", "house", "admin-tab", "", state.adminTab === "resumen")}
         ${dockItem("Docentes", "users", "admin-tab", "", state.adminTab === "docentes", "docentes")}
+        ${dockItem("Estadísticas", "chart", "admin-tab", "", state.adminTab === "estadisticas", "estadisticas")}
         ${dockItem("Mapa", "map", "admin-tab", "", state.adminTab === "mapa-grado", "mapa-grado")}
         ${dockItem("Ajustes", "menu", "admin-nav-open", "otros", activeSection?.id === "configuracion")}
       </nav>
@@ -5199,6 +5210,9 @@
 
   function renderAdminTab() {
     switch (state.adminTab) {
+      case "estadisticas": return window.RoqueStatistics
+        ? window.RoqueStatistics.render({rpc:supabaseRpc,notify:toast,role:"admin",id:"admin"})
+        : '<div class="empty-state">Módulo Estadísticas no disponible.</div>';
       case "docentes": return window.RoquePersonal ? window.RoquePersonal.render({
         rpc:supabaseRpc,notify:toast,subjects:availableSubjects(),
         sites:uniqueValues(state.studentsRegistry.map(x=>x.sede)),
@@ -10250,6 +10264,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     closeCoordIntro();
     state.coordIntroShown=false;state.coordSession="";state.coordPendingMoves.clear();state.coordRoster=[];
     window.RoquePersonal?.reset();
+    window.RoqueStatistics?.reset();
     state.coordCourses=[];state.coordEditionLoaded="";
     finishTeacherEditionGate();
     state.teacherEditionCatalog = [];
