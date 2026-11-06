@@ -6,7 +6,15 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.76
+RoqueObjetiva v175.77
+
+## v175.77 · Solo asignaturas reales y diseño más compacto
+
+- **Fuente de verdad:** pantalla limitada a las asignaturas de `public.carga_docente` **activas**. `mapeo_areas` sigue sirviendo para determinar vínculos, pero sus nombres históricos que no estén en la carga (p. ej., Álgebra o Geometría) no se muestran. No se borró ni migró ninguna carga o vínculo existente.
+- **Diseño:** áreas y filas compactas, tipografía con pesos normales o seminegrita, íconos PNG institucionales del área en lugar de puntos verdes en las asignaturas vinculadas, espaciados pequeños y bordes ≤4 px.
+- **Detalle:** información del área pasa arriba, distribuida en **cuatro tarjetas y cuatro columnas en celulares y escritorio**. Sección final llamada **Agregar asignaturas a esta área** con asignaturas libres reales; se suprime **Crear nueva asignatura** y todo su formulario.
+- **Seguridad:** la RPC `roque_v16_areas_guardar` rechaza desde la base de datos la operación `crear` y nuevas vinculaciones de materias inexistentes en cargas vigentes. Conserva autorización y auditoría de vínculos, y bloquea desvinculaciones de materias con dependencias, sin alterar ítems, claves, cargas o resultados.
+- **Supabase:** `supabase/37_catalogo_carga_real_v175_77.sql`; **PWA:** versión `v175.77`.
 
 ## v175.76 · Asignaturas y áreas: catálogo institucional auditado
 

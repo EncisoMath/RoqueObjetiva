@@ -1,4 +1,4 @@
-/* RoqueObjetiva v175.76 · Asignaturas y áreas, datos 100% de Supabase. */
+/* RoqueObjetiva v175.77 · Asignaturas y áreas, datos 100% de Supabase. */
 (() => {
   "use strict";
   const S={areas:[],subjects:[],loaded:false,loading:false,busy:false,error:"",selected:"",modal:null,revision:0,lastLoad:0};
@@ -41,7 +41,7 @@
     '<p>Organiza las áreas y las asignaturas que pertenecen a cada una.</p></div></div></header>';
   const list=()=>header()+'<section class="ra-list" aria-label="Áreas académicas">'+
     S.areas.map(a=>'<button class="ra-area-row" type="button" data-ra-action="open" data-area="'+esc(a.nombre)+'">'+
-      areaHead(a)+'<span class="ra-area-text"><strong>'+esc(a.nombre)+'</strong><small>'+plural(allSubjects(a.nombre).length)+'</small></span>'+
+      areaHead(a)+'<span class="ra-area-text"><span class="ra-area-name">'+esc(a.nombre)+'</span><small>'+plural(allSubjects(a.nombre).length)+'</small></span>'+
       '<span class="ra-chevron">'+icon("next",22)+'</span></button>').join("")+
     (S.areas.length?"":'<div class="ra-empty">No hay áreas académicas registradas en Supabase.</div>')+'</section>';
   const meta=(a)=>{
@@ -56,8 +56,8 @@
       '<div>'+icon("bars")+'<span>En estadísticas</span><strong>'+((a.en_estadisticas)?"Sí":"No")+'</strong></div>'+
       '</div></section>';
   };
-  const linkedRow=s=>'<div class="ra-subject-linked"><span class="ra-handle" aria-hidden="true">•••</span>'+
-    '<strong>'+esc(s.nombre)+'</strong><button type="button" class="ra-remove" data-ra-action="remove" data-subject="'+esc(s.nombre)+'" '+
+  const linkedRow=(s,area)=>'<div class="ra-subject-linked"><span class="ra-linked-icon" style="--ra-accent:'+accent(area)+'">'+picture(area)+'</span>'+
+    '<span class="ra-linked-name">'+esc(s.nombre)+'</span><button type="button" class="ra-remove" data-ra-action="remove" data-subject="'+esc(s.nombre)+'" '+
     'aria-label="Desvincular '+esc(s.nombre)+'" title="'+(s.protegida?"Tiene registros asociados: ver advertencia":"Desvincular asignatura")+'">'+
     (s.protegida?icon("lock",21):icon("trash",21))+'</button></div>';
   const freeRow=s=>'<div class="ra-subject-free"><span>'+esc(s.nombre)+'</span><button type="button" data-ra-action="link" data-subject="'+esc(s.nombre)+'" '+
@@ -71,27 +71,19 @@
         '<span class="ra-hero-icon">'+picture(a.nombre)+'</span><span class="ra-hero-line"></span>'+
         '<div class="ra-hero-info"><h2>'+esc(a.nombre)+'</h2><p>'+plural(linked.length)+'</p></div>'+
         '<span class="ra-hero-art" aria-hidden="true">'+icon("layers",65)+'</span>'+
-      '</header>'+
-      '<section class="ra-panel"><div class="ra-section-title">'+icon("book",25)+'<h3>Asignaturas de esta área</h3></div>'+
-      '<div class="ra-subject-items">'+(linked.length?linked.map(linkedRow).join(""):'<div class="ra-empty">Esta área aún no tiene asignaturas vinculadas.</div>')+'</div></section>'+
-      '<section class="ra-panel"><div class="ra-section-title ra-available-head">'+icon("plus",26)+
-      '<div><h3>Asignaturas disponibles</h3><p>Asignaturas que actualmente no pertenecen a ningún área.</p></div></div>'+
-      '<div class="ra-free-items">'+(free.length?free.map(freeRow).join(""):'<div class="ra-empty">Todas las asignaturas existentes están vinculadas.</div>')+'</div>'+
-      '<button type="button" class="ra-create-link" data-ra-action="new">'+icon("plus",18)+'Crear nueva asignatura</button></section>'+
-      meta(a)+'</div>';
+      '</header>'+meta(a)+
+      '<section class="ra-panel"><div class="ra-section-title">'+icon("book",23)+'<h3>Asignaturas de esta área</h3></div>'+
+      '<div class="ra-subject-items">'+(linked.length?linked.map(s=>linkedRow(s,a.nombre)).join(""):'<div class="ra-empty">Esta área aún no tiene asignaturas vinculadas.</div>')+'</div></section>'+
+      '<section class="ra-panel"><div class="ra-section-title ra-available-head">'+icon("plus",21)+
+      '<h3>Agregar asignaturas a esta área</h3></div>'+
+      '<div class="ra-free-items">'+(free.length?free.map(freeRow).join(""):'<div class="ra-empty">No hay asignaturas libres de la carga docente.</div>')+'</div></section></div>';
   };
   const modal=()=>{
     if(!S.modal)return "";
     const a=current();if(!a)return "";
     const m=S.modal,subject=m.subject||"";
     let title="",body="",footer="";
-    if(m.kind==="new"){
-      title="Nueva asignatura";
-      body='<p>Se creará y vinculará directamente a <strong>'+esc(a.nombre)+'</strong>.</p>'+
-        '<form id="ra-new-form" data-ra-form="create"><label for="ra-new-name">Nombre de la asignatura</label>'+
-        '<input id="ra-new-name" name="asignatura" type="text" minlength="2" maxlength="100" autocomplete="off" required placeholder="Nombre de la asignatura"></form>';
-      footer='<button type="submit" form="ra-new-form" class="ra-primary" '+(S.busy?"disabled":"")+'>'+icon("plus",18)+'Crear asignatura</button>';
-    }else if(m.kind==="protected"){
+    if(m.kind==="protected"){    }else if(m.kind==="protected"){
       title="Asignatura protegida";
       body='<p><strong>'+esc(subject)+'</strong> tiene cargas docentes o ítems/claves vinculados. Para preservar las evaluaciones, su relación actual está protegida.</p>'+
         '<div class="ra-warning">'+icon("lock",21)+'No se realizará ningún cambio en Supabase.</div>';
@@ -145,7 +137,7 @@
     return markup();
   }
   const findSubject=name=>S.subjects.find(s=>norm(s.nombre)===norm(name));
-  const showModal=(kind,subject="")=>{S.modal={kind,subject};draw();if(kind==="new")requestAnimationFrame(()=>document.getElementById("ra-new-name")?.focus());};
+  const showModal=(kind,subject="")=>{S.modal={kind,subject};draw();};
   const closeModal=()=>{S.modal=null;draw();};
   async function save(operation,subject){
     if(S.busy||!S.selected||!ctx?.rpc)return;
@@ -179,7 +171,6 @@
     if(action==="open"){const area=findArea(b.dataset.area||"");if(area){S.selected=area.nombre;S.modal=null;draw();scope()?.scrollIntoView({block:"start",behavior:"instant"});}return;}
     if(action==="reload"){void reload();return;}
     if(action==="close"){closeModal();return;}
-    if(action==="new"){showModal("new");return;}
     if(action==="remove"){
       const s=findSubject(b.dataset.subject);if(!s)return;
       showModal(s.protegida?"protected":"unlink",s.nombre);return;
@@ -191,17 +182,6 @@
     }
     if(action==="confirm-unlink"&&S.modal?.kind==="unlink"){void save("desvincular",S.modal.subject);return;}
     if(action==="confirm-link"&&S.modal?.kind==="link-used"){void save("vincular",S.modal.subject);}
-  });
-  document.addEventListener("submit",event=>{
-    const form=event.target.closest("[data-ra-form]");
-    if(!form||!scope()?.contains(form))return;
-    event.preventDefault();
-    if(S.busy)return;
-    if(form.dataset.raForm==="create"){
-      const name=String(new FormData(form).get("asignatura")||"").trim();
-      if(name.length<2||name.length>100)return;
-      void save("crear",name);
-    }
   });
   document.addEventListener("keydown",event=>{
     if(event.key==="Escape"&&S.modal&&scope()&&!S.busy){event.stopPropagation();closeModal();}

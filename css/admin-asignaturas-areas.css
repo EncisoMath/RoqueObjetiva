@@ -1,4 +1,4 @@
-/* v175.76 · Asignaturas y áreas. Flat, 4px de radio y móvil primero. */
+/* v175.77 · Asignaturas y áreas. Flat, 4px de radio y móvil primero. */
 .ra-root{--ra-navy:#173558;--ra-border:#c8dced;--ra-muted:#55708c;font-family:Montserrat,sans-serif;color:var(--ra-navy);max-width:1040px;margin:0 auto;min-width:0;line-height:1.4}
 .ra-root *{box-sizing:border-box}
 .ra-root button,.ra-root input{font:inherit}
@@ -38,7 +38,7 @@
 .ra-available-head p{font-size:12px;line-height:1.4;color:#5b7490;margin:4px 0 0}
 .ra-subject-items,.ra-free-items{display:grid;gap:8px}
 .ra-subject-linked{border:1px solid #c9d9e9;background:#f7faff;display:flex;align-items:center;min-height:47px;border-radius:4px;overflow:hidden}
-.ra-handle{background:#eef7ed;color:#4c9c32;display:grid;place-items:center;align-self:stretch;min-width:45px;letter-spacing:2px;line-height:6px;font-size:19px;font-weight:900}
+.ra-linked-icon{display:grid;place-items:center;align-self:stretch;width:40px;flex:none;border-right:1px solid #d8e7ef;background:color-mix(in srgb,var(--ra-accent) 11%,white)}.ra-linked-icon img{width:29px;height:29px;object-fit:contain}
 .ra-subject-linked strong{min-width:0;flex:1;padding:9px 12px;font-size:14px;font-weight:800;overflow-wrap:anywhere}
 .ra-remove{flex:none;display:grid;place-items:center;width:43px;height:43px;color:#e53842;border:0;background:transparent}
 .ra-remove:hover{background:#fff2f2}
@@ -110,3 +110,78 @@
   .ra-subject-linked strong{padding:8px;font-size:13px}
 }
 @media(max-width:360px){.ra-area-tile{width:45px;height:45px}.ra-heading h2{font-size:19px}.ra-area-row{gap:9px}.ra-hero h2{font-size:18px}.ra-hero-art{display:none}}
+
+/* v175.77 — composición compacta, pesos moderados y cuatro tarjetas en una fila */
+.ra-root .ra-page-header{padding:2px 3px 12px}
+.ra-root .ra-kicker{font-size:11px;font-weight:700;margin-bottom:6px}
+.ra-root .ra-heading{gap:10px}
+.ra-root .ra-logo{width:41px;height:41px}
+.ra-root .ra-heading h2{font-size:clamp(18px,3vw,24px);font-weight:700;margin:0 0 5px}
+.ra-root .ra-heading p{font-size:12.5px;font-weight:400}
+.ra-root .ra-list{gap:7px}
+.ra-root .ra-area-row{min-height:55px;gap:10px;padding:5px 9px}
+.ra-root .ra-area-tile{width:43px;height:43px}
+.ra-root .ra-area-tile img{max-width:32px;max-height:32px}
+.ra-root .ra-area-text{gap:1px}
+.ra-root .ra-area-name{font-size:clamp(13px,2vw,16px);font-weight:625;line-height:1.24;overflow-wrap:anywhere}
+.ra-root .ra-area-text small{font-size:11px;font-weight:400}
+.ra-root .ra-chevron svg{height:18px;width:18px}
+.ra-root .ra-detail{gap:10px}
+.ra-root .ra-back{font-size:12px;font-weight:600}
+.ra-root .ra-hero{min-height:86px;padding:12px 15px;gap:11px}
+.ra-root .ra-hero-icon{width:47px;height:47px}
+.ra-root .ra-hero-icon img{width:36px;height:36px}
+.ra-root .ra-hero-line{height:42px}
+.ra-root .ra-hero h2{font-size:clamp(18px,3.5vw,24px);font-weight:690;margin-bottom:5px}
+.ra-root .ra-hero p{font-size:12px;font-weight:450}
+.ra-root .ra-panel{padding:11px}
+.ra-root .ra-section-title{gap:8px;margin-bottom:9px}
+.ra-root .ra-section-title h3{font-size:clamp(14px,2.3vw,17px);font-weight:650}
+.ra-root .ra-section-title svg{height:21px;width:21px}
+.ra-root .ra-subject-items,.ra-root .ra-free-items{gap:6px}
+.ra-root .ra-subject-linked{min-height:40px}
+.ra-root .ra-linked-icon{width:38px}
+.ra-root .ra-linked-icon img{width:27px;height:27px}
+.ra-root .ra-linked-name{min-width:0;flex:1;padding:7px 10px;font-size:12.5px;font-weight:550;overflow-wrap:anywhere}
+.ra-root .ra-remove{width:37px;height:38px}
+.ra-root .ra-remove svg{width:18px;height:18px}
+.ra-root .ra-subject-free{min-height:39px}
+.ra-root .ra-subject-free span{font-size:12px;font-weight:500}
+.ra-root .ra-subject-free button{height:27px;width:27px}
+.ra-root .ra-available-head{align-items:center}
+.ra-root .ra-meta{background:transparent;border:0;padding:0}
+.ra-root .ra-meta .ra-section-title{margin-bottom:7px}
+.ra-root .ra-meta-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;text-align:center}
+.ra-root .ra-meta-grid>div,
+.ra-root .ra-meta-grid>div:nth-child(2),
+.ra-root .ra-meta-grid>div:nth-child(-n+2),
+.ra-root .ra-meta-grid>div:last-child{min-width:0;min-height:75px;padding:7px 3px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border:1px solid #cfe1ef;border-radius:4px;background:#f7fbff}
+.ra-root .ra-meta-grid svg{width:19px;height:19px}
+.ra-root .ra-meta-grid span{font-size:10px;font-weight:400;line-height:1.22}
+.ra-root .ra-meta-grid strong{font-size:11px;font-weight:650;overflow-wrap:anywhere}
+@media(max-width:640px){
+ .ra-root .ra-area-row{min-height:52px;gap:8px;padding:5px 8px}
+ .ra-root .ra-area-tile{width:40px;height:40px}
+ .ra-root .ra-area-tile img{max-width:29px;max-height:29px}
+ .ra-root .ra-area-name{font-size:13px}
+ .ra-root .ra-area-text small{font-size:10.5px}
+ .ra-root .ra-hero{min-height:77px;padding:11px;gap:9px}
+ .ra-root .ra-hero-icon{width:42px;height:42px}
+ .ra-root .ra-hero-icon img{width:31px;height:31px}
+ .ra-root .ra-hero h2{font-size:18px}
+ .ra-root .ra-panel{padding:10px}
+ .ra-root .ra-section-title h3{font-size:14px}
+ .ra-root .ra-linked-icon{width:34px}
+ .ra-root .ra-linked-icon img{width:25px;height:25px}
+ .ra-root .ra-linked-name{font-size:12px;padding:7px 8px}
+ .ra-root .ra-meta-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+ .ra-root .ra-meta-grid>div{min-height:72px;padding:6px 2px}
+ .ra-root .ra-meta-grid svg{width:17px;height:17px}
+ .ra-root .ra-meta-grid span{font-size:9px}
+ .ra-root .ra-meta-grid strong{font-size:10px}
+}
+@media(max-width:360px){
+ .ra-root .ra-heading h2{font-size:18px}
+ .ra-root .ra-meta-grid{gap:4px}
+ .ra-root .ra-meta-grid span{font-size:8.5px}
+}
