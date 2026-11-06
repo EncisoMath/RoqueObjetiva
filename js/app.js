@@ -1123,7 +1123,9 @@
       byId.set(id, {
         id,
         name: cleanText(row.nombre || row.NOMBRE || row.Nombre || row.name),
-        coordinator: isTruthy(row.coordinador || row.COORDINADOR || row.Coordinador),
+        coordinator: ["coordinador","administrador"].includes(cleanText(row.rol || row.ROL).toLowerCase()) ||
+          isTruthy(row.coordinador || row.COORDINADOR || row.Coordinador),
+        role: cleanText(row.rol || row.ROL).toLowerCase(),
         direccion_sede: cleanText(row.direccion_sede || row.DIRECCION_SEDE || row.Sede || row.SEDE),
         direccion_grado: toInt(row.direccion_grado || row.DIRECCION_GRADO || row.Grado || row.GRADO),
         direccion_grupo: cleanText(row.direccion_grupo || row.DIRECCION_GRUPO || row.Grupo || row.GRUPO)
@@ -1131,11 +1133,13 @@
     });
     state.cargaRows = (state.cargaRows || []).map((row) => {
       const meta = byId.get(row.id);
-      return meta ? { ...row, name: row.name || meta.name, coordinator: row.coordinator || meta.coordinator } : row;
+      return meta ? { ...row, name: row.name || meta.name,
+        coordinator: meta.coordinator, role: meta.role || (meta.coordinator?"coordinador":"docente") } : row;
     });
     byId.forEach((meta, id) => {
       if (!(state.cargaRows || []).some((row) => row.id === id) && meta.name) {
-        state.cargaRows.push({ id, name: meta.name, subjectRaw: "", subject: "", sede: "", grade: 0, group: "", coordinator: meta.coordinator });
+        state.cargaRows.push({ id, name: meta.name, subjectRaw: "", subject: "", sede: "", grade: 0, group: "",
+          coordinator: meta.coordinator, role: meta.role || (meta.coordinator?"coordinador":"docente") });
       }
     });
   }
@@ -1729,7 +1733,9 @@
         if (!(teacher?.assignments || []).length && (teacher?.directorGroups || []).length) state.teacherMode = "director";
         if (!(teacher?.assignments || []).length && !(teacher?.directorGroups || []).length && teacher?.coordinator) state.teacherMode = "coord-mover";
         state.zeroToleranceShown = false;
-        return enterSessionWithLoader({ role: "teacher", id }, () => renderTeacherEditionGate(), "Preparando selección de prueba...");
+        return enterSessionWithLoader({ role: "teacher", id,
+          staffRole:cleanText(session.staff_role||teacher.role||"docente").toLowerCase() },
+          () => renderTeacherEditionGate(), "Preparando selección de prueba...");
       }
 
       if (session.role === "student") {
@@ -2242,11 +2248,13 @@
     for (const row of state.cargaRows) {
       if (!row?.id) continue;
       if (!state.teachers.has(row.id)) {
-        state.teachers.set(row.id, { id: row.id, name: row.name, assignments: [], directorGroups: [], coordinator: false });
+        state.teachers.set(row.id, { id: row.id, name: row.name, assignments: [], directorGroups: [],
+          coordinator: false, role: "docente" });
       }
       const teacher = state.teachers.get(row.id);
       if (!teacher.name && row.name) teacher.name = row.name;
-      if (row.coordinator) teacher.coordinator = true;
+      if (["administrador","coordinador","docente"].includes(row.role)) teacher.role=row.role;
+      if (teacher.role==="administrador"||teacher.role==="coordinador"||row.coordinator) teacher.coordinator=true;
       if (!row.subjectRaw || !row.grade) continue;
       const assignmentKey = assignmentKeyFor(row);
       if (!teacher.assignments.some((a) => a.key === assignmentKey)) {
@@ -2264,7 +2272,8 @@
     for (const row of state.directorRows || []) {
       if (!row.id) continue;
       if (!state.teachers.has(row.id)) {
-        state.teachers.set(row.id, { id: row.id, name: teacherNameById(row.id), assignments: [], directorGroups: [], coordinator: false });
+        state.teachers.set(row.id, { id: row.id, name: teacherNameById(row.id), assignments: [],
+          directorGroups: [], coordinator: false, role: "docente" });
       }
       const teacher = state.teachers.get(row.id);
       if (!teacher.directorGroups) teacher.directorGroups = [];
@@ -3277,7 +3286,9 @@
       if (!(teacher?.assignments || []).length && (teacher?.directorGroups || []).length) state.teacherMode = "director";
       if (!(teacher?.assignments || []).length && !(teacher?.directorGroups || []).length && teacher?.coordinator) state.teacherMode = "coord-mover";
       state.zeroToleranceShown = false;
-      return enterSessionWithLoader({ role: "teacher", id }, () => renderTeacher(teacher), "Preparando vista docente...");
+      return enterSessionWithLoader({ role: "teacher", id,
+        staffRole:cleanText(teacher.role||"docente").toLowerCase() },
+        () => renderTeacher(teacher), "Preparando vista docente...");
     }
 
     if (session.role === "student") {
@@ -4081,6 +4092,25 @@
   }
 
   function renderTeacher(teacher) {
+    if (state.activeSession?.role==="teacher" &&
+        String(state.teacherMode||"").startsWith("staff-admin-")) {
+      const label={
+        "staff-admin-asignaturas-areas":"Asignaturas",
+        "staff-admin-docentes":"Personal docente",
+        "staff-admin-claves":"Claves de respuestas"
+      }[state.teacherMode]||"Administración";
+      if (!teacherModeAllowed(teacher,state.teacherMode)) {
+        state.teacherMode="asignaturas";
+      } else {
+        renderShell('<section class="card card-pad teacher-staff-admin-note">'+
+          '<span class="section-eyebrow">ADMINISTRADOR</span>'+
+          '<h2>'+esc(label)+'</h2>'+
+          '<p>Tu rol institucional está reconocido. Para utilizar estas herramientas administrativas protegidas, ingresa con tu correo y contraseña de una cuenta de administrador autorizada en Supabase.</p>'+
+          '<button type="button" class="primary-btn" data-action="logout">Cerrar sesión e ingresar como administrador</button>'+
+          '</section>',navFor("teacher"));
+        return;
+      }
+    }
     if (state.teacherEditionMessage && !["coord-mover","coord-estadisticas","coord-consultar"].includes(state.teacherMode)) {
       renderShell('<section class="teacher-edition-empty" role="status">' +
         '<span class="teacher-edition-empty-icon" aria-hidden="true">📋</span><div>' +
@@ -4093,7 +4123,7 @@
     const directorGroups = teacher.directorGroups || [];
     const hasAssignments = assignments.length > 0;
     const hasDirector = directorGroups.length > 0;
-    const isCoordinator = !!teacher.coordinator;
+    const isCoordinator = ["coordinador","administrador"].includes(staffRoleOf(teacher));
 
     if (state.teacherMode === "coord-graficas") state.teacherMode = "coord-mover";
     if (!teacherModeAllowed(teacher, state.teacherMode)) state.teacherMode = hasAssignments ? "asignaturas" : (hasDirector ? "director" : (isCoordinator ? "coord-mover" : "asignaturas"));
@@ -4121,7 +4151,7 @@
 
   // Coordinación: saludo tras elegir una prueba.
   function openCoordIntro() {
-    if (!state.teachers.get(state.activeSession?.id)?.coordinator ||
+    if (staffRoleOf(state.teachers.get(state.activeSession?.id))!=="coordinador" ||
         state.coordIntroShown || state.teacherEditionGateOpen || isCoordIntroHidden()) return;
     state.coordIntroShown=true;state.coordIntroOpen=true;
     // Cinco tarjetas reales: 3 en 1PPAL y 2 en 2PPAL.
@@ -4454,12 +4484,24 @@
     `, navFor("teacher"));
   }
 
+  function staffRoleOf(teacher) {
+    const fromSession=state.activeSession?.role==="teacher"
+      ? cleanText(state.activeSession?.staffRole).toLowerCase() : "";
+    const fromRegistry=cleanText(teacher?.role).toLowerCase();
+    return ["administrador","coordinador","docente"].includes(fromSession)?fromSession
+      : ["administrador","coordinador","docente"].includes(fromRegistry)?fromRegistry
+      : teacher?.coordinator?"coordinador":"docente";
+  }
+
   // Etapa 2: solo navegar por roles efectivamente asignados.
   function teacherModeAllowed(teacher, mode) {
     if (!teacher) return false;
     if (mode === "asignaturas") return true;
     if (mode === "director") return (teacher.directorGroups || []).length > 0;
-    if (["coord-mover","coord-estadisticas","coord-consultar"].includes(mode)) return !!teacher.coordinator;
+    if (["coord-mover","coord-estadisticas","coord-consultar"].includes(mode))
+      return ["coordinador","administrador"].includes(staffRoleOf(teacher));
+    if (["staff-admin-asignaturas-areas","staff-admin-docentes","staff-admin-claves"].includes(mode))
+      return staffRoleOf(teacher)==="administrador";
     return false;
   }
 
@@ -4505,8 +4547,10 @@
   function toggleTeacherDockMenu(menu) {
     if (!["teacher","admin"].includes(state.activeSession?.role) || !["coord","admin"].includes(menu)) return;
     const teacher = state.activeSession?.role==="teacher"?state.teachers.get(state.activeSession.id):null;
-    if (menu==="admin"&&state.activeSession?.role!=="admin")return;
-    if (menu==="coord"&&state.activeSession?.role!=="admin"&&!teacher?.coordinator)return;
+    if (menu==="admin"&&state.activeSession?.role!=="admin"&&
+        staffRoleOf(teacher)!=="administrador")return;
+    if (menu==="coord"&&state.activeSession?.role!=="admin"&&
+        !["coordinador","administrador"].includes(staffRoleOf(teacher)))return;
     state.teacherDockMenu = state.teacherDockMenu === menu ? "" : menu;
     document.querySelectorAll(".t160-menu-layer").forEach((el) => {
       const open = el.dataset.menu === state.teacherDockMenu;
@@ -4614,6 +4658,9 @@
     const isAdmin=role==="admin";
     const teacher=role==="teacher"?state.teachers.get(state.activeSession?.id):null;
     if(!isAdmin&&!teacher)return "";
+    const staffRole=isAdmin?"administrador":staffRoleOf(teacher);
+    const adminMenu=isAdmin||staffRole==="administrador";
+    const coordinatorMenu=isAdmin||["coordinador","administrador"].includes(staffRole);
     const mode=isAdmin?state.adminTab:state.teacherMode;
     const hasDirector=isAdmin
       ? [...state.teachers.values()].some(t=>(t.directorGroups||[]).length>0)
@@ -4622,12 +4669,13 @@
       ["asignaturas","Carga","book"]
     ];
     if(hasDirector)sections.push(["director","Dirección de Grupo","graduation"]);
-    if(isAdmin||teacher?.coordinator)sections.push(["coord","Coordinador","users"]);
-    if(isAdmin)sections.push(["admin","Administrador","shield"]);
+    if(coordinatorMenu)sections.push(["coord","Coordinador","users"]);
+    if(adminMenu)sections.push(["admin","Administrador","shield"]);
     sections.push(["logout","Cerrar sesión","logout"]);
     const isCurrent=(id)=>id==="coord"
       ? (isAdmin?["mover","estadisticas","consultar"].includes(mode):String(mode||"").startsWith("coord-"))
-      : id==="admin" ? isAdmin&&["asignaturas-areas","docentes","claves"].includes(mode)
+      : id==="admin" ? (isAdmin?["asignaturas-areas","docentes","claves"].includes(mode)
+        :String(mode||"").startsWith("staff-admin-"))
       : id===mode;
     const dock=sections.map(([id,title,icon])=>{
       const isMenu=id==="coord"||id==="admin";
@@ -4653,7 +4701,7 @@
         links+'</section></div>';
     };
     const menus=[];
-    if(isAdmin||teacher?.coordinator){
+    if(coordinatorMenu){
       menus.push(panel("coord","Coordinación académica",
         isAdmin?[
           ["mover","Mover estudiantes","move"],
@@ -4665,11 +4713,15 @@
           ["coord-consultar","Consultar estudiante","graduation"]
         ]));
     }
-    if(isAdmin){
-      menus.push(panel("admin","Administración",[
+    if(adminMenu){
+      menus.push(panel("admin","Administración",isAdmin?[
         ["asignaturas-areas","Asignaturas","layers"],
         ["docentes","Personal docente","users"],
         ["claves","Claves de respuestas","key"]
+      ]:[
+        ["staff-admin-asignaturas-areas","Asignaturas","layers"],
+        ["staff-admin-docentes","Personal docente","users"],
+        ["staff-admin-claves","Claves de respuestas","key"]
       ]));
     }
     return '<nav class="t160-dock" aria-label="Navegación '+(isAdmin?"administrativa":"docente")+
@@ -7136,7 +7188,9 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
         if (!(teacher?.assignments || []).length && (teacher?.directorGroups || []).length) state.teacherMode = "director";
         if (!(teacher?.assignments || []).length && !(teacher?.directorGroups || []).length && teacher?.coordinator) state.teacherMode = "coord-mover";
         state.zeroToleranceShown = false;
-        enterSessionWithLoader({ role: "teacher", id: user }, () => renderTeacher(teacher), "Preparando vista docente...");
+        enterSessionWithLoader({ role: "teacher", id: user,
+          staffRole:cleanText(teacher.role||"docente").toLowerCase() },
+          () => renderTeacher(teacher), "Preparando vista docente...");
         return;
       }
 
