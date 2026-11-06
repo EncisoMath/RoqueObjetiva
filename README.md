@@ -6,8 +6,18 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.57
+RoqueObjetiva v175.58
 
+
+## v175.58 · Estadísticas: sede, cuatro columnas y periodo compartido
+
+- **Edición sincronizada:** se elimina el selector redundante en Estadísticas. En Coordinador usa `teacherEditionSelected` (el periodo del selector del hero); en Administrador usa `academicEdition`. Al cambiar la edición se reinician los filtros locales y se consultan los datos de la nueva prueba.
+- **Cuatro filtros en una sola fila:** Sede, Grado, Curso, Asignatura (incluye teléfonos móviles). Si se escoge Sede, el resto de los conteos y promedios se calculan exclusivamente en esa sede. El Curso contiene una clave interna sede/curso para evitar mezclar grupos con códigos idénticos de sedes diferentes.
+- **Cuatro métricas en una sola fila:** Inscritos, Resultados, Promedio (100) y Básico o superior. Sin porcentaje adicional de participación en Resultados registrados. CSS de 4 columnas permanentes con tipografías optimizadas a 320–390 px.
+- **Orden de barras:** Matemáticas, Lenguaje, Ciencias Naturales, Ciencias Sociales y Ciudadanía e Inglés primero; todas las demás después en orden alfabético. También se conserva el orden cuando se agrupa por cursos.
+- **Comparación por curso:** identificador (sede, curso), colores estables dentro del gráfico y leyenda agrupada por sede, evitando repetir el nombre de la sede por cada curso.
+- **Supabase:** nueva RPC `roque_v11_estadisticas_institucionales` y migración aplicada `supabase/30_estadisticas_sedes_v175_58.sql`. Mantiene control de acceso administrador o coordinador, ítems anulados excluidos y retornos agregados sin datos personales. La versión anterior v10 queda intacta por compatibilidad.
+- **Validación:** consulta 2026-1S con 877 inscritos; filtro de sede Municipal en grado 6 devuelve solamente sus inscritos y resultados sin mezclar los de San Sebastián. Caché PWA v175.58.
 
 ## v175.57 · Estadísticas compactas en móvil + nuevos niveles de desempeño
 
