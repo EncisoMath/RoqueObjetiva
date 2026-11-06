@@ -8,6 +8,14 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 RoqueObjetiva v175.82
 
+## Hotfix v175.84 · Login sin timeout con medidas activas o vacías
+
+- **Causa confirmada en logs de Supabase:** `roque_v8_login_controlado_private` → `roque_login` → `mascara_payload_docente_legacy` / `resumen_medidas`, que reprocesaban las respuestas completas de los estudiantes y agotaban el límite de PostgREST.
+- **Sin medidas vigentes:** el login evita reconstruir las respuestas y entrega inmediatamente el estado vacío de medidas. **Con medidas vigentes:** las filas originales no afectadas se preservan y únicamente se enmascaran las respuestas del estudiante restringido o de los ítems anulados, usando agregación de filas en una pasada. Privilegios del servidor conservados.
+- Migraciones aplicadas: `supabase/45_login_fastpath_medidas_v175_84.sql` y `supabase/46_login_mascaras_eficientes_v175_84.sql`.
+- **Pruebas transaccionales sin persistencia:** Docente ~625 ms, Coordinador ~589 ms, Administrador ~559 ms; docente con anulación temporal ~350 ms; estudiante temporalmente restringido denegado y sus respuestas ocultas en login docente ~289 ms. Ninguna medida de ensayo quedó guardada.
+- Se conservan los resultados EvalBee, claves, cargas, calificaciones originales, permisos y la versión PWA del frontend `v175.82`, ya que la corrección es de Supabase.
+
 ## Hotfix v175.83 · Evitar timeout al calcular restricciones y anulaciones
 
 - Se optimizaron en Supabase las funciones privadas `roque_private.resumen_medidas` y `roque_private.mascara_respuestas_medidas` (migración `supabase/44_optimizar_medidas_timeout_v175_83.sql`).
