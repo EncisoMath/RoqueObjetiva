@@ -127,7 +127,8 @@
     coordGrade: "all", coordSede: "all", coordCurso: "all", coordLimit: 48,
     teacherDirectorActiveKey: "",
     teacherSearch: "",
-    adminTab: "resumen",
+    adminTab: "asignaturas",
+    adminTeacherId: "",
     adminStudentSearch: "",
     adminGradeFilter: "all",
     adminSubjectFilter: "all",
@@ -1725,8 +1726,8 @@
         state.teacherActive = null;
         state.teacherMode = "asignaturas";
         state.teacherDirectorActiveKey = "";
-        if (!(teacher?.assignments || []).length && (teacher?.directorGroups || []).length) state.teacherMode = "director";
-        if (!(teacher?.assignments || []).length && !(teacher?.directorGroups || []).length && teacher?.coordinator) state.teacherMode = "coord-mover";
+        if (teacher?.coordinator) state.teacherMode = "coord-mover";
+        else if (!(teacher?.assignments || []).length && (teacher?.directorGroups || []).length) state.teacherMode = "director";
         state.zeroToleranceShown = false;
         return enterSessionWithLoader({ role: "teacher", id }, () => renderTeacherEditionGate(), "Preparando selección de prueba...");
       }
@@ -3003,7 +3004,7 @@
   }
 
   function adminTabIds() {
-    return new Set(["resumen", "docentes", "consultar", "estadisticas", "claves", "mapa-grado", "asignaturas-areas", "apariencia", "logos", "github"]);
+    return new Set(["asignaturas","director","mover","estadisticas","consultar","claves","docentes"]);
   }
 
   function handleHashRoute() {
@@ -3273,8 +3274,8 @@
       state.teacherActive = null;
       state.teacherMode = "asignaturas";
       state.teacherDirectorActiveKey = "";
-      if (!(teacher?.assignments || []).length && (teacher?.directorGroups || []).length) state.teacherMode = "director";
-      if (!(teacher?.assignments || []).length && !(teacher?.directorGroups || []).length && teacher?.coordinator) state.teacherMode = "coord-mover";
+      if (teacher?.coordinator) state.teacherMode = "coord-mover";
+      else if (!(teacher?.assignments || []).length && (teacher?.directorGroups || []).length) state.teacherMode = "director";
       state.zeroToleranceShown = false;
       return enterSessionWithLoader({ role: "teacher", id }, () => renderTeacher(teacher), "Preparando vista docente...");
     }
@@ -4079,7 +4080,7 @@
   }
 
   function renderTeacher(teacher) {
-    if (state.teacherEditionMessage && !["coord-mover","coord-estadisticas","coord-claves","coord-consultar"].includes(state.teacherMode)) {
+    if (state.teacherEditionMessage && !["coord-mover","coord-estadisticas","coord-consultar"].includes(state.teacherMode)) {
       renderShell('<section class="teacher-edition-empty" role="status">' +
         '<span class="teacher-edition-empty-icon" aria-hidden="true">📋</span><div>' +
         '<span>EDICIÓN ' + esc(state.teacherEditionSelected) + '</span>' +
@@ -4094,13 +4095,13 @@
     const isCoordinator = !!teacher.coordinator;
 
     if (state.teacherMode === "coord-graficas") state.teacherMode = "coord-mover";
-    if (!teacherModeAllowed(teacher, state.teacherMode)) state.teacherMode = hasAssignments ? "asignaturas" : (hasDirector ? "director" : (isCoordinator ? "coord-mover" : "asignaturas"));
+    if (!teacherModeAllowed(teacher, state.teacherMode)) state.teacherMode = isCoordinator ? "coord-mover" : (hasAssignments ? "asignaturas" : hasDirector ? "director" : "asignaturas");
     if (isCoordinator && String(state.teacherMode || "").startsWith("coord-")) {
       return renderCoordinatorPanel(teacher);
     }
-    if (!hasAssignments && hasDirector && state.teacherMode === "asignaturas") state.teacherMode = "director";
-    if (!hasDirector && state.teacherMode === "director") state.teacherMode = hasAssignments ? "asignaturas" : (isCoordinator ? "coord-mover" : "asignaturas");
-    if (!state.teacherMode) state.teacherMode = hasAssignments ? "asignaturas" : (hasDirector ? "director" : (isCoordinator ? "coord-mover" : "asignaturas"));
+    if (!isCoordinator && !hasAssignments && hasDirector && state.teacherMode === "asignaturas") state.teacherMode = "director";
+    if (!isCoordinator && !hasDirector && state.teacherMode === "director") state.teacherMode = "asignaturas";
+    if (!state.teacherMode) state.teacherMode = isCoordinator ? "coord-mover" : (hasAssignments ? "asignaturas" : hasDirector ? "director" : "asignaturas");
 
     if (state.teacherMode === "director" && hasDirector) {
       return renderTeacherDirector(teacher);
@@ -4425,7 +4426,6 @@
 
   function renderCoordinatorPanel(teacher) {
     const stats=state.teacherMode==="coord-estadisticas";
-    const keys=state.teacherMode==="coord-claves";
     const lookup=state.teacherMode==="coord-consultar";
     const edition=cleanText(state.teacherEditionSelected||state.academicEdition||"2026-2S");
     const content=lookup
@@ -4433,11 +4433,6 @@
           rpc:supabaseRpc,notify:toast,role:"teacher",
           id:state.activeSession?.id,session:state.coordSession,edition
         }) : '<div class="empty-state">Módulo Consulta no disponible.</div>')
-      : keys
-      ? (window.RoqueKeys ? window.RoqueKeys.render({
-          rpc:supabaseRpc,notify:toast,role:"teacher",
-          id:state.activeSession?.id,session:state.coordSession,edition
-        }) : '<div class="empty-state">Módulo Claves no disponible.</div>')
       : stats
         ? (window.RoqueStatistics ? window.RoqueStatistics.render({
             rpc:supabaseRpc,notify:toast,role:"teacher",
@@ -4445,16 +4440,16 @@
           }) : '<div class="empty-state">Módulo Estadísticas no disponible.</div>')
         : renderCoordinatorMover();
     renderShell(`
-      <section class="coordinator-admin-panel ${stats ? "coord-stats-panel" : keys ? "coord-keys-panel" : lookup ? "coord-lookup-panel" : "coord-mover-panel"}">${content}</section>
+      <section class="coordinator-admin-panel ${stats ? "coord-stats-panel" : lookup ? "coord-lookup-panel" : "coord-mover-panel"}">${content}</section>
     `, navFor("teacher"));
   }
 
   // Etapa 2: solo navegar por roles efectivamente asignados.
   function teacherModeAllowed(teacher, mode) {
     if (!teacher) return false;
+    if (teacher.coordinator) return ["coord-mover","coord-estadisticas","coord-consultar"].includes(mode);
     if (mode === "asignaturas") return (teacher.assignments || []).length > 0;
     if (mode === "director") return (teacher.directorGroups || []).length > 0;
-    if (["coord-mover","coord-estadisticas","coord-claves","coord-consultar"].includes(mode)) return !!teacher.coordinator;
     return false;
   }
 
@@ -4607,31 +4602,24 @@
     if (!teacher || state.activeSession?.role !== "teacher") return "";
     const mode = state.teacherMode || "asignaturas";
     const sections = [];
-    if ((teacher.assignments || []).length) sections.push(["asignaturas", "Carga", "book"]);
-    if ((teacher.directorGroups || []).length) sections.push(["director", "Dirección de Grupo", "graduation"]);
-    if (teacher.coordinator) sections.push(["coord", "Coordinador", "users"]);
+    if (teacher.coordinator) {
+      sections.push(["coord-mover","Mover","move"]);
+      sections.push(["coord-estadisticas","Estadísticas","chart"]);
+      sections.push(["coord-consultar","Consultar","graduation"]);
+    } else {
+      if ((teacher.assignments || []).length) sections.push(["asignaturas", "Carga", "book"]);
+      if ((teacher.directorGroups || []).length) sections.push(["director", "Dirección de Grupo", "graduation"]);
+    }
     sections.push(["cuenta", "Cuenta", "menu"]);
     const dock = sections.map(([id, title, icon]) => {
-      const isMenu = id === "coord" || id === "cuenta";
-      const isCurrent = id === "coord" ? mode.startsWith("coord-") : mode === id;
+      const isMenu = id === "cuenta";
+      const isCurrent = mode === id;
       return '<button type="button" class="t160-dock-btn' + (isCurrent ? ' is-active' : '') + '"' +
         ' data-action="' + (isMenu ? 'teacher-dock-toggle' : 'teacher-dock-mode') + '"' +
         (isMenu ? ' data-menu="' + id + '" aria-haspopup="true" aria-expanded="false"' : ' data-mode="' + id + '"' + (isCurrent ? ' aria-current="page"' : '')) + '>' +
         adminNavIcon(icon) + '<span>' + title + '</span></button>';
     }).join("");
     const menus = [];
-    if (teacher.coordinator) {
-      const links = [
-        ["coord-mover", "Mover estudiantes", "move"],
-        ["coord-estadisticas", "Estadísticas", "chart"],
-        ["coord-claves", "Claves de respuestas", "key"],
-        ["coord-consultar", "Consultar estudiante", "graduation"]
-      ].map(([id, label, icon]) =>
-        '<button type="button" class="t160-menu-item' + (mode === id ? ' is-active' : '') +
-        '" data-action="teacher-dock-mode" data-mode="' + id + '">' + adminNavIcon(icon) + '<span>' + label + '</span></button>'
-      ).join("");
-      menus.push('<div class="t160-menu-layer" data-action="teacher-dock-backdrop" data-menu="coord" aria-hidden="true"><section class="t160-menu-panel" role="menu" aria-label="Coordinador"><div class="t160-menu-head"><strong>Coordinación académica</strong><button type="button" class="t160-menu-close" aria-label="Cerrar menú" data-action="teacher-dock-close">×</button></div>' + links + '</section></div>');
-    }
     menus.push('<div class="t160-menu-layer" data-action="teacher-dock-backdrop" data-menu="cuenta" aria-hidden="true"><section class="t160-menu-panel" role="menu" aria-label="Cuenta"><div class="t160-menu-head"><strong>Mi cuenta</strong><button type="button" class="t160-menu-close" aria-label="Cerrar menú" data-action="teacher-dock-close">×</button></div><button type="button" class="t160-menu-item t160-logout" data-action="logout">' + adminNavIcon("logout") + '<span>Cerrar sesión</span></button></section></div>');
     return '<nav class="t160-dock" aria-label="Navegación docente" style="--t160-count:' + sections.length + '">' + dock + '</nav>' + menus.join("");
   }
@@ -7095,8 +7083,8 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
         state.teacherMode = "asignaturas";
         state.teacherDirectorActiveKey = "";
         const teacher = state.teachers.get(user);
-        if (!(teacher?.assignments || []).length && (teacher?.directorGroups || []).length) state.teacherMode = "director";
-        if (!(teacher?.assignments || []).length && !(teacher?.directorGroups || []).length && teacher?.coordinator) state.teacherMode = "coord-mover";
+        if (teacher?.coordinator) state.teacherMode = "coord-mover";
+        else if (!(teacher?.assignments || []).length && (teacher?.directorGroups || []).length) state.teacherMode = "director";
         state.zeroToleranceShown = false;
         enterSessionWithLoader({ role: "teacher", id: user }, () => renderTeacher(teacher), "Preparando vista docente...");
         return;
