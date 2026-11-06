@@ -6,7 +6,14 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.74
+RoqueObjetiva v175.75
+
+## v175.75 · Retiro de Asignaturas del menú Administrador
+
+- Se elimina **Asignaturas** del submenú **Administrador** para administrador institucional y docentes con rol administrador; permanecen **Personal docente** y **Claves de respuestas**.
+- Se retiran la pantalla **Asignaturas y áreas**, sus rutas, plantilla, eventos de arrastrar y soltar, acciones y estilos exclusivos.
+- Se conservan la pestaña **Carga**, el mapeo académico compartido, las calificaciones, el historial, los datos y los permisos.
+- **Supabase:** sin cambios de base de datos ni migración, porque esta opción era exclusivamente de la interfaz. Nueva PWA v175.75.
 
 
 ## v175.74 · Correcciones integradas a resultados, movimientos y Administración

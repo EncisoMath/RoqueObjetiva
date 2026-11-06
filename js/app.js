@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.74";
+  const APP_VERSION = "v175.75";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -179,9 +179,6 @@
   document.addEventListener("input", handleInput);
   document.addEventListener("change", handleCriticalStatsChange, true);
   document.addEventListener("change", handleChange);
-  document.addEventListener("dragstart", handleDragStart);
-  document.addEventListener("dragover", handleDragOver);
-  document.addEventListener("drop", handleDrop);
   window.addEventListener("keydown", (event) => {
     if (event.key === "Escape" && !closeTeacherDockMenu() && !closeAdminNavigation()) closeModal();
   });
@@ -3015,7 +3012,7 @@
   }
 
   function adminTabIds() {
-    return new Set(["asignaturas","director","mover","estadisticas","consultar","claves","docentes","asignaturas-areas"]);
+    return new Set(["asignaturas","director","mover","estadisticas","consultar","claves","docentes"]);
   }
 
   function handleHashRoute() {
@@ -4104,9 +4101,7 @@
       }else{
         const edition=cleanText(state.teacherEditionSelected||state.academicEdition||"2026-2S");
         let content="";
-        if(state.teacherMode==="staff-admin-asignaturas-areas"){
-          content=adminSubjectAreasHtml();
-        }else if(state.teacherMode==="staff-admin-docentes"){
+        if(state.teacherMode==="staff-admin-docentes"){
           content=window.RoquePersonal?.render({
             rpc:staffAdminRpc,notify:toast,
             subjects:availableSubjects(),
@@ -4539,7 +4534,7 @@
     if (mode === "director") return (teacher.directorGroups || []).length > 0;
     if (["coord-mover","coord-estadisticas","coord-consultar"].includes(mode))
       return ["coordinador","administrador"].includes(staffRoleOf(teacher));
-    if (["staff-admin-asignaturas-areas","staff-admin-docentes","staff-admin-claves"].includes(mode))
+    if (["staff-admin-docentes","staff-admin-claves"].includes(mode))
       return staffRoleOf(teacher)==="administrador";
     return false;
   }
@@ -4715,7 +4710,7 @@
     sections.push(["logout","Cerrar sesión","logout"]);
     const isCurrent=(id)=>id==="coord"
       ? (isAdmin?["mover","estadisticas","consultar"].includes(mode):String(mode||"").startsWith("coord-"))
-      : id==="admin" ? (isAdmin?["asignaturas-areas","docentes","claves"].includes(mode)
+      : id==="admin" ? (isAdmin?["docentes","claves"].includes(mode)
         :String(mode||"").startsWith("staff-admin-"))
       : id===mode;
     const dock=sections.map(([id,title,icon])=>{
@@ -4756,11 +4751,9 @@
     }
     if(adminMenu){
       menus.push(panel("admin","Administración",isAdmin?[
-        ["asignaturas-areas","Asignaturas","layers"],
         ["docentes","Personal docente","users"],
         ["claves","Claves de respuestas","key"]
       ]:[
-        ["staff-admin-asignaturas-areas","Asignaturas","layers"],
         ["staff-admin-docentes","Personal docente","users"],
         ["staff-admin-claves","Claves de respuestas","key"]
       ]));
@@ -5126,7 +5119,7 @@
       ["estadisticas","Estadísticas","chart"],["consultar","Consultar estudiante","graduation"]
     ]},
     {id:"administracion",title:"Administración",items:[
-      ["asignaturas-areas","Asignaturas","layers"],["claves","Claves de respuestas","key"],["docentes","Personal docente","users"]
+      ["claves","Claves de respuestas","key"],["docentes","Personal docente","users"]
     ]}
   ];
 
@@ -5321,7 +5314,7 @@
         const active=button.dataset.menu==="coord"
           ? ["mover","estadisticas","consultar"].includes(state.adminTab)
           :button.dataset.menu==="admin"
-            ? ["asignaturas-areas","docentes","claves"].includes(state.adminTab)
+            ? ["docentes","claves"].includes(state.adminTab)
             :Boolean(button.dataset.tab&&button.dataset.tab===state.adminTab);
         button.classList.toggle("is-active",active);
         if(active)button.setAttribute("aria-current","page");
@@ -5423,7 +5416,6 @@
           .filter(x=>x.sede&&x.grado&&x.curso)
       }) : '<div class="empty-state">Módulo de Personal Docente no disponible.</div>';
       case "mapa-grado": return adminGradeMapHtml();
-      case "asignaturas-areas": return adminSubjectAreasHtml();
       case "apariencia": return adminAppearanceHtml();
       case "logos": return adminLogosHtml();
       case "github": return adminGithubHtml();
@@ -7799,46 +7791,6 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       return;
     }
 
-    if (action === "subject-area-map") {
-      const subject = target.dataset.subject;
-      const area = target.dataset.area;
-      if (subject && area) {
-        setSubjectAreaMap(subject, area);
-        writeJSON(STORAGE.subjectAreas, state.subjectAreaMap);
-        normalizeCargaRows();
-        buildRepository();
-        renderAdminContext();
-      }
-      return;
-    }
-
-    if (action === "assign-subject-area-manual") {
-      const subject = document.getElementById("subjectAreaMapSubject")?.value || "";
-      const area = document.getElementById("subjectAreaMapArea")?.value || "";
-      if (!subject || !area) {
-        toast("Selecciona asignatura y área.");
-        return;
-      }
-      setSubjectAreaMap(subject, area);
-      writeJSON(STORAGE.subjectAreas, state.subjectAreaMap);
-      normalizeCargaRows();
-      buildRepository();
-      toast(`${subject} asignada a ${area}.`);
-      renderAdminContext();
-      return;
-    }
-
-    if (action === "remove-subject-area-map") {
-      const subject = target.dataset.subject || "";
-      removeSubjectAreaMap(subject);
-      writeJSON(STORAGE.subjectAreas, state.subjectAreaMap);
-      normalizeCargaRows();
-      buildRepository();
-      toast("Asignatura quitada del área. Quedará en pendientes hasta que la reasignes.");
-      renderAdminContext();
-      return;
-    }
-
     if (action === "add-carga-teacher") {
       openAddCargaTeacherModal();
       return;
@@ -10065,10 +10017,6 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     return value ? canonicalAreaName(value) : undefined;
   }
 
-  function isSubjectAreaUnassigned(subject) {
-    return subjectAreaMapValue(subject) === SUBJECT_AREA_UNASSIGNED;
-  }
-
   function setSubjectAreaMap(subject, area) {
     const raw = cleanText(subject);
     const norm = normalizeText(raw);
@@ -10076,53 +10024,6 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     const mappedArea = cleanText(area) === SUBJECT_AREA_UNASSIGNED ? SUBJECT_AREA_UNASSIGNED : canonicalAreaName(area);
     state.subjectAreaMap[raw] = mappedArea;
     state.subjectAreaMap[norm] = mappedArea;
-  }
-
-  function removeSubjectAreaMap(subject) {
-    const raw = cleanText(subject);
-    if (!raw) return;
-    setSubjectAreaMap(raw, SUBJECT_AREA_UNASSIGNED);
-  }
-
-  function adminSubjectAreasHtml() {
-    const areas = availableSubjects();
-    const areaSet = new Set(areas.map((area) => canonicalSubject(area)));
-    const rawSubjects = uniqueDisplayValues(state.cargaRows.map((row) => row.subjectRaw || row.subject)).filter(Boolean).sort((a, b) => a.localeCompare(b, "es", { sensitivity: "base" }));
-    const subjectAssignedArea = (subject) => {
-      const direct = subjectAreaMapValue(subject);
-      if (direct === SUBJECT_AREA_UNASSIGNED) return "";
-      return cleanText(direct || mappedSubject(subject));
-    };
-    const isSubjectAssigned = (subject) => !isSubjectAreaUnassigned(subject) && areaSet.has(canonicalSubject(subjectAssignedArea(subject)));
-    const unassigned = rawSubjects.filter((subject) => !isSubjectAssigned(subject));
-    const manualSubjectOptions = unassigned.map((subject) => `<option value="${escAttr(subject)}">${esc(subject)}</option>`).join("");
-    const manualAreaOptions = areas.map((area) => `<option value="${escAttr(area)}">${esc(area)}</option>`).join("");
-    const allOrganizedMessage = `<div class="empty-state subject-map-happy"><strong>😊 Todo está organizado</strong><span>No hay asignaturas pendientes por asignar a un área.</span></div>`;
-    return `<section class="toolbar"><div><span class="section-eyebrow">Asignaturas y áreas</span><h2 style="margin:8px 0 0;font-weight:900;">Cruce entre carga docente y áreas del examen</h2><p class="muted-copy">En PC puedes arrastrar una asignatura pendiente hacia su área. Usa la X para quitar una asignatura de un área y devolverla a pendientes. En celular usa los selectores de abajo para reasignar.</p></div><div class="inline-actions"><button class="secondary-btn" data-action="save-carga">Guardar mapeos</button><button class="secondary-btn" data-action="publish-supabase">Subir a Supabase</button></div></section>
-    <section class="subject-map-mobile card card-pad"><span class="section-eyebrow">Asignar desde celular</span><h3>Asignatura → área del examen</h3><p class="muted-copy">Solo aparecen asignaturas que todavía no están organizadas en un área.</p>${unassigned.length ? `<div class="form-grid compact subject-map-form"><div class="field"><label>Asignatura de la carga</label><select id="subjectAreaMapSubject" class="select-pill">${manualSubjectOptions}</select></div><div class="field"><label>Área del examen</label><select id="subjectAreaMapArea" class="select-pill">${manualAreaOptions}</select></div><div class="field subject-map-submit"><label>&nbsp;</label><button class="primary-btn" data-action="assign-subject-area-manual">Asignar</button></div></div>` : allOrganizedMessage}</section>
-    <section class="subject-map-layout"><aside class="card card-pad subject-source"><h3>Asignaturas pendientes</h3>${unassigned.map((subject) => `<button class="subject-chip" draggable="true" data-drag-subject="${escAttr(subject)}">${esc(subject)}</button>`).join("") || allOrganizedMessage}</aside><div class="subject-drop-grid">${areas.map((area) => { const assigned = rawSubjects.filter((subject) => sameSubject(subjectAssignedArea(subject), area)); return `<article class="subject-drop-zone" data-drop-area="${escAttr(area)}" style="--subject-color:${subjectAccent(area)};">${subjectIcon(area)}<h3>${esc(area)}</h3><div class="assigned-chip-list">${assigned.map((subject) => `<span class="assigned-chip">${esc(subject)} <button type="button" title="Quitar esta asignatura del área" aria-label="Quitar ${escAttr(subject)}" data-action="remove-subject-area-map" data-subject="${escAttr(subject)}">×</button></span>`).join("") || `<span class="muted-copy">Suelta aquí una asignatura</span>`}</div></article>`; }).join("")}</div></section>`;
-  }
-
-  function handleDragStart(event) {
-    const chip = event.target.closest("[data-drag-subject]");
-    if (!chip) return;
-    event.dataTransfer.setData("text/plain", chip.dataset.dragSubject || "");
-  }
-  function handleDragOver(event) {
-    if (event.target.closest("[data-drop-area]")) event.preventDefault();
-  }
-  function handleDrop(event) {
-    const zone = event.target.closest("[data-drop-area]");
-    if (!zone) return;
-    event.preventDefault();
-    const subject = event.dataTransfer.getData("text/plain");
-    const area = zone.dataset.dropArea;
-    if (!subject || !area) return;
-    setSubjectAreaMap(subject, area);
-    writeJSON(STORAGE.subjectAreas, state.subjectAreaMap);
-    normalizeCargaRows();
-    buildRepository();
-    renderAdminContext();
   }
 
   function setGraphField(field, value) {

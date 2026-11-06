@@ -5806,79 +5806,6 @@ body {
   color: var(--primary);
   font-weight: 900;
 }
-.subject-map-layout {
-  display: grid;
-  grid-template-columns: 270px minmax(0, 1fr);
-  gap: 16px;
-}
-.subject-source h3,
-.subject-drop-zone h3 {
-  margin: 0 0 10px;
-  font-weight: 900;
-}
-.subject-chip {
-  width: 100%;
-  text-align: left;
-  padding: 10px 12px;
-  border: 1px solid #dfe5ed;
-  background: #fff;
-  margin-bottom: 8px;
-  font-weight: 850;
-  cursor: grab;
-}
-.subject-map-mobile {
-  display: none;
-  margin-bottom: 16px;
-  border-radius: 8px;
-  border-left: 5px solid var(--primary);
-}
-.subject-map-mobile h3 {
-  margin: 6px 0 4px;
-  font-weight: 900;
-}
-.subject-map-form {
-  align-items: end;
-  margin-top: 12px;
-}
-.subject-map-submit .primary-btn {
-  width: 100%;
-}
-
-.subject-drop-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 12px;
-}
-.subject-drop-zone {
-  border: 1px dashed color-mix(in srgb, var(--subject-color) 70%, #cdd5df);
-  background: linear-gradient(135deg, color-mix(in srgb, var(--subject-color) 12%, white), #fff);
-  padding: 14px;
-  min-height: 150px;
-  border-radius: 6px;
-}
-.subject-drop-zone .subject-icon {
-  width: 42px;
-  height: 42px;
-}
-.assigned-chip-list {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-.assigned-chip {
-  background: #fff;
-  border-left: 4px solid var(--subject-color);
-  box-shadow: 0 6px 16px rgba(22, 30, 40, .06);
-  padding: 7px 9px;
-  font-weight: 800;
-}
-.assigned-chip button {
-  border: 0;
-  background: transparent;
-  font-weight: 900;
-  color: #c43d3d;
-  cursor: pointer;
-}
 .analysis-bars {
   display: grid;
   gap: 10px;
@@ -5933,9 +5860,6 @@ body {
   .row-actions { min-width: 260px; }
   .docentes-manager { grid-template-columns: 1fr; }
   .docentes-detail { display: none; }
-  .subject-map-mobile { display: block; }
-  .subject-map-layout { grid-template-columns: 1fr; }
-  .subject-source { display: none; }
   .analysis-bar-row { grid-template-columns: 32px 1fr 70px; }
   .analysis-track { grid-column: 2 / 4; }
   .carga-tag-card { align-items: flex-start; flex-direction: column; }
@@ -6025,25 +5949,6 @@ body {
     height: 32px;
   }
 }
-
-/* v46 - Estado organizado para Asignaturas y áreas */
-.subject-map-happy {
-  display: grid;
-  gap: 4px;
-  text-align: center;
-  padding: 18px 12px;
-}
-
-.subject-map-happy strong {
-  color: var(--text);
-  font-weight: 800;
-}
-
-.subject-map-happy span {
-  color: var(--muted);
-  font-size: .9rem;
-}
-
 
 /* v47: análisis/ranking jerárquico sin ocultar niveles hermanos */
 .analysis-row-wrap { display: block; }
@@ -8426,16 +8331,16 @@ canvas {
 .admin-note,
 .graphics-help,
 .zt-rules,
-.subject-drop-zone,
-.subject-map-mobile,
+
+
 .global-score-hero.clean,
 .admin-results-wait,
 .formula-box,
 .teacher-formula-steps,
 .admin-results-filters,
 .stats-filter-panel,
-.subject-source,
-.subject-drop-grid,
+
+
 .detail-card,
 .student-detail-panel,
 .metric-panel,
@@ -8519,16 +8424,16 @@ table,
 .admin-note,
 .graphics-help,
 .zt-rules,
-.subject-drop-zone,
-.subject-map-mobile,
+
+
 .global-score-hero.clean,
 .admin-results-wait,
 .formula-box,
 .teacher-formula-steps,
 .admin-results-filters,
 .stats-filter-panel,
-.subject-source,
-.subject-drop-grid,
+
+
 .detail-card,
 .student-detail-panel,
 .metric-panel,
