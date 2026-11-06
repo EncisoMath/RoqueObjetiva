@@ -6,7 +6,13 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.79
+RoqueObjetiva v175.80
+
+## v175.80 · Iconos sin color de fondo y nombres propios
+
+- En el grid de dos columnas de **Asignaturas y áreas**, los iconos PNG se presentan sobre fondo blanco, sin bloques de color.
+- Los nombres de las áreas se presentan con la inicial mayúscula de cada palabra (por ejemplo, «Ciencias Naturales» y «Ciencias Sociales Y Ciudadanía»), manteniendo las tildes.
+- El cambio es exclusivamente visual: se conservan los valores originales de Supabase, el orden, vínculos, calificaciones, permisos y las demás pantallas.
 
 ## v175.79 · Grid de áreas y modal compacto desplazable
 

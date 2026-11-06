@@ -1,4 +1,4 @@
-/* v175.79 · Asignaturas y áreas. Flat, 4px de radio y móvil primero. */
+/* v175.80 · Asignaturas y áreas. Flat, 4px de radio y móvil primero. */
 .ra-root{--ra-navy:#173558;--ra-border:#c8dced;--ra-muted:#55708c;font-family:Montserrat,sans-serif;color:var(--ra-navy);max-width:1040px;margin:0 auto;min-width:0;line-height:1.4}
 .ra-root *{box-sizing:border-box}
 .ra-root button,.ra-root input{font:inherit}
@@ -111,7 +111,7 @@
 }
 @media(max-width:360px){.ra-area-tile{width:45px;height:45px}.ra-heading h2{font-size:19px}.ra-area-row{gap:9px}.ra-hero h2{font-size:18px}.ra-hero-art{display:none}}
 
-/* v175.79 — composición compacta, pesos moderados y cuatro tarjetas en una fila */
+/* v175.80 — composición compacta, pesos moderados y cuatro tarjetas en una fila */
 .ra-root .ra-page-header{padding:2px 3px 12px}
 .ra-root .ra-kicker{font-size:11px;font-weight:700;margin-bottom:6px}
 .ra-root .ra-heading{gap:10px}
@@ -186,7 +186,7 @@
  .ra-root .ra-meta-grid span{font-size:8.5px}
 }
 
-/* v175.79: el agregado es un único acceso; selección mediante modal compacto. */
+/* v175.80: el agregado es un único acceso; selección mediante modal compacto. */
 .ra-root .ra-add-launch{
  width:100%;display:flex;align-items:center;gap:10px;min-height:51px;
  border:1px solid #c8dced;background:#fff;color:#183b5d;text-align:left;
@@ -225,7 +225,7 @@
 }
 
 
-/* v175.79 · Áreas en grid 2 columnas y listado de modal con scroll independiente.
+/* v175.80 · Áreas en grid 2 columnas y listado de modal con scroll independiente.
    Radio máximo 4px; sin modificar ninguna otra pantalla. */
 .ra-root .ra-list{
   display:grid;
@@ -309,4 +309,13 @@
   .ra-root .ra-area-tile img{max-width:24px;max-height:24px}
   .ra-root .ra-area-name{font-size:10px}
   .ra-root .ra-area-text small{font-size:8.5px}
+}
+
+/* v175.80 · Icono PNG de cada área sobre fondo blanco, sin bloque de color. */
+.ra-root .ra-list .ra-area-tile{
+  background:#fff;
+  color:#173558;
+}
+.ra-root .ra-list .ra-area-name{
+  text-transform:none;
 }

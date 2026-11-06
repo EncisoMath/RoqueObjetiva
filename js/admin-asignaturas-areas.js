@@ -1,4 +1,4 @@
-/* RoqueObjetiva v175.79 · Asignaturas y áreas, datos 100% de Supabase. */
+/* RoqueObjetiva v175.80 · Asignaturas y áreas, datos 100% de Supabase. */
 (() => {
   "use strict";
   const S={areas:[],subjects:[],loaded:false,loading:false,busy:false,error:"",selected:"",modal:null,revision:0,lastLoad:0};
@@ -6,6 +6,9 @@
   const esc=value=>String(value??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
   const norm=value=>String(value??"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim().replace(/\s+/g," ").toLowerCase();
   const collate=(a,b)=>String(a).localeCompare(String(b),"es",{sensitivity:"base"});
+  // Sólo presentación: no cambiar los nombres ni las claves almacenadas en Supabase.
+  const displayArea=value=>String(value??"").toLocaleLowerCase("es")
+    .replace(/(^|[\s-])([\p{L}])/gu,(_,sep,letter)=>sep+letter.toLocaleUpperCase("es"));
   const findArea=name=>S.areas.find(a=>norm(a.nombre)===norm(name));
   const current=()=>findArea(S.selected);
   const icons={
@@ -34,14 +37,14 @@
   const scope=()=>document.getElementById("roque-areas");
   const allSubjects=area=>S.subjects.filter(s=>norm(s.area)===norm(area)).sort((a,b)=>collate(a.nombre,b.nombre));
   const freeSubjects=()=>S.subjects.filter(s=>!s.area).sort((a,b)=>collate(a.nombre,b.nombre));
-  const areaHead=(a)=>'<span class="ra-area-tile" style="--ra-accent:'+accent(a.nombre)+'">'+picture(a.nombre)+'</span>';
+  const areaHead=(a)=>'<span class="ra-area-tile">'+picture(a.nombre)+'</span>';
   const plural=n=>n===1?"1 asignatura":n+" asignaturas";
   const header=()=>'<header class="ra-page-header"><div class="ra-kicker">ADMINISTRACIÓN</div>'+
     '<div class="ra-heading"><span class="ra-logo">'+icon("layers",29)+'</span><div><h2>Asignaturas y áreas</h2>'+
     '<p>Organiza las áreas y las asignaturas que pertenecen a cada una.</p></div></div></header>';
   const list=()=>header()+'<section class="ra-list" aria-label="Áreas académicas">'+
     S.areas.map(a=>'<button class="ra-area-row" type="button" data-ra-action="open" data-area="'+esc(a.nombre)+'">'+
-      areaHead(a)+'<span class="ra-area-text"><span class="ra-area-name">'+esc(a.nombre)+'</span><small>'+plural(allSubjects(a.nombre).length)+'</small></span>'+
+      areaHead(a)+'<span class="ra-area-text"><span class="ra-area-name">'+esc(displayArea(a.nombre))+'</span><small>'+plural(allSubjects(a.nombre).length)+'</small></span>'+
       '<span class="ra-chevron">'+icon("next",22)+'</span></button>').join("")+
     (S.areas.length?"":'<div class="ra-empty">No hay áreas académicas registradas en Supabase.</div>')+'</section>';
   const meta=(a)=>{
