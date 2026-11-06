@@ -6,7 +6,16 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.75
+RoqueObjetiva v175.76
+
+## v175.76 · Asignaturas y áreas: catálogo institucional auditado
+
+- **Administrador → Asignaturas y áreas:** pantalla de listado y detalle inspirada en la referencia; responsive, estilo flat y bordes de 4 px. También disponible para docentes cuyo rol validado en Supabase sea `administrador`. Se preservan el dock y las demás vistas.
+- **Datos reales:** 10 áreas de `roque_private.areas`/`public.mapeo_areas`, catálogo de asignaturas existentes de `public.mapeo_areas` y `public.carga_docente` (sin duplicados visuales por diferencias de tildes). Cantidades, grados e indicadores proceden de Supabase, no de ejemplos.
+- **Acciones:** vincular, desvincular o crear una asignatura mediante `roque_v16_areas_guardar`. Creación con modal compacto, confirmación para cambios con dependencias y mensajes de guardado reales. Los cambios se registran en `mapeo_areas` y `roque_private.auditoria_asignaturas_areas`; los borrados físicos están prohibidos.
+- **Seguridad:** doble vía validada del lado de Supabase: sesión de `operadores_admin` con `auth.uid()` o docente de rol administrador activo con sesión temporal firmada; RPC `roque_v16_areas_catalogo` y `roque_v16_areas_guardar`. Control de nombres equivalentes y bloqueo de desvinculaciones usadas por carga, claves o ítems.
+- **Integridad:** ninguna migración ni acción de esta pantalla edita `carga_docente`, `claves`, `roque_private.items`, `roque_private.areas`, resultados o calificaciones. Supabase migration: `supabase/36_asignaturas_areas_v175_76.sql`.
+- **PWA:** recursos de la nueva pantalla y caché actualizados a `v175.76`; la navegación y el resto de recursos mantienen su comportamiento.
 
 ## v175.75 · Retiro de Asignaturas del menú Administrador
 

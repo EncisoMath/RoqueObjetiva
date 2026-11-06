@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.75";
+  const APP_VERSION = "v175.76";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -3012,7 +3012,7 @@
   }
 
   function adminTabIds() {
-    return new Set(["asignaturas","director","mover","estadisticas","consultar","claves","docentes"]);
+    return new Set(["asignaturas","director","mover","estadisticas","consultar","claves","docentes","asignaturas-areas"]);
   }
 
   function handleHashRoute() {
@@ -4101,7 +4101,11 @@
       }else{
         const edition=cleanText(state.teacherEditionSelected||state.academicEdition||"2026-2S");
         let content="";
-        if(state.teacherMode==="staff-admin-docentes"){
+        if(state.teacherMode==="staff-admin-asignaturas-areas"){
+          content=window.RoqueAreas?.render({rpc:staffAdminRpc,notify:toast,
+            owner:"teacher:"+state.activeSession.id,colors:STUDENT_AREA_COLORS})||
+            '<div class="empty-state">No se pudo cargar Asignaturas y áreas.</div>';
+        }else if(state.teacherMode==="staff-admin-docentes"){
           content=window.RoquePersonal?.render({
             rpc:staffAdminRpc,notify:toast,
             subjects:availableSubjects(),
@@ -4518,7 +4522,9 @@
       roque_v9_admin_personal_listar:"roque_v15_staff_admin_personal_listar",
       roque_v9_admin_personal_guardar:"roque_v15_staff_admin_personal_guardar",
       roque_v12_claves_consultar:"roque_v15_staff_admin_claves_consultar",
-      roque_v12_claves_guardar:"roque_v15_staff_admin_claves_guardar"
+      roque_v12_claves_guardar:"roque_v15_staff_admin_claves_guardar",
+      roque_v16_areas_catalogo:"roque_v16_areas_catalogo",
+      roque_v16_areas_guardar:"roque_v16_areas_guardar"
     };
     if(!Object.prototype.hasOwnProperty.call(methods,name))
       throw Error("Operación administrativa no permitida.");
@@ -4534,7 +4540,7 @@
     if (mode === "director") return (teacher.directorGroups || []).length > 0;
     if (["coord-mover","coord-estadisticas","coord-consultar"].includes(mode))
       return ["coordinador","administrador"].includes(staffRoleOf(teacher));
-    if (["staff-admin-docentes","staff-admin-claves"].includes(mode))
+    if (["staff-admin-asignaturas-areas","staff-admin-docentes","staff-admin-claves"].includes(mode))
       return staffRoleOf(teacher)==="administrador";
     return false;
   }
@@ -4710,7 +4716,7 @@
     sections.push(["logout","Cerrar sesión","logout"]);
     const isCurrent=(id)=>id==="coord"
       ? (isAdmin?["mover","estadisticas","consultar"].includes(mode):String(mode||"").startsWith("coord-"))
-      : id==="admin" ? (isAdmin?["docentes","claves"].includes(mode)
+      : id==="admin" ? (isAdmin?["asignaturas-areas","docentes","claves"].includes(mode)
         :String(mode||"").startsWith("staff-admin-"))
       : id===mode;
     const dock=sections.map(([id,title,icon])=>{
@@ -4751,9 +4757,11 @@
     }
     if(adminMenu){
       menus.push(panel("admin","Administración",isAdmin?[
+        ["asignaturas-areas","Asignaturas y áreas","layers"],
         ["docentes","Personal docente","users"],
         ["claves","Claves de respuestas","key"]
       ]:[
+        ["staff-admin-asignaturas-areas","Asignaturas y áreas","layers"],
         ["staff-admin-docentes","Personal docente","users"],
         ["staff-admin-claves","Claves de respuestas","key"]
       ]));
@@ -5119,7 +5127,7 @@
       ["estadisticas","Estadísticas","chart"],["consultar","Consultar estudiante","graduation"]
     ]},
     {id:"administracion",title:"Administración",items:[
-      ["claves","Claves de respuestas","key"],["docentes","Personal docente","users"]
+      ["asignaturas-areas","Asignaturas y áreas","layers"],["claves","Claves de respuestas","key"],["docentes","Personal docente","users"]
     ]}
   ];
 
@@ -5295,7 +5303,7 @@
       if(title && title.textContent!==navigation.currentTitle)
         title.textContent=navigation.currentTitle;
       const adminHeading=workspace.querySelector(".adm151-current-heading");
-      if(adminHeading)adminHeading.hidden=["estadisticas","claves","consultar","mover"].includes(state.adminTab);
+      if(adminHeading)adminHeading.hidden=["estadisticas","claves","consultar","mover","asignaturas-areas"].includes(state.adminTab);
       workspace.querySelectorAll(".adm151-sidebar .adm151-link[data-tab], .adm151-overlay .adm151-link[data-tab]").forEach(link=>{
         const active=link.dataset.tab===state.adminTab;
         link.classList.toggle("is-active",active);
@@ -5314,7 +5322,7 @@
         const active=button.dataset.menu==="coord"
           ? ["mover","estadisticas","consultar"].includes(state.adminTab)
           :button.dataset.menu==="admin"
-            ? ["docentes","claves"].includes(state.adminTab)
+            ? ["asignaturas-areas","docentes","claves"].includes(state.adminTab)
             :Boolean(button.dataset.tab&&button.dataset.tab===state.adminTab);
         button.classList.toggle("is-active",active);
         if(active)button.setAttribute("aria-current","page");
@@ -5331,7 +5339,7 @@
       <div class="adm151-workspace">
         ${navigation.sidebar}
         <section class="adm151-main" aria-label="Contenido administrativo">
-          <div class="adm151-current-heading"${["estadisticas","claves","consultar","mover"].includes(state.adminTab) ? " hidden" : ""}>
+          <div class="adm151-current-heading"${["estadisticas","claves","consultar","mover","asignaturas-areas"].includes(state.adminTab) ? " hidden" : ""}>
             <div><span>ADMINISTRACIÓN</span><h2>${esc(navigation.currentTitle)}</h2></div>
           </div>
           <section class="admin-layout admin-layout-full">
@@ -5408,6 +5416,9 @@
         ? window.RoqueStatistics.render({rpc:supabaseRpc,notify:toast,role:"admin",id:"admin",
           edition:cleanText(state.academicEdition||"2026-2S")})
         : '<div class="empty-state">Módulo Estadísticas no disponible.</div>';
+      case "asignaturas-areas": return window.RoqueAreas ? window.RoqueAreas.render({
+        rpc:supabaseRpc,notify:toast,owner:"auth-admin",colors:STUDENT_AREA_COLORS
+      }) : '<div class="empty-state">Módulo Asignaturas y áreas no disponible.</div>';
       case "docentes": return window.RoquePersonal ? window.RoquePersonal.render({
         rpc:supabaseRpc,notify:toast,subjects:availableSubjects(),
         sites:uniqueValues(state.studentsRegistry.map(x=>x.sede)),
@@ -10395,6 +10406,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     closeCoordIntro();
     state.coordIntroShown=false;state.coordSession="";state.coordPendingMoves.clear();state.coordRoster=[];
     window.RoquePersonal?.reset();
+    window.RoqueAreas?.reset();
     window.RoqueStatistics?.reset();
     window.RoqueKeys?.reset();
     state.coordCourses=[];state.coordEditionLoaded="";
