@@ -1,4 +1,4 @@
-/* RoqueObjetiva v175.78 · Asignaturas y áreas, datos 100% de Supabase. */
+/* RoqueObjetiva v175.79 · Asignaturas y áreas, datos 100% de Supabase. */
 (() => {
   "use strict";
   const S={areas:[],subjects:[],loaded:false,loading:false,busy:false,error:"",selected:"",modal:null,revision:0,lastLoad:0};
@@ -86,7 +86,7 @@
       title="Agregar asignaturas";
       const libres=freeSubjects();
       body='<p class="ra-modal-intro">Selecciona las asignaturas que deseas vincular a <strong>'+esc(a.nombre)+'</strong>.</p>'+
-        '<div class="ra-choice-list" role="group" aria-label="Asignaturas sin área">'+
+        '<div class="ra-choice-list" role="group" aria-label="Asignaturas sin área" tabindex="0">'+
         (libres.length?libres.map(s=>{
           const checked=(m.selected||[]).some(name=>norm(name)===norm(s.nombre));
           return '<label class="ra-choice'+(checked?" is-checked":"")+'">'+

@@ -1,4 +1,4 @@
-/* v175.78 · Asignaturas y áreas. Flat, 4px de radio y móvil primero. */
+/* v175.79 · Asignaturas y áreas. Flat, 4px de radio y móvil primero. */
 .ra-root{--ra-navy:#173558;--ra-border:#c8dced;--ra-muted:#55708c;font-family:Montserrat,sans-serif;color:var(--ra-navy);max-width:1040px;margin:0 auto;min-width:0;line-height:1.4}
 .ra-root *{box-sizing:border-box}
 .ra-root button,.ra-root input{font:inherit}
@@ -111,7 +111,7 @@
 }
 @media(max-width:360px){.ra-area-tile{width:45px;height:45px}.ra-heading h2{font-size:19px}.ra-area-row{gap:9px}.ra-hero h2{font-size:18px}.ra-hero-art{display:none}}
 
-/* v175.78 — composición compacta, pesos moderados y cuatro tarjetas en una fila */
+/* v175.79 — composición compacta, pesos moderados y cuatro tarjetas en una fila */
 .ra-root .ra-page-header{padding:2px 3px 12px}
 .ra-root .ra-kicker{font-size:11px;font-weight:700;margin-bottom:6px}
 .ra-root .ra-heading{gap:10px}
@@ -186,7 +186,7 @@
  .ra-root .ra-meta-grid span{font-size:8.5px}
 }
 
-/* v175.78: el agregado es un único acceso; selección mediante modal compacto. */
+/* v175.79: el agregado es un único acceso; selección mediante modal compacto. */
 .ra-root .ra-add-launch{
  width:100%;display:flex;align-items:center;gap:10px;min-height:51px;
  border:1px solid #c8dced;background:#fff;color:#183b5d;text-align:left;
@@ -222,4 +222,91 @@
  .ra-root .ra-dialog{max-width:calc(100vw - 28px)}
  .ra-root .ra-choice{font-size:12px;min-height:42px}
  .ra-root .ra-dialog footer{padding:12px 16px 15px}
+}
+
+
+/* v175.79 · Áreas en grid 2 columnas y listado de modal con scroll independiente.
+   Radio máximo 4px; sin modificar ninguna otra pantalla. */
+.ra-root .ra-list{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  align-items:stretch;
+  gap:8px;
+}
+.ra-root .ra-area-row{height:100%;min-width:0;padding:7px 9px;gap:8px}
+.ra-root .ra-area-tile{flex:0 0 39px;width:39px;height:39px}
+.ra-root .ra-area-tile img{max-width:30px;max-height:30px}
+.ra-root .ra-area-text{flex:1;min-width:0;gap:1px}
+.ra-root .ra-area-name{font-size:clamp(12px,1.5vw,15px);font-weight:600;line-height:1.22;overflow-wrap:break-word;hyphens:auto}
+.ra-root .ra-area-text small{font-size:10px;line-height:1.2;font-weight:400}
+.ra-root .ra-chevron{flex:0 0 14px;display:grid;place-items:center}
+.ra-root .ra-chevron svg{width:14px;height:14px}
+
+/* El diálogo mantiene título y acciones visibles; sólo la lista interna se desplaza. */
+.ra-root .ra-dialog{
+  display:grid;
+  grid-template-rows:auto minmax(0,1fr) auto;
+  max-height:calc(100dvh - 32px);
+  overflow:hidden;
+}
+.ra-root .ra-dialog header,.ra-root .ra-dialog footer{flex-shrink:0}
+.ra-root .ra-dialog-body{min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:12px 14px 8px}
+.ra-root .ra-choice-list{
+  display:grid;
+  grid-auto-rows:max-content;
+  align-content:start;
+  gap:4px;
+  height:min(25dvh,138px);
+  min-height:76px;
+  max-height:min(25dvh,138px);
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:thin;
+  scrollbar-color:#93bddc #f4f8fc;
+  padding:3px;
+  border:1px solid #dce8f3;
+  border-radius:4px;
+  background:#f8fbff;
+}
+.ra-root .ra-choice{
+  min-height:32px;
+  height:auto;
+  padding:5px 7px;
+  gap:8px;
+  flex-shrink:0;
+  line-height:1.25;
+  font-size:12px;
+}
+.ra-root .ra-choice input{height:15px;width:15px;min-height:15px;flex:0 0 15px;padding:0}
+.ra-root .ra-choice-name{font-size:12px;line-height:1.28}
+.ra-root .ra-choice-tick svg{height:15px;width:15px}
+.ra-root .ra-modal-intro{margin-bottom:9px}
+.ra-root .ra-dialog footer{
+  position:relative;
+  z-index:1;
+  border-top:1px solid #e3edf5;
+  background:#fff;
+  padding:10px 14px 12px;
+}
+@media(max-width:640px){
+  .ra-root .ra-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+  .ra-root .ra-area-row{min-height:54px;gap:6px;padding:6px}
+  .ra-root .ra-area-tile{flex-basis:34px;width:34px;height:34px}
+  .ra-root .ra-area-tile img{max-width:26px;max-height:26px}
+  .ra-root .ra-area-name{font-size:11px;font-weight:600;line-height:1.18}
+  .ra-root .ra-area-text small{font-size:9px}
+  .ra-root .ra-chevron{flex-basis:12px}
+  .ra-root .ra-chevron svg{width:12px;height:12px}
+  .ra-root .ra-dialog-body{padding:10px 12px 7px}
+  .ra-root .ra-choice-list{height:min(22dvh,132px);max-height:min(22dvh,132px)}
+  .ra-root .ra-choice{min-height:31px;padding:5px 7px;font-size:11.5px}
+  .ra-root .ra-choice-name{font-size:11.5px}
+}
+@media(max-width:350px){
+  .ra-root .ra-area-row{gap:5px;padding:5px}
+  .ra-root .ra-area-tile{flex-basis:30px;width:30px;height:30px}
+  .ra-root .ra-area-tile img{max-width:24px;max-height:24px}
+  .ra-root .ra-area-name{font-size:10px}
+  .ra-root .ra-area-text small{font-size:8.5px}
 }

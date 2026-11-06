@@ -6,7 +6,13 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.78
+RoqueObjetiva v175.79
+
+## v175.79 · Grid de áreas y modal compacto desplazable
+
+- **Administrador → Asignaturas y áreas:** tarjetas académicas organizadas en cuadrícula de **dos columnas**, también en celulares, con iconos compactos, menor peso tipográfico y textos que se ajustan al espacio sin desbordarse.
+- **Agregar asignaturas:** modal con región interna de altura limitada y **scroll vertical propio**, casillas de selección compactas de altura justa al nombre. Título y botones **Cancelar / Agregar al área** permanecen fuera de esa lista, visibles durante el desplazamiento.
+- Conserva la selección múltiple, autorización, auditoría y funciones RPC existentes. **Sin cambios SQL ni modificaciones de datos en Supabase**: estas mejoras afectan únicamente HTML/CSS y versión de la PWA.
 
 ## v175.78 · Desvinculación administrada y selección múltiple en modal
 
