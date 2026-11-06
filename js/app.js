@@ -5143,6 +5143,8 @@
       const title=workspace.querySelector(".adm151-current-heading h2");
       if(title && title.textContent!==navigation.currentTitle)
         title.textContent=navigation.currentTitle;
+      const adminHeading=workspace.querySelector(".adm151-current-heading");
+      if(adminHeading)adminHeading.hidden=state.adminTab==="estadisticas";
       workspace.querySelectorAll(".adm151-sidebar .adm151-link[data-tab], .adm151-overlay .adm151-link[data-tab]").forEach(link=>{
         const active=link.dataset.tab===state.adminTab;
         link.classList.toggle("is-active",active);
@@ -5170,7 +5172,7 @@
       <div class="adm151-workspace">
         ${navigation.sidebar}
         <section class="adm151-main" aria-label="Contenido administrativo">
-          <div class="adm151-current-heading">
+          <div class="adm151-current-heading"${state.adminTab==="estadisticas" ? " hidden" : ""}>
             <div><span>ADMINISTRACIÓN</span><h2>${esc(navigation.currentTitle)}</h2></div>
           </div>
           <section class="admin-layout admin-layout-full">
