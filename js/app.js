@@ -8982,12 +8982,26 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     const student = (state.lookupStudent?.roll === roll && document.getElementById("roque-student-lookup") ? state.lookupStudent : null) || state.computedByRoll.get(roll) || state.computedByRoll.get(state.activeSession?.roll);
     if (!student) return;
     const calc = saberGlobalBreakdown(student.subjectStats);
-    const multiplicationLines = calc.areas.map((area) => `
-      <li>
-        <span>${esc(area.label)}</span>
-        <strong>${area.score ?? "—"} × ${area.weight} = ${Number.isFinite(area.weighted) ? area.weighted : "—"}</strong>
-      </li>
-    `).join("");
+    // Iconografía exclusiva de la presentación: las notas y ponderaciones vienen de calc.areas.
+    const saberIcon = (inner) => '<svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + inner + '</svg>';
+    const saberIcons = {
+      math: saberIcon('<rect x="5" y="2.8" width="14" height="18.4" rx="1.4"/><path d="M8 7h8M8.3 11h.2m3.3 0h.2m3.3 0h.2m-7.2 3.2h.2m3.3 0h.2m3.3 0h.2m-7.2 3.2h.2m3.3 0h.2m3.3 0h.2"/>'),
+      language: saberIcon('<path d="M12 5.4C9.6 3.7 6.9 3.1 3.4 4v14.3c3.8-.9 6.5-.2 8.6 1.8 2.1-2 4.8-2.7 8.6-1.8V4c-3.5-.9-6.2-.3-8.6 1.4ZM12 5.4v14.7"/>'),
+      natural: saberIcon('<path d="M9 2.8h6M10 2.8v7.1l-5.7 8.3A2 2 0 0 0 6 21h12a2 2 0 0 0 1.7-2.8L14 9.9V2.8M7 16h10"/>'),
+      social: saberIcon('<circle cx="12" cy="7.4" r="3.1"/><path d="M5.7 20v-2.2a6.3 6.3 0 0 1 12.6 0V20ZM5.4 9a2.1 2.1 0 0 0-1.4 3.7M18.6 9a2.1 2.1 0 0 1 1.4 3.7M2.4 19.9v-2a4.4 4.4 0 0 1 2.4-4M21.6 19.9v-2a4.4 4.4 0 0 0-2.4-4"/>'),
+      english: saberIcon('<circle cx="12" cy="12" r="9.2"/><path d="M2.8 12h18.4M12 2.8c-3 2.6-4.5 5.7-4.5 9.2s1.5 6.6 4.5 9.2c3-2.6 4.5-5.7 4.5-9.2s-1.5-6.6-4.5-9.2ZM5.2 6.9h13.6M5.2 17.1h13.6"/>')
+    };
+    const multiplicationLines = calc.areas.map((area) => {
+      const shortLabel = area.key === "natural" ? "C. Naturales" :
+        area.key === "social" ? "C. Sociales" : area.label;
+      return `
+        <li class="sgm-area sgm-area-${area.key}">
+          <span class="sgm-area-icon">${saberIcons[area.key] || ""}</span>
+          <span class="sgm-area-name">${esc(shortLabel)}</span>
+          <strong class="sgm-area-operation">${esc(area.score ?? "—")} × ${area.weight} = ${Number.isFinite(area.weighted) ? area.weighted : "—"}</strong>
+        </li>
+      `;
+    }).join("");
     const weightedList = calc.canCalculate
       ? `${calc.math * 3} + ${calc.language * 3} + ${calc.natural * 3} + ${calc.social * 3} + ${calc.english * 1} = ${calc.weightedSum}`
       : "No disponible";
@@ -8995,49 +9009,72 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     const rawScore = calc.canCalculate ? ((calc.weightedSum * 5) / 13) : null;
     const rawScoreText = Number.isFinite(rawScore) ? rawScore.toFixed(1).replace(".0", "") : "—";
 
+    // Un mismo modal para Informe de estudiante y Coordinador > Consultar estudiante.
     modalRoot.innerHTML = `
       <div class="modal-backdrop" data-action="close-modal">
-        <section class="modal global-modal" style="max-width:760px;">
-          <div class="modal-head">
-            <div>
-              <h2>Puntaje global tipo Saber</h2>
-              <span style="color:#7d8089;font-weight:600;">${esc(student.name)} · ID ${esc(student.roll)}</span>
+        <section class="modal global-modal sgm-modal" role="dialog" aria-modal="true" aria-labelledby="sgm-title" aria-describedby="sgm-description">
+          <header class="sgm-hero">
+            <svg class="sgm-hero-waves" viewBox="0 0 1200 90" preserveAspectRatio="none" aria-hidden="true">
+              <path d="M0 68 C184 85 280 45 474 63 S765 86 947 41 S1104 25 1200 30 L1200 90 L0 90 Z" class="sgm-wave-back"/>
+              <path d="M0 81 C183 94 344 82 509 78 S801 58 975 40 S1132 37 1200 44 L1200 90 L0 90 Z" class="sgm-wave-front"/>
+            </svg>
+            <span class="sgm-hero-icon" aria-hidden="true">
+              <svg viewBox="0 0 40 40" width="30" height="30" fill="currentColor" aria-hidden="true">
+                <rect x="5" y="21" width="7" height="14" rx="1.5"/><rect x="16.5" y="14" width="7" height="21" rx="1.5"/><rect x="28" y="6" width="7" height="29" rx="1.5"/>
+              </svg>
+            </span>
+            <span class="sgm-hero-divider" aria-hidden="true"></span>
+            <div class="sgm-hero-copy">
+              <h2 id="sgm-title">Puntaje global tipo Saber</h2>
+              <p>${esc(student.name)} · ID ${esc(student.roll)}</p>
             </div>
-            <button type="button" class="icon-btn" data-action="close-modal" aria-label="Cerrar">×</button>
-          </div>
-          <div class="modal-body">
-            <section class="global-score-hero clean">
-              <div>
-                <span>Resultado estimado</span>
+            <button type="button" class="icon-btn sgm-close" data-action="close-modal" aria-label="Cerrar">×</button>
+          </header>
+          <div class="modal-body sgm-body">
+            <section class="sgm-result">
+              <div class="sgm-result-number">
+                <span>RESULTADO ESTIMADO</span>
                 <strong>${calc.score ?? "—"}<small>/500</small></strong>
               </div>
-              <p>Este valor simula el puntaje global de una Prueba Saber. Solo se usan Matemáticas, Lenguaje, Ciencias Naturales, Ciencias Sociales e Inglés.</p>
+              <p id="sgm-description">Este valor simula el puntaje global de una Prueba Saber. Solo se usan Matemáticas, Lenguaje, Ciencias Naturales, Ciencias Sociales e Inglés.</p>
             </section>
-
-            <div class="formula-box formula-box-strong clean">
-              <div class="formula-step">
-                <span>1</span>
-                <div>
-                  <p>Primero se multiplica cada nota por su peso.</p>
-                  <ul class="global-step-list">${multiplicationLines}</ul>
+            <div class="sgm-steps">
+              <section class="sgm-step">
+                <div class="sgm-step-heading">
+                  <span class="sgm-step-number">1</span>
+                  <h3>Primero se multiplica cada nota por su peso.</h3>
                 </div>
-              </div>
-              <div class="formula-step">
-                <span>2</span>
-                <p>Después se suman todos los aportes ponderados: <strong>${esc(weightedList)}</strong>.</p>
-              </div>
-              <div class="formula-step">
-                <span>3</span>
-                <p>Luego esa suma se multiplica por <strong>5</strong>: <strong>${calc.canCalculate ? `${calc.weightedSum} × 5 = ${timesFive}` : "—"}</strong>.</p>
-              </div>
-              <div class="formula-step">
-                <span>4</span>
-                <p>Finalmente se divide entre <strong>13</strong>: <strong>${calc.canCalculate ? `${timesFive} ÷ 13 = ${rawScoreText}` : "—"}</strong>. Redondeado, el puntaje global es <strong>${calc.score ?? "—"}/500</strong>.</p>
-              </div>
-              <div class="formula-line colorful">${calc.canCalculate ? `${calc.weightedSum} × 5 ÷ 13 = ${calc.score}` : "Falta al menos una de las cinco áreas que componen el cálculo."}</div>
-              <p class="excluded-note">Ética, Artística, Educación Física, Informática y Religión no cuentan dentro de este cálculo tipo Saber.</p>
+                <ul class="sgm-area-grid">${multiplicationLines}</ul>
+              </section>
+              <section class="sgm-step">
+                <div class="sgm-step-heading">
+                  <span class="sgm-step-number">2</span>
+                  <h3>Después se suman todos los aportes ponderados.</h3>
+                </div>
+                <div class="sgm-equation"><strong>${esc(weightedList)}</strong></div>
+              </section>
+              <section class="sgm-step">
+                <div class="sgm-step-heading">
+                  <span class="sgm-step-number">3</span>
+                  <h3>Luego esa suma se multiplica por 5.</h3>
+                </div>
+                <div class="sgm-equation"><strong>${calc.canCalculate ? `${calc.weightedSum} × 5 = ${timesFive}` : "—"}</strong></div>
+              </section>
+              <section class="sgm-step">
+                <div class="sgm-step-heading">
+                  <span class="sgm-step-number">4</span>
+                  <h3>Finalmente se divide entre 13.</h3>
+                </div>
+                <div class="sgm-equation"><strong>${calc.canCalculate ? `${timesFive} ÷ 13 = ${rawScoreText}` : "—"}</strong></div>
+                <div class="sgm-final">${calc.canCalculate ? `Redondeado, el puntaje global es <strong>${calc.score}/500</strong>.` : "Falta al menos una de las cinco áreas que componen el cálculo."}</div>
+              </section>
             </div>
-
+            <aside class="sgm-note">
+              <span class="sgm-note-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 10.6v5.8M12 7.5h.01"/></svg>
+              </span>
+              <p>Ética, Artística, Educación Física, Informática y Religión no cuentan dentro de este cálculo tipo Saber.</p>
+            </aside>
           </div>
         </section>
       </div>

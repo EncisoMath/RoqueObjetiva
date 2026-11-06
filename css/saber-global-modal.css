@@ -1,0 +1,318 @@
+/* RoqueObjetiva v175.94 · Diseño del modal global Saber; NO toca fórmulas ni otros modales. */
+#modal-root .modal.sgm-modal{
+  width:min(100%,60rem);
+  max-width:60rem;
+  max-height:min(92dvh,58rem);
+  overflow-y:auto;
+  overflow-x:hidden;
+  border-radius:4px !important;
+  background:#fff;
+  box-shadow:none;
+  scrollbar-width:thin;
+  overscroll-behavior:contain;
+  color:#142746;
+}
+.sgm-modal,.sgm-modal *,.sgm-modal *::before,.sgm-modal *::after{box-sizing:border-box}
+.sgm-modal .sgm-hero{
+  position:sticky;
+  top:0;
+  z-index:5;
+  isolation:isolate;
+  display:grid;
+  grid-template-columns:auto 2px minmax(0,1fr) auto;
+  align-items:center;
+  gap:clamp(.55rem,2vw,1.05rem);
+  min-width:0;
+  margin:0;
+  padding:clamp(.85rem,2vw,1.2rem) clamp(.8rem,2.7vw,1.55rem) clamp(1.45rem,3.1vw,1.85rem);
+  background:#0869b3;
+  color:#fff;
+  overflow:hidden;
+}
+.sgm-modal .sgm-hero-waves{
+  position:absolute;
+  inset:auto 0 0;
+  width:100%;
+  height:clamp(1.5rem,4.8vw,3.1rem);
+  pointer-events:none;
+  z-index:-1;
+}
+.sgm-modal .sgm-wave-back{fill:#107fc9}
+.sgm-modal .sgm-wave-front{fill:#159ced}
+.sgm-modal .sgm-hero-icon{
+  display:grid;
+  place-items:center;
+  width:clamp(2.9rem,5.8vw,4.4rem);
+  aspect-ratio:1;
+  border-radius:4px;
+  background:#fff;
+  color:#0870bc;
+}
+.sgm-modal .sgm-hero-icon svg{display:block;max-width:70%;height:auto}
+.sgm-modal .sgm-hero-divider{
+  width:2px;
+  height:clamp(2.7rem,5.2vw,4rem);
+  background:#fff;
+}
+.sgm-modal .sgm-hero-copy{min-width:0;align-self:center}
+.sgm-modal .sgm-hero-copy h2{
+  margin:0 0 .2rem;
+  color:#fff;
+  font-size:clamp(1.12rem,2.7vw,1.85rem);
+  line-height:1.16;
+  font-weight:800;
+  letter-spacing:-.025em;
+}
+.sgm-modal .sgm-hero-copy p{
+  margin:0;
+  font-size:clamp(.78rem,1.8vw,1.14rem);
+  line-height:1.3;
+  font-weight:500;
+  overflow-wrap:anywhere;
+  color:#fff;
+}
+.sgm-modal .sgm-close{
+  align-self:start;
+  position:relative;
+  z-index:1;
+  display:grid;
+  place-items:center;
+  width:clamp(2.1rem,4vw,2.7rem);
+  height:clamp(2.1rem,4vw,2.7rem);
+  padding:0;
+  flex-shrink:0;
+  border:0;
+  border-radius:4px !important;
+  background:#fff;
+  color:#142746;
+  font-size:clamp(1.45rem,2.5vw,1.85rem);
+  font-weight:800;
+  line-height:1;
+  cursor:pointer;
+}
+.sgm-modal .sgm-close:focus-visible{
+  outline:2px solid #fff;
+  outline-offset:3px;
+}
+.sgm-modal .modal-body.sgm-body{
+  display:grid;
+  gap:clamp(.85rem,2vw,1.15rem);
+  padding:clamp(.9rem,2.7vw,1.5rem);
+  background:#fff;
+}
+.sgm-modal .sgm-result{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);
+  align-items:center;
+  gap:clamp(.9rem,2.5vw,1.6rem);
+  padding:clamp(1rem,2.8vw,1.6rem);
+  border-radius:4px;
+  background:#deeffe;
+}
+.sgm-modal .sgm-result-number{
+  min-width:0;
+  border-right:2px solid #92bfdf;
+  padding-right:clamp(.65rem,2.5vw,1.25rem);
+}
+.sgm-modal .sgm-result-number>span{
+  display:block;
+  font-size:clamp(.88rem,2vw,1.3rem);
+  font-weight:850;
+  color:#0a62b9;
+  line-height:1.25;
+  margin:0 0 .35rem;
+}
+.sgm-modal .sgm-result-number>strong{
+  display:flex;
+  align-items:baseline;
+  gap:.2em;
+  max-width:100%;
+  margin:0;
+  font-size:clamp(3.2rem,8.3vw,5.4rem);
+  font-weight:900;
+  line-height:1;
+  letter-spacing:-.05em;
+  color:#132744;
+  overflow-wrap:anywhere;
+}
+.sgm-modal .sgm-result-number small{
+  font-size:.36em;
+  font-weight:750;
+  letter-spacing:-.03em;
+  color:#59708a;
+}
+.sgm-modal .sgm-result>p{
+  margin:0;
+  font-size:clamp(.91rem,1.9vw,1.13rem);
+  line-height:1.44;
+  color:#132744;
+  font-weight:500;
+}
+.sgm-modal .sgm-steps{display:grid;gap:clamp(.7rem,1.8vw,1rem)}
+.sgm-modal .sgm-step{
+  min-width:0;
+  border:1px solid #d2e2f3;
+  border-radius:4px;
+  background:#fff;
+  padding:clamp(.7rem,1.7vw,1rem);
+}
+.sgm-modal .sgm-step-heading{
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr);
+  gap:clamp(.55rem,1.4vw,.8rem);
+  align-items:center;
+  min-width:0;
+  margin-bottom:.7rem;
+}
+.sgm-modal .sgm-step-number{
+  display:grid;
+  place-items:center;
+  width:clamp(2.1rem,4vw,2.65rem);
+  aspect-ratio:1;
+  background:#0879c2;
+  border-radius:4px;
+  color:#fff;
+  font-weight:850;
+  font-size:clamp(1.15rem,2.2vw,1.55rem);
+}
+.sgm-modal .sgm-step-heading h3{
+  margin:0;
+  min-width:0;
+  font-size:clamp(.92rem,1.9vw,1.2rem);
+  font-weight:800;
+  color:#142746;
+  line-height:1.3;
+}
+.sgm-modal .sgm-area-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,8.6rem),1fr));
+  gap:clamp(.4rem,1vw,.65rem);
+  padding:0;
+  margin:0;
+  list-style:none;
+}
+.sgm-modal .sgm-area{
+  display:grid;
+  grid-template-rows:auto minmax(2.1rem,auto) auto;
+  align-items:center;
+  justify-items:center;
+  gap:.3rem;
+  min-width:0;
+  padding:.75rem .4rem;
+  border-radius:4px;
+  background:var(--sgm-tint,#e9f3fb);
+  text-align:center;
+}
+.sgm-modal .sgm-area-math{--sgm-accent:#31a4ed;--sgm-tint:#e2f3ff}
+.sgm-modal .sgm-area-language{--sgm-accent:#8d6de5;--sgm-tint:#f0ebff}
+.sgm-modal .sgm-area-natural{--sgm-accent:#35bf72;--sgm-tint:#e5f8f0}
+.sgm-modal .sgm-area-social{--sgm-accent:#ef962d;--sgm-tint:#fff0e1}
+.sgm-modal .sgm-area-english{--sgm-accent:#e75b88;--sgm-tint:#fbeaf1}
+.sgm-modal .sgm-area-icon{
+  display:grid;
+  place-items:center;
+  width:clamp(2.5rem,4vw,3.05rem);
+  aspect-ratio:1;
+  background:var(--sgm-accent);
+  border-radius:4px;
+  color:#fff;
+}
+.sgm-modal .sgm-area-icon svg{display:block;max-width:72%;height:auto}
+.sgm-modal .sgm-area-name{
+  min-width:0;
+  color:#142746;
+  font-size:clamp(.79rem,1.5vw,.98rem);
+  font-weight:680;
+  line-height:1.18;
+  overflow-wrap:break-word;
+}
+.sgm-modal .sgm-area-operation{
+  display:block;
+  min-width:0;
+  color:#075fb1;
+  font-size:clamp(.84rem,1.55vw,1.11rem);
+  font-weight:800;
+  line-height:1.24;
+  overflow-wrap:anywhere;
+}
+.sgm-modal .sgm-equation{
+  margin-left:clamp(0px,6vw,3.2rem);
+  padding:.62rem .75rem;
+  border-radius:4px;
+  background:#e1effb;
+  text-align:center;
+  color:#0c4e91;
+}
+.sgm-modal .sgm-equation strong{
+  display:block;
+  font-size:clamp(1.03rem,2.3vw,1.5rem);
+  line-height:1.25;
+  font-weight:850;
+  overflow-wrap:anywhere;
+}
+.sgm-modal .sgm-final{
+  margin:clamp(.8rem,2vw,1.05rem) .1rem 0;
+  padding:clamp(.7rem,2vw,.95rem);
+  border-radius:4px;
+  background:#067dc3;
+  color:#fff;
+  text-align:center;
+  font-size:clamp(1rem,2.2vw,1.35rem);
+  font-weight:550;
+  line-height:1.35;
+}
+.sgm-modal .sgm-final strong{
+  font-size:1.24em;
+  font-weight:850;
+  white-space:nowrap;
+}
+.sgm-modal .sgm-note{
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr);
+  gap:clamp(.65rem,1.9vw,1rem);
+  align-items:center;
+  padding:clamp(.8rem,2.2vw,1.15rem);
+  border-radius:4px;
+  background:#eaf3fb;
+}
+.sgm-modal .sgm-note-icon{
+  display:grid;
+  place-items:center;
+  border-right:2px solid #8db9db;
+  padding-right:clamp(.65rem,1.5vw,1rem);
+  color:#0870be;
+}
+.sgm-modal .sgm-note-icon svg{display:block}
+.sgm-modal .sgm-note p{
+  margin:0;
+  color:#183251;
+  font-size:clamp(.85rem,1.8vw,1.05rem);
+  font-weight:500;
+  line-height:1.4;
+}
+@media(max-width:620px){
+  #modal-root .modal.sgm-modal{max-height:calc(100dvh - 1rem)}
+  #modal-root .modal-backdrop:has(>.sgm-modal){padding:.5rem}
+  .sgm-modal .sgm-result{grid-template-columns:1fr;gap:.7rem}
+  .sgm-modal .sgm-result-number{
+    border-right:0;
+    border-bottom:2px solid #92bfdf;
+    padding:0 0 .8rem;
+  }
+  .sgm-modal .sgm-result-number>strong{font-size:clamp(3rem,15vw,4.4rem)}
+  .sgm-modal .sgm-equation{margin-left:0}
+}
+@media(max-width:410px){
+  .sgm-modal .sgm-hero{gap:.5rem;padding:.8rem .7rem 1.3rem}
+  .sgm-modal .sgm-hero-icon{width:2.6rem}
+  .sgm-modal .sgm-hero-divider{height:2.6rem}
+  .sgm-modal .sgm-hero-copy h2{font-size:1rem}
+  .sgm-modal .sgm-hero-copy p{font-size:.74rem}
+  .sgm-modal .sgm-close{width:2rem;height:2rem}
+  .sgm-modal .sgm-hero-waves{height:1.55rem}
+  .sgm-modal .sgm-step{padding:.65rem}
+  .sgm-modal .sgm-area-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,8.1rem),1fr))}
+}
+@media(prefers-reduced-motion:reduce){
+  #modal-root .modal.sgm-modal{scroll-behavior:auto}
+}

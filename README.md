@@ -6,7 +6,14 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.93
+RoqueObjetiva v175.94
+
+## v175.94 · Modal visual Puntaje global tipo Saber (Estudiante y Coordinador)
+
+- Rediseñado exclusivamente el HTML del modal compartido `openGlobalScoreInfo(roll)`: hero azul flat con dos ondas, icono de barras, título, nombre/ID de prueba y cierre; tarjeta de resultado estimado y cuatro pasos con ponderaciones dinámicas, operaciones, total redondeado y nota de áreas excluidas.
+- Las cinco tarjetas de áreas incluyen iconos SVG flat, etiquetas y operaciones tomadas de `saberGlobalBreakdown(student.subjectStats)`. Las cifras y redondeo no se modifican; el bloque de cálculo se preservó literalmente y los botones `data-action="global-info"` y `data-action="close-modal"` siguen iguales.
+- CSS nuevo estrictamente aislado en `css/saber-global-modal.css`, responsive, sin degradados ni sombras decorativas, radios de 4 px y scroll vertical. Sin cambios en Supabase, claves, notas, tablas, informes, otros modales ni roles.
+- Nueva caché PWA `v175.94`.
 
 ## v175.93 · Colores finales del aviso de examen anulado
 
