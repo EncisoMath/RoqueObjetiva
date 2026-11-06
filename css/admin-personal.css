@@ -1,4 +1,4 @@
-/* RoqueObjetiva v175.53 | Personal Docente · diseño flat y móvil primero */
+/* RoqueObjetiva v175.69 | Personal Docente · diseño flat y móvil primero */
 .rp-root{--rp-blue:#1686bd;--rp-navy:#1c3455;--rp-border:#cfdff0;--rp-muted:#7890a8;color:var(--rp-navy);font-family:Montserrat,sans-serif;max-width:1160px;margin:0 auto;min-width:0}
 .rp-root *{box-sizing:border-box}
 .rp-root button,.rp-root input,.rp-root select{font-family:inherit}
@@ -134,3 +134,18 @@
  .rp-teacher-head{gap:6px;padding:9px 7px}
 }
 @media(prefers-reduced-motion:reduce){.rp-root *{transition:none!important}}
+
+/* v175.69 · Roles institucionales y áreas en carga académica. */
+.rp-root .rp-permissions{grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);align-items:stretch;gap:9px}
+.rp-root .rp-permissions select{height:38px;background:#fff;border-color:#b7d6e9;color:#183b59;font-weight:850}
+.rp-root .rp-role-description{display:grid;align-content:center;gap:4px;padding:7px 9px;background:#edf7fd;border:1px solid #d1e5f2;border-radius:4px;min-width:0}
+.rp-root .rp-role-description strong{font-size:.65rem;color:#247ca9}
+.rp-root .rp-role-description small{font-size:.58rem;line-height:1.45;color:#597891}
+.rp-root .rp-role-tag.is-admin{background:#dcecfb;color:#1b6da2}
+.rp-root .rp-role-tag.is-coordinator{background:#eee3f7;color:#7948a0}
+.rp-root .rp-subject-copy .rp-area-name{font-size:.61rem;line-height:1.25;color:#347eac;font-weight:800}
+.rp-root .rp-assignment-top{align-items:center}
+@media(max-width:400px){
+ .rp-root .rp-permissions{grid-template-columns:minmax(0,1fr)}
+ .rp-root .rp-role-description{padding:7px 9px}
+}

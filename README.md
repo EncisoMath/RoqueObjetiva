@@ -6,8 +6,17 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.68
+RoqueObjetiva v175.69
 
+
+## v175.69 · Roles y áreas en Admin → Docentes
+
+- El selector de **Rol** (y su filtro) admite **Administrador**, **Coordinador** y **Docente**. La creación de personal también permite elegir uno de esos tres roles.
+- Supabase conserva la clasificación en `public.docentes.rol` y sincroniza `coordinador`. Las cuentas existentes mantienen su clasificación sin cambios.
+- **Seguridad:** elegir el rol institucional Administrador no da permisos de acceso al panel administrativo: requiere una cuenta Supabase Auth incluida en `roque_private.operadores_admin`.
+- Las tarjetas de **Carga académica** muestran cada asignatura con el nombre y PNG de su **área**, según `public.mapeo_areas`. Para variantes no catalogadas (Constitución, Lengua castellana, Educación religiosa, Educación ética y valores) se usan equivalencias académicas.
+- El selector para agregar una carga se agrupa por área sin cambiar la asignatura realmente almacenada.
+- Migración `roque_v175_69_roles_y_areas_docentes` desplegada; nueva caché PWA v175.69.
 
 ## v175.68 · Editar datos alineado a la izquierda
 
