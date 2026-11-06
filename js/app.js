@@ -3952,8 +3952,8 @@
       '" role="dialog" aria-modal="true" aria-label="'+symbol+' '+title+'">'+
       '<header class="rm18-notice-hero">'+
       '<svg class="rm18-notice-waves" viewBox="0 0 1200 130" preserveAspectRatio="none" aria-hidden="true">'+
-      '<path class="rm18-wave-back" d="M0 50 C135 112 255 108 410 80 S705 42 878 72 S1070 41 1200 31 L1200 130 L0 130 Z"/>'+
-      '<path class="rm18-wave-front" d="M0 87 C150 132 311 108 424 94 S656 124 813 111 S1029 68 1200 72 L1200 130 L0 130 Z"/>'+
+      '<path class="rm18-wave-back" d="M0 74 C120 116 255 102 395 80 S690 36 878 63 S1062 40 1200 28 L1200 130 L0 130 Z"/>'+
+      '<path class="rm18-wave-front" d="M0 96 C136 128 300 108 432 88 S664 118 828 100 S1034 58 1200 64 L1200 130 L0 130 Z"/>'+
       '</svg>'+
       '<span class="rm18-notice-icon" aria-hidden="true">'+symbol+'</span>'+
       '<span class="rm18-notice-divider" aria-hidden="true"></span>'+

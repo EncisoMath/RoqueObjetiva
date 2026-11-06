@@ -6,7 +6,13 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.91
+RoqueObjetiva v175.92
+
+## v175.92 · Rojo #E53935 y ondas más pronunciadas
+
+- En **Examen anulado** se cambia el fondo del hero a `#E53935`, con ondas `#C62828` y `#1F1F1F`, título y cierre blancos.
+- Para **ambos avisos especiales**, se elevan y redibujan las dos ondas SVG, con aumento moderado del espacio inferior del hero. Se conservan los colores del restringido.
+- Se modifican exclusivamente CSS del aviso, trazos SVG del mismo aviso, documentación y versión/caché PWA. Sin cambios en lógica de notas, eventos ni Supabase.
 
 ## v175.91 · Encabezados compactos y modal anulado rojo/negro
 
