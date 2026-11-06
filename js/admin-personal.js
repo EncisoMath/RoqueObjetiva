@@ -1,4 +1,4 @@
-/* RoqueObjetiva v175.69 | Personal Docente
+/* RoqueObjetiva v175.70 | Personal Docente
    Admin solamente: identidad, carga academica, direccion de grupo y coordinador. */
 (() => {
   "use strict";
@@ -49,7 +49,7 @@
     if(/social|historia|geografia|ciudadania|constitucion|econom|filosof|politic/.test(n))return "CIENCIAS SOCIALES Y CIUDADANÍA";
     if(/informat|tecnolog|sistem|comput/.test(n))return "INFORMÁTICA";
     if(/ingles|english/.test(n))return "INGLÉS";
-    if(/lenguaje|humanidad|espanol|castellano|lectura|literatura/.test(n))return "LENGUAJE";
+    if(/lengua|humanidad|espanol|castellan|lectura|literatura/.test(n))return "LENGUAJE";
     if(/etica|valores|convivencia/.test(n))return "ÉTICA Y VALORES";
     if(/artist|musica|danza|dibujo|arte/.test(n))return "ARTÍSTICA";
     if(/relig|espiritual/.test(n))return "RELIGIÓN";
@@ -246,7 +246,7 @@
         (S.view==="detail"?detailView():'<div class="rp-desktop-placeholder">Selecciona un docente para gestionar sus datos y asignaciones.</div>')+
       '</div></div>';
   };
-  // Render incremental v175.69: los botones, el encabezado y el listado conservan
+  // Render incremental v175.70: los botones, el encabezado y el listado conservan
   // su DOM. Solo cambia el contenido necesario; nunca capturar el viewport global.
   let drawSerial=0;
   let dataRevision=0;

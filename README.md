@@ -6,8 +6,13 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.69
+RoqueObjetiva v175.70
 
+
+## v175.70 · Equivalencias de PNG en carga académica
+
+- Se corrige la equivalencia de `Lengua castellana` con el área `LENGUAJE`, para mostrar su PNG real y mantener todas las asignaturas vinculadas a su área.
+- Se renueva la caché PWA para distribuir la corrección. No se modifican datos ni roles existentes de Supabase.
 
 ## v175.69 · Roles y áreas en Admin → Docentes
 
