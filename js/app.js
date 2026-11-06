@@ -4302,15 +4302,17 @@
     if(el) el.innerHTML=coordRowsHtml();
   }
   function renderCoordinatorMover() {
-    const code=cleanText(state.teacherEditionSelected||state.academicEdition||"2026-1S");
+    const isAdmin=state.activeSession?.role==="admin";
+    const code=cleanText(isAdmin ? state.academicEdition||"2026-2S" : state.teacherEditionSelected||state.academicEdition||"2026-1S");
     const head='<div class="coord-move-head"><span class="coord-move-head-icon" aria-hidden="true">⇄</span><div>'+
       '<h3>Mover estudiantes</h3><p>Cambia el curso sin modificar el grado ni la sede.</p></div></div>';
-    if (!state.coordSession) {
+    if (!isAdmin && !state.coordSession) {
       return '<section class="coord-move-shell">'+head+
         '<div class="coord-move-empty" role="alert">La sesión de coordinación ha vencido. '+
         'Cierra sesión y vuelve a ingresar para continuar.</div></section>';
     }
-    if (state.coordBusy||state.coordEditionLoaded!==code) {
+    if (state.coordBusy||state.coordEditionLoaded!==code ||
+        state.coordRosterOwner !== (isAdmin?"admin":"coordinador:"+cleanId(state.activeSession?.id))) {
       return '<section class="coord-move-shell">'+head+
         '<div class="coord-move-empty" role="status">'+
         (state.coordError ? esc(state.coordError) : 'Consultando estudiantes de '+esc(code)+'…')+
@@ -4331,42 +4333,46 @@
       '<div id="coord-move-results">'+coordRowsHtml()+'</div></section>';
   }
   async function loadCoordRoster() {
+    const isAdmin=state.activeSession?.role==="admin";
     const teacher=state.teachers.get(state.activeSession?.id);
-    if (!teacher?.coordinator||!state.coordSession||state.coordBusy) return;
-    const id=cleanId(state.activeSession.id);
-    const edition=cleanText(state.teacherEditionSelected||state.academicEdition);
+    if ((!isAdmin&&(!teacher?.coordinator||!state.coordSession))||state.coordBusy) return;
+    const id=isAdmin?"admin":cleanId(state.activeSession.id);
+    const edition=cleanText(isAdmin?state.academicEdition:state.teacherEditionSelected||state.academicEdition);
+    const owner=isAdmin?"admin":"coordinador:"+id;
     state.coordBusy=true;state.coordError="";renderTeacherWithMotion();
     try {
-      const p=await supabaseRpc("roque_v8_coordinador_listar",{
-        p_docente:id,p_sesion:state.coordSession,p_edicion:edition
-      });
-      if (state.activeSession?.id!==id) return;
+      const p=await supabaseRpc(isAdmin?"roque_v14_admin_mover_listar":"roque_v8_coordinador_listar",
+        isAdmin?{p_edicion:edition}:{p_docente:id,p_sesion:state.coordSession,p_edicion:edition});
+      if (state.activeSession?.role!==(isAdmin?"admin":"teacher") ||
+         (!isAdmin&&state.activeSession?.id!==id))return;
       if (!p?.ok||p.edicion!==edition||!Array.isArray(p.estudiantes)||!Array.isArray(p.cursos))
         throw Error(p?.error||"No se pudo consultar la lista.");
       state.coordRoster=p.estudiantes;state.coordCourses=p.cursos;
-      state.coordEditionLoaded=edition;state.coordLimit=48;
+      state.coordEditionLoaded=edition;state.coordRosterOwner=owner;state.coordLimit=48;
       state.coordGrade="all";state.coordSede="all";state.coordCurso="all";state.coordSearch="";
     } catch(e) {
-      state.coordRoster=[];state.coordEditionLoaded=edition;
+      state.coordRoster=[];state.coordEditionLoaded=edition;state.coordRosterOwner=owner;
       state.coordError=cleanText(e?.message||"No fue posible acceder al listado.");
     } finally {
       state.coordBusy=false;
-      if(state.activeSession?.id===id) renderTeacherWithMotion();
+      if(state.activeSession?.role===(isAdmin?"admin":"teacher") &&
+        (isAdmin||state.activeSession?.id===id))renderTeacherWithMotion();
     }
   }
   // Un único RPC y actualización por tarjeta, sin reinstanciar el panel.
   async function saveCoordMove(roll,button) {
+    const isAdmin=state.activeSession?.role==="admin";
     const teacher=state.teachers.get(state.activeSession?.id);
     const row=button?.closest(".coord-move-card");
     const select=row?.querySelector("select[data-coord-destination]");
-    if (!teacher?.coordinator||!state.coordSession||state.coordBusy||!row||!select) return;
+    if ((!isAdmin&&(!teacher?.coordinator||!state.coordSession))||state.coordBusy||!row||!select) return;
     const key=String(roll);
     if (state.coordPendingMoves.has(key)) return;
     const s=state.coordRoster.find(x=>String(x.roll)===key);
     const newCourse=cleanText(select.value);
     const oldCourse=cleanText(s?.curso);
     if(!s||!newCourse||newCourse===oldCourse||!coordOptions(s).includes(newCourse)) return;
-    const id=cleanId(state.activeSession.id),edition=state.coordEditionLoaded;
+    const id=isAdmin?"admin":cleanId(state.activeSession.id),edition=state.coordEditionLoaded;
     const feedback=row.querySelector(".coord-move-feedback");
     state.coordPendingMoves.add(key);
     row.classList.add("is-saving");
@@ -4374,13 +4380,17 @@
     button.disabled=true;button.textContent="Guardando…";select.disabled=true;
     if(feedback) feedback.textContent="Guardando cambio…";
     try {
-      const p=await supabaseRpc("roque_v8_coordinador_mover",{
-        p_docente:id,p_sesion:state.coordSession,p_edicion:edition,p_roll:roll,
-        p_curso_anterior:oldCourse,p_curso_nuevo:newCourse
-      });
+      const p=await supabaseRpc(isAdmin?"roque_v14_admin_mover_guardar":"roque_v8_coordinador_mover",
+        isAdmin?{
+          p_edicion:edition,p_roll:roll,p_curso_anterior:oldCourse,p_curso_nuevo:newCourse
+        }:{
+          p_docente:id,p_sesion:state.coordSession,p_edicion:edition,p_roll:roll,
+          p_curso_anterior:oldCourse,p_curso_nuevo:newCourse
+        });
       if(!p?.ok) throw Error(p.error||"No fue posible guardar.");
       // No contaminar la nueva sesión si el usuario cambió de prueba.
-      if(state.activeSession?.id===id&&state.coordEditionLoaded===edition){
+      if(state.activeSession?.role===(isAdmin?"admin":"teacher")&&
+         (isAdmin||state.activeSession?.id===id)&&state.coordEditionLoaded===edition){
         s.curso=newCourse;
         if(cleanText(state.academicEdition)===edition){
           const registry=state.registryByExamId.get(cleanId(roll));
@@ -5288,6 +5298,8 @@
     switch (state.adminTab) {
       case "asignaturas": return adminTeachingHtml("asignaturas");
       case "director": return adminTeachingHtml("director");
+      case "mover": return '<div class="roque-teacher-shell admin-coordinator-view">'+
+        '<section class="coordinator-admin-panel coord-mover-panel">'+renderCoordinatorMover()+'</section></div>';
       case "consultar": return window.RoqueStudentLookup
         ? window.RoqueStudentLookup.render({rpc:supabaseRpc,notify:toast,role:"admin",
            id:"admin",edition:cleanText(state.academicEdition||"2026-2S")})
@@ -7067,6 +7079,8 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     state.adminTab = tab;
     if (state.adminTab !== "claves") state.adminSubjectFilter = "all";
     renderAdminContext();
+    if(tab==="mover"&&(state.coordEditionLoaded!==cleanText(state.academicEdition)||
+       state.coordRosterOwner!=="admin"))void loadCoordRoster();
   };
 
   window.__poTeacherModeFromElement = function(event, element) {
@@ -7530,6 +7544,8 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
         state.adminTab = tab;
         if (state.adminTab !== "claves") state.adminSubjectFilter = "all";
         renderAdminContext();
+        if(tab==="mover"&&(state.coordEditionLoaded!==cleanText(state.academicEdition)||
+          state.coordRosterOwner!=="admin"))void loadCoordRoster();
       });
       return;
     }
@@ -7902,7 +7918,8 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
 
   function handleInput(event) {
     const target = event.target;
-    if (target.id==="coord-search" && state.activeSession?.role==="teacher") {
+    if (target.id==="coord-search" && (state.activeSession?.role==="teacher"||
+       (state.activeSession?.role==="admin"&&state.adminTab==="mover"))) {
       state.coordSearch=target.value;state.coordLimit=48;coordRefreshRows();return;
     }
 
@@ -7995,14 +8012,16 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
 
   function handleChange(event) {
     const target = event.target;
-    if (target.dataset.coordDestination && state.activeSession?.role==="teacher") {
+    if (target.dataset.coordDestination && (state.activeSession?.role==="teacher"||
+      (state.activeSession?.role==="admin"&&state.adminTab==="mover"))) {
       const s=state.coordRoster.find(x=>String(x.roll)===target.dataset.coordDestination);
       const button=target.closest(".coord-move-card")?.querySelector('[data-action="coord-move-one"]');
       if(button) button.disabled=!s||state.coordPendingMoves.has(String(s.roll))||
         cleanText(target.value)===cleanText(s.curso)||!coordOptions(s).includes(cleanText(target.value));
       return;
     }
-    if (target.dataset.coordFilter && state.activeSession?.role==="teacher") {
+    if (target.dataset.coordFilter && (state.activeSession?.role==="teacher"||
+      (state.activeSession?.role==="admin"&&state.adminTab==="mover"))) {
       if(target.dataset.coordFilter==="grade")state.coordGrade=target.value;
       if(target.dataset.coordFilter==="sede")state.coordSede=target.value;
       if(target.dataset.coordFilter==="course")state.coordCurso=target.value;
