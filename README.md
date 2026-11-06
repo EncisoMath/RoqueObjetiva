@@ -6,8 +6,15 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.62
+RoqueObjetiva v175.63
 
+
+## v175.63 · Anular y Reactivar guardan directamente en Supabase
+
+- **Anular inmediato:** cada pulsación de Anular / Reactivar persiste únicamente esa pregunta mediante `roque_v12_claves_guardar` con verificación de concurrencia y auditoría, sin depender de Guardar cambios.
+- **Reactivación sin respuesta:** si la pregunta anulada no tenía clave, solicita escoger A–H antes de reactivarla y guarda automáticamente al elegir la respuesta.
+- **Feedback y seguridad:** indicador Guardando, confirmación de éxito/error y reversión visual si Supabase rechaza la operación; cambiar respuestas normales sigue usando Guardar cambios.
+- **Permisos preservados:** lectura para Coordinador, edición para Administrador en 2026-2S y protección de anulaciones históricas. Sin migración SQL necesaria; nueva caché PWA.
 
 ## v175.62 · Claves más compactas en móvil y botón Anular / Reactivar
 

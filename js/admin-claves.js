@@ -1,4 +1,4 @@
-/* RoqueObjetiva v175.62 · Claves de respuestas por grado.
+/* RoqueObjetiva v175.63 · Claves de respuestas por grado.
    Consulta para Coordinador; modificación exclusiva de Admin con auditoría. */
 (() => {
 "use strict";
@@ -129,7 +129,7 @@ const cards=()=>{
  '<section class="rak-items-card">'+
  '<header class="rak-items-heading"><span class="rak-mini-icon">'+svg("item")+'</span>'+
  '<div><h3>'+esc(short(S.area))+' · Sesión '+S.session+'</h3>'+
- '<p>'+(S.editable?(S.allowAnnul?'Selecciona la respuesta o anula una pregunta.':'Corrige respuestas · anulación bloqueada en edición cerrada'):'Consulta de claves · solo lectura')+'</p></div></header>'+
+ '<p>'+(S.editable?(S.allowAnnul?'Anular guarda de inmediato · las respuestas se guardan abajo.':'Corrige respuestas · anulación bloqueada en edición cerrada'):'Consulta de claves · solo lectura')+'</p></div></header>'+
  '<div class="rak-item-list">'+list.map((i,idx)=>answerRow(i,idx,opts)).join("")+'</div>'+
  '<div class="rak-info">'+svg("check")+' Estas claves son generales para todos los cursos y sedes del grado.</div>'+
  '</section>'+
@@ -209,7 +209,7 @@ const updateRow=(row,item)=>{
    toggle.setAttribute("aria-label",(item.anulada?"Reactivar":"Anular")+" ítem");
    toggle.disabled=!S.allowAnnul||S.saving;
    const label=toggle.querySelector(".rak-annul-label");
-   if(label)label.textContent=name;
+   if(label)label.textContent=row.classList.contains("is-saving")?"Guardando":name;
  }
  const stat=document.getElementById("rak-stats");
  if(stat){
@@ -226,6 +226,55 @@ const updateRow=(row,item)=>{
   save.innerHTML=svg("check")+" "+(n?"Guardar cambios ("+n+")":"Guardar cambios");
  }
 };
+async function persistAnnulment(item,row){
+ const before=S.baseline.get(item.numero_item);
+ if(!before)return;
+ if(!item.anulada&&!/^[A-H]$/.test(item.correcta||"")){
+  ctx.notify?.("Selecciona una respuesta correcta para reactivar esta pregunta.");
+  return;
+ }
+ if(!isDirty(item)){updateRow(row,item);return;}
+ const edition=S.edition,grade=S.grade,activeContext=ctx;
+ const annulled=item.anulada;
+ const change={
+  numero_item:item.numero_item,
+  correcta_antes:before.correcta,correcta_nueva:item.correcta,
+  anulada_antes:before.anulada,anulada_nueva:item.anulada
+ };
+ S.saving=true;
+ row.classList.add("is-saving");
+ row.setAttribute("aria-busy","true");
+ updateRow(row,item);
+ try{
+  const result=await activeContext.rpc("roque_v12_claves_guardar",{
+   p_edicion:edition,p_grado:grade,p_cambios:[change],p_motivo:null
+  });
+  if(!result?.ok||Number(result.cambios)!==1)
+   throw Error(result?.error||"El servidor no confirmó la anulación.");
+  if(S.edition===edition&&S.grade===grade){
+   S.baseline.set(item.numero_item,{correcta:item.correcta,anulada:item.anulada});
+   S.lastEdit=new Date().toISOString();
+   S.error="";
+  }
+  activeContext.notify?.("Ítem "+item.numero_item+(annulled?" anulado":" reactivado")+" y guardado.");
+ }catch(error){
+  if(S.edition===edition&&S.grade===grade){
+   item.correcta=before.correcta;
+   item.anulada=before.anulada;
+   S.error=String(error?.message||"Falló la operación.");
+  }
+  activeContext.notify?.("No se pudo guardar el cambio: "+String(error?.message||error));
+ }finally{
+  S.saving=false;
+  if(row.isConnected){
+   row.classList.remove("is-saving");
+   row.removeAttribute("aria-busy");
+   updateRow(row,item);
+   const date=document.querySelector("#roque-keys .rak-last small");
+   if(date)date.textContent=last();
+  }
+ }
+}
 const render=context=>{
  const owner=(context?.role||"")+":"+(context?.id||"");
  const edition=context?.edition||"2026-2S";
@@ -273,6 +322,8 @@ document.addEventListener("click",async event=>{
    if(!item||!row)return;
    item.anulada=!item.anulada;
    updateRow(row,item);
+   if(!isDirty(item))return;
+   await persistAnnulment(item,row);
    return;
  }
  if(button.dataset.rakAnswer!==undefined){
@@ -282,6 +333,9 @@ document.addEventListener("click",async event=>{
    if(!item||item.anulada)return;
    item.correcta=button.dataset.rakAnswer;
    updateRow(row,item);
+   // Reactivar una pregunta sin clave exige escoger opción antes de guardar.
+   if(S.baseline.get(item.numero_item)?.anulada===true&&!item.anulada)
+    await persistAnnulment(item,row);
    return;
  }
  if(!button.hasAttribute("data-rak-save")||!S.editable||S.saving)return;
