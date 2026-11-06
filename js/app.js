@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.85";
+  const APP_VERSION = "v175.86";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -4422,8 +4422,18 @@
   function renderCoordinatorMover() {
     const isAdmin=state.activeSession?.role==="admin";
     const code=cleanText(isAdmin ? state.academicEdition||"2026-2S" : state.teacherEditionSelected||state.academicEdition||"2026-1S");
-    const head='<div class="coord-move-head"><span class="coord-move-head-icon" aria-hidden="true">⇄</span><div>'+
-      '<h3>Mover estudiantes</h3><p>Cambia el curso sin modificar el grado ni la sede.</p></div></div>';
+    const head=window.RoqueScreenHero.render({
+      title:"Mover estudiantes",
+      subtitle:"Cambia el curso sin modificar el grado ni la sede.",
+      icon:"transfer",
+      colors:{
+        background:"#025ca8",
+        wave:"#0c8df0",
+        waveSecondary:"#0879c8",
+        icon:"#0868ae",
+        iconBackground:"#f7faff"
+      }
+    });
     if (!isAdmin && !state.coordSession) {
       return '<section class="coord-move-shell">'+head+
         '<div class="coord-move-empty" role="alert">La sesión de coordinación ha vencido. '+

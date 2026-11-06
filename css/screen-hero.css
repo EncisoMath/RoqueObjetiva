@@ -1,0 +1,125 @@
+/* RoqueObjetiva v175.86 · Hero reutilizable y aislado de los encabezados institucionales.
+   Altura intrínseca, unidades relativas, cero degradados y cero sombras. */
+.roque-screen-hero{
+  --rsh-background:#025ca8;
+  --rsh-wave:#0c8df0;
+  --rsh-wave-secondary:#0879c8;
+  --rsh-icon:#0868ae;
+  --rsh-icon-background:#f7faff;
+  box-sizing:border-box;
+  position:relative;
+  isolation:isolate;
+  container-type:inline-size;
+  display:grid;
+  grid-template-columns:auto auto minmax(0,1fr);
+  align-items:center;
+  column-gap:clamp(.65rem,2.5cqi,1.25rem);
+  width:100%;
+  min-width:0;
+  padding:clamp(.65rem,1.95cqi,1rem) clamp(.75rem,3cqi,1.55rem);
+  overflow:hidden;
+  border-radius:.25rem;
+  color:#fff;
+  background:var(--rsh-background);
+  background-image:none;
+  box-shadow:none;
+}
+.roque-screen-hero,
+.roque-screen-hero *{box-sizing:border-box}
+.roque-screen-hero__wave-base,
+.roque-screen-hero__wave-track{
+  position:absolute;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+}
+.roque-screen-hero__wave-base path{fill:var(--rsh-wave)}
+.roque-screen-hero__wave-track{
+  display:flex;
+  width:200%;
+  max-width:none;
+  height:100%;
+  animation:roque-screen-hero-drift 28s linear infinite;
+  will-change:transform;
+}
+.roque-screen-hero__wave-track svg{
+  display:block;
+  flex:0 0 50%;
+  width:50%;
+  height:100%;
+}
+.roque-screen-hero__wave-track path{
+  fill:var(--rsh-wave-secondary);
+  opacity:.24;
+}
+.roque-screen-hero__icon{
+  z-index:1;
+  position:relative;
+  display:grid;
+  place-items:center;
+  width:clamp(2.7rem,7.4cqi,3.9rem);
+  aspect-ratio:1;
+  min-width:0;
+  border-radius:.25rem;
+  background:var(--rsh-icon-background);
+  color:var(--rsh-icon);
+}
+.roque-screen-hero__icon svg,
+.roque-screen-hero__icon img{
+  display:block;
+  width:67%;
+  height:67%;
+  object-fit:contain;
+}
+.roque-screen-hero__divider{
+  z-index:1;
+  position:relative;
+  align-self:stretch;
+  width:.125rem;
+  background:rgba(255,255,255,.94);
+}
+.roque-screen-hero__copy{
+  z-index:1;
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  min-width:0;
+  overflow-wrap:anywhere;
+}
+.roque-screen-hero .roque-screen-hero__title{
+  margin:0;
+  padding:0;
+  color:#fff;
+  font-size:clamp(1.07rem,3.3cqi,1.75rem);
+  font-weight:800;
+  line-height:1.1;
+  letter-spacing:-.02em;
+  text-shadow:none;
+}
+.roque-screen-hero .roque-screen-hero__subtitle{
+  display:block;
+  margin:.22em 0 0;
+  padding:0;
+  color:#fff;
+  font-size:clamp(.75rem,2cqi,1.05rem);
+  font-weight:400;
+  line-height:1.32;
+  text-shadow:none;
+  white-space:normal;
+  overflow-wrap:break-word;
+}
+@keyframes roque-screen-hero-drift{
+  from{transform:translate3d(0,0,0)}
+  to{transform:translate3d(-50%,0,0)}
+}
+@media (prefers-reduced-motion:reduce){
+  .roque-screen-hero__wave-track{
+    animation:none;
+    transform:none;
+    will-change:auto;
+  }
+}

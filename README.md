@@ -6,7 +6,15 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.85
+RoqueObjetiva v175.86
+
+## v175.86 · Hero interno genérico con ondas de PlayStation
+
+- **Único componente reutilizable:** `window.RoqueScreenHero.render({title,subtitle,icon,iconSrc,heading,colors})` en `js/screen-hero.js`. Se configura con título, subtítulo, un icono SVG predeterminado o PNG/SVG/WebP local y colores independientes para fondo, ondas, icono y recuadro.
+- **Estilos compartidos:** `css/screen-hero.css`, aislados bajo `.roque-screen-hero`. Diseño flat, radios de hasta 4 px, sin degradados ni sombras. Grid alineado verticalmente, dimensiones intrínsecas con `clamp()`, `rem` y `cqi`.
+- **Ondas:** SVG de tamaño relativo, onda principal y capa con animación CSS de 28 s en un patrón periódico sin saltos; desactivada con `prefers-reduced-motion` sin alterar alturas.
+- Se ha reemplazado **únicamente** el hero interno de **Coordinador → Mover estudiantes** (también vista administrativa de Mover, que comparte esa función), sin cambiar el hero institucional, dock, filtros, movimientos ni lista.
+- PWA y precaché actualizados a `v175.86`. Ninguna modificación de Supabase.
 
 ## v175.85 · Restricciones y anulaciones por lista, sin motivo manual
 
