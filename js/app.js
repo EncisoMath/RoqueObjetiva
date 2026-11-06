@@ -4625,7 +4625,7 @@
     if(hasDirector)sections.push(["director","Dirección de Grupo","graduation"]);
     if(isAdmin||teacher?.coordinator)sections.push(["coord","Coordinador","users"]);
     if(isAdmin)sections.push(["admin","Administrador","shield"]);
-    sections.push(["logout","Salir","logout"]);
+    sections.push(["logout","Cerrar sesión","logout"]);
     const isCurrent=(id)=>id==="coord"
       ? (isAdmin?["mover","estadisticas","consultar"].includes(mode):String(mode||"").startsWith("coord-"))
       : id==="admin" ? isAdmin&&["asignaturas-areas","docentes","claves"].includes(mode)
