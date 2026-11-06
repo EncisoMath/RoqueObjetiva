@@ -1,4 +1,4 @@
-/* RoqueObjetiva v175.82 · Restricciones y anulaciones. Diseño flat, radio 4 px. */
+/* RoqueObjetiva v175.85 · Restricciones y anulaciones. Diseño flat, radio 4 px. */
 .rm18-root{--rm18-border:#cbdeed;--rm18-dark:#16385c;color:var(--rm18-dark);font-family:Montserrat,sans-serif;max-width:1000px;margin:0 auto}
 .rm18-root *{box-sizing:border-box}
 .rm18-root button,.rm18-root input,.rm18-root textarea,.rm18-root select{font:inherit}
@@ -105,3 +105,100 @@
 .rm18-notice .rm18-red-copy{color:#c10c18}
 .rm18-notice .rm18-understood{display:inline-flex;justify-content:center;min-width:130px;background:#1578b5;border:0;color:#fff;padding:10px 20px;border-radius:4px;font-size:13px;font-weight:650}
 @media(max-width:520px){.rm18-notice{width:calc(100vw - 32px)}.rm18-notice-banner{font-size:15px}}
+
+
+/* v175.85: dos listados en grid y detalle separado en tres modos. */
+.rm18-root .rm18-filters{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+ align-items:stretch;gap:9px;margin:0 0 12px;
+}
+.rm18-root .rm18-filter{
+ appearance:none;position:relative;display:flex;align-items:center;gap:9px;
+ min-width:0;min-height:73px;padding:12px 13px;
+ border:1px solid #c9deed;background:#fff;border-radius:4px;
+ color:#173b5d;text-align:left;transition:background .16s,border-color .16s;
+}
+.rm18-root .rm18-filter:hover{background:#f3faff;border-color:#80badf}
+.rm18-root .rm18-filter.active{background:#ebf6fd;border-color:#1781b8}
+.rm18-root .rm18-filter-icon{
+ display:grid;place-items:center;flex:none;color:#167bb8;
+ background:#eaf3fa;width:36px;height:36px;border-radius:4px;
+}
+.rm18-root .rm18-filter-label{display:grid;gap:4px;min-width:0;flex:1}
+.rm18-root .rm18-filter-label>span{
+ font-size:13px;font-weight:650;line-height:1.24;overflow-wrap:anywhere;
+}
+.rm18-root .rm18-filter-label small{font-size:10px;color:#648099;line-height:1.3;font-weight:400}
+.rm18-root .rm18-counter{
+ display:grid;place-items:center;position:absolute;top:-8px;right:-7px;
+ min-width:22px;height:22px;padding:0 5px;color:#fff;background:#e43843;
+ border:2px solid #fff;border-radius:50%;font-size:10px;font-weight:700;
+}
+.rm18-root .rm18-more{
+ width:100%;min-height:36px;padding:8px;margin-top:9px;
+ border:1px solid #bdd7e9;background:#f4f9fd;color:#156b9f;font-size:12px;font-weight:600;
+}
+.rm18-root .rm18-modes{
+ display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;
+}
+.rm18-root .rm18-mode{
+ display:flex;align-items:center;justify-content:center;gap:7px;
+ min-width:0;min-height:55px;padding:9px 6px;color:#1c4767;
+ background:#fff;border:1px solid #cbddec;border-radius:4px;
+ font-size:12px;font-weight:600;text-align:center;
+}
+.rm18-root .rm18-mode svg{flex:none}
+.rm18-root .rm18-mode:hover{background:#f5faff}
+.rm18-root .rm18-mode.active{
+ border-color:#1685bc;background:#ecf7fd;color:#075e91;
+}
+.rm18-root .rm18-edit-panel{gap:11px}
+.rm18-root .rm18-edit-panel.rm18-warning{
+ background:#fffbec;border-color:#f1dda4;
+}
+.rm18-root .rm18-edit-panel.rm18-warning>header{color:#a87318}
+.rm18-root .rm18-edit-panel.rm18-danger{background:#fffafb;border-color:#eccbd0}
+.rm18-root .rm18-edit-panel.rm18-danger>header{color:#ba3949}
+.rm18-root .rm18-edit-panel .rm18-toggle-row{
+ min-height:43px;padding:8px 10px;background:#fff;
+}
+.rm18-root .rm18-edit-panel .rm18-toggle-label{
+ font-size:12px;font-weight:550;
+}
+.rm18-root .rm18-edit-panel .rm18-toggle-label small{font-size:10px}
+.rm18-root .rm18-edit-panel.rm18-danger input{accent-color:#e13d47}
+.rm18-root .rm18-edit-panel.rm18-warning input{accent-color:#c38b1c}
+.rm18-root .rm18-edit-panel .rm18-check-list{
+ grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;
+}
+.rm18-root .rm18-edit-panel .rm18-save{
+ min-height:40px;width:100%;padding:9px;
+ font-size:12px;font-weight:650;
+}
+.rm18-root .rm18-edit-panel.rm18-warning .rm18-save{background:#c08a21}
+.rm18-root .rm18-edit-panel.rm18-warning .rm18-save:hover{background:#a57413}
+.rm18-root .rm18-edit-panel.rm18-danger .rm18-save{background:#ce424d}
+.rm18-root .rm18-edit-panel.rm18-danger .rm18-save:hover{background:#af303a}
+.rm18-root .rm18-edit-panel .rm18-save:disabled{opacity:.47}
+.rm18-root .rm18-edit-panel .rm18-muted{line-height:1.4}
+.rm18-root .rm18-error button{margin-left:5px;border:0;background:none;text-decoration:underline;color:#0b659b}
+@media(max-width:640px){
+ .rm18-root .rm18-filters{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+ .rm18-root .rm18-filter{gap:7px;min-height:73px;padding:9px 7px}
+ .rm18-root .rm18-filter-icon{width:29px;height:29px}
+ .rm18-root .rm18-filter-icon svg{width:19px;height:19px}
+ .rm18-root .rm18-filter-label>span{font-size:11px;font-weight:620}
+ .rm18-root .rm18-filter-label small{font-size:9px}
+ .rm18-root .rm18-counter{top:-8px;right:-5px;min-width:21px;height:21px}
+ .rm18-root .rm18-modes{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+ .rm18-root .rm18-mode{flex-direction:column;gap:5px;min-height:61px;padding:7px 3px;font-size:10.5px}
+ .rm18-root .rm18-mode svg{width:19px;height:19px}
+ .rm18-root .rm18-edit-panel .rm18-check-list{grid-template-columns:repeat(1,minmax(0,1fr))}
+}
+@media(max-width:355px){
+ .rm18-root .rm18-filter{gap:5px;padding:7px 5px}
+ .rm18-root .rm18-filter-icon{width:26px;height:26px}
+ .rm18-root .rm18-filter-icon svg{width:17px;height:17px}
+ .rm18-root .rm18-filter-label>span{font-size:10px}
+ .rm18-root .rm18-mode{font-size:10px}
+}
