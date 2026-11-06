@@ -8,6 +8,13 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 RoqueObjetiva v175.82
 
+## Hotfix v175.83 · Evitar timeout al calcular restricciones y anulaciones
+
+- Se optimizaron en Supabase las funciones privadas `roque_private.resumen_medidas` y `roque_private.mascara_respuestas_medidas` (migración `supabase/44_optimizar_medidas_timeout_v175_83.sql`).
+- Los alumnos sin medidas vigentes se devuelven inmediatamente sin recorrer ítems ni evaluar repetidamente cada área; las medidas activas se resuelven con arreglos y filtrado por sesión/área.
+- **Prueba:** cálculo de resumen para las 877 inscripciones de 2026-1S en aproximadamente 22 ms. Se probaron anulación de sesión, ocultamiento de respuestas y prioridad de restricción con operaciones revertidas en la misma transacción.
+- **Sin cambios de interfaz ni de versión de la PWA**; no altera datos históricos, claves, cargas, resultados ni permisos.
+
 ## v175.82 · Restricciones y anulaciones auditadas por edición
 
 - **Administrador → Restricciones y anulaciones:** búsqueda por nombre/documento/ID, selector real de edición, estado de acceso, primera o segunda sesión, áreas específicas, motivos y bitácora de cambios. Responsive y estilos flat (radio ≤4px). Integrado en el menú Administrador institucional y del personal docente con rol administrador.
