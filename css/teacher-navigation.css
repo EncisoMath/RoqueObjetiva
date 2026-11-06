@@ -389,3 +389,6 @@
 @media(prefers-reduced-motion:reduce){
   .teacher-edition-gate-featured {transition:none;}
 }
+
+/* v175.72 · Textos largos en cinco botones, conservando medidas y estilo t160. */
+@media(max-width:400px){.t160-dock-btn span{overflow-wrap:anywhere}}

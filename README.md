@@ -6,8 +6,20 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.71
+RoqueObjetiva v175.72
 
+
+## v175.72 · Restauración del dock original por rol
+
+Se restaura el **mismo dock `t160-dock`** y los mismos menús desplegables `t160-menu-layer` para Docente, Coordinador y Administrador, conservando animaciones, indicador activo, colores, alturas y diálogos originales. Se elimina la navegación administrativa alternativa creada en v175.71.
+
+- **Estudiante:** sin cambios.
+- **Solo Docente:** Carga, Dirección de grupo si está asignada, y botón directo Cerrar sesión.
+- **Coordinador:** Carga, Dirección de grupo si está asignada, Coordinador (Mover estudiantes, Estadísticas, Consultar estudiante) y Cerrar sesión. Recupera los permisos de consulta de su carga y dirección propios, sin acceso a Claves.
+- **Administrador:** Carga, Dirección de grupo cuando hay direcciones registradas, Coordinador con las mismas tres opciones, Administrador (Asignaturas, Personal docente, Claves de respuestas) y Cerrar sesión. Las vistas Carga/Director usan selector de docente, y los movimientos de estudiantes utilizan la RPC administrativa auditada.
+- **Todos los menús:** reutilizan exactamente la misma estructura CSS de menú del docente (`t160-menu-panel`, `t160-menu-item`) y el mismo dock tanto en escritorio como en celular. El panel Admin ya no muestra un sidebar separado.
+- **Supabase:** se conservan las RPC administrativas y auditoría de movimientos de v175.71 y el control de Claves solo para Admin. No se modifican datos ni se necesita migración adicional.
+- **PWA:** caché `resultados-pwa-v175-72-dock-roles-original`.
 
 ## v175.71 · Pestañas definitivas por rol
 
