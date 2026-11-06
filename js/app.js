@@ -5162,8 +5162,8 @@
 
   function renderAdmin() {
     if (!adminTabIds().has(state.adminTab)) state.adminTab = "asignaturas";
+    if(state.teacherDockMenu)closeTeacherDockMenu();
     const navigation = adminNavigationHtml();
-    state.teacherDockMenu="";
 
     // v175.55: mantener vivos el hero, el sidebar y el dock del Administrador.
     // Antes renderShell recreaba TODO el DOM al abrir cualquier pestaña.
@@ -5234,6 +5234,9 @@
         button.classList.toggle("is-active",active);
         if(active)button.setAttribute("aria-current","page");
         else button.removeAttribute("aria-current");
+      });
+      adminShell.querySelectorAll(".t160-menu-item[data-tab]").forEach(button=>{
+        button.classList.toggle("is-active",button.dataset.tab===state.adminTab);
       });
       syncDockMotion(dock);
       panel.innerHTML=renderAdminTab();
