@@ -4458,6 +4458,7 @@
   // CSS-only fallback cuando la API no existe y sin animación para
   // prefers-reduced-motion.
   function renderTeacherWithMotion() {
+    if(state.activeSession?.role==="admin"){renderAdmin();return;}
     // Solo transición de opacidad del contenido, sin capturas del hero/dock.
     const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches === true;
     state.teacherViewMotionPending = !reduced && Boolean(app.querySelector(".roque-teacher-shell .page"));
@@ -4691,7 +4692,7 @@
       `;
     }).join("");
 
-    renderShell(`
+    const content = `
       <div class="teacher-assignments-ui">
       ${teacherModeTabs(teacher, "asignaturas")}
 
@@ -4745,7 +4746,9 @@
         </div>
       </section>
       </div>
-    `, navFor("teacher"));
+    `;
+    if(state.activeSession?.role==="admin"&&state.adminTab==="asignaturas")return content;
+    renderShell(content,navFor("teacher"));
   }
 
   function renderTeacherDirector(teacher) {
@@ -4816,7 +4819,7 @@
       </tr>
     `).join("");
 
-    renderShell(`
+    const content = `
       ${teacherModeTabs(teacher, "director")}
 
       <div class="teacher-nav-block">
@@ -4855,11 +4858,13 @@
           </div>
         </section>
       ` : `<section class="card card-pad empty-state">No tienes dirección de grupo asignada.</section>`}
-    `, navFor("teacher"));
+    `;
+    if(state.activeSession?.role==="admin"&&state.adminTab==="director")return content;
+    renderShell(content,navFor("teacher"));
   }
 
   function openDirectorSubjectDetail(key, subject) {
-    const teacher = state.teachers.get(state.activeSession?.id);
+    const teacher = state.teachers.get(state.activeSession?.role==="admin" ? state.adminTeacherId : state.activeSession?.id);
     const directorGroup = (teacher?.directorGroups || []).find((group) => group.key === key);
     if (!directorGroup || !subject) return;
     const students = sortRowsByState(
@@ -5258,8 +5263,31 @@
     }
   }
 
+
+  function adminTeachingHtml(mode) {
+    if(state.activeSession?.role!=="admin")return '<div class="empty-state">Solo Administración.</div>';
+    const teachers=[...state.teachers.values()].filter(t=>
+      mode==="director" ? (t.directorGroups||[]).length : (t.assignments||[]).length
+    ).sort((a,b)=>(a.name||a.id).localeCompare(b.name||b.id,"es"));
+    if(!teachers.length)return '<div class="empty-state">No hay docentes con '+(mode==="director"?"dirección de grupo":"carga académica")+' registrados para esta edición.</div>';
+    if(!teachers.some(t=>t.id===state.adminTeacherId)){
+      state.adminTeacherId=teachers[0].id;
+      state.teacherActive=null;
+      state.teacherDirectorActiveKey="";
+    }
+    const teacher=teachers.find(t=>t.id===state.adminTeacherId);
+    const picker='<section class="admin-teacher-picker"><label><span>Docente</span>'+
+      '<select data-admin-teacher-id aria-label="Seleccionar docente">'+teachers.map(t=>
+        '<option value="'+escAttr(t.id)+'"'+(t.id===teacher.id?' selected':'')+'>'+
+         esc(t.name||t.id)+'</option>').join("")+'</select></label></section>';
+    const content=mode==="director"?renderTeacherDirector(teacher):renderTeacherAssignments(teacher);
+    return '<div class="roque-teacher-shell admin-teacher-dashboard">'+picker+(content||"")+'</div>';
+  }
+
   function renderAdminTab() {
     switch (state.adminTab) {
+      case "asignaturas": return adminTeachingHtml("asignaturas");
+      case "director": return adminTeachingHtml("director");
       case "consultar": return window.RoqueStudentLookup
         ? window.RoqueStudentLookup.render({rpc:supabaseRpc,notify:toast,role:"admin",
            id:"admin",edition:cleanText(state.academicEdition||"2026-2S")})
@@ -7984,8 +8012,14 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       void selectTeacherEdition(target.value);
       return;
     }
-    if (target.dataset.teacherSelect && state.activeSession?.role === "teacher") {
-      const teacher = state.teachers.get(state.activeSession.id);
+    if(target.dataset.adminTeacherId&&state.activeSession?.role==="admin"){
+      if(state.teachers.has(target.value)){
+        state.adminTeacherId=target.value;state.teacherActive=null;state.teacherDirectorActiveKey="";renderAdmin();
+      }
+      return;
+    }
+    if (target.dataset.teacherSelect && ["teacher","admin"].includes(state.activeSession?.role)) {
+      const teacher = state.teachers.get(state.activeSession?.role==="admin"?state.adminTeacherId:state.activeSession.id);
       if (!teacher) return;
       if (target.dataset.teacherSelect === "subject") {
         const subject = target.value;
