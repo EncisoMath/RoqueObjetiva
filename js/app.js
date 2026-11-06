@@ -4100,7 +4100,6 @@
     if (isCoordinator && String(state.teacherMode || "").startsWith("coord-")) {
       return renderCoordinatorPanel(teacher);
     }
-    if (!hasAssignments && hasDirector && state.teacherMode === "asignaturas") state.teacherMode = "director";
     if (!hasDirector && state.teacherMode === "director") state.teacherMode = hasAssignments ? "asignaturas" : (isCoordinator ? "coord-mover" : "asignaturas");
     if (!state.teacherMode) state.teacherMode = hasAssignments ? "asignaturas" : (hasDirector ? "director" : (isCoordinator ? "coord-mover" : "asignaturas"));
 
@@ -4458,7 +4457,7 @@
   // Etapa 2: solo navegar por roles efectivamente asignados.
   function teacherModeAllowed(teacher, mode) {
     if (!teacher) return false;
-    if (mode === "asignaturas") return (teacher.assignments || []).length > 0;
+    if (mode === "asignaturas") return true;
     if (mode === "director") return (teacher.directorGroups || []).length > 0;
     if (["coord-mover","coord-estadisticas","coord-consultar"].includes(mode)) return !!teacher.coordinator;
     return false;
