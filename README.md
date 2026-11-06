@@ -6,8 +6,18 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.64
+RoqueObjetiva v175.65
 
+
+## v175.65 · Consultar estudiante: Admin y Coordinadores
+
+- **Nueva pestaña:** Administración → Personal → Consultar estudiante; menú de Coordinación → Consultar estudiante. Acceso móvil en la navegación.
+- **Sin lista permanente:** filtros de grado, sede y curso; búsqueda por nombre, apellido, documento o ID de prueba, con sugerencias tras escribir dos caracteres y un máximo de doce coincidencias.
+- **Ficha editable:** nombres, apellidos, sede, grado, curso, documento e ID de prueba; guardado directo en Supabase con control de concurrencia y auditoría de la persona que editó.
+- **Resultados como Estudiante:** reutiliza exactamente las tarjetas de puntaje global, rankings por grado/curso, grid de asignaturas con colores originales y modal con respuestas, componentes y competencias.
+- **Datos por edición:** historial 2026-1S con resultados reales. Cuando 2026-2S no tiene inscripciones propias, la búsqueda utiliza el registro institucional, indicando que aún no existen notas de esa edición.
+- **Seguridad:** RPC protegidas para buscar, consultar detalles y guardar. Admin requiere Supabase Auth; Coordinadores requieren sesión vigente validada en servidor. Se registra un historial privado de modificaciones.
+- **PWA:** nuevos archivos `js/consulta-estudiante.js` y `css/consulta-estudiante.css` precargados en v175.65. Diseño flat, esquinas de 4px.
 
 ## v175.64 · Coordinadores pueden anular y reactivar ítems
 

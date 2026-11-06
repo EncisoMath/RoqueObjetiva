@@ -32,7 +32,7 @@ function filterHtml(){
  '</div>';
 }
 function suggestions(){
- if(!S.query.trim())return "";
+ if(!S.query.trim()||(S.selected&&S.query===name(S.selected)))return "";
  if(S.query.trim().length<2)return '<div class="rce-hint">Escribe al menos dos caracteres.</div>';
  if(S.tip==="Buscando…")return '<div class="rce-hint">Buscando estudiantes…</div>';
  if(S.error)return '<div class="rce-hint rce-error">'+esc(S.error)+'</div>';
