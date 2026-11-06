@@ -146,9 +146,17 @@ const screen=()=>{
  if(!S.items.length)return '<div class="rak-empty">No hay ítems configurados para este grado.</div>';
  return gradeControl()+tabControl()+cards()+(S.error?'<p class="rak-error" role="alert">'+esc(S.error)+'</p>':'');
 };
+// Vista Administrador: hero compartido; Coordinación conserva su encabezado.
 const markup=()=>'<section class="rak-screen">'+
- '<div class="rak-head"><span class="rak-eyebrow">'+(S.editable?'ADMINISTRACIÓN':'COORDINACIÓN')+'</span>'+
- '<h2>Claves de respuesta</h2><p>El examen es general por grado: la misma clave aplica a todos los cursos y sedes.</p></div>'+
+ (ctx?.role==="admin"
+  ?window.RoqueScreenHero.render({
+    title:"Claves de respuesta",
+    subtitle:"El examen es general por grado: la misma clave aplica a todos los cursos y sedes.",
+    icon:"key",
+    heading:"h2"
+   })
+  :'<div class="rak-head"><span class="rak-eyebrow">COORDINACIÓN</span>'+
+   '<h2>Claves de respuesta</h2><p>El examen es general por grado: la misma clave aplica a todos los cursos y sedes.</p></div>')+
  '<div id="rak-body">'+screen()+'</div></section>';
 const show=()=>{
  const root=document.getElementById("roque-keys");

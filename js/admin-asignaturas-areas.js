@@ -1,4 +1,4 @@
-/* RoqueObjetiva v175.81 · Asignaturas y áreas, datos 100% de Supabase. */
+/* RoqueObjetiva v175.88 · Asignaturas y áreas, datos 100% de Supabase. */
 (() => {
   "use strict";
   const S={areas:[],subjects:[],loaded:false,loading:false,busy:false,error:"",selected:"",modal:null,revision:0,lastLoad:0};
@@ -39,9 +39,13 @@
   const freeSubjects=()=>S.subjects.filter(s=>!s.area).sort((a,b)=>collate(a.nombre,b.nombre));
   const areaHead=(a)=>'<span class="ra-area-tile">'+picture(a.nombre)+'</span>';
   const plural=n=>n===1?"1 asignatura":n+" asignaturas";
-  const header=()=>'<header class="ra-page-header"><div class="ra-kicker">ADMINISTRACIÓN</div>'+
-    '<div class="ra-heading"><span class="ra-logo">'+icon("layers",29)+'</span><div><h2>Asignaturas y áreas</h2>'+
-    '<p>Organiza las áreas y las asignaturas que pertenecen a cada una.</p></div></div></header>';
+  // Hero interno compartido, sin alterar el hero temático del detalle de área.
+  const header=()=>window.RoqueScreenHero.render({
+    title:"Asignaturas y áreas",
+    subtitle:"Organiza las áreas y las asignaturas que pertenecen a cada una.",
+    icon:"layers",
+    heading:"h2"
+  });
   const list=()=>header()+'<section class="ra-list" aria-label="Áreas académicas">'+
     S.areas.map(a=>'<button class="ra-area-row" type="button" data-ra-action="open" data-area="'+esc(a.nombre)+'">'+
       areaHead(a)+'<span class="ra-area-text"><span class="ra-area-name">'+esc(displayArea(a.nombre))+'</span><small>'+plural(allSubjects(a.nombre).length)+'</small></span>'+

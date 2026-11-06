@@ -1,4 +1,4 @@
-/* RoqueObjetiva v175.85 · Restricciones y anulaciones. */
+/* RoqueObjetiva v175.88 · Restricciones y anulaciones. */
 (() => {
  "use strict";
  const S={ctx:null,owner:"",edition:"",query:"",filter:"all",students:[],total:0,
@@ -115,9 +115,12 @@
    (type==="active"?'<span class="rm18-counter" aria-label="'+S.affected+' estudiantes con medidas">'+S.affected+'</span>':"")+
    '</button>';
  };
- const renderHome=()=>'<div class="rm18-home"><header class="rm18-head"><p>ADMINISTRACIÓN</p><div>'+
-  '<span class="rm18-head-icon">'+icon("shield",27)+'</span><section><h2>Restricciones y anulaciones</h2>'+
-  '<p>Gestiona el acceso y las anulaciones de los estudiantes.</p></section></div></header>'+
+ const renderHome=()=>'<div class="rm18-home">'+window.RoqueScreenHero.render({
+   title:"Restricciones y anulaciones",
+   subtitle:"Gestiona el acceso y las anulaciones de los estudiantes.",
+   icon:"shield",
+   heading:"h2"
+  })+
   '<div class="rm18-filters" role="group" aria-label="Filtrar estudiantes">'+
    filterButton("all","Todos los estudiantes","Listado completo","users")+
    filterButton("active","Estudiantes con restricciones y anulaciones","Medidas vigentes","alert")+'</div>'+

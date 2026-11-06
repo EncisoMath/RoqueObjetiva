@@ -5400,7 +5400,7 @@
       if(title && title.textContent!==navigation.currentTitle)
         title.textContent=navigation.currentTitle;
       const adminHeading=workspace.querySelector(".adm151-current-heading");
-      if(adminHeading)adminHeading.hidden=["estadisticas","claves","consultar","mover","asignaturas-areas","restricciones"].includes(state.adminTab);
+      if(adminHeading)adminHeading.hidden=["estadisticas","claves","consultar","mover","asignaturas-areas","restricciones","docentes"].includes(state.adminTab);
       workspace.querySelectorAll(".adm151-sidebar .adm151-link[data-tab], .adm151-overlay .adm151-link[data-tab]").forEach(link=>{
         const active=link.dataset.tab===state.adminTab;
         link.classList.toggle("is-active",active);
@@ -5436,7 +5436,7 @@
       <div class="adm151-workspace">
         ${navigation.sidebar}
         <section class="adm151-main" aria-label="Contenido administrativo">
-          <div class="adm151-current-heading"${["estadisticas","claves","consultar","mover","asignaturas-areas","restricciones"].includes(state.adminTab) ? " hidden" : ""}>
+          <div class="adm151-current-heading"${["estadisticas","claves","consultar","mover","asignaturas-areas","restricciones","docentes"].includes(state.adminTab) ? " hidden" : ""}>
             <div><span>ADMINISTRACIÓN</span><h2>${esc(navigation.currentTitle)}</h2></div>
           </div>
           <section class="admin-layout admin-layout-full">

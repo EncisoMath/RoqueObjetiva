@@ -6,7 +6,15 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.87
+RoqueObjetiva v175.88
+
+## v175.88 · Hero reutilizable en las cuatro pantallas de Administrador
+
+- Los encabezados de **Asignaturas y áreas**, **Restricciones y anulaciones**, **Personal Docente** y **Claves de respuesta** ahora reutilizan directamente `window.RoqueScreenHero.render()` creado para **Mover estudiantes**.
+- Los cuatro usan exactamente la misma estructura, fondo azul oscuro, ondas SVG animadas en azul claro, recuadro blanco del icono, separador vertical, tipografía responsive y bordes de máximo 4 px; solo cambian título, subtítulo e icono (`layers`, `shield`, `users`, `key`).
+- El icono `key` se incorpora al catálogo del componente compartido. Los encabezados anteriores se reemplazan sin añadir HTML ni CSS duplicados. Se oculta el encabezado externo redundante del panel **Personal Docente**.
+- Se conserva el hero de color por asignatura al abrir el **detalle de un área** y el encabezado de **Claves** en su vista estrictamente de **Coordinación**. Los demás roles, filtros, listados, notas, permisos, Supabase, hero institucional y dock no se alteran.
+- Publicación de PWA con nueva caché y recursos `v175.88`, sin migraciones ni cambios de datos.
 
 ## v175.87 · Hero reutilizable en Estadísticas Institucionales y Consultar estudiante
 

@@ -1,4 +1,4 @@
-/* RoqueObjetiva v175.70 | Personal Docente
+/* RoqueObjetiva v175.88 | Personal Docente
    Admin solamente: identidad, carga academica, direccion de grupo y coordinador. */
 (() => {
   "use strict";
@@ -113,8 +113,12 @@
       '</div>';
   };
   const rosterView=()=>'<div class="rp-roster-view">'+
-    '<header class="rp-title-strip"><span class="rp-head-icon">'+svgIcon("direccion")+'</span><div><h2>Personal Docente</h2>'+
-    '<p>Gestiona docentes, cargas, direcciones y roles.</p></div></header>'+
+    window.RoqueScreenHero.render({
+      title:"Personal Docente",
+      subtitle:"Gestiona docentes, cargas, direcciones y roles.",
+      icon:"users",
+      heading:"h2"
+    })+
     '<label class="rp-search"><span class="rp-sr">Buscar docente</span><input type="search" id="rp-search" value="'+e(S.search)+'" placeholder="⌕  Buscar por nombre o identificación" autocomplete="off"></label>'+
     '<div class="rp-filter-row"><label><span>Sede</span><select id="rp-site-filter"><option value="all">Todas</option>'+
       getSites().map(s=>'<option value="'+e(s)+'"'+(S.sede===s?" selected":"")+'>'+e(s)+'</option>').join("")+'</select></label>'+
