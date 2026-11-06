@@ -3661,9 +3661,10 @@
         <main class="page${heroRole === "teacher" && state.teacherViewMotionPending ? " teacher-page-enter" : ""}">
           ${content}
         </main>
-        ${state.activeSession?.role === "teacher" ? teacherDockHtml() : ""}
+        ${["teacher","admin"].includes(state.activeSession?.role) ? teacherDockHtml() : ""}
       </div>
     `;
+    if (heroRole === "admin")syncDockMotion(app.querySelector(".adm151-shell .t160-dock"));
     if (heroRole === "teacher") {
       state.teacherViewMotionPending = false;
       syncDockMotion(app.querySelector(".roque-teacher-shell .t160-dock, .adm151-shell .t160-dock"));
@@ -5033,7 +5034,7 @@
       ["estadisticas","Estadísticas","chart"],["consultar","Consultar estudiante","graduation"]
     ]},
     {id:"administracion",title:"Administración",items:[
-      ["claves","Claves de respuestas","key"],["docentes","Personal docente","users"]
+      ["asignaturas-areas","Asignaturas","layers"],["claves","Claves de respuestas","key"],["docentes","Personal docente","users"]
     ]}
   ];
 
@@ -5083,7 +5084,7 @@
     return {
       currentTitle:section?.[1]||"Carga",
       sidebar:"",
-      mobile:teacherDockHtml()
+      mobile:""
     };
   }
 
