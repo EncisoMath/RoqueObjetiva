@@ -6,8 +6,19 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.60
+RoqueObjetiva v175.61
 
+
+## v175.61 · Claves de respuestas generales por grado (Admin / Coordinador)
+
+- **Nueva pantalla:** Administrador → Configuración → Claves de respuestas; Coordinador → Claves de respuestas. Diseño móvil flat según captura: selector Grado, pestañas Sesión 1 / 2 según disponibilidad, asignaturas, ítems, opciones, interruptor Anulada y contadores del área. Esquinas de 4 px, sin botón Restablecer.
+- **Edición común:** utiliza automáticamente la prueba seleccionada en el hero; no presenta segundo selector de Edición. Cada clave pertenece a `(edicion, grado, numero_item)`, por lo que aplica a **todos los cursos y sedes de ese grado**.
+- **Opciones:** muestra A–D habitualmente; en Inglés y otros ítems que utilizan E–G, habilita las letras adicionales para conservar las claves originales. La numeración visible reinicia dentro de cada asignatura, mientras que el guardado utiliza el número global del ítem.
+- **Roles y guardado:** el Coordinador puede consultar las claves mediante su sesión validada, sin herramientas de modificación. El Administrador puede editar respuestas y anulaciones en ediciones en borrador. Los cambios se guardan por lote y se auditán en `roque_private.auditoria_correcciones`, sin refrescar el portal entero.
+- **Seguridad histórica:** en la edición cerrada `2026-1S` se permite corregir respuestas con motivo obligatorio (10–500 caracteres) mediante la función histórica `roque_v4_admin_corregir_claves_edicion`, que mantiene sincronizadas `public.claves` y `roque_private.items`. Anular ítems históricos continúa bloqueado para proteger los resultados publicados.
+- **Integridad:** actualizaciones con verificación de valores originales para evitar sobrescribir cambios de otra sesión. La consulta nunca entrega claves sin sesión de Coordinador válida o administrador autenticado; la RPC de escritura solamente tiene EXECUTE para `authenticated` y exige ser operador administrador activo.
+- **Supabase:** migración aplicada `supabase/32_claves_institucionales_v175_61.sql`, con `roque_v12_claves_consultar` y `roque_v12_claves_guardar`. Probada la lectura autenticada, denegación de sesiones inválidas, escritura de borrador y sincronización de claves históricas, con `ROLLBACK` para no alterar exámenes.
+- **Frontend/PWA:** `js/admin-claves.js`, `css/admin-claves.css`, rutas del Administrador y Coordinador, recursos precacheados, versión `v175.61`.
 
 ## v175.60 · Paletas originales de barras de Estadísticas
 
