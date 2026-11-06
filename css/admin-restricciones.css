@@ -1,0 +1,88 @@
+/* RoqueObjetiva v175.82 · Restricciones y anulaciones. Diseño flat, radio 4 px. */
+.rm18-root{--rm18-border:#cbdeed;--rm18-dark:#16385c;color:var(--rm18-dark);font-family:Montserrat,sans-serif;max-width:1000px;margin:0 auto}
+.rm18-root *{box-sizing:border-box}
+.rm18-root button,.rm18-root input,.rm18-root textarea,.rm18-root select{font:inherit}
+.rm18-root button{cursor:pointer;border-radius:4px}
+.rm18-root button:disabled{opacity:.48;cursor:not-allowed}
+.rm18-root :is(input,select,button,textarea):focus-visible{outline:2px solid #1485c1;outline-offset:2px}
+.rm18-head{padding:5px 4px 18px}.rm18-head>p{font-size:12px;letter-spacing:.1em;font-weight:750;color:#155684;margin:0 0 9px}
+.rm18-head>div{display:flex;align-items:flex-start;gap:12px}
+.rm18-head-icon{background:#0876b6;color:#fff;width:43px;height:43px;flex:none;display:grid;place-items:center;border-radius:4px}
+.rm18-head h2{font-size:clamp(18px,3vw,25px);margin:0 0 6px;font-weight:700;line-height:1.22}
+.rm18-head section>p{font-size:12px;color:#526e89;line-height:1.5;margin:0}
+.rm18-menu{display:grid;gap:9px;grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:14px}
+.rm18-menu-card{background:#fff;border:1px solid var(--rm18-border);color:var(--rm18-dark);padding:11px;display:flex;gap:10px;align-items:center;min-width:0;text-align:left}
+.rm18-menu-card:hover,.rm18-menu-card.active{background:#f2f9ff;border-color:#77b7dd}
+.rm18-menu-card>svg:last-child{margin-left:auto;flex:none}
+.rm18-menu-icon{width:37px;height:37px;flex:none;display:grid;place-items:center;border-radius:4px;background:#1589c6;color:white}
+.rm18-menu-card:nth-child(2) .rm18-menu-icon{background:#1073ad}.rm18-menu-card:nth-child(3) .rm18-menu-icon{background:#625fdd}
+.rm18-menu-text{display:grid;min-width:0;gap:3px}
+.rm18-menu-text strong{font-size:13px;font-weight:650}.rm18-menu-text small{font-size:10px;line-height:1.38;color:#5c7490;font-weight:400}
+.rm18-search-panel,.rm18-section,.rm18-save-panel,.rm18-student{background:#fff;border:1px solid var(--rm18-border);padding:13px;border-radius:4px}
+.rm18-search-panel{display:grid;gap:9px}
+.rm18-search-panel label,.rm18-save-panel label{font-size:12px;font-weight:650}
+.rm18-search-panel select,.rm18-search-panel input,.rm18-save-panel textarea{min-width:0;width:100%;border:1px solid #b6d2e7;border-radius:4px;background:#fff;padding:9px 11px;color:var(--rm18-dark);font-size:12px}
+.rm18-search-input{position:relative}
+.rm18-search-input svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#557b9b}
+.rm18-search-input input{padding-left:36px}
+.rm18-muted{font-size:11px;color:#70859a;margin:2px 0;font-weight:400}
+.rm18-results{display:grid;gap:6px;max-height:350px;overflow:auto;overscroll-behavior:contain}
+.rm18-student-result{display:flex;align-items:center;gap:8px;padding:10px;background:#f8fbfe;color:var(--rm18-dark);border:1px solid #d4e3f0;text-align:left;min-height:53px}
+.rm18-student-result:hover{background:#edf8ff}
+.rm18-result-name{display:grid;gap:3px;flex:1;min-width:0;font-size:12.5px;font-weight:600}
+.rm18-result-name small{font-weight:400;color:#617b94;font-size:10.5px}
+.rm18-result-flags{font-size:18px}
+.rm18-no-results{text-align:center;padding:17px}
+.rm18-detail{display:grid;gap:11px}
+.rm18-back{display:flex;align-items:center;gap:5px;justify-self:start;padding:4px;color:#165d93;border:none;background:transparent;font-size:12px;font-weight:650}
+.rm18-student{display:flex;align-items:center;gap:11px;background:#f5fbff}
+.rm18-student-icon{background:#d9eefe;color:#167cb2;padding:8px;border-radius:4px}
+.rm18-student>div{flex:1;min-width:0}
+.rm18-student h3{font-size:16px;font-weight:700;margin:0 0 4px;line-height:1.2}
+.rm18-student p{font-size:11px;color:#52718a;margin:0;line-height:1.4}
+.rm18-grade{color:#7053b8;background:#eee7fd;padding:6px 8px;border-radius:4px;font-size:11px;font-weight:650;flex:none}
+.rm18-section{display:grid;gap:10px}
+.rm18-section header{display:flex;align-items:flex-start;gap:9px;color:#144d7d}
+.rm18-section header>svg{flex:none}
+.rm18-section h3{font-size:15px;font-weight:700;margin:0 0 2px}
+.rm18-section header p{font-size:11px;color:#5b748b;line-height:1.45;margin:0}
+.rm18-section h4{font-size:12px;font-weight:650;margin:4px 0 0}
+.rm18-yellow{background:#fffbeb;border-color:#f3dca0}
+.rm18-yellow header{color:#b47713}
+.rm18-check-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.rm18-toggle-row{display:flex;align-items:center;gap:8px;border:1px solid #d1e2f0;background:#f9fbfd;border-radius:4px;padding:9px;min-height:48px;cursor:pointer}
+.rm18-toggle-row.is-on{background:#ebf5fd;border-color:#9cc8e9}
+.rm18-yellow .rm18-toggle-row.is-on{background:#fff1c5;border-color:#edc97a}
+.rm18-toggle-row input{width:17px;height:17px;flex:none;accent-color:#087db9}
+.rm18-toggle-label{flex:1;min-width:0;display:grid;gap:2px;font-size:12px;font-weight:600}
+.rm18-toggle-label small{font-size:10px;font-weight:400;color:#65809b;line-height:1.35}
+.rm18-switch{display:none}
+.rm18-active{background:#f8fbfe}
+.rm18-pills{display:flex;gap:5px;flex-wrap:wrap}
+.rm18-pill{border:1px solid #c8dcea;padding:5px 7px;font-size:10px;border-radius:4px}
+.rm18-pill.warning{background:#fff4d4;color:#925b11;border-color:#efd48b}
+.rm18-pill.danger{background:#ffebed;color:#b62c33;border-color:#ecc1c7}
+.rm18-save-panel{display:grid;gap:9px}
+.rm18-save-panel label span{font-size:10px;font-weight:400;color:#6d8195}
+.rm18-save-panel textarea{resize:vertical;min-height:54px}
+.rm18-save{background:#0878b6;color:white;display:flex;align-items:center;justify-content:center;gap:8px;border:0;padding:12px;font-size:12px;font-weight:700}
+.rm18-save:hover{background:#096a9e}
+.rm18-error{font-size:12px;background:#fff2f3;border:1px solid #f0b7bb;border-radius:4px;padding:10px;color:#b42332}
+.rm18-audit{border:1px solid #d5e4ed;background:white;padding:12px;border-radius:4px}
+.rm18-audit summary{font-size:12px;font-weight:650;cursor:pointer}
+.rm18-audit p{font-size:11px;padding:6px 0;border-bottom:1px solid #edf3f8;margin:3px 0}
+.rm18-audit small{display:block;margin-top:4px;color:#71869b}
+@media(max-width:640px){
+ .rm18-root{padding:0 1px}
+ .rm18-menu{grid-template-columns:1fr;gap:7px}
+ .rm18-menu-card{padding:9px;min-height:60px}
+ .rm18-menu-icon{width:34px;height:34px}
+ .rm18-menu-text strong{font-size:12.5px}
+ .rm18-menu-text small{font-size:10.5px}
+ .rm18-head h2{font-size:19px}
+ .rm18-check-list{grid-template-columns:1fr}
+ .rm18-student{padding:10px;gap:8px}
+ .rm18-student h3{font-size:13px}
+ .rm18-grade{font-size:10px;padding:5px}
+ .rm18-section,.rm18-save-panel,.rm18-search-panel{padding:11px}
+}
