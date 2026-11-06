@@ -1,4 +1,4 @@
-/* RoqueObjetiva v175.65 · Consulta individual · Admin / Coordinador.
+/* RoqueObjetiva v175.66 · Consulta individual · Admin / Coordinador.
  * La búsqueda solo abre sugerencias al escribir. Toda lectura y edición utiliza RPC seguras.
  */
 (() => {
@@ -7,7 +7,7 @@ const S={
  owner:"",edition:"",ctx:null,ready:false,loading:false,saving:false,detailLoading:false,
  grades:[],sedes:[],courses:[],origin:"",grade:"",sede:"",course:"",
  query:"",matches:[],selected:null,detail:null,original:null,draft:null,
- error:"",tip:"",request:0,searchTimer:null,searchSeq:0
+ error:"",tip:"",editing:false,request:0,searchTimer:null,searchSeq:0
 };
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const name=e=>[e?.nombres,e?.apellidos].filter(Boolean).join(" ").trim();
@@ -68,13 +68,21 @@ function profileHtml(){
   '<div class="rce-profile-heading"><span class="rce-profile-icon">'+esc((e.nombres||"?").charAt(0))+'</span>'+
   '<div><span class="rce-eyebrow">FICHA DEL ESTUDIANTE</span><h3>'+esc(name(e))+'</h3>'+
   '<p>'+esc(e.sede||"Sede sin registrar")+' · '+esc(e.grado)+'° '+esc(e.grupo||"")+'</p></div>'+
-  '<button class="rce-clear" type="button" data-rce-clear>Otra búsqueda</button></div>'+
-  editFields+
+  '<div class="rce-profile-actions">'+
+   '<button class="rce-edit-toggle" type="button" data-rce-edit-toggle aria-expanded="'+S.editing+'">'+
+    (S.editing?'Cerrar edición':'Editar datos')+'</button>'+
+   '<button class="rce-clear" type="button" data-rce-clear>Otra búsqueda</button>'+
+  '</div></div>'+
+  '<div class="rce-profile-tags">'+
+   '<span class="rce-profile-tag">ID de prueba <strong>'+esc(e.id_prueba||"—")+'</strong></span>'+
+   '<span class="rce-profile-tag">Documento <strong>'+esc(e.id_alumno||"—")+'</strong></span>'+
+  '</div>'+
+  (S.editing?'<div class="rce-editor">'+editFields+
   '<p class="rce-source">'+esc(sourceHint)+'</p>'+
   '<p class="rce-caution">Cambiar grado, documento o ID de prueba puede modificar la vinculación del examen y los rankings. Verifica los datos antes de guardar.</p>'+
   '<div class="rce-save-bar"><span id="rce-save-state" aria-live="polite">'+(S.error?esc(S.error):esc(S.tip||""))+'</span>'+
   '<button type="button" id="rce-save" data-rce-save '+(!dirty()||S.saving?'disabled':'')+'>'+
-   (S.saving?"Guardando…":"Guardar cambios")+'</button></div></section>';
+   (S.saving?"Guardando…":"Guardar cambios")+'</button></div></div>':'')+'</section>';
 }
 function resultsHtml(){
  if(S.detailLoading)return '<div class="rce-loading">Consultando las respuestas y resultados…</div>';
@@ -84,9 +92,7 @@ function resultsHtml(){
  const html=window.RoqueStudentLookupBridge?.render(S.detail)||"";
  if(!html)return '<section class="rce-no-results"><h3>Resultados aún no calculables</h3>'+
   '<p>Existe un examen, pero faltan claves válidas para mostrar sus puntajes y áreas.</p></section>';
- return '<section class="rce-report"><div class="rce-report-heading"><span class="rce-eyebrow">RESULTADOS DE '+esc(S.edition)+'</span>'+
-  '<h3>Vista del estudiante</h3><p>Toca un área para revisar cada respuesta, sus componentes y sus competencias.</p></div>'+
-  html+'</section>';
+ return '<section class="rce-report" aria-label="Resultados del estudiante en '+esc(S.edition)+'">'+html+'</section>';
 }
 function screen(){
  return '<div class="rce-screen">'+
@@ -144,7 +150,7 @@ async function search(){
 }
 function showSuggestions(){const e=root()?.querySelector("#rce-suggestions-box");if(e)e.innerHTML=suggestions();}
 async function choose(student){
- S.matches=[];S.query=name(student);S.selected=student;S.detail=null;S.original=null;S.draft=null;
+ S.matches=[];S.query=name(student);S.selected=student;S.detail=null;S.original=null;S.draft=null;S.editing=false;
  S.detailLoading=true;S.error="";S.tip="";show();
  const seq=++S.request;
  try{
@@ -182,12 +188,12 @@ async function save(){
   });
   if(seq!==S.request)return;
   if(detail?.ok)S.detail=detail;
-  S.tip="Cambios guardados correctamente.";S.error="";
+  S.tip="Cambios guardados correctamente.";S.error="";S.editing=false;
  }catch(err){S.error=String(err?.message||err);S.tip=S.error;S.ctx.notify?.(S.error);}
  finally{S.saving=false;if(seq===S.request)show();}
 }
 function resetFilters(){
- S.matches=[];S.query="";S.selected=null;S.original=null;S.draft=null;S.detail=null;
+ S.matches=[];S.query="";S.selected=null;S.original=null;S.draft=null;S.detail=null;S.editing=false;
  S.error="";S.tip="";S.searchSeq++;S.request++;
  show();
 }
@@ -198,7 +204,7 @@ function render(context){
   clearTimeout(S.searchTimer);S.searchSeq++;S.request++;
   Object.assign(S,{owner,edition,ctx:context,ready:false,loading:false,saving:false,detailLoading:false,
    grades:[],sedes:[],courses:[],origin:"",grade:"",sede:"",course:"",
-   query:"",matches:[],selected:null,detail:null,original:null,draft:null,error:"",tip:""});
+   query:"",matches:[],selected:null,detail:null,original:null,draft:null,error:"",tip:"",editing:false});
  }
  S.ctx=context;
  if(!S.ready&&!S.loading)void initialize();
@@ -234,6 +240,13 @@ document.addEventListener("click",event=>{
  const r=root();if(!r||!r.contains(event.target))return;
  const button=event.target.closest("button");if(!button)return;
  if(button.dataset.rcePick!==undefined){const person=S.matches[Number(button.dataset.rcePick)];if(person)void choose(person);return;}
+ if(button.hasAttribute("data-rce-edit-toggle")){
+  if(S.saving)return;
+  if(S.editing&&dirty()&&!window.confirm("Hay datos sin guardar. ¿Descartar los cambios?"))return;
+  if(S.editing)S.draft={...S.original};
+  S.editing=!S.editing;
+  show();return;
+ }
  if(button.hasAttribute("data-rce-clear")){resetFilters();return;}
  if(button.hasAttribute("data-rce-save")){void save();return;}
  if(button.dataset.action==="student-area-open"){

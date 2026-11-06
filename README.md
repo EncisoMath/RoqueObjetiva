@@ -6,8 +6,15 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.65
+RoqueObjetiva v175.66
 
+
+## v175.66 · Consultar estudiante con la interfaz idéntica a Estudiante
+
+- Se corrigió el alcance CSS de `css/student-dashboard.css`: la misma presentación del informe estudiantil se comparte entre `.roque-student-shell` y `.rce-report`. Se recuperan tarjetas blancas, puntaje global azul, medallas/rankings, cuadrícula de dos columnas, iconos, barras y colores reales por área.
+- La ficha del alumno se compacta: nombre, curso, sede, IDs y botón **Editar datos**; al pulsarlo se despliegan los campos y **Guardar cambios**, conservando el guardado auditado en Supabase.
+- Se elimina el encabezado redundante "Vista del estudiante" para que el informe aparezca inmediatamente debajo de la ficha.
+- Se actualiza la caché PWA a v175.66. No se cambian calificaciones ni inscripciones de Supabase.
 
 ## v175.65 · Consultar estudiante: Admin y Coordinadores
 

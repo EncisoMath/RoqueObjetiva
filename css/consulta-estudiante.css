@@ -1,4 +1,4 @@
-/* RoqueObjetiva v175.65 · Consulta estudiante (Administrador / Coordinador).
+/* RoqueObjetiva v175.66 · Consulta estudiante (Administrador / Coordinador).
  * Flat, móvil y escritorio, radio máximo 4px; reutiliza tarjetas stu174.
  */
 .rce-root{
@@ -84,13 +84,10 @@
 .rce-save-bar>span{font-size:.68rem;line-height:1.35;color:#5c8094;flex:1;min-width:0}
 .rce-save-bar button{min-height:39px;background:#218b51;border:1px solid #218b51;border-radius:4px;color:#fff;font-weight:800;font-size:.75rem;padding:8px 15px}
 .rce-save-bar button:disabled{background:#a9ceba;border-color:#a9ceba}
-.rce-report{display:grid;gap:12px;min-width:0}
-.rce-report-heading{display:grid;gap:3px;padding:1px 3px}
-.rce-report-heading h3{font-size:.98rem;font-weight:900;margin:0}
-.rce-report-heading p{font-size:.69rem;color:#72869a;margin:0}
-.rce-report .stu174-dashboard{width:100%;min-width:0;max-width:100%;padding:0;margin:0}
-.rce-report .stu174-identity{display:none}
-.rce-report .stu174-global,.rce-report .stu174-results{min-width:0}
+.rce-report{display:block;min-width:0;width:100%;padding:0;margin:0;border:0;background:transparent}
+.rce-report .stu174-dashboard{max-width:950px;min-width:0;width:100%}
+.rce-report .stu174-identity{display:none!important}
+.rce-report .stu174-global,.rce-report .stu174-results,.rce-report .stu174-grid{min-width:0}
 .rce-no-results{display:grid;justify-items:center;gap:8px;text-align:center;padding:26px 14px}
 .rce-no-results>span{font-size:2rem}
 .rce-no-results h3{margin:0;font-size:.94rem;color:#244e70}
@@ -101,7 +98,6 @@
  .rce-profile-heading{flex-wrap:wrap}
  .rce-profile-heading>div{flex:1 1 150px}
  .rce-clear{margin-left:auto}
- .rce-report .stu174-dashboard{gap:10px}
 }
 @media(max-width:420px){
  .rce-filters{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
@@ -114,3 +110,23 @@
  .rce-screen{gap:10px}
 }
 @media(prefers-reduced-motion:reduce){.rce-root *{animation:none!important;transition:none!important}}
+
+/* v175.66 · Ficha compacta; resultados idénticos a la UI Estudiante. */
+.rce-profile{gap:10px}
+.rce-profile-heading{flex-wrap:wrap;align-items:center}
+.rce-profile-heading>div{min-width:140px}
+.rce-profile-actions{margin-left:auto;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.rce-edit-toggle{display:inline-flex;align-items:center;justify-content:center;min-height:35px;border:1px solid #1e86be;border-radius:4px;background:#eff8fe;color:#1774a7;font-size:.69rem;font-weight:850;padding:8px 10px}
+.rce-profile-tags{display:flex;flex-wrap:wrap;gap:6px}
+.rce-profile-tag{display:inline-flex;align-items:center;gap:5px;min-width:0;padding:6px 9px;border:1px solid #e0ebf3;border-radius:4px;background:#f5f9fc;color:#55748b;font-size:.65rem}
+.rce-profile-tag strong{color:#204b69;font-weight:800;overflow-wrap:anywhere}
+.rce-editor{display:grid;gap:10px;padding-top:10px;border-top:1px solid #e4edf4}
+.rce-profile-grid{margin:0}
+.rce-profile-heading .rce-clear{min-height:35px}
+.rce-editor .rce-source{padding:8px 9px}
+@media(max-width:420px){
+ .rce-profile-heading{gap:8px}
+ .rce-profile-actions{width:100%;margin-left:0;justify-content:flex-end}
+ .rce-profile-actions button{min-height:32px}
+ .rce-profile-tag{font-size:.62rem}
+}
