@@ -6,7 +6,13 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.90
+RoqueObjetiva v175.91
+
+## v175.91 · Encabezados compactos y modal anulado rojo/negro
+
+- Se redujo el espacio inferior de los heroes y la altura de las dos ondas SVG, de manera **compartida** en los avisos restringido y anulado; en el restringido se mantuvieron los colores amarillos.
+- **Examen anulado:** hero rojo intenso, onda rojo oscuro y onda negro carbón, título y X blancos, separador oscuro. El icono y el cuerpo blanco mantienen su disposición.
+- Solo se modificaron estilos `.rm18-notice*`, la versión y la caché PWA. Se preservaron todos los eventos del modal, la calificación especial, el dock y los permisos. Sin cambios en Supabase.
 
 ## v175.90 · Rediseño visual de los modales especiales de calificación
 

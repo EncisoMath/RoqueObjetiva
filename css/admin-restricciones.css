@@ -94,7 +94,7 @@
 .rm18-cell-button:hover{background:#fff3e3}
 .rm18-cell-button:focus-visible{outline:2px solid #1975ae}
 
-/* v175.90 · Dos avisos especiales de calificación; estructura compartida y flat. */
+/* v175.91 · Modales especiales compactos y anulado rojo/negro; sin cambios funcionales. */
 .rm18-notice{
  --rm18-hero:#fff0b9;
  --rm18-wave-back:#ffdf84;
@@ -114,12 +114,13 @@
  scrollbar-width:thin;
 }
 .rm18-notice-danger{
- --rm18-hero:#ffe1e4;
- --rm18-wave-back:#ffb2bc;
- --rm18-wave-front:#f77b89;
- --rm18-ink:#761a27;
- border-color:#efa0a9;
+ --rm18-hero:#ce2030;
+ --rm18-wave-back:#a11726;
+ --rm18-wave-front:#242024;
+ --rm18-ink:#fff;
+ border-color:#a11726;
 }
+.rm18-notice-danger .rm18-notice-divider{background:#242024}
 .rm18-notice,.rm18-notice *{box-sizing:border-box}
 .rm18-notice-hero{
  position:relative;
@@ -129,7 +130,7 @@
  align-items:center;
  column-gap:clamp(.45rem,2vw,1rem);
  min-width:0;
- padding:clamp(.95rem,3vw,1.4rem) clamp(.8rem,3vw,1.4rem) clamp(2.35rem,7vw,3.35rem);
+ padding:clamp(.95rem,3vw,1.4rem) clamp(.8rem,3vw,1.4rem) clamp(1.2rem,2.8vw,1.5rem);
  background:var(--rm18-hero);
  color:var(--rm18-ink);
  overflow:hidden;
@@ -140,7 +141,7 @@
  inset:auto 0 0;
  display:block;
  width:100%;
- height:clamp(2.15rem,8vw,4.3rem);
+ height:clamp(1rem,3.6vw,1.5rem);
  pointer-events:none;
  z-index:0;
 }
