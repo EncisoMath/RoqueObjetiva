@@ -1,4 +1,4 @@
-/* RoqueObjetiva v175.80 · Asignaturas y áreas, datos 100% de Supabase. */
+/* RoqueObjetiva v175.81 · Asignaturas y áreas, datos 100% de Supabase. */
 (() => {
   "use strict";
   const S={areas:[],subjects:[],loaded:false,loading:false,busy:false,error:"",selected:"",modal:null,revision:0,lastLoad:0};
@@ -73,7 +73,7 @@
       '<button class="ra-back" data-ra-action="back" type="button">'+icon("back",24)+'<span>Asignaturas y áreas</span></button>'+
       '<header class="ra-hero" style="--ra-accent:'+accent(a.nombre)+'">'+
         '<span class="ra-hero-icon">'+picture(a.nombre)+'</span><span class="ra-hero-line"></span>'+
-        '<div class="ra-hero-info"><h2>'+esc(a.nombre)+'</h2><p>'+plural(linked.length)+'</p></div>'+
+        '<div class="ra-hero-info"><h2>'+esc(displayArea(a.nombre))+'</h2><p>'+plural(linked.length)+'</p></div>'+
         '<span class="ra-hero-art" aria-hidden="true">'+icon("layers",65)+'</span>'+
       '</header>'+meta(a)+
       '<section class="ra-panel"><div class="ra-section-title">'+icon("book",23)+'<h3>Asignaturas de esta área</h3></div>'+

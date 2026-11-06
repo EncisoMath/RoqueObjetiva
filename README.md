@@ -6,7 +6,12 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.80
+RoqueObjetiva v175.81
+
+## v175.81 · Nombres propios también en el hero de áreas
+
+- El hero del detalle de **Asignaturas y áreas** muestra el nombre de cada área en formato propio (por ejemplo, «Religión» o «Ciencias Naturales»), igual que el grid, sin alterar los nombres almacenados en Supabase.
+- Cambio exclusivamente visual y actualización de caché PWA. Se mantienen todos los datos, controles de acceso y funcionalidades restantes.
 
 ## v175.80 · Iconos sin color de fondo y nombres propios
 
