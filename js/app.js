@@ -2097,9 +2097,9 @@
     });
   }
 
-  function calculateStudentStatsFromRecord(record, grade) {
+  function calculateStudentStatsFromRecord(record, grade, providedKeys = null) {
     const cleanGrade = toInt(grade || record?.grade);
-    const keys = (state.keys || []).filter((key) => String(key.grade) === String(cleanGrade));
+    const keys = (providedKeys || state.keys || []).filter((key) => String(key.grade) === String(cleanGrade));
     const subjectStats = {};
     const allDetails = [];
 
@@ -3003,7 +3003,7 @@
   }
 
   function adminTabIds() {
-    return new Set(["resumen", "docentes", "estadisticas", "claves", "mapa-grado", "asignaturas-areas", "apariencia", "logos", "github"]);
+    return new Set(["resumen", "docentes", "consultar", "estadisticas", "claves", "mapa-grado", "asignaturas-areas", "apariencia", "logos", "github"]);
   }
 
   function handleHashRoute() {
@@ -3686,21 +3686,8 @@
     "Religión": "#dc6b9a"
   });
 
-  function renderStudent(roll) {
-    const student = state.computedByRoll.get(roll);
-    applySessionRankContextToStudent(student);
-    if (!student) {
-      const registry = state.registryByExamId.get(roll) || Array.from(state.registryByNationalId.values()).find((s) => s.examId === roll);
-      renderShell(
-        '<div class="card card-pad empty-state"><h2>No hay resultados cargados para este estudiante</h2><p>' +
-          (registry ? 'El estudiante ' + esc(registry.name) + ' está registrado, pero no aparece en los archivos de RESULTADOS.' :
-            'El ID ingresado no tiene un examen asociado.') +
-          '</p><button class="ghost-btn" data-action="logout">Salir</button></div>',
-        navFor("student")
-      );
-      return;
-    }
-
+  // HTML reutilizable: Estudiante y Consulta individual usan el mismo dashboard.
+  function studentDashboardHtml(student) {
     const availableSubjects = SUBJECTS.filter((subject) => student.subjectStats[subject.name]?.total);
     const num = (value) => {
       if (value === undefined || value === null || value === "") return null;
@@ -3775,8 +3762,7 @@
       ].join("");
     }).join("");
 
-    renderShell(
-      '<div class="stu174-dashboard">' +
+    return '<div class="stu174-dashboard">' +
         summary + globalCard +
         '<section class="stu174-results" aria-labelledby="stu174-results-heading">' +
           '<h2 id="stu174-results-heading">Resultados por área</h2>' +
@@ -3784,15 +3770,75 @@
             (tiles || '<p class="stu174-no-results">No hay asignaturas disponibles para esta evaluación.</p>') +
           '</div>' +
         '</section>' +
-      '</div>',
-      navFor("student"),
-      studentBannerTone(student)
-    );
+      '</div>';
+  }
+
+  function renderStudent(roll) {
+    const student = state.computedByRoll.get(roll);
+    applySessionRankContextToStudent(student);
+    if (!student) {
+      const registry = state.registryByExamId.get(roll) || Array.from(state.registryByNationalId.values()).find((s) => s.examId === roll);
+      renderShell(
+        '<div class="card card-pad empty-state"><h2>No hay resultados cargados para este estudiante</h2><p>' +
+          (registry ? 'El estudiante ' + esc(registry.name) + ' está registrado, pero no aparece en los archivos de RESULTADOS.' :
+            'El ID ingresado no tiene un examen asociado.') +
+          '</p><button class="ghost-btn" data-action="logout">Salir</button></div>',
+        navFor("student")
+      );
+      return;
+    }
+
+    renderShell(studentDashboardHtml(student), navFor("student"), studentBannerTone(student));
     if (!state.zeroToleranceShown) {
       state.zeroToleranceShown = true;
       window.setTimeout(() => openZeroToleranceModal(), 260);
     }
   }
+
+
+  // Consulta institucional: utiliza los mismos cálculos, tarjetas y modal del estudiante,
+  // con claves/respuestas de la edición consultada obtenidas por RPC protegida.
+  window.RoqueStudentLookupBridge = {
+    render(payload) {
+      const authorized=state.activeSession?.role==="admin" ||
+        (state.activeSession?.role==="teacher" &&
+         !!state.teachers.get(state.activeSession?.id)?.coordinator);
+      if(!authorized||!payload?.tiene_resultados)return "";
+      const e=payload.estudiante||{};
+      const keys=(payload.claves||[]).map(k=>({
+        grade:Number(e.grado),area:canonicalSubject(k.area),item:Number(k.numero_item),
+        correct:cleanOption(k.correcta),
+        component:cleanText(k.componente||""),competence:cleanText(k.competencia||"")
+      })).filter(k=>k.grade&&k.area&&k.item&&k.correct);
+      if(!keys.length)return "";
+      const record={roll:cleanId(e.id_prueba),grade:Number(e.grado),answers:payload.respuestas||{}};
+      const calc=calculateStudentStatsFromRecord(record,Number(e.grado),keys);
+      const ranking=payload.ranking||{};
+      const rankValue=x=>Number(x)>0?Number(x):null;
+      const student={
+        roll:cleanId(e.id_prueba),
+        name:cleanText([e.nombres,e.apellidos].filter(Boolean).join(" ")),
+        grade:Number(e.grado),group:cleanText(e.grupo||""),
+        sede:cleanText(e.sede||""),edition:cleanText(payload.edicion||""),
+        registry:{examId:cleanId(e.id_prueba),nationalId:cleanId(e.id_alumno)},
+        subjectStats:calc.subjectStats,
+        globalScore:calculateSaberGlobal(calc.subjectStats),
+        gradeRank:rankValue(ranking.puesto_grado),
+        courseRank:rankValue(ranking.puesto_curso),
+        gradeCount:rankValue(ranking.total_grado),
+        courseCount:rankValue(ranking.total_curso),
+        correct:calc.correct,total:calc.total
+      };
+      state.lookupStudent=student;
+      return studentDashboardHtml(student);
+    },
+    openArea(subject) {
+      if (!document.getElementById("roque-student-lookup") || !state.lookupStudent) return;
+      if(state.activeSession?.role!=="admin" &&
+        !(state.activeSession?.role==="teacher"&&state.teachers.get(state.activeSession?.id)?.coordinator)) return;
+      openStudentSubjectModalForRoll(state.lookupStudent.roll,subject,true,false,state.lookupStudent);
+    }
+  };
 
   function transitionStudentSubject(nextSubject, trigger) {
     const current = state.selectedSubject;
@@ -3831,8 +3877,8 @@
 
   // La cabecera, pestañas y barras del modal comparten EXACTAMENTE
   // la misma fuente de color que las tarjetas del informe, sin variantes.
-  function openStudentSubjectModalForRoll(roll, subject, showCorrect = false, preserveDirectorModal = false) {
-    const student = state.computedByRoll.get(cleanId(roll));
+  function openStudentSubjectModalForRoll(roll, subject, showCorrect = false, preserveDirectorModal = false, lookupStudentOverride = null) {
+    const student = lookupStudentOverride || state.computedByRoll.get(cleanId(roll));
     if (!student || !subject) return;
     const stat = student.subjectStats?.[subject];
     if (!stat?.total) return;
@@ -3846,9 +3892,9 @@
     // SOLO Docente > Asignaturas utiliza el azul general del tema.
     // Estudiante y el detalle individual abierto desde Director conservan
     // exactamente STUDENT_AREA_COLORS para el hero, tabs y barras.
-    const normalTeacherDetail = state.activeSession?.role === "teacher" && !parentBackdrop;
+    const normalTeacherDetail = state.activeSession?.role === "teacher" && !parentBackdrop && !lookupStudentOverride;
     const modalAccent = normalTeacherDetail ? "var(--primary,#1975ae)" : areaColor;
-    const edition = cleanText(state.activeSession?.edition ||
+    const edition = cleanText(lookupStudentOverride?.edition || state.activeSession?.edition ||
       state.studentSelectedEdition || state.academicEdition || "2026-1S");
     const course = [student.grade ? student.grade + "°" : "", cleanText(student.group || "")]
       .filter(Boolean).join(" ");
@@ -4033,7 +4079,7 @@
   }
 
   function renderTeacher(teacher) {
-    if (state.teacherEditionMessage && !["coord-mover","coord-estadisticas","coord-claves"].includes(state.teacherMode)) {
+    if (state.teacherEditionMessage && !["coord-mover","coord-estadisticas","coord-claves","coord-consultar"].includes(state.teacherMode)) {
       renderShell('<section class="teacher-edition-empty" role="status">' +
         '<span class="teacher-edition-empty-icon" aria-hidden="true">📋</span><div>' +
         '<span>EDICIÓN ' + esc(state.teacherEditionSelected) + '</span>' +
@@ -4380,8 +4426,14 @@
   function renderCoordinatorPanel(teacher) {
     const stats=state.teacherMode==="coord-estadisticas";
     const keys=state.teacherMode==="coord-claves";
+    const lookup=state.teacherMode==="coord-consultar";
     const edition=cleanText(state.teacherEditionSelected||state.academicEdition||"2026-2S");
-    const content=keys
+    const content=lookup
+      ? (window.RoqueStudentLookup ? window.RoqueStudentLookup.render({
+          rpc:supabaseRpc,notify:toast,role:"teacher",
+          id:state.activeSession?.id,session:state.coordSession,edition
+        }) : '<div class="empty-state">Módulo Consulta no disponible.</div>')
+      : keys
       ? (window.RoqueKeys ? window.RoqueKeys.render({
           rpc:supabaseRpc,notify:toast,role:"teacher",
           id:state.activeSession?.id,session:state.coordSession,edition
@@ -4393,7 +4445,7 @@
           }) : '<div class="empty-state">Módulo Estadísticas no disponible.</div>')
         : renderCoordinatorMover();
     renderShell(`
-      <section class="coordinator-admin-panel ${stats ? "coord-stats-panel" : keys ? "coord-keys-panel" : "coord-mover-panel"}">${content}</section>
+      <section class="coordinator-admin-panel ${stats ? "coord-stats-panel" : keys ? "coord-keys-panel" : lookup ? "coord-lookup-panel" : "coord-mover-panel"}">${content}</section>
     `, navFor("teacher"));
   }
 
@@ -4402,7 +4454,7 @@
     if (!teacher) return false;
     if (mode === "asignaturas") return (teacher.assignments || []).length > 0;
     if (mode === "director") return (teacher.directorGroups || []).length > 0;
-    if (["coord-mover","coord-estadisticas","coord-claves"].includes(mode)) return !!teacher.coordinator;
+    if (["coord-mover","coord-estadisticas","coord-claves","coord-consultar"].includes(mode)) return !!teacher.coordinator;
     return false;
   }
 
@@ -4572,7 +4624,8 @@
       const links = [
         ["coord-mover", "Mover estudiantes", "move"],
         ["coord-estadisticas", "Estadísticas", "chart"],
-        ["coord-claves", "Claves de respuestas", "key"]
+        ["coord-claves", "Claves de respuestas", "key"],
+        ["coord-consultar", "Consultar estudiante", "graduation"]
       ].map(([id, label, icon]) =>
         '<button type="button" class="t160-menu-item' + (mode === id ? ' is-active' : '') +
         '" data-action="teacher-dock-mode" data-mode="' + id + '">' + adminNavIcon(icon) + '<span>' + label + '</span></button>'
@@ -4929,7 +4982,7 @@
   // Únicamente las pantallas administrativas que siguen disponibles.
   const ADMIN_MENU_GROUPS = [
     { id: "inicio", title: "Inicio", items: [["resumen", "Resumen", "house"]] },
-    { id: "personal", title: "Personal", items: [["docentes", "Docentes", "users"]] },
+    { id: "personal", title: "Personal", items: [["docentes", "Docentes", "users"], ["consultar", "Consultar estudiante", "graduation"]] },
     { id: "analisis", title: "Análisis", items: [
       ["estadisticas", "Estadísticas", "chart"],
       ["mapa-grado", "Mapa por grado", "map"]
@@ -4988,7 +5041,7 @@
     const currentTitle = selection ? selection[1] : "Resumen";
     const activeSection = ADMIN_MENU_GROUPS.find(g => g.items.some(i => i[0] === state.adminTab));
     const allGroups = ADMIN_MENU_GROUPS.map(adminNavGroup).join("");
-    const mobileGroups = ADMIN_MENU_GROUPS.filter(g => g.id === "configuracion").map(adminNavGroup).join("");
+    const mobileGroups = ADMIN_MENU_GROUPS.filter(g => ["personal","analisis","configuracion"].includes(g.id)).map(adminNavGroup).join("");
     const dockItem = (label, icon, action, section = "", active = false, tab = "resumen") =>
       `<button type="button" class="adm151-dock-item ${active ? "is-active" : ""}" data-action="${action}" ${section ? `data-group="${section}" aria-haspopup="true" aria-expanded="false"` : `data-tab="${escAttr(tab)}"`} aria-label="${esc(label)}">
         ${adminNavIcon(icon)}<span>${esc(label)}</span>
@@ -5011,7 +5064,7 @@
         ${dockItem("Inicio", "house", "admin-tab", "", state.adminTab === "resumen")}
         ${dockItem("Docentes", "users", "admin-tab", "", state.adminTab === "docentes", "docentes")}
         ${dockItem("Estadísticas", "chart", "admin-tab", "", state.adminTab === "estadisticas", "estadisticas")}
-        ${dockItem("Mapa", "map", "admin-tab", "", state.adminTab === "mapa-grado", "mapa-grado")}
+        ${dockItem("Consultar", "graduation", "admin-tab", "", state.adminTab === "consultar", "consultar")}
         ${dockItem("Ajustes", "menu", "admin-nav-open", "otros", activeSection?.id === "configuracion")}
       </nav>
       <div class="adm151-overlay" aria-hidden="true">
@@ -5153,7 +5206,7 @@
       if(title && title.textContent!==navigation.currentTitle)
         title.textContent=navigation.currentTitle;
       const adminHeading=workspace.querySelector(".adm151-current-heading");
-      if(adminHeading)adminHeading.hidden=["estadisticas","claves"].includes(state.adminTab);
+      if(adminHeading)adminHeading.hidden=["estadisticas","claves","consultar"].includes(state.adminTab);
       workspace.querySelectorAll(".adm151-sidebar .adm151-link[data-tab], .adm151-overlay .adm151-link[data-tab]").forEach(link=>{
         const active=link.dataset.tab===state.adminTab;
         link.classList.toggle("is-active",active);
@@ -5181,7 +5234,7 @@
       <div class="adm151-workspace">
         ${navigation.sidebar}
         <section class="adm151-main" aria-label="Contenido administrativo">
-          <div class="adm151-current-heading"${["estadisticas","claves"].includes(state.adminTab) ? " hidden" : ""}>
+          <div class="adm151-current-heading"${["estadisticas","claves","consultar"].includes(state.adminTab) ? " hidden" : ""}>
             <div><span>ADMINISTRACIÓN</span><h2>${esc(navigation.currentTitle)}</h2></div>
           </div>
           <section class="admin-layout admin-layout-full">
@@ -5221,6 +5274,10 @@
 
   function renderAdminTab() {
     switch (state.adminTab) {
+      case "consultar": return window.RoqueStudentLookup
+        ? window.RoqueStudentLookup.render({rpc:supabaseRpc,notify:toast,role:"admin",
+           id:"admin",edition:cleanText(state.academicEdition||"2026-2S")})
+        : '<div class="empty-state">Módulo Consultar estudiante no disponible.</div>';
       case "claves": return window.RoqueKeys
         ? window.RoqueKeys.render({rpc:supabaseRpc,notify:toast,role:"admin",
             id:"admin",edition:cleanText(state.academicEdition||"2026-2S")})
@@ -8691,7 +8748,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
   }
 
   function openGlobalScoreInfo(roll) {
-    const student = state.computedByRoll.get(roll) || state.computedByRoll.get(state.activeSession?.roll);
+    const student = (state.lookupStudent?.roll === roll && document.getElementById("roque-student-lookup") ? state.lookupStudent : null) || state.computedByRoll.get(roll) || state.computedByRoll.get(state.activeSession?.roll);
     if (!student) return;
     const calc = saberGlobalBreakdown(student.subjectStats);
     const multiplicationLines = calc.areas.map((area) => `
@@ -8870,7 +8927,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
   }
 
   function openAnswerInfo(roll, subject, item) {
-    const student = state.computedByRoll.get(roll) || (state.activeSession?.role === "student" ? state.computedByRoll.get(state.activeSession.roll) : null);
+    const student = (state.lookupStudent?.roll === roll && document.getElementById("roque-student-lookup") ? state.lookupStudent : null) || state.computedByRoll.get(roll) || (state.activeSession?.role === "student" ? state.computedByRoll.get(state.activeSession.roll) : null);
     if (!student) return;
     const stat = statForSubject(student, subject);
     const detail = stat?.details.find((d) => d.item === item);
