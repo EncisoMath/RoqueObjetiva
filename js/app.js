@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.82";
+  const APP_VERSION = "v175.85";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -4601,7 +4601,9 @@
       roque_v17_areas_vincular_lote:"roque_v17_areas_vincular_lote",
       roque_v18_medidas_buscar:"roque_v18_medidas_buscar",
       roque_v18_medidas_detalle:"roque_v18_medidas_detalle",
-      roque_v18_medidas_guardar:"roque_v18_medidas_guardar"
+      roque_v18_medidas_guardar:"roque_v18_medidas_guardar",
+      roque_v19_medidas_listar:"roque_v19_medidas_listar",
+      roque_v19_medidas_aplicar:"roque_v19_medidas_aplicar"
     };
     if(!Object.prototype.hasOwnProperty.call(methods,name))
       throw Error("Operación administrativa no permitida.");
@@ -5503,7 +5505,7 @@
         : '<div class="empty-state">Módulo Estadísticas no disponible.</div>';
       case "restricciones": return window.RoqueMedidas ? window.RoqueMedidas.render({
         rpc:supabaseRpc,notify:toast,owner:"auth-admin",
-        edition:cleanText(state.academicEdition||"2026-1S")
+        edition:cleanText(state.academicEdition||"2026-2S")
       }) : '<div class="empty-state">Módulo Restricciones y anulaciones no disponible.</div>';
       case "asignaturas-areas": return window.RoqueAreas ? window.RoqueAreas.render({
         rpc:supabaseRpc,notify:toast,owner:"auth-admin",colors:STUDENT_AREA_COLORS

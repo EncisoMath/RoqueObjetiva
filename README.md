@@ -6,7 +6,16 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.82
+RoqueObjetiva v175.85
+
+## v175.85 · Restricciones y anulaciones por lista, sin motivo manual
+
+- **Pantalla Administrador:** ya no presenta los tres accesos Estudiantes/Sesiones/Asignaturas ni el selector de edición. Usa directamente la edición del hero de Administrador (incluida la seleccionada en el panel docente). Dos botones en cuadrícula **2×1**: Todos los estudiantes y Estudiantes con restricciones y anulaciones. El segundo muestra una insignia roja con el número **real de estudiantes únicos con medidas activas**.
+- **Listado:** búsqueda por nombre/documento/ID de prueba, paginación de 80 registros y filtro en Supabase para medidas vigentes. El contador rojo es global de la edición (no depende del texto de búsqueda).
+- **Detalle:** tres botones **3×1**, Restricción / Sesiones / Asignaturas; dentro de cada modo figuran únicamente sus opciones y el botón **Aplicar**. Se conservan la posibilidad de activar y revertir, el resumen de medidas y la bitácora.
+- **Sin motivo escrito:** el nuevo RPC `roque_v19_medidas_aplicar` genera un motivo descriptivo automáticamente y delega la validación de administrador, la escritura y la auditoría al RPC seguro existente. No se borran claves, respuestas ni notas originales.
+- **Supabase:** migración `supabase/47_medidas_v175_85_listado_y_aplicacion.sql`, nuevo RPC `roque_v19_medidas_listar` con conteo, filtro y paginación en el servidor. Autorización del administrador institucional o administrador docente con sesión válida. Permisos y vistas docentes restantes intactos.
+- **PWA:** recursos CSS/JS y caché publicados como `v175.85`.
 
 ## Hotfix v175.84 · Login sin timeout con medidas activas o vacías
 
