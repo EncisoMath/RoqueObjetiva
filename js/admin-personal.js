@@ -1,9 +1,9 @@
-/* RoqueObjetiva v175.55 | Personal Docente
+/* RoqueObjetiva v175.69 | Personal Docente
    Admin solamente: identidad, carga academica, direccion de grupo y coordinador. */
 (() => {
   "use strict";
   const S = {
-    loaded:false,loading:false,busy:false,error:"",items:[],
+    loaded:false,loading:false,busy:false,error:"",items:[],areaMap:[],
     selected:"",view:"list",tab:"gestion",search:"",sede:"all",rol:"all",
     editor:"",expanded:""
   };
@@ -12,6 +12,10 @@
   const e = (s) => String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
   const norm = (s) => String(s??"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
   const current = () => S.items.find(t=>t.id===S.selected);
+  const roleOf=t=>["administrador","coordinador","docente"].includes(t?.rol)?t.rol:(t?.coordinador?"coordinador":"docente");
+  const roleLabel=role=>({administrador:"Administrador",coordinador:"Coordinador",docente:"Docente"}[role]||"Docente");
+  const roleOptions=selected=>[["administrador","Administrador"],["coordinador","Coordinador"],["docente","Docente"]]
+    .map(([value,label])=>'<option value="'+value+'"'+(selected===value?" selected":"")+'>'+label+'</option>').join("");
   const assignments = t => Array.isArray(t?.cargas)?t.cargas:[];
   const getSites = () => [...new Set([...(ctx?.sites||[]),...S.items.map(t=>t.sede),...S.items.flatMap(t=>assignments(t).map(c=>c.sede))].filter(Boolean))].sort((a,b)=>a.localeCompare(b,"es"));
   const getGrades = () => [...new Set([...(ctx?.grades||[]),...S.items.flatMap(t=>assignments(t).map(c=>c.grado))].map(Number).filter(Boolean))].sort((a,b)=>a-b);
@@ -34,30 +38,59 @@
     };
     return '<svg class="rp-ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round">'+(paths[type]||paths.perfil)+'</svg>';
   };
-  const subjectImage = subject => {
-    const n=norm(subject);
-    let file="";
-    if(/matemat|aritmet|estadist|algebra|geometr|trigonom|calculo|probabil/.test(n))file="matematicas.png";
-    else if(/educacion fisica|deporte|recreacion/.test(n))file="educacion-fisica.png";
-    else if(/natural|biolog|quimic|fisica|ambiental/.test(n))file="ciencias-naturales.png";
-    else if(/social|historia|geografia|ciudadania|politic/.test(n))file="ciencias-sociales-y-ciudadania.png";
-    else if(/informat|tecnolog|sistem|comput/.test(n))file="informatica.png";
-    else if(/ingles|english/.test(n))file="ingles.png";
-    else if(/lenguaje|humanidad|espanol|castellano|lectura|literatura/.test(n))file="lenguaje.png";
-    else if(/etica|valores|convivencia|filosofi/.test(n))file="etica-y-valores.png";
-    else if(/artist|musica|danza|dibujo|arte/.test(n))file="artistica.png";
-    else if(/religion|espiritual/.test(n))file="religion.png";
-    return file
-      ? '<img class="rp-subject-image" src="ICONOS/'+file+'" alt="" width="30" height="30" loading="eager" decoding="async">'
-      : '<span class="rp-subject-glyph" aria-hidden="true">✦</span>';
+  // Asociación canónica (mapeo_areas) con equivalencias del registro académico.
+  const areaForSubject=subject=>{
+    const n=norm(subject).trim();
+    const found=S.areaMap.find(r=>norm(r.asignatura).trim()===n);
+    if(found?.area)return found.area;
+    if(/educacion fisica|deporte|recreacion/.test(n))return "EDUCACIÓN FÍSICA";
+    if(/matemat|aritmet|estadist|algebra|geometr|trigonom|calculo|probabil/.test(n))return "MATEMÁTICAS";
+    if(/natural|biolog|quimic|fisica|ambiental/.test(n))return "CIENCIAS NATURALES";
+    if(/social|historia|geografia|ciudadania|constitucion|econom|filosof|politic/.test(n))return "CIENCIAS SOCIALES Y CIUDADANÍA";
+    if(/informat|tecnolog|sistem|comput/.test(n))return "INFORMÁTICA";
+    if(/ingles|english/.test(n))return "INGLÉS";
+    if(/lenguaje|humanidad|espanol|castellano|lectura|literatura/.test(n))return "LENGUAJE";
+    if(/etica|valores|convivencia/.test(n))return "ÉTICA Y VALORES";
+    if(/artist|musica|danza|dibujo|arte/.test(n))return "ARTÍSTICA";
+    if(/relig|espiritual/.test(n))return "RELIGIÓN";
+    return String(subject||"");
   };
-  const palette = name => {
-    const n=norm(name);
-    if(/matemat|aritmet|estadist|algebra|geometr|trigonom|calculo|probabil/.test(n))return "math";
-    if(/natural|biolog|quimic|fisica/.test(n)&&!/educacion fisica/.test(n))return "science";
-    if(/informat|tecnolog|sistem|comput/.test(n))return "tech";
-    if(/educacion fisica|deporte|recreacion/.test(n))return "sport";
+  const areaImages={
+    "matematicas":"matematicas.png",
+    "ciencias naturales":"ciencias-naturales.png",
+    "ciencias sociales y ciudadania":"ciencias-sociales-y-ciudadania.png",
+    "educacion fisica":"educacion-fisica.png",
+    "etica y valores":"etica-y-valores.png",
+    "informatica":"informatica.png",
+    "ingles":"ingles.png",
+    "lenguaje":"lenguaje.png",
+    "artistica":"artistica.png",
+    "religion":"religion.png"
+  };
+  const subjectImage=subject=>{
+    const file=areaImages[norm(areaForSubject(subject)).trim()];
+    return file?'<img class="rp-subject-image" src="ICONOS/'+file+'" alt="" width="36" height="36" loading="eager" decoding="async">'
+      :'<span class="rp-subject-glyph" aria-hidden="true">✦</span>';
+  };
+  const palette=subject=>{
+    const n=norm(areaForSubject(subject));
+    if(n==="matematicas")return "math";
+    if(n==="ciencias naturales")return "science";
+    if(n==="informatica")return "tech";
+    if(n==="educacion fisica")return "sport";
     return "other";
+  };
+  const subjectOptions=()=>{
+    const groups=new Map();
+    getSubjects().forEach(subject=>{
+      const area=areaForSubject(subject);
+      if(!groups.has(area))groups.set(area,[]);
+      groups.get(area).push(subject);
+    });
+    return '<option value="">Selecciona asignatura</option>'+
+      [...groups].sort((a,b)=>a[0].localeCompare(b[0],"es")).map(([area,subjects])=>
+        '<optgroup label="'+e(area)+'">'+subjects.map(s=>'<option value="'+e(s)+'">'+e(s)+'</option>').join("")+'</optgroup>'
+      ).join("");
   };
   const overview = t => {
     const groups=new Set(assignments(t).map(c=>c.asignatura));
@@ -66,7 +99,7 @@
   };
   const sidebarList = () => {
     let rows=S.items.filter(t=>(S.sede==="all"||t.sede===S.sede) &&
-      (S.rol==="all"||(S.rol==="coordinador"?t.coordinador:!t.coordinador)) &&
+      (S.rol==="all"||roleOf(t)===S.rol) &&
       (!S.search||norm(t.nombre+" "+t.id).includes(norm(S.search))));
     const total=rows.length;
     return '<div class="rp-list-head"><strong>'+svgIcon("direccion")+' '+total+' docentes</strong>'+
@@ -74,7 +107,7 @@
       '<div class="rp-roster">'+(rows.map(t=>'<button type="button" class="rp-person'+(S.selected===t.id&&S.view==="detail"?" is-current":"")+'" data-rp-action="select" data-id="'+e(t.id)+'">'+
         '<span class="rp-avatar" aria-hidden="true">'+e(initials(t.nombre))+'</span><span class="rp-person-info"><span class="rp-person-name">'+e(t.nombre)+'</span>'+
         '<span class="rp-person-id">ID '+e(t.id)+(t.activo===false?' · Inactivo':'')+'</span>'+overview(t)+'</span>'+
-        (t.coordinador?'<span class="rp-role-tag">Coordinador</span>':'')+
+        (roleOf(t)!=="docente"?'<span class="rp-role-tag'+(roleOf(t)==="administrador"?" is-admin":" is-coordinator")+'">'+roleLabel(roleOf(t))+'</span>':'')+
         '<span class="rp-chevron" aria-hidden="true">›</span></button>').join("")+
         '<p class="rp-empty">No hay docentes con esos filtros.</p>'.repeat(total===0))+
       '</div>';
@@ -86,22 +119,27 @@
     '<div class="rp-filter-row"><label><span>Sede</span><select id="rp-site-filter"><option value="all">Todas</option>'+
       getSites().map(s=>'<option value="'+e(s)+'"'+(S.sede===s?" selected":"")+'>'+e(s)+'</option>').join("")+'</select></label>'+
     '<label><span>Rol</span><select id="rp-role-filter"><option value="all">Todos</option>'+
-    '<option value="docente"'+(S.rol==="docente"?" selected":"")+'>Docente</option>'+
-    '<option value="coordinador"'+(S.rol==="coordinador"?" selected":"")+'>Coordinador</option></select></label></div>'+
+    '<option value="administrador"'+(S.rol==="administrador"?" selected":"")+'>Administrador</option>'+
+    '<option value="coordinador"'+(S.rol==="coordinador"?" selected":"")+'>Coordinador</option>'+
+    '<option value="docente"'+(S.rol==="docente"?" selected":"")+'>Docente</option></select></label></div>'+
     '<div id="rp-list-wrap">'+sidebarList()+'</div></div>';
   const teacherHead=t=>'<div class="rp-teacher-head">'+
     '<span class="rp-big-avatar" aria-hidden="true">'+e(initials(t.nombre))+'</span><div class="rp-teacher-summary"><strong>'+e(t.nombre)+'</strong>'+
     '<small>ID '+e(t.id)+'</small>'+overview(t)+'</div>'+
-    (t.coordinador?'<span class="rp-role-tag">Coordinador</span>':'')+'</div>';
+    (roleOf(t)!=="docente"?'<span class="rp-role-tag'+(roleOf(t)==="administrador"?" is-admin":" is-coordinator")+'">'+roleLabel(roleOf(t))+'</span>':'')+'</div>';
   const tabs=()=>'<nav class="rp-tabs" aria-label="Personal docente">'+
     [["gestion","Gestión"],["carga","Carga académica"],["direccion","Dirección de grupo"]]
       .map(([value,label])=>'<button type="button" aria-current="'+(S.tab===value?"page":"false")+'" class="'+(S.tab===value?"active":"")+
       '" data-rp-action="tab" data-tab="'+value+'">'+svgIcon(value)+'<span class="rp-tab-label">'+label+'</span></button>').join("")+'</nav>';
   const management=t=>'<div class="rp-manage">'+
     '<section class="rp-section"><h3>♢ Rol y permisos</h3>'+
-    '<div class="rp-permissions"><label><span>Rol</span><select disabled><option>Docente</option></select></label>'+
-    '<label class="rp-toggle-field"><span>¿Es coordinador?</span><input type="checkbox" data-rp-role="coord"'+(t.coordinador?" checked":"")+
-    (S.busy?" disabled":"")+'><span class="rp-toggle-ui"></span></label></div></section>'+
+    '<div class="rp-permissions"><label><span>Rol</span><select data-rp-role="rol"'+(S.busy?" disabled":"")+'>'+
+      roleOptions(roleOf(t))+'</select></label>'+
+    '<div class="rp-role-description"><strong>'+roleLabel(roleOf(t))+'</strong><small>'+
+      (roleOf(t)==="administrador"
+        ?"Rol institucional; el acceso administrador requiere cuenta Supabase autorizada."
+        :roleOf(t)==="coordinador"?"Acceso a las funciones de coordinación.":"Acceso según asignaciones docentes.")+
+    '</small></div></div></section>'+
     '<section class="rp-section"><div class="rp-section-title"><h3>'+svgIcon("perfil")+' Información docente</h3>'+
     '<button class="rp-edit-icon" type="button" data-rp-action="toggle-edit">✎</button></div>'+
     '<form data-rp-form="identity" class="rp-form">'+
@@ -131,7 +169,9 @@
       const opened=S.expanded===subject;
       return '<article class="rp-assignment-card"><div class="rp-assignment-top">'+
         '<span class="rp-subject-icon '+palette(subject)+'">'+subjectImage(subject)+'</span>'+
-        '<div class="rp-subject-copy"><strong>'+e(subject)+'</strong><small>'+records.length+' '+(records.length===1?"curso":"cursos")+'</small></div>'+
+        '<div class="rp-subject-copy"><strong>'+e(subject)+'</strong>'+
+        '<small class="rp-area-name">Área: '+e(areaForSubject(subject))+'</small>'+
+        '<small>'+records.length+' '+(records.length===1?"curso":"cursos")+'</small></div>'+
         '<div class="rp-grade-chips">'+gradeChips(records)+'</div>'+
         '<button type="button" class="rp-dots" aria-expanded="'+opened+'" data-rp-action="expand" data-subject="'+e(subject)+'">⋮</button></div>'+
         (opened?assignmentDetailsHtml(records):'')+
@@ -146,7 +186,7 @@
   const assignmentForm=()=>{
     const sites=getSites(),grades=getGrades();
     return '<form data-rp-form="load" class="rp-add-form"><h4>Asignar carga académica</h4>'+
-      '<label><span>Asignatura</span><select name="asignatura" required>'+options(getSubjects(),"","Selecciona asignatura")+'</select></label>'+
+      '<label><span>Asignatura</span><select name="asignatura" required>'+subjectOptions()+'</select></label>'+
       '<div class="rp-duo"><label><span>Sede</span><select name="sede" data-rp-dependency="load" required>'+options(sites,"","Selecciona sede")+'</select></label>'+
       '<label><span>Grado</span><select name="grado" data-rp-dependency="load" required>'+options(grades,"","Selecciona grado")+'</select></label></div>'+
       '<label><span>Curso</span><select name="curso" data-rp-course required>'+courseOptions("","","")+'</select></label>'+
@@ -196,7 +236,7 @@
     '<form data-rp-form="new"><label><span>Nombre completo</span><input name="nombre" required maxlength="160" placeholder="Nombres y apellidos"></label>'+
     '<label><span>Identificación</span><input name="id" required maxlength="40" placeholder="Número de documento"></label>'+
     '<label><span>Sede</span><select name="sede">'+options(getSites(),"","Selecciona sede")+'</select></label>'+
-    '<label class="rp-check"><input type="checkbox" name="coordinador"> Es coordinador</label>'+
+    '<label><span>Rol</span><select name="rol" required>'+roleOptions("docente")+'</select></label>'+
     '<button class="rp-primary" type="submit">Crear docente</button></form></section></div>';
   const view=()=>{
     if(S.loading&&!S.loaded)return '<div class="rp-loading">Consultando personal docente en Supabase…</div>';
@@ -206,7 +246,7 @@
         (S.view==="detail"?detailView():'<div class="rp-desktop-placeholder">Selecciona un docente para gestionar sus datos y asignaciones.</div>')+
       '</div></div>';
   };
-  // Render incremental v175.55: los botones, el encabezado y el listado conservan
+  // Render incremental v175.69: los botones, el encabezado y el listado conservan
   // su DOM. Solo cambia el contenido necesario; nunca capturar el viewport global.
   let drawSerial=0;
   let dataRevision=0;
@@ -302,7 +342,7 @@
     try{
       const p=await ctx.rpc("roque_v9_admin_personal_listar",{});
       if(!p?.ok||!Array.isArray(p.docentes))throw Error(p?.error||"No se pudo cargar personal docente.");
-      S.items=p.docentes;S.loaded=true;
+      S.items=p.docentes;S.areaMap=Array.isArray(p.mapeo_areas)?p.mapeo_areas:[];S.loaded=true;
       dataRevision++;
       success=true;
     }catch(err){
@@ -440,11 +480,10 @@
       if(course)course.innerHTML=courseOptions(site,grade);
       return;
     }
-    if(el.dataset.rpRole==="coord"){
-      const t=current();
-      if(!t||S.busy)return;
-      const ok=await save("actualizar",{id:t.id,nombre:t.nombre,coordinador:el.checked});
-      if(!ok){el.checked=t.coordinador;}
+    if(el.dataset.rpRole==="rol"){
+      const t=current();if(!t||S.busy)return;
+      const ok=await save("actualizar",{id:t.id,nombre:t.nombre,rol:el.value});
+      if(!ok)el.value=roleOf(t);
     }
   });
   document.addEventListener("submit",async event=>{
@@ -458,7 +497,7 @@
     if(button){button.disabled=true;button.textContent="Guardando…";}
     let success=false;
     if(form.dataset.rpForm==="new"){
-      success=await save("crear",{id:String(data.id||"").trim(),nombre:data.nombre,sede:data.sede,coordinador:!!data.coordinador});
+      success=await save("crear",{id:String(data.id||"").trim(),nombre:data.nombre,sede:data.sede,rol:String(data.rol||"docente")});
       if(success){S.selected=String(data.id||"").trim();S.view="detail";S.tab="gestion";}
     }else if(t&&form.dataset.rpForm==="identity"){
       success=await save("actualizar",{id:t.id,nombre:data.nombre,sede:data.sede});
@@ -469,5 +508,5 @@
     }
     if(!success&&button){button.disabled=false;button.textContent="Volver a intentar";}
   });
-  window.RoquePersonal={render,reset:()=>{S.loaded=false;S.loading=false;S.items=[];S.selected="";S.view="list";S.tab="gestion";}};
+  window.RoquePersonal={render,reset:()=>{S.loaded=false;S.loading=false;S.items=[];S.areaMap=[];S.selected="";S.view="list";S.tab="gestion";}};
 })();
