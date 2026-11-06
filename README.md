@@ -6,8 +6,16 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.63
+RoqueObjetiva v175.64
 
+
+## v175.64 · Coordinadores pueden anular y reactivar ítems
+
+- En **Coordinador → Claves de respuestas** se habilitan los interruptores **Anular / Reactivar** para ediciones **en borrador**. El cambio se guarda inmediatamente sin necesidad de un botón adicional.
+- Las letras de respuesta correcta siguen siendo exclusivas de **Administrador**; la función SQL del coordinador solo altera `roque_private.items.anulada`.
+- Supabase valida cada solicitud con la **sesión vigente del coordinador**, comprueba el estado anterior para evitar cambios concurrentes y registra docente, edición, grado, pregunta y fecha en la tabla privada `roque_private.auditoria_anulaciones_coordinador`.
+- Una pregunta anulada sin clave no puede reactivarse hasta que Administración le asigne una respuesta. Las ediciones cerradas y sus claves históricas permanecen protegidas.
+- Se actualizan la caché PWA y la visualización móvil de los interruptores habilitados.
 
 ## v175.63 · Anular y Reactivar guardan directamente en Supabase
 

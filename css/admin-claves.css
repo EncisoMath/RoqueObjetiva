@@ -1,4 +1,4 @@
-/* RoqueObjetiva v175.63 · Claves de respuestas · mobile-first sin desbordamientos.
+/* RoqueObjetiva v175.64 · Claves de respuestas · mobile-first sin desbordamientos.
    Reglas acotadas al módulo para conservar el hero y el dock existentes. */
 .rak-root{
   --rak-ink:#193a59;
@@ -170,6 +170,9 @@
 }
 .rak-annul-label{font-size:.57rem;font-weight:600;line-height:1.1}
 .rak-annul:disabled{opacity:.68}
+.rak-annul:not(:disabled) .rak-annul-label{color:#227cb2;font-weight:700}
+.rak-annul:not(:disabled) .rak-switch{background:#9cbfd8}
+.rak-annul.is-on:not(:disabled) .rak-annul-label{color:#b37412}
 .rak-annul.is-on .rak-annul-label{color:#ba7a18}
 .rak-switch{
   display:inline-block;position:relative;

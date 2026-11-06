@@ -1,5 +1,5 @@
-/* RoqueObjetiva v175.63 · Claves de respuestas por grado.
-   Consulta para Coordinador; modificación exclusiva de Admin con auditoría. */
+/* RoqueObjetiva v175.64 · Claves de respuestas por grado.
+   Coordinador: Anular/Reactivar; Admin: edición completa de claves, con auditoría. */
 (() => {
 "use strict";
 const S={
@@ -105,9 +105,8 @@ const answerRow=(i,idx,opts)=>{
  const readonly=!S.editable;
  const disabled=readonly||S.saving||i.anulada;
  const canAnnul=S.allowAnnul&&!S.saving;
- const annulLabel=readonly?(i.anulada?"Anulada":"Anular"):(i.anulada?"Reactivar":"Anular");
- const annulTip=readonly?"Los coordinadores solo pueden consultar claves."
-   :!S.allowAnnul?"Las anulaciones solo se modifican en ediciones en borrador."
+ const annulLabel=!S.allowAnnul?(i.anulada?"Anulada":"Anular"):(i.anulada?"Reactivar":"Anular");
+ const annulTip=!S.allowAnnul?"Las anulaciones solo se modifican en ediciones en borrador."
    :i.anulada?"Reactivar esta pregunta":"Anular esta pregunta";
  return '<div class="rak-item'+(i.anulada?' is-annulled':'')+(isDirty(i)?' is-dirty':'')+
  '" data-rak-item="'+i.numero_item+'">'+
@@ -129,11 +128,11 @@ const cards=()=>{
  '<section class="rak-items-card">'+
  '<header class="rak-items-heading"><span class="rak-mini-icon">'+svg("item")+'</span>'+
  '<div><h3>'+esc(short(S.area))+' · Sesión '+S.session+'</h3>'+
- '<p>'+(S.editable?(S.allowAnnul?'Anular guarda de inmediato · las respuestas se guardan abajo.':'Corrige respuestas · anulación bloqueada en edición cerrada'):'Consulta de claves · solo lectura')+'</p></div></header>'+
+ '<p>'+(S.allowAnnul?(S.editable?'Anular guarda de inmediato · las respuestas se guardan abajo.':'Puedes anular o reactivar ítems. Las respuestas están protegidas.'):(S.editable?'Corrige respuestas · anulación bloqueada en edición cerrada':'Consulta de claves · edición cerrada'))+'</p></div></header>'+
  '<div class="rak-item-list">'+list.map((i,idx)=>answerRow(i,idx,opts)).join("")+'</div>'+
  '<div class="rak-info">'+svg("check")+' Estas claves son generales para todos los cursos y sedes del grado.</div>'+
  '</section>'+
- (!S.editable?'<div class="rak-readonly">'+svg("check")+' Visualización exclusiva: los coordinadores no pueden editar claves.</div>':
+ (!S.editable?'<div class="rak-readonly">'+svg("check")+(S.allowAnnul?' Coordinación: puedes anular o reactivar ítems; solo Administración modifica respuestas correctas.':' Consulta de claves · anulación y edición bloqueadas en esta edición.')+'</div>':
  '<div class="rak-actions">'+
  (S.needReason?'<label class="rak-reason">Motivo de la corrección histórica<textarea data-rak-reason maxlength="500" rows="2" placeholder="Explica por qué se corrige la clave (mínimo 10 caracteres).">'+esc(S.reason)+'</textarea></label>'+
  '<p class="rak-caution">La edición está cerrada. Los cambios de respuesta requieren justificación y quedan auditados. Las anulaciones históricas están protegidas.</p>':'')+
@@ -177,7 +176,7 @@ async function load(grade=null){
   S.grade=Number(result.grado)||null;
   S.grades=result.grados||[];
   S.editable=ctx.role==="admin"&&result.editable===true;
-  S.allowAnnul=S.editable&&result.permite_anular===true;
+  S.allowAnnul=(ctx.role==="admin"||ctx.role==="teacher")&&result.permite_anular===true;
   S.needReason=S.editable&&result.motivo_requerido===true;
   S.lastEdit=result.ultima_edicion||null;
   S.reason="";
@@ -203,7 +202,7 @@ const updateRow=(row,item)=>{
  });
  const toggle=row.querySelector("[data-rak-toggle]");
  if(toggle){
-   const name=!S.editable?(item.anulada?"Anulada":"Anular"):(item.anulada?"Reactivar":"Anular");
+   const name=!S.allowAnnul?(item.anulada?"Anulada":"Anular"):(item.anulada?"Reactivar":"Anular");
    toggle.classList.toggle("is-on",item.anulada);
    toggle.setAttribute("aria-pressed",String(item.anulada));
    toggle.setAttribute("aria-label",(item.anulada?"Reactivar":"Anular")+" ítem");
@@ -246,10 +245,18 @@ async function persistAnnulment(item,row){
  row.setAttribute("aria-busy","true");
  updateRow(row,item);
  try{
-  const result=await activeContext.rpc("roque_v12_claves_guardar",{
-   p_edicion:edition,p_grado:grade,p_cambios:[change],p_motivo:null
-  });
-  if(!result?.ok||Number(result.cambios)!==1)
+  const coordinator=activeContext.role==="teacher";
+  const result=coordinator
+   ? await activeContext.rpc("roque_v12_claves_anular_coordinador",{
+       p_edicion:edition,p_grado:grade,p_numero_item:item.numero_item,
+       p_anulada_antes:before.anulada,
+       p_docente:activeContext.id,p_sesion:activeContext.session
+     })
+   : await activeContext.rpc("roque_v12_claves_guardar",{
+       p_edicion:edition,p_grado:grade,p_cambios:[change],p_motivo:null
+     });
+  if(!result?.ok||Number(result.cambios)!==1||
+     (coordinator&&result.anulada!==annulled))
    throw Error(result?.error||"El servidor no confirmó la anulación.");
   if(S.edition===edition&&S.grade===grade){
    S.baseline.set(item.numero_item,{correcta:item.correcta,anulada:item.anulada});
@@ -316,10 +323,14 @@ document.addEventListener("click",async event=>{
    S.area=button.dataset.rakArea;show();return;
  }
  if(button.dataset.rakToggle!==undefined){
-   if(!S.editable||!S.allowAnnul||S.saving)return;
+   if(!S.allowAnnul||S.saving)return;
    const row=button.closest(".rak-item");
    const item=S.items.find(i=>i.numero_item===Number(button.dataset.rakToggle));
    if(!item||!row)return;
+   if(ctx.role==="teacher"&&item.anulada&&!item.correcta){
+     ctx.notify?.("Para reactivar este ítem, Administración debe asignar primero una respuesta correcta.");
+     return;
+   }
    item.anulada=!item.anulada;
    updateRow(row,item);
    if(!isDirty(item))return;
