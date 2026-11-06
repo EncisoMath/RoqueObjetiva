@@ -6,8 +6,17 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.70
+RoqueObjetiva v175.71
 
+
+## v175.71 · Pestañas definitivas por rol
+
+- **Docente**: Asignaturas y Director de grupo (solo si dispone de dirección). Vistas sin cambios de cálculos ni presentación.
+- **Coordinador**: únicamente Mover estudiantes, Estadísticas y Consultar estudiante. Tres accesos directos en dock; sin pantallas de Asignaturas, Director de grupo ni Claves. El endpoint de consultar claves ahora es exclusivo del Administrador y la antigua RPC de Anular del Coordinador ha perdido EXECUTE.
+- **Administrador**: Asignaturas, Director de grupo, Mover estudiantes, Estadísticas, Consultar estudiante, Claves de respuestas y Personal docente. Elige el docente que desea consultar para reutilizar sus vistas de Asignaturas y Director de grupo.
+- Administrador utiliza `roque_v14_admin_mover_listar` / `roque_v14_admin_mover_guardar`, con autorización `auth.uid()` + `operadores_admin` y auditoría independiente `movimientos_curso_admin`; no se suplanta al Coordinador.
+- Menús de escritorio y móvil simplificados; se conservan los archivos de herramientas antiguas sin exponerlas en las pestañas.
+- PWA v175.71 con nueva caché para que todos reciban la navegación actualizada.
 
 ## v175.70 · Equivalencias de PNG en carga académica
 

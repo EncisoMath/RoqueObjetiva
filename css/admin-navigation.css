@@ -436,3 +436,15 @@
   .adm151-dock-item{font-size:.54rem}
   .adm151-dock-item .adm151-icon{width:17px;height:17px;flex-basis:17px}
 }
+
+/* v175.71 · Administrador hereda vistas Docente y Coordinador sin cambiar su sesión. */
+.adm151-shell .admin-teacher-dashboard,
+.adm151-shell .admin-coordinator-view{display:block;min-width:0;width:100%;max-width:100%;background:transparent;border:0;box-shadow:none}
+.adm151-shell .admin-teacher-picker{margin:0 0 12px;padding:10px 12px;border:1px solid #cbddec;border-radius:4px;background:#fff}
+.adm151-shell .admin-teacher-picker label{display:grid;gap:6px;max-width:470px;color:#52748a;font-size:.7rem;font-weight:800}
+.adm151-shell .admin-teacher-picker select{height:39px;width:100%;min-width:0;padding:0 10px;border:1px solid #bcd4e7;border-radius:4px;background:#f7fbfe;color:#244d68;font-family:inherit;font-size:.78rem;font-weight:750}
+.adm151-shell .admin-teacher-picker select:focus-visible{outline:2px solid #1686bd;outline-offset:2px}
+.adm151-shell .admin-coordinator-view .coord-move-shell{min-width:0}
+@media(max-width:600px){
+ .adm151-shell .admin-teacher-picker{margin-bottom:9px;padding:9px}
+}
