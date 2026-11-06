@@ -1,4 +1,4 @@
-/* RoqueObjetiva v175.67 · Consulta individual · Admin / Coordinador.
+/* RoqueObjetiva v175.87 · Consulta individual · Admin / Coordinador, hero reutilizable.
  * La búsqueda solo abre sugerencias al escribir. Toda lectura y edición utiliza RPC seguras.
  */
 (() => {
@@ -94,9 +94,12 @@ function resultsHtml(){
  return '<section class="rce-report" aria-label="Resultados del estudiante en '+esc(S.edition)+'">'+html+'</section>';
 }
 function screen(){
- return '<div class="rce-screen">'+
-  '<header class="rce-header"><span class="rce-eyebrow">CONSULTA INSTITUCIONAL</span><h2>Consultar estudiante</h2>'+
-  '<p>Busca un estudiante por nombre, apellido, documento o ID de prueba. El listado aparecerá solo mientras escribes.</p></header>'+
+ return '<div class="rce-screen">'+window.RoqueScreenHero.render({
+  title:"Consultar estudiante",
+  subtitle:"Busca un estudiante por nombre, apellido, documento o ID de prueba. El listado aparecerá solo mientras escribes.",
+  icon:"search",
+  heading:"h2"
+ })+
   '<section class="rce-search-card">'+filterHtml()+
   '<div class="rce-search-area"><label for="rce-search-input">Buscar estudiante</label>'+
   '<div class="rce-search-box"><span aria-hidden="true">⌕</span>'+

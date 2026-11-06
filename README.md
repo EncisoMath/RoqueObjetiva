@@ -6,7 +6,15 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.86
+RoqueObjetiva v175.87
+
+## v175.87 · Hero reutilizable en Estadísticas Institucionales y Consultar estudiante
+
+- Reutiliza el mismo `window.RoqueScreenHero.render()` implementado para **Mover estudiantes** en **Coordinador → Estadísticas Institucionales** y **Coordinador → Consultar estudiante**. Sus módulos también son compartidos con Administrador, por lo que las dos vistas muestran este mismo hero en ese rol.
+- Conserva exactamente los colores, estructura, ondas SVG animadas, icono sobre blanco, centrado vertical, bordes de 4 px y responsividad del componente original. Únicamente se configuran títulos, subtítulos e iconos (`chart` y `search`).
+- Se eliminan los encabezados anteriores solo en estas dos vistas, conservando filtros, gráficos, búsqueda y resultados, además del hero institucional, el dock y demás pantallas.
+- El icono de lupa se añade al catálogo del propio componente reutilizable sin duplicar código HTML/CSS ni animaciones.
+- Se actualizan versiones de archivos y caché PWA a `v175.87`. No hay cambios en Supabase.
 
 ## v175.86 · Hero interno genérico con ondas de PlayStation
 

@@ -1,4 +1,4 @@
-/* RoqueObjetiva v175.60 · Estadísticas institucionales (Admin/Coordinador) */
+/* RoqueObjetiva v175.87 · Estadísticas institucionales (Admin/Coordinador), hero reutilizable. */
 (() => {
 "use strict";
 const S={key:"",edition:"2026-2S",site:"",grade:"",course:"",subject:"",mode:"general",
@@ -177,8 +177,13 @@ const body=()=>{
    kpis(p)+barsCard(p)+distribution(p)+components(p)+
    '<p class="ris-footnote">Nota por asignatura: 20 + 80 × (respuestas correctas / ítems válidos). Componentes: porcentaje de aciertos. Se excluyen ítems anulados y evaluaciones sin respuestas marcadas.</p>';
 };
-const view=()=>'<section class="ris-screen"><div class="ris-eyebrow">ESTADÍSTICAS</div>'+
- '<header class="ris-heading"><span class="ris-heading-icon">'+ico("bars",32)+'</span><h2>Estadísticas Institucionales</h2><span class="ris-current-edition">'+e(S.edition)+'</span></header>'+
+// La estructura y animación son las mismas del hero reutilizable de Mover estudiantes.
+const view=()=>'<section class="ris-screen">'+window.RoqueScreenHero.render({
+ title:"Estadísticas Institucionales",
+ subtitle:"Consulta el desempeño institucional por áreas, componentes y competencias.",
+ icon:"chart",
+ heading:"h2"
+})+
  '<div id="ris-filters">'+filters()+'</div><div id="ris-body">'+body()+'</div></section>';
 const update=()=>{
  const root=document.getElementById("roque-statistics");if(!root)return;

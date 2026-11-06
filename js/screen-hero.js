@@ -1,4 +1,4 @@
-/* RoqueObjetiva v175.86 · Hero compacto genérico para pantallas internas.
+/* RoqueObjetiva v175.87 · Hero compacto genérico para pantallas internas.
    Uso: window.RoqueScreenHero.render({title, subtitle, icon:"transfer",
      iconSrc, colors:{background, wave, waveSecondary, icon, iconBackground}});
    Independiente del hero institucional: no modifica .top-banner. */
@@ -9,6 +9,7 @@
     users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
     book:'<path d="M12 7C9 5 6 5 3 5v14c3-1 6-1 9 1 3-2 6-2 9-1V5c-3 0-6 0-9 2zm0 0v13"/>',
     chart:'<path d="M4 20v-6h4v6M10 20V9h4v11M16 20V4h4v16"/>',
+    search:'<circle cx="10.8" cy="10.8" r="6.6"/><path d="m16 16 5 5"/>',
     shield:'<rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>',
     layers:'<path d="m12 2 9 5-9 5-9-5 9-5zM3 12l9 5 9-5M3 17l9 5 9-5"/>'
   });
