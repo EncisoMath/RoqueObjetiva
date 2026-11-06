@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.81";
+  const APP_VERSION = "v175.82";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -162,6 +162,7 @@
     sessionAuditStudentSearch: "",
     sessionAuditAssignRoll: "",
     subjectAreaMap: {},
+    medidasByRoll: new Map(),
     adminCargaTeacherId: "",
     adminDirectorTeacherId: "",
     modalStack: [],
@@ -1029,6 +1030,15 @@
     const resultados = datasets.resultados || datasets.results || [];
     const rankings = datasets.ranking || datasets.rankings || datasets.ranking_global || datasets.rankingGlobal || datasets.puestos || [];
     const mapeoAreas = datasets.mapeo_areas || datasets.mapeoAreas || datasets.subjectAreaMap || [];
+    state.medidasByRoll = new Map();
+    (Array.isArray(datasets.medidas)?datasets.medidas:[]).forEach(row=>{
+      const id=cleanId(row?.id_prueba);
+      if(id)state.medidasByRoll.set(id,{
+        restringido:Boolean(row.restringido),
+        areas_anuladas:Array.isArray(row.areas_anuladas)?row.areas_anuladas:[],
+        sesiones_anuladas:Array.isArray(row.sesiones_anuladas)?row.sesiones_anuladas:[]
+      });
+    });
     if (Array.isArray(mapeoAreas)) {
       mapeoAreas.forEach((row) => {
         const asignatura = cleanText(row.asignatura || row.ASIGNATURA || row.Asignatura || row.subject || row.Subject);
@@ -2160,12 +2170,47 @@
     return { subjectStats, allDetails, total, correct, wrong, doubleMark, empty, anyAttempt };
   }
 
+
+  function measureSubjectKey(subject){
+    const key=normalizeText(canonicalAreaName(subject||""));
+    return key.startsWith("lenguaje")?"lenguaje":key;
+  }
+  function applyEffectiveMeasures(stats,roll){
+    const measure=state.medidasByRoll?.get?.(cleanId(roll));
+    if(!measure)return stats;
+    const annulled=new Set((measure.areas_anuladas||[]).map(measureSubjectKey));
+    let affected=false;
+    Object.entries(stats.subjectStats||{}).forEach(([subject,stat])=>{
+      if(!stat?.total)return;
+      const restriction=Boolean(measure.restringido);
+      const annul=!restriction&&annulled.has(measureSubjectKey(subject));
+      if(!restriction&&!annul)return;
+      // La nota académica de la respuesta original permanece en Supabase.
+      // Aquí se calcula el valor efectivo y se impide mostrar el detalle original.
+      stat.estadoMedida=restriction?"restringido":"anulado";
+      stat.score=20;
+      stat.absent=false;
+      stat.correct=0;
+      stat.wrong=0;
+      stat.doubleMark=0;
+      stat.empty=stat.total;
+      stat.details=[];
+      affected=true;
+    });
+    if(affected){
+      stats.correct=Object.values(stats.subjectStats).reduce((sum,s)=>sum+Number(s?.correct||0),0);
+      stats.wrong=Object.values(stats.subjectStats).reduce((sum,s)=>sum+Number(s?.wrong||0),0);
+      stats.anyAttempt=true;
+    }
+    return stats;
+  }
+
   function buildComputedStudentFromRegistry(registry, index = 0) {
     const examId = cleanId(registry?.examId);
     const record = examId ? state.responsesByRoll.get(examId) : null;
     const grade = toInt(registry?.grade) || toInt(record?.grade);
     const roll = examId || cleanId(registry?.nationalId) || `REG-${index + 1}`;
-    const stats = calculateStudentStatsFromRecord(record, grade);
+    const stats = applyEffectiveMeasures(calculateStudentStatsFromRecord(record, grade),roll);
     const serverRank = mergeRankMeta(registry?.serverRank, record?.serverRank, state.rankingMetadataByRoll?.get(examId));
 
     return {
@@ -2204,7 +2249,7 @@
       || null;
     const grade = toInt(registry?.grade) || toInt(record?.grade);
     if (!roll || !grade) return null;
-    const stats = calculateStudentStatsFromRecord(record, grade);
+    const stats = applyEffectiveMeasures(calculateStudentStatsFromRecord(record, grade),roll);
     const serverRank = mergeRankMeta(registry?.serverRank, record?.serverRank, state.rankingMetadataByRoll?.get(roll));
 
     return {
@@ -3012,7 +3057,7 @@
   }
 
   function adminTabIds() {
-    return new Set(["asignaturas","director","mover","estadisticas","consultar","claves","docentes","asignaturas-areas"]);
+    return new Set(["asignaturas","director","mover","estadisticas","consultar","claves","docentes","asignaturas-areas","restricciones"]);
   }
 
   function handleHashRoute() {
@@ -3892,10 +3937,34 @@
 
   // La cabecera, pestañas y barras del modal comparten EXACTAMENTE
   // la misma fuente de color que las tarjetas del informe, sin variantes.
+
+  function openEffectiveScoreModal(tipo){
+    const restricted=tipo==="restringido";
+    const title=restricted?"⚠️ Examen restringido":"⛔ Examen anulado";
+    const body=restricted
+      ? 'Este estudiante tiene su examen restringido. <strong class="rm18-red-copy">Por ahora su nota es 20.</strong>'
+      : 'Este examen fue anulado.';
+    const previous=modalRoot.lastElementChild;
+    const nested=Boolean(previous?.classList?.contains?.("director-detail-backdrop"));
+    if(nested)previous.setAttribute("inert","");
+    const content='<div class="modal-backdrop rm18-notice-backdrop" data-action="close-modal">'+
+      '<section class="modal rm18-notice '+(restricted?'rm18-notice-warning':'rm18-notice-danger')+
+      '" role="dialog" aria-modal="true" aria-label="'+title+'">'+
+      '<header class="rm18-notice-head"><button class="icon-btn" data-action="close-modal" aria-label="Cerrar">×</button></header>'+
+      '<div class="rm18-notice-banner"><span>'+ (restricted?'⚠️':'⛔')+'</span><strong>'+title+'</strong></div>'+
+      '<p>'+body+'</p>'+
+      '<button type="button" class="primary-btn rm18-understood" data-action="close-modal">Entendido</button>'+
+      '</section></div>';
+    if(nested)modalRoot.insertAdjacentHTML("beforeend",content);
+    else modalRoot.innerHTML=content;
+    document.body.classList.add("modal-open");
+  }
+
   function openStudentSubjectModalForRoll(roll, subject, showCorrect = false, preserveDirectorModal = false, lookupStudentOverride = null) {
     const student = lookupStudentOverride || state.computedByRoll.get(cleanId(roll));
     if (!student || !subject) return;
     const stat = student.subjectStats?.[subject];
+    if(stat?.estadoMedida){openEffectiveScoreModal(stat.estadoMedida);return;}
     if (!stat?.total) return;
     const areaColor = STUDENT_AREA_COLORS[subject] || "#248bc4";
     // Desde Director se superpone el MISMO modal estudiantil sin desmontar
@@ -4105,6 +4174,10 @@
           content=window.RoqueAreas?.render({rpc:staffAdminRpc,notify:toast,
             owner:"teacher:"+state.activeSession.id,colors:STUDENT_AREA_COLORS})||
             '<div class="empty-state">No se pudo cargar Asignaturas y áreas.</div>';
+        }else if(state.teacherMode==="staff-admin-restricciones"){
+          content=window.RoqueMedidas?.render({rpc:staffAdminRpc,notify:toast,
+            owner:"teacher:"+state.activeSession.id,edition})||
+            '<div class="empty-state">No se pudo cargar Restricciones y anulaciones.</div>';
         }else if(state.teacherMode==="staff-admin-docentes"){
           content=window.RoquePersonal?.render({
             rpc:staffAdminRpc,notify:toast,
@@ -4525,7 +4598,10 @@
       roque_v12_claves_guardar:"roque_v15_staff_admin_claves_guardar",
       roque_v16_areas_catalogo:"roque_v16_areas_catalogo",
       roque_v16_areas_guardar:"roque_v16_areas_guardar",
-      roque_v17_areas_vincular_lote:"roque_v17_areas_vincular_lote"
+      roque_v17_areas_vincular_lote:"roque_v17_areas_vincular_lote",
+      roque_v18_medidas_buscar:"roque_v18_medidas_buscar",
+      roque_v18_medidas_detalle:"roque_v18_medidas_detalle",
+      roque_v18_medidas_guardar:"roque_v18_medidas_guardar"
     };
     if(!Object.prototype.hasOwnProperty.call(methods,name))
       throw Error("Operación administrativa no permitida.");
@@ -4541,7 +4617,7 @@
     if (mode === "director") return (teacher.directorGroups || []).length > 0;
     if (["coord-mover","coord-estadisticas","coord-consultar"].includes(mode))
       return ["coordinador","administrador"].includes(staffRoleOf(teacher));
-    if (["staff-admin-asignaturas-areas","staff-admin-docentes","staff-admin-claves"].includes(mode))
+    if (["staff-admin-asignaturas-areas","staff-admin-docentes","staff-admin-claves","staff-admin-restricciones"].includes(mode))
       return staffRoleOf(teacher)==="administrador";
     return false;
   }
@@ -4717,7 +4793,7 @@
     sections.push(["logout","Cerrar sesión","logout"]);
     const isCurrent=(id)=>id==="coord"
       ? (isAdmin?["mover","estadisticas","consultar"].includes(mode):String(mode||"").startsWith("coord-"))
-      : id==="admin" ? (isAdmin?["asignaturas-areas","docentes","claves"].includes(mode)
+      : id==="admin" ? (isAdmin?["asignaturas-areas","docentes","claves","restricciones"].includes(mode)
         :String(mode||"").startsWith("staff-admin-"))
       : id===mode;
     const dock=sections.map(([id,title,icon])=>{
@@ -4759,10 +4835,12 @@
     if(adminMenu){
       menus.push(panel("admin","Administración",isAdmin?[
         ["asignaturas-areas","Asignaturas y áreas","layers"],
+        ["restricciones","Restricciones y anulaciones","shield"],
         ["docentes","Personal docente","users"],
         ["claves","Claves de respuestas","key"]
       ]:[
         ["staff-admin-asignaturas-areas","Asignaturas y áreas","layers"],
+        ["staff-admin-restricciones","Restricciones y anulaciones","shield"],
         ["staff-admin-docentes","Personal docente","users"],
         ["staff-admin-claves","Claves de respuestas","key"]
       ]));
@@ -4961,7 +5039,13 @@
     }).join("");
     const gradeRows = students.map((student) => `
       <tr>
-        ${subjects.map((subject) => `<td class="director-subject-grade" title="${escAttr(subject.name)} · ${escAttr(displayListName(student))}">${scoreDisplayHtml(student.subjectStats[subject.name])}</td>`).join("")}
+        ${subjects.map((subject) => {
+          const stat=student.subjectStats[subject.name];
+          const display=scoreDisplayHtml(stat);
+          return `<td class="director-subject-grade" title="${escAttr(subject.name)} · ${escAttr(displayListName(student))}">${stat?.estadoMedida
+            ? `<button type="button" class="rm18-cell-button" data-action="open-detail" data-roll="${escAttr(student.roll)}" data-subject="${escAttr(subject.name)}" aria-label="Ver estado de ${escAttr(subject.name)}">${display}</button>`
+            :display}</td>`;
+        }).join("")}
       </tr>
     `).join("");
 
@@ -5128,7 +5212,7 @@
       ["estadisticas","Estadísticas","chart"],["consultar","Consultar estudiante","graduation"]
     ]},
     {id:"administracion",title:"Administración",items:[
-      ["asignaturas-areas","Asignaturas y áreas","layers"],["claves","Claves de respuestas","key"],["docentes","Personal docente","users"]
+      ["asignaturas-areas","Asignaturas y áreas","layers"],["restricciones","Restricciones y anulaciones","shield"],["claves","Claves de respuestas","key"],["docentes","Personal docente","users"]
     ]}
   ];
 
@@ -5304,7 +5388,7 @@
       if(title && title.textContent!==navigation.currentTitle)
         title.textContent=navigation.currentTitle;
       const adminHeading=workspace.querySelector(".adm151-current-heading");
-      if(adminHeading)adminHeading.hidden=["estadisticas","claves","consultar","mover","asignaturas-areas"].includes(state.adminTab);
+      if(adminHeading)adminHeading.hidden=["estadisticas","claves","consultar","mover","asignaturas-areas","restricciones"].includes(state.adminTab);
       workspace.querySelectorAll(".adm151-sidebar .adm151-link[data-tab], .adm151-overlay .adm151-link[data-tab]").forEach(link=>{
         const active=link.dataset.tab===state.adminTab;
         link.classList.toggle("is-active",active);
@@ -5323,7 +5407,7 @@
         const active=button.dataset.menu==="coord"
           ? ["mover","estadisticas","consultar"].includes(state.adminTab)
           :button.dataset.menu==="admin"
-            ? ["asignaturas-areas","docentes","claves"].includes(state.adminTab)
+            ? ["asignaturas-areas","docentes","claves","restricciones"].includes(state.adminTab)
             :Boolean(button.dataset.tab&&button.dataset.tab===state.adminTab);
         button.classList.toggle("is-active",active);
         if(active)button.setAttribute("aria-current","page");
@@ -5340,7 +5424,7 @@
       <div class="adm151-workspace">
         ${navigation.sidebar}
         <section class="adm151-main" aria-label="Contenido administrativo">
-          <div class="adm151-current-heading"${["estadisticas","claves","consultar","mover","asignaturas-areas"].includes(state.adminTab) ? " hidden" : ""}>
+          <div class="adm151-current-heading"${["estadisticas","claves","consultar","mover","asignaturas-areas","restricciones"].includes(state.adminTab) ? " hidden" : ""}>
             <div><span>ADMINISTRACIÓN</span><h2>${esc(navigation.currentTitle)}</h2></div>
           </div>
           <section class="admin-layout admin-layout-full">
@@ -5417,6 +5501,10 @@
         ? window.RoqueStatistics.render({rpc:supabaseRpc,notify:toast,role:"admin",id:"admin",
           edition:cleanText(state.academicEdition||"2026-2S")})
         : '<div class="empty-state">Módulo Estadísticas no disponible.</div>';
+      case "restricciones": return window.RoqueMedidas ? window.RoqueMedidas.render({
+        rpc:supabaseRpc,notify:toast,owner:"auth-admin",
+        edition:cleanText(state.academicEdition||"2026-1S")
+      }) : '<div class="empty-state">Módulo Restricciones y anulaciones no disponible.</div>';
       case "asignaturas-areas": return window.RoqueAreas ? window.RoqueAreas.render({
         rpc:supabaseRpc,notify:toast,owner:"auth-admin",colors:STUDENT_AREA_COLORS
       }) : '<div class="empty-state">Módulo Asignaturas y áreas no disponible.</div>';
@@ -9032,6 +9120,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     const student = state.computedByRoll.get(cleanId(roll));
     if (!student) return;
     const requestedStat = statForSubject(student, subject);
+    if(requestedStat?.estadoMedida){openEffectiveScoreModal(requestedStat.estadoMedida);return;}
     // Buscar la clave real en subjectStats, pues ciertas cargas usan alias.
     const realSubject = requestedStat?.total
       ? (Object.keys(student.subjectStats || {}).find((name) => student.subjectStats[name] === requestedStat)
@@ -9051,6 +9140,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     const student = (state.lookupStudent?.roll === roll && document.getElementById("roque-student-lookup") ? state.lookupStudent : null) || state.computedByRoll.get(roll) || (state.activeSession?.role === "student" ? state.computedByRoll.get(state.activeSession.roll) : null);
     if (!student) return;
     const stat = statForSubject(student, subject);
+    if(stat?.estadoMedida){openEffectiveScoreModal(stat.estadoMedida);return;}
     const detail = stat?.details.find((d) => d.item === item);
     if (!detail) return;
     const canSeeCorrect = ["teacher", "admin"].includes(state.activeSession?.role);
@@ -10408,6 +10498,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     state.coordIntroShown=false;state.coordSession="";state.coordPendingMoves.clear();state.coordRoster=[];
     window.RoquePersonal?.reset();
     window.RoqueAreas?.reset();
+    window.RoqueMedidas?.reset();
     window.RoqueStatistics?.reset();
     window.RoqueKeys?.reset();
     state.coordCourses=[];state.coordEditionLoaded="";
@@ -10762,6 +10853,12 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
   }
 
   function scoreDisplayHtml(stat, className = "teacher-score teacher-score-plain", showScale = false) {
+    if(stat?.estadoMedida==="restringido"||stat?.estadoMedida==="anulado"){
+      const restricted=stat.estadoMedida==="restringido";
+      return '<span class="'+className+' rm18-score '+(restricted?'rm18-restricted':'rm18-annulled')+
+        '" aria-label="'+(restricted?'Examen restringido':'Examen anulado')+', nota 20">'+
+        (restricted?'⚠️':'⛔')+' 20</span>';
+    }
     const value = Number.isFinite(Number(stat?.score)) ? Number(stat.score) : null;
     const absent = !!stat?.absent && value === 0;
     const classes = `${className}${absent ? " score-absent" : ""}`;

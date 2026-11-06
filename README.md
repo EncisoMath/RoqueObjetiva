@@ -6,7 +6,16 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.81
+RoqueObjetiva v175.82
+
+## v175.82 · Restricciones y anulaciones auditadas por edición
+
+- **Administrador → Restricciones y anulaciones:** búsqueda por nombre/documento/ID, selector real de edición, estado de acceso, primera o segunda sesión, áreas específicas, motivos y bitácora de cambios. Responsive y estilos flat (radio ≤4px). Integrado en el menú Administrador institucional y del personal docente con rol administrador.
+- **Supabase:** estado independiente de respuestas originales en `roque_private.medidas_estudiante`, auditoría inmutable en `roque_private.auditoria_medidas_estudiante`; escrituras únicamente en RPCs validadas por rol y sesión. Migraciones `supabase/39_*` a `43_*`.
+- **Medidas:** nota efectiva **20/100** en restricción general o anulación; restricción tiene prioridad visual. Anulación por sesión utiliza la asignación de sesión real de los ítems. Revertir estados restaura el cálculo a partir de respuestas y claves originales sin alterar los datos fuente.
+- **Docente → Carga y Dirección de Grupo:** iconos ⚠️ 20 / ⛔ 20, modales especiales al pulsarlos, incluyendo celdas de la tabla horizontal de Dirección. Se impide abrir el detalle normal de una asignatura afectada.
+- **Seguridad y cálculos:** consultas/historial restringidos desde RPCs; respuestas afectadas redactadas en payloads; estadísticas institucionales y ranking usan puntajes efectivos. Se mantienen permisos, carga docente, claves, resultados EvalBee y el resto de las pantallas.
+- **PWA:** recursos nuevos y cache v175.82.
 
 ## v175.81 · Nombres propios también en el hero de áreas
 

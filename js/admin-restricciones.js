@@ -1,7 +1,7 @@
 /* RoqueObjetiva v175.82 · Restricciones y anulaciones. */
 (() => {
  "use strict";
- const S={ctx:null,owner:"",edition:"",editions:[],query:"",students:[],selected:null,detail:null,draft:{},busy:false,error:"",section:"students",timer:0,serial:0};
+ const S={ctx:null,owner:"",edition:"",editions:[],query:"",students:[],selected:null,detail:null,draft:{},busy:false,error:"",reason:"",section:"students",timer:0,serial:0};
  const escapeHTML=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
  const normal=v=>String(v??"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim().toLowerCase();
  const root=()=>document.getElementById("roque-medidas");
@@ -34,7 +34,7 @@
  const hasDiff=()=>{
   if(!S.detail)return false;
   const actual=new Map((S.detail.medidas||[]).map(x=>[x.tipo+":"+x.clave,Boolean(x.activo)]));
-  return Object.entries(S.draft).some(([key,val])=>actual.get(key)!==Boolean(val));
+  return Object.entries(S.draft).some(([key,val])=>Boolean(actual.get(key))!==Boolean(val));
  };
  const choice=(tipo,clave,label,desc="")=>{
   const checked=stateOf(tipo,clave);
@@ -60,7 +60,7 @@
    '<section class="rm18-section"><header>'+icon("ban",21)+'<div><h3>Anulaciones</h3>'+
    '<p>Selecciona las sesiones o asignaturas que se anularán.</p></div></header>'+
    '<h4>Sesiones del examen</h4><div class="rm18-check-list">'+
-   (Array.isArray(d.sesiones)&&d.sesiones.length?d.sesiones.map(n=>choice("sesion",String(n),n+"."+String.fromCharCode(186)+" sesión","Afecta solo las áreas con ítems en esta sesión.")).join(""):'<p class="rm18-muted">No hay sesiones configuradas.</p>')+
+   (Array.isArray(d.sesiones)&&d.sesiones.length?d.sesiones.map(n=>choice("sesion",String(n),(Number(n)===1?"Primera sesión":Number(n)===2?"Segunda sesión":"Sesión "+n),"Afecta solo las áreas con ítems en esta sesión.")).join(""):'<p class="rm18-muted">No hay sesiones configuradas.</p>')+
    '</div><h4>Asignaturas específicas</h4>'+
    '<div class="rm18-check-list">'+(areas.length?areas.map(a=>choice("area",a.clave,a.area,
      (a.sesiones||[]).some(n=>stateOf("sesion",String(n)))?"También afectada por una sesión anulada.":"Nota efectiva: ⛔ 20")).join(""):'<p class="rm18-muted">Sin asignaturas configuradas.</p>')+
@@ -69,7 +69,7 @@
    '<p>'+ (active.length?active.length+" medida(s) registradas":"Sin restricciones ni anulaciones")+'</p></div></header>'+
    (active.length?'<div class="rm18-pills">'+active.map(a=>'<span class="rm18-pill '+(a.tipo==="restriccion"?"warning":"danger")+'">'+escapeHTML(a.tipo==="restriccion"?"Acceso restringido":a.tipo==="sesion"?"Sesión "+a.clave+" anulada":a.clave+" anulada")+'</span>').join("")+'</div>':'')+'</section>'+
    '<section class="rm18-save-panel"><label for="rm18-motivo">Motivo del cambio <span>(obligatorio)</span></label>'+
-   '<textarea id="rm18-motivo" maxlength="500" minlength="5" rows="2" placeholder="Explica por qué se aplica o revierte la medida…" '+(S.busy?'disabled':'')+'></textarea>'+
+   '<textarea id="rm18-motivo" maxlength="500" minlength="5" rows="2" placeholder="Explica por qué se aplica o revierte la medida…" '+(S.busy?'disabled':'')+'>'+escapeHTML(S.reason)+'</textarea>'+
    '<button class="rm18-save" type="button" data-rm18-action="save" '+(S.busy||!hasDiff()?'disabled':'')+'>'+icon("save",19)+'Guardar cambios</button>'+
    '<p class="rm18-muted">Cada cambio guarda responsable, fecha, motivo y estado anterior. Los resultados originales se conservan.</p>'+
    '</section>'+
@@ -124,16 +124,16 @@
   try{
    const p=await call("roque_v18_medidas_detalle",{p_edicion:S.edition,p_id_prueba:S.selected});
    if(!p?.ok)throw Error(p?.error||"No se cargó el estudiante.");
-   S.detail=p;setDraft(p);
+   S.detail=p;setDraft(p);S.reason="";
   }catch(e){S.error=String(e?.message||e);S.selected=null}
   finally{S.busy=false;redraw()}
  }
  async function save(){
   if(S.busy||!S.detail||!hasDiff())return;
-  const reason=root()?.querySelector("#rm18-motivo")?.value.trim()||"";
+  const reason=S.reason.trim();
   if(reason.length<5){S.error="Debes escribir un motivo de al menos 5 caracteres.";redraw();return}
   const old=new Map((S.detail.medidas||[]).map(m=>[m.tipo+":"+m.clave,Boolean(m.activo)]));
-  const changes=Object.entries(S.draft).filter(([k,v])=>old.get(k)!==Boolean(v)).map(([k,v])=>{
+  const changes=Object.entries(S.draft).filter(([k,v])=>Boolean(old.get(k))!==Boolean(v)).map(([k,v])=>{
    const pos=k.indexOf(":");return {tipo:k.slice(0,pos),clave:k.slice(pos+1),activo:Boolean(v)};
   });
   if(!changes.length)return;
@@ -144,11 +144,11 @@
    S.ctx?.notify?.("Medidas guardadas en Supabase.");
    const updated=await call("roque_v18_medidas_detalle",{p_edicion:S.edition,p_id_prueba:S.selected});
    if(!updated?.ok)throw Error("Guardado confirmado. Actualiza el detalle para ver el nuevo estado.");
-   S.detail=updated;setDraft(updated);
+   S.detail=updated;setDraft(updated);S.reason="";
   }catch(e){S.error=String(e?.message||e)}
   finally{S.busy=false;redraw()}
  }
- function reset(){S.ctx=null;S.owner="";S.edition="";S.editions=[];S.query="";S.students=[];S.selected=null;S.detail=null;S.draft={};S.busy=false;S.error="";S.serial++;}
+ function reset(){S.ctx=null;S.owner="";S.edition="";S.editions=[];S.query="";S.students=[];S.selected=null;S.detail=null;S.draft={};S.reason="";S.busy=false;S.error="";S.serial++;}
  document.addEventListener("click",event=>{
   const b=event.target.closest("[data-rm18-action]");
   if(!b||!root()?.contains(b))return;
@@ -161,7 +161,9 @@
  });
  document.addEventListener("input",event=>{
   const el=event.target;
-  if(!root()?.contains(el)||el.dataset.rm18Input!=="search")return;
+  if(!root()?.contains(el))return;
+  if(el.id==="rm18-motivo"){S.reason=el.value;return;}
+  if(el.dataset.rm18Input!=="search")return;
   S.query=el.value;clearTimeout(S.timer);S.timer=setTimeout(()=>void search(),300);
  });
  document.addEventListener("change",event=>{

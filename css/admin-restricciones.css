@@ -86,3 +86,22 @@
  .rm18-grade{font-size:10px;padding:5px}
  .rm18-section,.rm18-save-panel,.rm18-search-panel{padding:11px}
 }
+
+/* v175.82 · Notas efectivas y avisos especializados de resultados. */
+.rm18-score{display:inline-block;white-space:nowrap;font-weight:700;font-size:inherit;line-height:1.3}
+.rm18-restricted{color:#8a4f10}.rm18-annulled{color:#bc272e}
+.rm18-cell-button{background:transparent;border:0;padding:4px 2px;min-width:43px;border-radius:4px;cursor:pointer}
+.rm18-cell-button:hover{background:#fff3e3}
+.rm18-cell-button:focus-visible{outline:2px solid #1975ae}
+.rm18-notice{max-width:390px;border:1px solid #e4cf94;border-radius:4px;padding:12px;background:#fffaf0;color:#1e293b;text-align:center}
+.rm18-notice-danger{background:#fff5f6;border-color:#ef9aa2}
+.rm18-notice-head{display:flex;justify-content:flex-end;padding:0 0 5px}
+.rm18-notice-head .icon-btn{background:transparent;border:0;font-size:25px}
+.rm18-notice-banner{display:flex;justify-content:center;align-items:center;gap:12px;background:#fff1bd;border-radius:4px;padding:12px;color:#654015;font-size:17px}
+.rm18-notice-danger .rm18-notice-banner{background:#ffdade;color:#af1626}
+.rm18-notice-banner>span{font-size:30px;line-height:1}
+.rm18-notice-banner strong{font-weight:750}
+.rm18-notice>p{font-size:14px;line-height:1.6;color:#25334a;padding:8px 6px}
+.rm18-notice .rm18-red-copy{color:#c10c18}
+.rm18-notice .rm18-understood{display:inline-flex;justify-content:center;min-width:130px;background:#1578b5;border:0;color:#fff;padding:10px 20px;border-radius:4px;font-size:13px;font-weight:650}
+@media(max-width:520px){.rm18-notice{width:calc(100vw - 32px)}.rm18-notice-banner{font-size:15px}}
