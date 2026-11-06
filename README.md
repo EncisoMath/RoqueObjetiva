@@ -6,8 +6,20 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.72
+RoqueObjetiva v175.73
 
+
+## v175.73 · Roles reales de Personal docente en el dock
+
+- **Corrección del origen del rol:** el inicio de sesión `roque_v8_login_controlado_private` entrega el campo `staff_role` validado contra `public.docentes.rol` y la metadata del docente autorizado. Esto evita depender de la carga académica y del indicador `coordinador` heredado.
+- **Docente:** Carga, Dirección de grupo si está asignada, Cerrar sesión.
+- **Coordinador:** mismas pestañas Docente + botón Coordinador (Mover estudiantes, Estadísticas, Consultar estudiante).
+- **Administrador del personal:** pestañas Docente + menú Coordinador + botón Administrador (Asignaturas, Personal docente, Claves de respuestas).
+- **Seguridad:** el rol institucional Administrador permite mostrar el menú; las tres operaciones administrativas protegidas continúan exigiendo credenciales de una cuenta Supabase Auth autorizada. Quien entre únicamente con documento recibe un aviso para identificarse con su cuenta administrativa.
+- **Sesiones de coordinación:** Administrador institucional y Coordinador reciben token temporal válido para las funciones de Coordinador; se mantiene validación en servidor, caducidad y auditoría.
+- **Interfaz intacta:** se conservan clases, iconos, tamaños, listas y animaciones `t160`; únicamente Cerrar sesión (icono y texto) aparece rojo.
+- **Registros sin carga:** la metadata de `public.docentes` crea también los perfiles que aún no tienen asignaturas o dirección de grupo.
+- **PWA:** nueva caché `resultados-pwa-v175-73-roles-personal-docente`. No se alteran estudiantes, notas, respuestas ni asignaciones.
 
 ## v175.72 · Restauración del dock original por rol
 

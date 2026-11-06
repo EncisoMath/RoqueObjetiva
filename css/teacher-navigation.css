@@ -392,3 +392,14 @@
 
 /* v175.72 · Textos largos en cinco botones, conservando medidas y estilo t160. */
 @media(max-width:400px){.t160-dock-btn span{overflow-wrap:anywhere}}
+
+/* v175.73 · Cerrar sesión destacado en rojo para Docente, Coordinador y Administrador.
+   Conserva exactamente los iconos, medidas, bordes y animaciones existentes. */
+.roque-teacher-shell .t160-dock-btn[data-action="logout"],
+.adm151-shell .t160-dock-btn[data-action="logout"]{
+  color:#d32f2f!important;
+}
+.roque-teacher-shell .t160-dock-btn[data-action="logout"]:hover,
+.adm151-shell .t160-dock-btn[data-action="logout"]:hover{
+  color:#bd2525!important;
+}
