@@ -1,4 +1,4 @@
-/* RoqueObjetiva v175.59 · Estadísticas institucionales (Admin/Coordinador) */
+/* RoqueObjetiva v175.60 · Estadísticas institucionales (Admin/Coordinador) */
 (() => {
 "use strict";
 const S={key:"",edition:"2026-2S",site:"",grade:"",course:"",subject:"",mode:"general",
@@ -9,12 +9,15 @@ const num=v=>Number.isFinite(Number(v))?Number(v):0;
 const exists=v=>v!==null&&v!==undefined&&v!==""&&Number.isFinite(Number(v));
 const fmt=(v,d=1)=>exists(v)?Number(v).toLocaleString("es-CO",{minimumFractionDigits:d,maximumFractionDigits:d}):"—";
 const percentage=v=>exists(v)?fmt(v)+" %":"—";
-const color={
- "Matemáticas":"#2399fa","Lenguaje":"#f04b82","Inglés":"#2399fa",
- "Ciencias Sociales y Ciudadanía":"#5bbb2f","Ciencias Naturales":"#58b72f",
- "Educación Física":"#f54c84","Informática":"#a777e4","Religión":"#ffa52e",
- "Ética y Valores":"#e4b937","Artística":"#ad75d5"
-};
+// Colores tomados exactamente de las dos imágenes entregadas:
+ // imagen 1: asignaturas (11 tonos); imagen 2: cursos de una asignatura (7 tonos).
+const SUBJECT_BAR_COLORS=[
+ "#1976D2","#0288D1","#0097A7","#00796B","#388E3C","#689F38",
+ "#AFB42B","#FBC02D","#FFA000","#F57C00","#E64A19"
+];
+const COURSE_BAR_COLORS=[
+ "#1976D2","#0288D1","#0097A7","#00796B","#388E3C","#689F38","#AFB42B"
+];
 const short=x=>({"Ciencias Sociales y Ciudadanía":"Sociales","Ciencias Naturales":"Naturales","Educación Física":"Edu. Física","Ética y Valores":"Ética"}[x]||x);
 const courseLabel=(v,grade,sede)=>{
  const m=String(v).match(/^(\d+)/);
@@ -58,6 +61,13 @@ const subjectRank=name=>{
  return 5;
 };
 const byPriority=(a,b)=>subjectRank(a)-subjectRank(b)||a.localeCompare(b,"es");
+// Conservar el color de cada asignatura al filtrar: tomar su posición
+// en el orden institucional, incluso cuando se ve una sola barra.
+const subjectBarColor=subject=>{
+ const all=[...new Set(subjects())].sort(byPriority);
+ const ix=all.indexOf(subject);
+ return SUBJECT_BAR_COLORS[(ix<0?0:ix)%SUBJECT_BAR_COLORS.length];
+};
 const filters=()=>'<div class="ris-filters">'+
  '<label>Sede<select data-ris="site">'+opt("","Todas",S.site)+sites().map(x=>opt(x,x,S.site)).join("")+'</select></label>'+
  '<label>Grado<select data-ris="grade">'+opt("","Todos",S.grade)+grades().map(v=>opt(v,v+"°",S.grade)).join("")+'</select></label>'+
@@ -93,7 +103,9 @@ const bars=(rows,grouped)=>{
    });
    const groups=[...unique.values()].sort((a,b)=>a.sede.localeCompare(b.sede,"es")||
      a.grado-b.grado||a.curso.localeCompare(b.curso,"es",{numeric:true}));
-   const palette=["#1988cf","#59b7eb","#8264de","#37b5a1","#efa04a","#ed659c","#627da6"];
+   // Una asignatura + Por curso: paleta de siete tonos de la imagen 2.
+   // Otras comparaciones por curso: paleta completa de la imagen 1.
+   const palette=S.subject?COURSE_BAR_COLORS:SUBJECT_BAR_COLORS;
    const locations=new Map();
    groups.forEach((g,i)=>{
      if(!locations.has(g.sede))locations.set(g.sede,[]);
@@ -116,7 +128,7 @@ const bars=(rows,grouped)=>{
  const sorted=[...rows].sort((a,b)=>byPriority(a.asignatura,b.asignatura));
  return '<div class="ris-chart-scroll"><div class="ris-plot" style="--count:'+sorted.length+'">'+
  sorted.map(x=>'<div class="ris-bar-column"><strong class="ris-bar-number">'+fmt(x.promedio)+'</strong>'+
-   '<div class="ris-bar" style="--height:'+Math.round(Math.min(100,Math.max(0,num(x.promedio)))*1.6)+'px;--bar:'+(color[x.asignatura]||"#209ac8")+'" title="'+e(x.asignatura+": "+fmt(x.promedio))+'"></div>'+
+   '<div class="ris-bar" style="--height:'+Math.round(Math.min(100,Math.max(0,num(x.promedio)))*1.6)+'px;--bar:'+subjectBarColor(x.asignatura)+'" title="'+e(x.asignatura+": "+fmt(x.promedio))+'"></div>'+
    '<span class="ris-subject-label">'+e(short(x.asignatura))+'</span></div>').join("")+'</div></div>';
 };
 const barsCard=p=>{
