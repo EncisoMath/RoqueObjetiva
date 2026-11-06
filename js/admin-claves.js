@@ -300,15 +300,24 @@ document.addEventListener("click",async event=>{
    p_motivo:S.needReason?S.reason.trim():null
   });
   if(!result?.ok)throw Error(result?.error||"No fue posible guardar.");
+  // El servidor confirmó el lote. Actualizar el estado local sin reconstruir
+  // el panel ni volver a Sesión 1: preserva asignatura, desplazamiento y dock.
+  changed.forEach(change=>{
+    S.baseline.set(change.numero_item,{
+      correcta:change.correcta_nueva,anulada:change.anulada_nueva
+    });
+  });
+  S.reason="";
+  S.lastEdit=new Date().toISOString();
+  S.error="";
   ctx.notify?.(result.cambios+" claves actualizadas.");
-  await load(S.grade); // Volver a leer el estado de Supabase antes de confirmar en pantalla.
  }catch(error){
+  // Conservar selecciones en pantalla para corregir y reintentar.
   S.error=String(error?.message||"Falló el guardado.");
   ctx.notify?.(S.error);
-  show(); // Conservar los cambios para que el administrador pueda revisar.
- }finally{S.saving=false;
-  const save=root.querySelector("[data-rak-save]");
-  if(save){save.disabled=!hasDirty();save.innerHTML=svg("check")+" Guardar cambios"+(hasDirty()?" ("+changes().length+")":"");}
+ }finally{
+  S.saving=false;
+  show();
  }
 });
 window.RoqueKeys={render,reset:()=>{
