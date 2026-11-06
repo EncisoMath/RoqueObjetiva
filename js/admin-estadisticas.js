@@ -1,4 +1,4 @@
-/* RoqueObjetiva v175.58 · Estadísticas institucionales (Admin/Coordinador) */
+/* RoqueObjetiva v175.59 · Estadísticas institucionales (Admin/Coordinador) */
 (() => {
 "use strict";
 const S={key:"",edition:"2026-2S",site:"",grade:"",course:"",subject:"",mode:"general",
@@ -83,12 +83,16 @@ const bars=(rows,grouped)=>{
    const by=new Map();
    for(const r of rows){if(!by.has(r.asignatura))by.set(r.asignatura,[]);by.get(r.asignatura).push(r);}
    const areas=[...by].sort((a,b)=>byPriority(a[0],b[0]));
-   // El identificador de un curso incluye la sede para no mezclar grupos homónimos.
-   const keyOf=r=>courseKey(r.sede,r.curso);
+   // Con una sola asignatura pueden aparecer muchos grados. La clave completa
+   // garantiza que 6°-1 y 7°-1, incluso en la misma sede, sean cursos distintos.
+   const gradeOf=r=>Number(r.grado)||Number(S.grade)||0;
+   const keyOf=r=>JSON.stringify([gradeOf(r),String(r.sede||""),String(r.curso||"")]);
    const unique=new Map();
-   for(const r of rows)unique.set(keyOf(r),{sede:r.sede,curso:r.curso,key:keyOf(r)});
+   for(const r of rows)unique.set(keyOf(r),{
+     grado:gradeOf(r),sede:String(r.sede||""),curso:String(r.curso||""),key:keyOf(r)
+   });
    const groups=[...unique.values()].sort((a,b)=>a.sede.localeCompare(b.sede,"es")||
-     a.curso.localeCompare(b.curso,"es",{numeric:true}));
+     a.grado-b.grado||a.curso.localeCompare(b.curso,"es",{numeric:true}));
    const palette=["#1988cf","#59b7eb","#8264de","#37b5a1","#efa04a","#ed659c","#627da6"];
    const locations=new Map();
    groups.forEach((g,i)=>{
@@ -97,12 +101,15 @@ const bars=(rows,grouped)=>{
    });
    const legend='<div class="ris-course-legend">'+[...locations].map(([sede,entries])=>
      '<div class="ris-site-legend"><strong class="ris-site-name">'+e(sede)+'</strong><div class="ris-site-courses">'+
-     entries.map(({group,color})=>'<span><i style="background:'+color+'"></i>'+e(courseLabel(group.curso,S.grade))+'</span>').join("")+
+     entries.map(({group,color})=>'<span><i style="background:'+color+'"></i>'+e(courseLabel(group.curso,group.grado))+'</span>').join("")+
      '</div></div>').join("")+'</div>';
-   return legend+'<div class="ris-chart-scroll"><div class="ris-plot ris-grouped" style="--count:'+areas.length+'">'+
+   // Garantiza espacio suficiente para cada barra al filtrar una sola asignatura:
+   // el desplazamiento ocurre solo dentro del gráfico y no de la pantalla.
+   const minPlot=Math.max(100*areas.length,(groups.length*18+16)*areas.length);
+   return legend+'<div class="ris-chart-scroll"><div class="ris-plot ris-grouped" style="--count:'+areas.length+';--plot-min:'+minPlot+'px">'+
      areas.map(([subject,values])=>'<div class="ris-bar-column"><div class="ris-cluster">'+groups.map((g,i)=>{
-       const match=values.find(r=>r.curso===g.curso&&r.sede===g.sede),v=match?num(match.promedio):0;
-       return '<div class="ris-bar ris-thin" style="--height:'+Math.round(Math.min(100,v)*1.6)+'px;--bar:'+palette[i%palette.length]+'" title="'+e(subject+" · "+courseLabel(g.curso,S.grade)+" · "+g.sede+": "+(match?fmt(v):"Sin datos"))+'"></div>';
+       const match=values.find(r=>r.curso===g.curso&&r.sede===g.sede&&gradeOf(r)===g.grado),v=match?num(match.promedio):0;
+       return '<div class="ris-bar ris-thin" style="--height:'+Math.round(Math.min(100,v)*1.6)+'px;--bar:'+palette[i%palette.length]+'" title="'+e(subject+" · "+courseLabel(g.curso,g.grado)+" · "+g.sede+": "+(match?fmt(v):"Sin datos"))+'"></div>';
      }).join("")+'</div><span class="ris-subject-label">'+e(short(subject))+'</span></div>').join("")+
      '</div></div>';
  }
@@ -113,7 +120,9 @@ const bars=(rows,grouped)=>{
    '<span class="ris-subject-label">'+e(short(x.asignatura))+'</span></div>').join("")+'</div></div>';
 };
 const barsCard=p=>{
- const toggle=Boolean(S.grade&&!S.course&&!S.subject);
+ // Una asignatura siempre puede compararse General / Por curso, aun sin grado.
+  // El modo Por curso con curso seleccionado muestra únicamente ese curso.
+  const toggle=Boolean(S.subject||(S.grade&&!S.course));
  const switcher=toggle?'<div class="ris-switch" role="group" aria-label="Comparación por curso">'+
   ['general','curso'].map(mode=>'<button type="button" data-ris-mode="'+mode+'" class="'+(S.mode===mode?"active":"")+
     '" aria-pressed="'+(S.mode===mode)+'">'+(mode==="general"?"General":"Por curso")+'</button>').join("")+'</div>':'';
