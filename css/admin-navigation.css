@@ -448,3 +448,37 @@
 @media(max-width:600px){
  .adm151-shell .admin-teacher-picker{margin-bottom:9px;padding:9px}
 }
+
+/* v175.72 · El administrador usa EXACTAMENTE el dock y las listas t160 de Docente.
+   Se oculta el antiguo sidebar y se conserva la vista central, sin rediseños. */
+.adm151-shell {
+ --t160-border:#dce3e9;
+ --t160-muted:#617181;
+ --t160-soft:color-mix(in srgb,var(--orange) 9%,white);
+}
+.adm151-shell .adm151-workspace {
+ display:block!important;
+ grid-template-columns:none!important;
+ width:100%;
+ max-width:min(1120px,100%)!important;
+ margin:0 auto;
+ padding:14px 12px calc(88px + env(safe-area-inset-bottom))!important;
+}
+.adm151-shell .adm151-sidebar,
+.adm151-shell .adm151-mobile-menu-button,
+.adm151-shell .adm151-dock,
+.adm151-shell .adm151-overlay {
+ display:none!important;
+}
+.adm151-shell .adm151-main,.adm151-shell .adm151-main .admin-layout,
+.adm151-shell .adm151-main .admin-panel {min-width:0;width:100%}
+.adm151-shell .t160-dock{display:grid!important}
+.adm151-shell .t160-menu-layer{display:block}
+@media(max-width:420px){
+ .adm151-shell .adm151-workspace{padding-inline:9px!important}
+}
+@media print{
+ .adm151-shell .t160-dock,
+ .adm151-shell .t160-menu-layer{display:none!important}
+ .adm151-shell .adm151-workspace{padding:0!important}
+}
