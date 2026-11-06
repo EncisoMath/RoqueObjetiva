@@ -73,14 +73,14 @@ const bars=(rows,grouped)=>{
      '<div class="ris-chart-scroll"><div class="ris-plot ris-grouped" style="--count:'+areas.length+'">'+
      areas.map(([subject,values])=>'<div class="ris-bar-column"><div class="ris-cluster">'+groups.map((c,i)=>{
        const match=values.find(x=>x.curso===c),v=match?num(match.promedio):0;
-       return '<div class="ris-bar ris-thin" style="--height:'+Math.min(100,v)+'%;--bar:'+palette[i%palette.length]+'" title="'+e(subject+" · "+courseLabel(c,S.grade)+": "+(match?fmt(v):"Sin datos"))+'"></div>';
+       return '<div class="ris-bar ris-thin" style="--height:'+Math.round(Math.min(100,v)*1.6)+'px;--bar:'+palette[i%palette.length]+'" title="'+e(subject+" · "+courseLabel(c,S.grade)+": "+(match?fmt(v):"Sin datos"))+'"></div>';
      }).join("")+'</div><span class="ris-subject-label">'+e(short(subject))+'</span></div>').join("")+
      '</div></div>';
  }
  const sorted=[...rows].sort((a,b)=>a.asignatura.localeCompare(b.asignatura,"es"));
  return '<div class="ris-chart-scroll"><div class="ris-plot" style="--count:'+sorted.length+'">'+
  sorted.map(x=>'<div class="ris-bar-column"><strong class="ris-bar-number">'+fmt(x.promedio)+'</strong>'+
-   '<div class="ris-bar" style="--height:'+Math.min(100,Math.max(0,num(x.promedio)))+'%;--bar:'+(color[x.asignatura]||"#209ac8")+'" title="'+e(x.asignatura+": "+fmt(x.promedio))+'"></div>'+
+   '<div class="ris-bar" style="--height:'+Math.round(Math.min(100,Math.max(0,num(x.promedio)))*1.6)+'px;--bar:'+(color[x.asignatura]||"#209ac8")+'" title="'+e(x.asignatura+": "+fmt(x.promedio))+'"></div>'+
    '<span class="ris-subject-label">'+e(short(x.asignatura))+'</span></div>').join("")+'</div></div>';
 };
 const barsCard=p=>{
