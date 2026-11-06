@@ -6,8 +6,17 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.58
+RoqueObjetiva v175.59
 
+
+## v175.59 · Tarjetas centradas, foco de filtros y comparación por curso con asignatura
+
+- **Selects sin raya superior:** corregido el anillo de enfoque que se recortaba por `overflow:hidden` de las etiquetas. El foco de teclado mantiene un borde interno visible.
+- **Tarjetas KPI:** iconos, números y textos centrados horizontal y verticalmente, con la misma fila de cuatro tarjetas incluso en móviles.
+- **General / Por curso con asignatura:** el switch de Promedio por asignatura aparece si hay asignatura filtrada, aunque no haya grado seleccionado o incluso si hay un curso seleccionado; continúa apareciendo al filtrar únicamente un grado.
+- **Cursos de diferentes grados:** al filtrar una sola asignatura para toda la institución, se distinguen simultáneamente grado, sede y curso. Las leyendas muestran el grado correcto y el gráfico reserva espacio para barras múltiples con desplazamiento horizontal interno.
+- **Supabase:** migración aplicada `supabase/31_estadisticas_desglose_por_grado_v175_59.sql`, actualizando la misma RPC `roque_v11_estadisticas_institucionales` sin alterar su firma, datos, permisos o controles de acceso.
+- Actualizados los recursos y caché PWA a v175.59.
 
 ## v175.58 · Estadísticas: sede, cuatro columnas y periodo compartido
 
