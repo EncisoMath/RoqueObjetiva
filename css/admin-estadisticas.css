@@ -1,0 +1,240 @@
+/* RoqueObjetiva v175.56 · Estadísticas institucionales, diseño flat acorde a referencia */
+.ris-root{
+  --ris-ink:#162f53;--ris-blue:#1689c4;--ris-line:#bcd9fa;
+  color:var(--ris-ink);max-width:1280px;width:100%;margin:0 auto;
+  font-family:inherit;min-width:0;
+}
+.ris-root *{box-sizing:border-box}
+.ris-root button,.ris-root select{font-family:inherit}
+.ris-root button{cursor:pointer}
+.ris-root button:focus-visible,.ris-root select:focus-visible{
+  outline:2px solid #148bc5;outline-offset:2px
+}
+.ris-screen{display:grid;gap:15px;min-width:0;padding:0 0 24px}
+.ris-eyebrow{
+  font-size:.85rem;font-weight:900;letter-spacing:.13em;
+  color:#117cb5;margin:2px 0 -10px;padding-left:2px
+}
+.ris-heading{display:flex;align-items:center;gap:12px;min-width:0;margin:0 0 2px}
+.ris-heading-icon{
+  width:48px;height:48px;display:grid;place-items:center;
+  background:#137fbc;border:1px solid #abd9f8;border-radius:4px;
+  color:#fff;flex:0 0 48px
+}
+.ris-heading h2{
+  margin:0;color:#142f56;font-size:clamp(1.1rem,2.6vw,1.7rem);
+  line-height:1.15;letter-spacing:-.025em;font-weight:900
+}
+.ris-filters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px;align-items:end}
+.ris-filters label{
+  min-width:0;display:grid;gap:6px;color:#152f54;font-size:.85rem;
+  font-weight:800;line-height:1.25
+}
+.ris-filters select{
+  width:100%;min-width:0;height:44px;padding:0 12px;
+  background:#fff;border:1px solid #b8d6fb;border-radius:4px;
+  color:#19365f;font-size:.91rem;font-weight:800
+}
+.ris-filters select:disabled{background:#eff6fc;opacity:.65}
+.ris-kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;min-width:0}
+.ris-kpi{
+  min-width:0;min-height:104px;position:relative;
+  display:flex;align-items:center;gap:17px;padding:16px 20px;
+  border:1px solid #bad8fa;border-radius:4px;
+  background:#eaf5ff;
+}
+.ris-kpi.green{background:#effcf7;border-color:#bceade}
+.ris-kpi.violet{background:#f5f1ff;border-color:#d5c9fb}
+.ris-kpi.yellow{background:#fff9ed;border-color:#f5e2bc}
+.ris-kpi-ico{display:grid;place-items:center;flex:0 0 59px;color:#1489d1}
+.ris-kpi.green .ris-kpi-ico{color:#43b01d}
+.ris-kpi.violet .ris-kpi-ico{color:#116fdb}
+.ris-kpi.yellow .ris-kpi-ico{color:#f2a700}
+.ris-kpi-ico svg{width:47px;height:47px}
+.ris-kpi-copy{display:grid;align-content:center;min-width:0;gap:3px}
+.ris-kpi-copy strong{
+  display:block;font-weight:900;font-size:clamp(1.35rem,3.1vw,2.15rem);
+  line-height:1;color:#172f58;letter-spacing:-.035em
+}
+.ris-kpi-copy span{
+  font-size:clamp(.73rem,1.4vw,1rem);line-height:1.27;
+  font-weight:600;color:#193255;overflow-wrap:anywhere
+}
+.ris-kpi-aside{
+  align-self:flex-start;margin-left:auto;flex:0 0 auto;
+  border-radius:4px;background:#d8f4d9;padding:5px 7px;
+  color:#31a50c;font-size:.84rem;font-weight:900;white-space:nowrap
+}
+.ris-card{
+  background:#fff;border:1px solid #bad8fa;border-radius:4px;
+  padding:14px 15px 17px;min-width:0;
+  box-shadow:0 3px 12px rgba(35,95,150,.07)
+}
+.ris-card-title{
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;
+  gap:10px;padding:0 0 10px;border-bottom:1px solid #d7e5f4;margin-bottom:13px
+}
+.ris-card-title h3{
+  display:flex;align-items:center;gap:9px;margin:0;
+  color:#173455;font-size:clamp(.96rem,2vw,1.22rem);
+  font-weight:900;line-height:1.2;letter-spacing:-.015em
+}
+.ris-card-title svg{color:#1489d0;flex:0 0 auto}
+.ris-switch{display:inline-flex;gap:0;border:1px solid #b7d6eb;border-radius:4px;overflow:hidden}
+.ris-switch button{
+  min-height:30px;border:0;background:#fff;color:#42607b;
+  padding:5px 11px;font-size:.72rem;font-weight:800;
+  transition:background-color .18s ease,color .18s ease
+}
+.ris-switch button+button{border-left:1px solid #b7d6eb}
+.ris-switch button.active{background:#1685bd;color:#fff}
+.ris-chart-scroll{overflow-x:auto;overflow-y:hidden;max-width:100%;padding:1px 1px 4px}
+.ris-plot{
+  display:grid;grid-template-columns:repeat(var(--count,5),minmax(73px,1fr));
+  gap:13px;min-width:max(100%,calc(var(--count,5) * 85px));
+  height:219px;padding:8px 8px 0;position:relative;
+  background-image:linear-gradient(to bottom,#d7e5f5 1px,transparent 1px);
+  background-size:100% 38px;background-position:0 16px
+}
+.ris-bar-column{
+  height:100%;min-width:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:flex-end;position:relative
+}
+.ris-bar-value{display:none}
+.ris-bar-number{
+  align-self:center;text-align:center;color:#172f54;font-weight:900;
+  font-size:.89rem;line-height:1.1;white-space:nowrap;
+  margin-bottom:5px
+}
+.ris-bar{
+  width:min(100%,74px);height:calc(var(--height,0%) * .016);
+  /* El valor del 100 % ocupa hasta 160 px del área de la gráfica. */
+  min-height:1px;max-height:160px;
+  background:var(--bar,#218ef5);border-radius:4px 4px 0 0;
+  flex:0 0 auto;transition:height .22s ease
+}
+.ris-bar-column>.ris-bar{height:calc(var(--height,0%) * 1.6)}
+.ris-subject-label{
+  display:grid;place-items:center;text-align:center;
+  width:100%;height:40px;flex:0 0 40px;min-width:0;
+  font-size:.65rem;font-weight:800;color:#243d5a;
+  line-height:1.2;overflow-wrap:anywhere;
+}
+.ris-chart-group-note{font-size:.65rem}
+.ris-grouped{
+  grid-template-columns:repeat(var(--count,5),minmax(98px,1fr));
+  min-width:max(100%,calc(var(--count,5) * 110px))
+}
+.ris-cluster{
+  height:165px;width:100%;display:flex;align-items:end;justify-content:center;
+  gap:3px;overflow:hidden
+}
+.ris-thin{
+  width:auto;flex:1 1 0;max-width:18px;
+  height:calc(var(--height,0%) * 1.6);min-height:1px
+}
+.ris-course-legend{
+  display:flex;flex-wrap:wrap;column-gap:12px;row-gap:7px;
+  padding:1px 0 12px;font-size:.66rem;font-weight:750;color:#35516b
+}
+.ris-course-legend span{display:flex;align-items:center;gap:5px}
+.ris-course-legend i,.ris-legend i{
+  display:block;flex:0 0 12px;width:12px;height:12px;
+  border-radius:4px
+}
+.ris-distribution{
+  display:grid;grid-template-columns:minmax(180px,.85fr) minmax(0,1.35fr);
+  gap:19px;align-items:center;padding:0 6px
+}
+.ris-donut{
+  width:min(100%,208px);aspect-ratio:1;border-radius:50%;
+  display:grid;place-items:center;margin:0 auto
+}
+.ris-donut-inner{
+  width:61%;height:61%;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;background:#fff;border-radius:50%;
+  color:#183458;text-align:center
+}
+.ris-donut-inner strong{font-size:clamp(1.2rem,3vw,1.75rem);line-height:1;font-weight:900}
+.ris-donut-inner span{font-size:.74rem;line-height:1.35;font-weight:650}
+.ris-legend{display:grid;gap:12px;min-width:0}
+.ris-legend>div{display:grid;grid-template-columns:15px minmax(0,1fr) auto;gap:10px;align-items:center;min-width:0}
+.ris-legend span{font-size:.78rem;line-height:1.2;font-weight:650}
+.ris-legend b{font-size:.83rem;font-weight:900;white-space:nowrap;text-align:right}
+.ris-component-list{display:grid;gap:9px;padding:1px 0}
+.ris-component-row{
+  display:grid;grid-template-columns:minmax(110px,.94fr) minmax(0,1.14fr) 65px;
+  align-items:center;gap:12px;padding:3px 2px;
+  border-bottom:1px solid #e4edf7
+}
+.ris-component-row:last-child{border-bottom:0}
+.ris-component-row>span{font-size:.78rem;font-weight:700;color:#294059;overflow-wrap:anywhere}
+.ris-component-row>b{text-align:right;font-size:.79rem;white-space:nowrap;font-weight:900}
+.ris-track{width:100%;height:17px;border-radius:4px;background:#e4edf8;overflow:hidden}
+.ris-track i{display:block;height:100%;background:#2399f2;border-radius:4px}
+.ris-warning,.ris-error{
+  padding:10px 12px;border:1px solid #c5dbed;background:#f1f8fe;
+  border-radius:4px;color:#506d86;font-size:.74rem;line-height:1.45;margin:0
+}
+.ris-error{border-color:#e5b5b5;background:#fff7f7;color:#a34d4d}
+.ris-error button{padding:5px 9px;border:1px solid #b8d5eb;background:white;color:#197cad;margin-left:7px}
+.ris-loading,.ris-empty{padding:28px 12px;text-align:center;color:#66829c;font-size:.75rem}
+.ris-updating{font-size:.67rem;color:#1685bc;font-weight:750;margin:0 0 8px}
+.ris-footnote{
+  margin:0;color:#7188a1;font-size:.64rem;line-height:1.4;
+  text-align:left;padding:0 3px
+}
+@media(max-width:900px){
+ .ris-filters{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ .ris-filters label{font-size:.75rem}
+ .ris-kpi{padding:13px 12px;gap:7px;min-height:90px}
+ .ris-kpi-ico{flex-basis:38px}
+ .ris-kpi-ico svg{width:35px;height:35px}
+ .ris-kpi-copy strong{font-size:1.6rem}
+ .ris-kpi-copy span{font-size:.75rem}
+ .ris-kpi-aside{font-size:.66rem;padding:4px}
+}
+@media(max-width:570px){
+ .ris-screen{gap:11px}
+ .ris-eyebrow{font-size:.71rem}
+ .ris-heading{gap:9px}
+ .ris-heading-icon{width:40px;height:40px;flex-basis:40px}
+ .ris-heading-icon svg{width:27px;height:27px}
+ .ris-heading h2{font-size:1.05rem}
+ .ris-filters select{height:38px;font-size:.74rem;padding:0 7px}
+ .ris-kpis{gap:7px}
+ .ris-kpi{padding:10px 8px;gap:5px;align-items:center;min-height:79px}
+ .ris-kpi-ico{flex-basis:27px}
+ .ris-kpi-ico svg{width:25px;height:25px}
+ .ris-kpi-copy strong{font-size:1.25rem}
+ .ris-kpi-copy span{font-size:.61rem;line-height:1.28}
+ .ris-kpi-aside{position:absolute;top:4px;right:4px;font-size:.52rem;padding:2px}
+ .ris-card{padding:10px 9px 13px}
+ .ris-card-title{gap:6px;margin-bottom:10px}
+ .ris-card-title h3{font-size:.9rem}
+ .ris-card-title h3 svg{width:19px;height:19px}
+ .ris-plot{height:203px;gap:7px;grid-template-columns:repeat(var(--count,5),minmax(62px,1fr));min-width:max(100%,calc(var(--count,5) * 71px))}
+ .ris-grouped{min-width:max(100%,calc(var(--count,5) * 95px));grid-template-columns:repeat(var(--count,5),minmax(90px,1fr))}
+ .ris-subject-label{height:39px;flex-basis:39px;font-size:.59rem}
+ .ris-distribution{grid-template-columns:130px minmax(0,1fr);gap:9px;padding:0}
+ .ris-donut{width:129px}
+ .ris-donut-inner strong{font-size:1.3rem}
+ .ris-donut-inner span{font-size:.6rem}
+ .ris-legend{gap:9px}
+ .ris-legend>div{grid-template-columns:10px minmax(0,1fr) auto;gap:5px}
+ .ris-legend i{width:10px;height:10px;flex-basis:10px}
+ .ris-legend span{font-size:.6rem}
+ .ris-legend b{font-size:.59rem}
+ .ris-component-row{grid-template-columns:minmax(83px,.9fr) minmax(0,1.1fr) 52px;gap:7px}
+ .ris-component-row>span,.ris-component-row>b{font-size:.63rem}
+ .ris-track{height:14px}
+}
+@media(max-width:340px){
+ .ris-kpi-ico{display:none}
+ .ris-kpi{padding:8px}
+ .ris-distribution{grid-template-columns:116px minmax(0,1fr)}
+ .ris-donut{width:113px}
+}
+@media(prefers-reduced-motion:reduce){
+ .ris-root *{transition:none!important;animation:none!important}
+}
