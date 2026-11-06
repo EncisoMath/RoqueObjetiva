@@ -6,7 +6,14 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.77
+RoqueObjetiva v175.78
+
+## v175.78 · Desvinculación administrada y selección múltiple en modal
+
+- **Quitar del área:** todos los botones muestran la papelera roja, eliminando el candado y el modal vacío. Modal de confirmación con advertencia cuando existen dependencias académicas. Solo se inactiva la relación en `public.mapeo_areas`; las asignaturas siguen disponibles. No se borran cargas docentes, ítems, claves ni resultados.
+- **Agregar asignaturas a esta área:** ahora es un único botón que abre un modal compacto con las asignaturas libres que existen realmente en las cargas docentes. Casillas seleccionables y un botón **Agregar al área** con contador. No permite crear materias nuevas.
+- **Supabase:** `roque_v17_areas_vincular_lote` registra múltiples vinculaciones en **una única transacción**, y las acciones individuales también siguen auditadas. El permiso se comprueba en el servidor, exclusivamente para administradores institucionales o docentes con rol administrador y sesión válida. Migración `supabase/38_modal_asignaturas_lote_v175_78.sql`.
+- **PWA:** scripts y estilos renovados en v175.78. Se mantienen las demás pantallas y el dock.
 
 ## v175.77 · Solo asignaturas reales y diseño más compacto
 

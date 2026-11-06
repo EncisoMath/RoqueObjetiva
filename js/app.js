@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.77";
+  const APP_VERSION = "v175.78";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -4524,7 +4524,8 @@
       roque_v12_claves_consultar:"roque_v15_staff_admin_claves_consultar",
       roque_v12_claves_guardar:"roque_v15_staff_admin_claves_guardar",
       roque_v16_areas_catalogo:"roque_v16_areas_catalogo",
-      roque_v16_areas_guardar:"roque_v16_areas_guardar"
+      roque_v16_areas_guardar:"roque_v16_areas_guardar",
+      roque_v17_areas_vincular_lote:"roque_v17_areas_vincular_lote"
     };
     if(!Object.prototype.hasOwnProperty.call(methods,name))
       throw Error("Operación administrativa no permitida.");

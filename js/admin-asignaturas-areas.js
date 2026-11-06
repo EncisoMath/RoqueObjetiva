@@ -1,4 +1,4 @@
-/* RoqueObjetiva v175.77 · Asignaturas y áreas, datos 100% de Supabase. */
+/* RoqueObjetiva v175.78 · Asignaturas y áreas, datos 100% de Supabase. */
 (() => {
   "use strict";
   const S={areas:[],subjects:[],loaded:false,loading:false,busy:false,error:"",selected:"",modal:null,revision:0,lastLoad:0};
@@ -58,13 +58,14 @@
   };
   const linkedRow=(s,area)=>'<div class="ra-subject-linked"><span class="ra-linked-icon" style="--ra-accent:'+accent(area)+'">'+picture(area)+'</span>'+
     '<span class="ra-linked-name">'+esc(s.nombre)+'</span><button type="button" class="ra-remove" data-ra-action="remove" data-subject="'+esc(s.nombre)+'" '+
-    'aria-label="Desvincular '+esc(s.nombre)+'" title="'+(s.protegida?"Tiene registros asociados: ver advertencia":"Desvincular asignatura")+'">'+
-    (s.protegida?icon("lock",21):icon("trash",21))+'</button></div>';
-  const freeRow=s=>'<div class="ra-subject-free"><span>'+esc(s.nombre)+'</span><button type="button" data-ra-action="link" data-subject="'+esc(s.nombre)+'" '+
-    'aria-label="Vincular '+esc(s.nombre)+'" title="Vincular al área">'+icon("plus",20)+'</button></div>';
+    'aria-label="Quitar '+esc(s.nombre)+' de esta área" title="Quitar asignatura de esta área">'+
+    icon("trash",20)+'</button></div>';
+  const addLaunch=()=>'<button type="button" class="ra-add-launch" data-ra-action="choose-add">'+
+    '<span class="ra-add-launch-icon">'+icon("plus",21)+'</span><span>Agregar asignaturas a esta área</span>'+
+    '<span class="ra-add-launch-arrow">'+icon("next",18)+'</span></button>';
   const detail=()=>{
     const a=current();if(!a)return list();
-    const linked=allSubjects(a.nombre),free=freeSubjects();
+    const linked=allSubjects(a.nombre);
     return '<div class="ra-detail">'+
       '<button class="ra-back" data-ra-action="back" type="button">'+icon("back",24)+'<span>Asignaturas y áreas</span></button>'+
       '<header class="ra-hero" style="--ra-accent:'+accent(a.nombre)+'">'+
@@ -74,34 +75,44 @@
       '</header>'+meta(a)+
       '<section class="ra-panel"><div class="ra-section-title">'+icon("book",23)+'<h3>Asignaturas de esta área</h3></div>'+
       '<div class="ra-subject-items">'+(linked.length?linked.map(s=>linkedRow(s,a.nombre)).join(""):'<div class="ra-empty">Esta área aún no tiene asignaturas vinculadas.</div>')+'</div></section>'+
-      '<section class="ra-panel"><div class="ra-section-title ra-available-head">'+icon("plus",21)+
-      '<h3>Agregar asignaturas a esta área</h3></div>'+
-      '<div class="ra-free-items">'+(free.length?free.map(freeRow).join(""):'<div class="ra-empty">No hay asignaturas libres de la carga docente.</div>')+'</div></section></div>';
+      addLaunch()+'</div>';
   };
   const modal=()=>{
     if(!S.modal)return "";
     const a=current();if(!a)return "";
     const m=S.modal,subject=m.subject||"";
     let title="",body="",footer="";
-    if(m.kind==="protected"){    }else if(m.kind==="protected"){
-      title="Asignatura protegida";
-      body='<p><strong>'+esc(subject)+'</strong> tiene cargas docentes o ítems/claves vinculados. Para preservar las evaluaciones, su relación actual está protegida.</p>'+
-        '<div class="ra-warning">'+icon("lock",21)+'No se realizará ningún cambio en Supabase.</div>';
+    if(m.kind==="add"){
+      title="Agregar asignaturas";
+      const libres=freeSubjects();
+      body='<p class="ra-modal-intro">Selecciona las asignaturas que deseas vincular a <strong>'+esc(a.nombre)+'</strong>.</p>'+
+        '<div class="ra-choice-list" role="group" aria-label="Asignaturas sin área">'+
+        (libres.length?libres.map(s=>{
+          const checked=(m.selected||[]).some(name=>norm(name)===norm(s.nombre));
+          return '<label class="ra-choice'+(checked?" is-checked":"")+'">'+
+            '<input type="checkbox" data-ra-choice="'+esc(s.nombre)+'" value="'+esc(s.nombre)+'" '+(checked?'checked ':'')+(S.busy?'disabled ':'')+'>'+
+            '<span class="ra-choice-name">'+esc(s.nombre)+'</span>'+
+            '<span class="ra-choice-tick" aria-hidden="true">'+icon("check",17)+'</span></label>';
+        }).join(""):'<p class="ra-empty">No hay asignaturas libres disponibles.</p>')+'</div>'+
+        (m.error?'<p class="ra-modal-error" role="alert">'+esc(m.error)+'</p>':'');
+      const selected=(m.selected||[]).length;
+      footer='<button type="button" class="ra-primary ra-confirm-add" data-ra-action="confirm-add" '+(selected===0||S.busy?'disabled':'')+'>'+
+        icon("plus",17)+'<span>Agregar al área'+(selected?' ('+selected+')':'')+'</span></button>';
     }else if(m.kind==="unlink"){
-      title="Desvincular asignatura";
-      body='<p>¿Desvincular <strong>'+esc(subject)+'</strong> de <strong>'+esc(a.nombre)+'</strong>?</p>'+
-        '<div class="ra-warning">'+icon("alert",20)+'La asignatura permanecerá registrada. No se eliminarán cargas, claves ni resultados.</div>';
-      footer='<button type="button" data-ra-action="confirm-unlink" class="ra-danger" '+(S.busy?"disabled":"")+'>'+icon("trash",18)+'Desvincular</button>';
-    }else if(m.kind==="link-used"){
-      title="Revisar vinculación";
-      body='<p><strong>'+esc(subject)+'</strong> aparece en carga docente. Vincularla a <strong>'+esc(a.nombre)+'</strong> puede cambiar la clasificación mostrada en las vistas académicas.</p>'+
-        '<div class="ra-warning">'+icon("info",20)+'Las cargas, claves y calificaciones se conservarán sin modificaciones.</div>';
-      footer='<button type="button" data-ra-action="confirm-link" class="ra-primary" '+(S.busy?"disabled":"")+'>'+icon("check",18)+'Vincular</button>';
+      const assigned=Boolean(findSubject(subject)?.en_carga);
+      const evaluated=Boolean(findSubject(subject)?.en_items||findSubject(subject)?.en_claves);
+      title="Quitar asignatura del área";
+      body='<p>¿Quieres quitar <strong>'+esc(subject)+'</strong> de <strong>'+esc(a.nombre)+'</strong>?</p>'+
+        '<div class="ra-warning">'+icon("alert",20)+'<span>Se desactivará únicamente la relación entre asignatura y área. La asignatura quedará disponible para vincularla a otra área. Las cargas docentes, claves, notas y resultados se conservarán.</span></div>'+
+        (assigned||evaluated?'<p class="ra-impact-note">Esta asignatura tiene registros académicos vinculados. Quitar su área puede modificar cómo se agrupa en algunas vistas; los registros existentes permanecerán intactos.</p>':'')+
+        (m.error?'<p class="ra-modal-error" role="alert">'+esc(m.error)+'</p>':'');
+      footer='<button type="button" class="ra-danger" data-ra-action="confirm-unlink" '+(S.busy?'disabled':'')+'>'+
+        icon("trash",17)+'Quitar del área</button>';
     }
     return '<div class="ra-shade" data-ra-action="dismiss-outside"><div role="dialog" aria-modal="true" aria-labelledby="ra-dialog-title" class="ra-dialog">'+
-      '<header><h3 id="ra-dialog-title">'+esc(title)+'</h3><button type="button" data-ra-action="close" class="ra-modal-x" aria-label="Cerrar">'+icon("close",20)+'</button></header>'+
+      '<header><h3 id="ra-dialog-title">'+esc(title)+'</h3><button type="button" data-ra-action="close" class="ra-modal-x" aria-label="Cerrar" '+(S.busy?'disabled':'')+'>'+icon("close",20)+'</button></header>'+
       '<div class="ra-dialog-body">'+body+'</div>'+
-      '<footer><button type="button" data-ra-action="close" class="ra-secondary">Cancelar</button>'+footer+'</footer></div></div>';
+      '<footer><button type="button" data-ra-action="close" class="ra-secondary" '+(S.busy?'disabled':'')+'>Cancelar</button>'+footer+'</footer></div></div>';
   };
   const markup=()=>'<div class="ra-root" id="roque-areas" data-revision="'+S.revision+'">'+
     (S.loading&&!S.loaded?'<div class="ra-loading">'+icon("layers",24)+'Cargando áreas y asignaturas reales…</div>':
@@ -137,27 +148,41 @@
     return markup();
   }
   const findSubject=name=>S.subjects.find(s=>norm(s.nombre)===norm(name));
-  const showModal=(kind,subject="")=>{S.modal={kind,subject};draw();};
+  const showModal=(kind,subject="")=>{
+    S.modal={kind,subject,selected:[],error:""};draw();
+    requestAnimationFrame(()=>scope()?.querySelector(".ra-dialog input, .ra-dialog .ra-modal-x")?.focus({preventScroll:true}));
+  };
   const closeModal=()=>{S.modal=null;draw();};
-  async function save(operation,subject){
+  async function commitRpc(name,payload,successText){
     if(S.busy||!S.selected||!ctx?.rpc)return;
     S.busy=true;const actor=owner;
     draw();
     try{
-      const result=await ctx.rpc("roque_v16_areas_guardar",{
-        p_operacion:operation,p_area:S.selected,p_asignatura:subject
-      });
-      if(!result?.ok)throw Error(result?.error||"No se guardó la asignatura.");
+      const result=await ctx.rpc(name,payload);
+      if(!result?.ok)throw Error(result?.error||"No se guardaron los cambios.");
       if(actor!==owner)return;
-      S.modal=null;
-      S.busy=false;
-      const fetched=await reload(false);
-      if(!fetched)S.error="El cambio se guardó, pero falló la actualización de la lista. Presiona Reintentar.";
-      ctx?.notify?.(result.cambiado?"Guardado correctamente en Supabase.":"La relación ya estaba guardada.");
+      S.busy=false;S.modal=null;
+      const updated=await reload(false);
+      if(!updated)S.error="El cambio se guardó, pero falló la actualización del catálogo. Presiona Reintentar.";
+      ctx?.notify?.(successText||"Cambios guardados en Supabase.");
     }catch(err){
-      if(actor===owner){S.error=String(err?.message||err);ctx?.notify?.(S.error);}
+      if(actor===owner){
+        const message=String(err?.message||err);
+        if(S.modal)S.modal.error=message;else S.error=message;
+        ctx?.notify?.(message);
+      }
     }finally{if(actor===owner){S.busy=false;draw();}}
   }
+  const saveUnlink=(subject)=>commitRpc("roque_v16_areas_guardar",{
+    p_operacion:"desvincular",p_area:S.selected,p_asignatura:subject
+  },"Asignatura desvinculada. El resto de los registros permanecen intactos.");
+  const saveSelected=()=> {
+    const selected=(S.modal?.selected||[]).slice();
+    if(!selected.length)return;
+    return commitRpc("roque_v17_areas_vincular_lote",{
+      p_area:S.selected,p_asignaturas:selected
+    },selected.length===1?"Asignatura agregada al área.":selected.length+" asignaturas agregadas al área.");
+  };
   document.addEventListener("click",event=>{
     const b=event.target.closest("[data-ra-action]"),root=scope();
     if(!b||!root||!root.contains(b))return;
@@ -171,17 +196,30 @@
     if(action==="open"){const area=findArea(b.dataset.area||"");if(area){S.selected=area.nombre;S.modal=null;draw();scope()?.scrollIntoView({block:"start",behavior:"instant"});}return;}
     if(action==="reload"){void reload();return;}
     if(action==="close"){closeModal();return;}
+    if(action==="choose-add"){showModal("add");return;}
     if(action==="remove"){
-      const s=findSubject(b.dataset.subject);if(!s)return;
-      showModal(s.protegida?"protected":"unlink",s.nombre);return;
+      const s=findSubject(b.dataset.subject);
+      if(s&&norm(s.area)===norm(S.selected))showModal("unlink",s.nombre);
+      return;
     }
-    if(action==="link"){
-      const s=findSubject(b.dataset.subject);if(!s||s.area)return;
-      if(s.en_carga){showModal("link-used",s.nombre);return;}
-      void save("vincular",s.nombre);return;
+    if(action==="confirm-unlink"&&S.modal?.kind==="unlink"){void saveUnlink(S.modal.subject);return;}
+    if(action==="confirm-add"&&S.modal?.kind==="add"){void saveSelected();return;}
+  });
+  document.addEventListener("change",event=>{
+    const control=event.target;
+    if(!control?.matches?.("[data-ra-choice]")||!scope()?.contains(control)||S.busy||S.modal?.kind!=="add")return;
+    const name=control.dataset.raChoice,subject=freeSubjects().find(x=>norm(x.nombre)===norm(name));
+    if(!subject)return;
+    const selection=new Set(S.modal.selected||[]);
+    if(control.checked)selection.add(subject.nombre);else selection.delete(subject.nombre);
+    S.modal.selected=[...selection];
+    control.closest(".ra-choice")?.classList.toggle("is-checked",control.checked);
+    const button=scope()?.querySelector(".ra-confirm-add");
+    if(button){
+      button.disabled=selection.size===0;
+      const label=button.querySelector("span");
+      if(label)label.textContent="Agregar al área"+(selection.size?" ("+selection.size+")":"");
     }
-    if(action==="confirm-unlink"&&S.modal?.kind==="unlink"){void save("desvincular",S.modal.subject);return;}
-    if(action==="confirm-link"&&S.modal?.kind==="link-used"){void save("vincular",S.modal.subject);}
   });
   document.addEventListener("keydown",event=>{
     if(event.key==="Escape"&&S.modal&&scope()&&!S.busy){event.stopPropagation();closeModal();}
