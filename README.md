@@ -6,8 +6,16 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.73
+RoqueObjetiva v175.74
 
+
+## v175.74 · Correcciones integradas a resultados, movimientos y Administración
+
+- **Consultar estudiante / 2026-1S:** vuelve a autorizar la vista y los modales para perfiles institucionales Coordinador y Administrador mediante el rol firmado en la sesión de docente, no por el indicador legado `coordinador`. Al calcular notas desde las claves oficiales de la edición no se aplica el mapeo editable de áreas, evitando que un área sin asignar o con otro nombre elimine preguntas. No se cambiaron las 625 claves ni los 699 resultados de 2026-1S.
+- **Mover estudiantes:** se corrigen los permisos de carga/guardado por rol de Personal docente y el recargado al cambiar de sesión o retornar a la pestaña. Aparece un error accionable con botón Reintentar; si 2026-2S está vacía se advierte que no tiene inscripciones, sin fingir que las tiene.
+- **Administrador institucional:** las tres opciones del menú (Asignaturas, Personal docente y Claves de respuestas) abren sus pantallas reales. Para Personal y Claves se usan RPC específicas con verificación server-side de la sesión temporal y el rol `administrador`, auditoría separada y no modificable directamente desde anon. El módulo Claves permite actualizar la edición borrador; claves históricas cerradas quedan en lectura.
+- **Seguridad:** el acceso de Personal docente y a las Claves se autoriza de nuevo en cada operación de Supabase; se mantienen las funciones antiguas reservadas a Supabase Auth para cuentas administradoras autenticadas. Las nuevas auditorías registran el actor institucional. No se generan cuentas ni se suplantan usuarios Auth.
+- **PWA:** nuevos archivos de frontend en caché v175.74 para recibir ambas correcciones al actualizar la aplicación.
 
 ## v175.73 · Roles reales de Personal docente en el dock
 
