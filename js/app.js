@@ -1707,7 +1707,7 @@
       const session = payload.session || {};
       if (session.role === "admin") {
         // Autorización mediante Supabase Auth, sin contraseña incrustada.
-        state.adminTab = "resumen";
+        state.adminTab = "asignaturas";
         state.zeroToleranceShown = false;
         return enterSessionWithLoader({ role: "admin", id: "admin" }, () => renderAdmin(), "Abriendo panel de administración...");
       }
@@ -4969,18 +4969,15 @@
 
   // Únicamente las pantallas administrativas que siguen disponibles.
   const ADMIN_MENU_GROUPS = [
-    { id: "inicio", title: "Inicio", items: [["resumen", "Resumen", "house"]] },
-    { id: "personal", title: "Personal", items: [["docentes", "Docentes", "users"], ["consultar", "Consultar estudiante", "graduation"]] },
-    { id: "analisis", title: "Análisis", items: [
-      ["estadisticas", "Estadísticas", "chart"],
-      ["mapa-grado", "Mapa por grado", "map"]
-    ] },
-    { id: "configuracion", title: "Configuración", items: [
-      ["claves", "Claves de respuestas", "key"],
-      ["asignaturas-areas", "Asignaturas y áreas", "book"],
-      ["apariencia", "Apariencia", "palette"],
-      ["logos", "Logos", "image"],
-      ["github", "Supabase", "database"]
+    {id:"docencia",title:"Docencia",items:[
+      ["asignaturas","Asignaturas","book"],["director","Director de grupo","graduation"]
+    ]},
+    {id:"coordinacion",title:"Coordinación",items:[
+      ["mover","Mover estudiantes","move"],
+      ["estadisticas","Estadísticas","chart"],["consultar","Consultar estudiante","graduation"]
+    ]},
+    {id:"administracion",title:"Administración",items:[
+      ["claves","Claves de respuestas","key"],["docentes","Personal docente","users"]
     ]}
   ];
 
@@ -4989,6 +4986,7 @@
       house: '<path d="m3 10 9-7 9 7v10H3z"/><path d="M9 20v-7h6v7"/>',
       calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18m-12 5h6"/>',
       chart: '<path d="M4 20V11m6 9V5m6 15v-8m4 8V8"/>',
+      move: '<path d="M4 6h16m-4-4 4 4-4 4M20 18H4m4-4-4 4 4 4"/>',
       layers: '<path d="m12 2 9 5-9 5-9-5 9-5zM3 12l9 5 9-5M3 17l9 5 9-5"/>',
       key: '<circle cx="8" cy="9" r="4"/><path d="m11 12 9 9m-1-4-3 3"/>',
       "file-warning": '<path d="M5 3h10l5 5v13H5zM15 3v6h5"/><path d="M12 12v4m0 3h.01"/>',
@@ -5026,10 +5024,10 @@
 
   function adminNavigationHtml() {
     const selection = ADMIN_MENU_GROUPS.flatMap(g => g.items).find(i => i[0] === state.adminTab);
-    const currentTitle = selection ? selection[1] : "Resumen";
+    const currentTitle = selection ? selection[1] : "Asignaturas";
     const activeSection = ADMIN_MENU_GROUPS.find(g => g.items.some(i => i[0] === state.adminTab));
     const allGroups = ADMIN_MENU_GROUPS.map(adminNavGroup).join("");
-    const mobileGroups = ADMIN_MENU_GROUPS.filter(g => ["personal","analisis","configuracion"].includes(g.id)).map(adminNavGroup).join("");
+    const mobileGroups = ADMIN_MENU_GROUPS.map(adminNavGroup).join("");
     const dockItem = (label, icon, action, section = "", active = false, tab = "resumen") =>
       `<button type="button" class="adm151-dock-item ${active ? "is-active" : ""}" data-action="${action}" ${section ? `data-group="${section}" aria-haspopup="true" aria-expanded="false"` : `data-tab="${escAttr(tab)}"`} aria-label="${esc(label)}">
         ${adminNavIcon(icon)}<span>${esc(label)}</span>
@@ -5049,11 +5047,11 @@
         </div>
       </aside>`,
       mobile: `<nav class="adm151-dock" aria-label="Navegación móvil de administración">
-        ${dockItem("Inicio", "house", "admin-tab", "", state.adminTab === "resumen")}
-        ${dockItem("Docentes", "users", "admin-tab", "", state.adminTab === "docentes", "docentes")}
+        ${dockItem("Asignaturas", "book", "admin-tab", "", state.adminTab === "asignaturas", "asignaturas")}
+        ${dockItem("Mover", "move", "admin-tab", "", state.adminTab === "mover", "mover")}
         ${dockItem("Estadísticas", "chart", "admin-tab", "", state.adminTab === "estadisticas", "estadisticas")}
         ${dockItem("Consultar", "graduation", "admin-tab", "", state.adminTab === "consultar", "consultar")}
-        ${dockItem("Ajustes", "menu", "admin-nav-open", "otros", activeSection?.id === "configuracion")}
+        ${dockItem("Más", "menu", "admin-nav-open", "otros", ["director","claves","docentes"].includes(state.adminTab))}
       </nav>
       <div class="adm151-overlay" aria-hidden="true">
         <button type="button" class="adm151-backdrop" data-action="admin-nav-close" aria-label="Cerrar menú"></button>
@@ -5089,7 +5087,7 @@
       clearTimeout(adminNavCloseTimer);
       adminNavCloseTimer = null;
     }
-    const enabledGroups = ["configuracion"];
+    const enabledGroups = ["docencia","coordinacion","administracion"];
     overlay.querySelectorAll(".adm151-group").forEach((node) => {
       node.hidden = !enabledGroups.includes(node.dataset.admGroup);
     });
@@ -5146,7 +5144,7 @@
   }
 
   function renderAdmin() {
-    if (!adminTabIds().has(state.adminTab)) state.adminTab = "resumen";
+    if (!adminTabIds().has(state.adminTab)) state.adminTab = "asignaturas";
     const navigation = adminNavigationHtml();
 
     // v175.55: mantener vivos el hero, el sidebar y el dock del Administrador.
@@ -5194,7 +5192,7 @@
       if(title && title.textContent!==navigation.currentTitle)
         title.textContent=navigation.currentTitle;
       const adminHeading=workspace.querySelector(".adm151-current-heading");
-      if(adminHeading)adminHeading.hidden=["estadisticas","claves","consultar"].includes(state.adminTab);
+      if(adminHeading)adminHeading.hidden=["estadisticas","claves","consultar","mover"].includes(state.adminTab);
       workspace.querySelectorAll(".adm151-sidebar .adm151-link[data-tab], .adm151-overlay .adm151-link[data-tab]").forEach(link=>{
         const active=link.dataset.tab===state.adminTab;
         link.classList.toggle("is-active",active);
@@ -5222,7 +5220,7 @@
       <div class="adm151-workspace">
         ${navigation.sidebar}
         <section class="adm151-main" aria-label="Contenido administrativo">
-          <div class="adm151-current-heading"${["estadisticas","claves","consultar"].includes(state.adminTab) ? " hidden" : ""}>
+          <div class="adm151-current-heading"${["estadisticas","claves","consultar","mover"].includes(state.adminTab) ? " hidden" : ""}>
             <div><span>ADMINISTRACIÓN</span><h2>${esc(navigation.currentTitle)}</h2></div>
           </div>
           <section class="admin-layout admin-layout-full">
@@ -5245,13 +5243,13 @@
     } catch (error) {
       console.error(`Error renderizando Admin ${source}`.trim(), error);
       try {
-        state.adminTab = state.adminTab || "resumen";
+        state.adminTab = state.adminTab || "asignaturas";
         renderShell(`
           <div class="card card-pad empty-state">
             <h2>No se pudo refrescar la vista administrativa</h2>
             <p>El cambio quedó aplicado localmente, pero la pantalla no se refrescó completa. Cierra este aviso y vuelve a abrir la pestaña del Admin.</p>
             <pre class="debug-box">${esc(error?.message || String(error))}</pre>
-            <button class="primary-btn" data-action="admin-tab" data-tab="resumen">Volver al resumen</button>
+            <button class="primary-btn" data-action="admin-tab" data-tab="asignaturas">Volver a asignaturas</button>
           </div>
         `);
       } catch (fallbackError) {
@@ -6009,7 +6007,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     writeJSON(STORAGE.students, { rows: state.studentsRegistry });
     buildRepository();
     state.sessionAuditStudentSearch = "";
-    state.adminTab = "resumen";
+    state.adminTab = "asignaturas";
     closeModal();
     if (upload) {
       toast(previous && previous !== cleanRoll ? `ID prueba cambiado: ${previous} → ${cleanRoll}. Subiendo a Supabase...` : "ID prueba asignado. Subiendo a Supabase...");
