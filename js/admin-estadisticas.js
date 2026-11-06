@@ -1,7 +1,7 @@
-/* RoqueObjetiva v175.57 · Estadísticas institucionales (Admin/Coordinador) */
+/* RoqueObjetiva v175.58 · Estadísticas institucionales (Admin/Coordinador) */
 (() => {
 "use strict";
-const S={key:"",edition:"2026-2S",grade:"",course:"",subject:"",mode:"general",
+const S={key:"",edition:"2026-2S",site:"",grade:"",course:"",subject:"",mode:"general",
   data:null,request:0,loading:false,error:""};
 let api=null;
 const e=v=>String(v??"").replace(/[&<>"']/g,x=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[x]));
@@ -29,19 +29,37 @@ const paths={
 };
 const ico=(type,size=22)=>'<svg class="ris-icon" width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linejoin="round" stroke-linecap="round" stroke-width="2" aria-hidden="true">'+paths[type]+'</svg>';
 const opt=(v,label,selected)=>'<option value="'+e(v)+'"'+(String(v)===String(selected)?" selected":"")+'>'+e(label)+'</option>';
-const editions=()=>S.data?.ediciones?.length?S.data.ediciones:["2026-2S","2026-1S"];
+const sites=()=>S.data?.sedes||[];
 const grades=()=>S.data?.grados||[];
+const courseKey=(sede,curso)=>JSON.stringify([String(sede),String(curso)]);
+const selectedCourse=()=>{
+ if(!S.course)return null;
+ try{const v=JSON.parse(S.course);return Array.isArray(v)&&v.length===2?{sede:v[0],curso:v[1]}:null}
+ catch(_){return null}
+};
 const courses=()=>{
  if(!S.grade)return [];
  const found=new Map();
- (S.data?.cursos||[]).filter(x=>String(x.grado)===S.grade).forEach(x=>{
-   if(!found.has(x.curso))found.set(x.curso,courseLabel(x.curso,S.grade,x.sede));
+ (S.data?.cursos||[]).filter(x=>String(x.grado)===S.grade&&(!S.site||x.sede===S.site)).forEach(x=>{
+   const key=courseKey(x.sede,x.curso);
+   if(!found.has(key))found.set(key,courseLabel(x.curso,S.grade)+(S.site?"":" · "+x.sede));
  });
  return [...found].sort((a,b)=>a[1].localeCompare(b[1],"es",{numeric:true}));
 };
 const subjects=()=>S.data?.asignaturas||[];
+// Las cinco áreas principales encabezan el gráfico; después van las restantes.
+const subjectRank=name=>{
+ const n=String(name).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+ if(/matemat/.test(n))return 0;
+ if(/lenguaje|humanidad|castellano/.test(n))return 1;
+ if(/natural|biolog|quimic/.test(n))return 2;
+ if(/social|ciudadania|historia/.test(n))return 3;
+ if(/ingles|english/.test(n))return 4;
+ return 5;
+};
+const byPriority=(a,b)=>subjectRank(a)-subjectRank(b)||a.localeCompare(b,"es");
 const filters=()=>'<div class="ris-filters">'+
- '<label>Edición<select data-ris="edition">'+editions().map(v=>opt(v,v,S.edition)).join("")+'</select></label>'+
+ '<label>Sede<select data-ris="site">'+opt("","Todas",S.site)+sites().map(x=>opt(x,x,S.site)).join("")+'</select></label>'+
  '<label>Grado<select data-ris="grade">'+opt("","Todos",S.grade)+grades().map(v=>opt(v,v+"°",S.grade)).join("")+'</select></label>'+
  '<label>Curso<select data-ris="course"'+(!S.grade?' disabled title="Selecciona primero un grado"':'')+'>'+
    opt("","Todos",S.course)+courses().map(x=>opt(x[0],x[1],S.course)).join("")+'</select></label>'+
@@ -50,15 +68,13 @@ const filters=()=>'<div class="ris-filters">'+
  '</div>';
 const kpis=p=>{
  const inscritos=num(p.inscritos),resultados=num(p.resultados);
- const coverage=inscritos?resultados*100/inscritos:null;
- const card=(type,n,label,theme,aside)=>'<article class="ris-kpi '+theme+'"><span class="ris-kpi-ico">'+ico(type,47)+'</span>'+
-   '<div class="ris-kpi-copy"><strong>'+e(n)+'</strong><span>'+e(label)+'</span></div>'+
-   (aside?'<b class="ris-kpi-aside">'+e(aside)+'</b>':'')+'</article>';
+ const card=(type,n,label,theme)=>'<article class="ris-kpi '+theme+'"><span class="ris-kpi-ico">'+ico(type,38)+'</span>'+
+   '<div class="ris-kpi-copy"><strong>'+e(n)+'</strong><span>'+e(label)+'</span></div></article>';
  return '<div class="ris-kpis">'+
-   card("people",inscritos.toLocaleString("es-CO"),"Estudiantes inscritos","blue")+
-   card("check",resultados.toLocaleString("es-CO"),"Resultados registrados","green",coverage===null?"":percentage(coverage))+
-   card("bars",fmt(p.promedio),S.subject?"Promedio · "+S.subject:"Promedio general (100)","violet")+
-   card("trophy",percentage(p.satisfactorio),"Básico o superior (≥ 60)","yellow")+
+   card("people",inscritos.toLocaleString("es-CO"),"Inscritos","blue")+
+   card("check",resultados.toLocaleString("es-CO"),"Resultados","green")+
+   card("bars",fmt(p.promedio),"Promedio (100)","violet")+
+   card("trophy",percentage(p.satisfactorio),"Básico o superior","yellow")+
  '</div>';
 };
 const bars=(rows,grouped)=>{
@@ -66,18 +82,31 @@ const bars=(rows,grouped)=>{
  if(grouped){
    const by=new Map();
    for(const r of rows){if(!by.has(r.asignatura))by.set(r.asignatura,[]);by.get(r.asignatura).push(r);}
-   const areas=[...by].sort((a,b)=>a[0].localeCompare(b[0],"es"));
-   const groups=[...new Set(rows.map(x=>x.curso))].sort((a,b)=>a.localeCompare(b,"es",{numeric:true}));
+   const areas=[...by].sort((a,b)=>byPriority(a[0],b[0]));
+   // El identificador de un curso incluye la sede para no mezclar grupos homónimos.
+   const keyOf=r=>courseKey(r.sede,r.curso);
+   const unique=new Map();
+   for(const r of rows)unique.set(keyOf(r),{sede:r.sede,curso:r.curso,key:keyOf(r)});
+   const groups=[...unique.values()].sort((a,b)=>a.sede.localeCompare(b.sede,"es")||
+     a.curso.localeCompare(b.curso,"es",{numeric:true}));
    const palette=["#1988cf","#59b7eb","#8264de","#37b5a1","#efa04a","#ed659c","#627da6"];
-   return '<div class="ris-course-legend">'+groups.map((x,i)=>'<span><i style="background:'+palette[i%palette.length]+'"></i>'+e(courseLabel(x,S.grade))+'</span>').join("")+'</div>'+
-     '<div class="ris-chart-scroll"><div class="ris-plot ris-grouped" style="--count:'+areas.length+'">'+
-     areas.map(([subject,values])=>'<div class="ris-bar-column"><div class="ris-cluster">'+groups.map((c,i)=>{
-       const match=values.find(x=>x.curso===c),v=match?num(match.promedio):0;
-       return '<div class="ris-bar ris-thin" style="--height:'+Math.round(Math.min(100,v)*1.6)+'px;--bar:'+palette[i%palette.length]+'" title="'+e(subject+" · "+courseLabel(c,S.grade)+": "+(match?fmt(v):"Sin datos"))+'"></div>';
+   const locations=new Map();
+   groups.forEach((g,i)=>{
+     if(!locations.has(g.sede))locations.set(g.sede,[]);
+     locations.get(g.sede).push({group:g,color:palette[i%palette.length]});
+   });
+   const legend='<div class="ris-course-legend">'+[...locations].map(([sede,entries])=>
+     '<div class="ris-site-legend"><strong class="ris-site-name">'+e(sede)+'</strong><div class="ris-site-courses">'+
+     entries.map(({group,color})=>'<span><i style="background:'+color+'"></i>'+e(courseLabel(group.curso,S.grade))+'</span>').join("")+
+     '</div></div>').join("")+'</div>';
+   return legend+'<div class="ris-chart-scroll"><div class="ris-plot ris-grouped" style="--count:'+areas.length+'">'+
+     areas.map(([subject,values])=>'<div class="ris-bar-column"><div class="ris-cluster">'+groups.map((g,i)=>{
+       const match=values.find(r=>r.curso===g.curso&&r.sede===g.sede),v=match?num(match.promedio):0;
+       return '<div class="ris-bar ris-thin" style="--height:'+Math.round(Math.min(100,v)*1.6)+'px;--bar:'+palette[i%palette.length]+'" title="'+e(subject+" · "+courseLabel(g.curso,S.grade)+" · "+g.sede+": "+(match?fmt(v):"Sin datos"))+'"></div>';
      }).join("")+'</div><span class="ris-subject-label">'+e(short(subject))+'</span></div>').join("")+
      '</div></div>';
  }
- const sorted=[...rows].sort((a,b)=>a.asignatura.localeCompare(b.asignatura,"es"));
+ const sorted=[...rows].sort((a,b)=>byPriority(a.asignatura,b.asignatura));
  return '<div class="ris-chart-scroll"><div class="ris-plot" style="--count:'+sorted.length+'">'+
  sorted.map(x=>'<div class="ris-bar-column"><strong class="ris-bar-number">'+fmt(x.promedio)+'</strong>'+
    '<div class="ris-bar" style="--height:'+Math.round(Math.min(100,Math.max(0,num(x.promedio)))*1.6)+'px;--bar:'+(color[x.asignatura]||"#209ac8")+'" title="'+e(x.asignatura+": "+fmt(x.promedio))+'"></div>'+
@@ -128,7 +157,7 @@ const body=()=>{
    '<p class="ris-footnote">Nota por asignatura: 20 + 80 × (respuestas correctas / ítems válidos). Componentes: porcentaje de aciertos. Se excluyen ítems anulados y evaluaciones sin respuestas marcadas.</p>';
 };
 const view=()=>'<section class="ris-screen"><div class="ris-eyebrow">ESTADÍSTICAS</div>'+
- '<header class="ris-heading"><span class="ris-heading-icon">'+ico("bars",32)+'</span><h2>Estadísticas Institucionales</h2></header>'+
+ '<header class="ris-heading"><span class="ris-heading-icon">'+ico("bars",32)+'</span><h2>Estadísticas Institucionales</h2><span class="ris-current-edition">'+e(S.edition)+'</span></header>'+
  '<div id="ris-filters">'+filters()+'</div><div id="ris-body">'+body()+'</div></section>';
 const update=()=>{
  const root=document.getElementById("roque-statistics");if(!root)return;
@@ -141,9 +170,11 @@ async function load(){
  const host=document.querySelector("#roque-statistics #ris-body");
  if(host)host.classList.add("ris-busy");
  try{
-  const p=await api.rpc("roque_v10_estadisticas_institucionales",{
+  const selected=selectedCourse();
+  const p=await api.rpc("roque_v11_estadisticas_institucionales",{
    p_edicion:S.edition,p_grado:S.grade?Number(S.grade):null,
-   p_curso:S.course||null,p_asignatura:S.subject||null,
+   p_sede:S.site||selected?.sede||null,
+   p_curso:selected?.curso||null,p_asignatura:S.subject||null,
    p_docente:api.role==="teacher"?api.id:null,
    p_sesion:api.role==="teacher"?api.session:null
   });
@@ -160,8 +191,9 @@ async function load(){
 }
 function render(context){
  const key=(context?.role||"")+":"+(context?.id||"admin");
- if(S.key!==key){
-  S.key=key;S.edition="2026-2S";S.grade="";S.course="";S.subject="";
+ const edition=context?.edition||"2026-2S";
+ if(S.key!==key||S.edition!==edition){
+  S.key=key;S.edition=edition;S.site="";S.grade="";S.course="";S.subject="";
   S.mode="general";S.data=null;S.loading=false;S.error="";S.request++;
  }
  api=context;
@@ -171,7 +203,7 @@ function render(context){
 document.addEventListener("change",event=>{
  const el=event.target.closest("[data-ris]");
  if(!el||!document.getElementById("roque-statistics"))return;
- if(el.dataset.ris==="edition"){S.edition=el.value;S.grade="";S.course="";S.subject="";S.mode="general";S.data=null;}
+ if(el.dataset.ris==="site"){S.site=el.value;S.course="";S.mode="general";}
  if(el.dataset.ris==="grade"){S.grade=el.value;S.course="";S.subject="";S.mode="general";}
  if(el.dataset.ris==="course"){S.course=el.value;S.mode="general";}
  if(el.dataset.ris==="subject"){S.subject=el.value;S.mode="general";}
@@ -188,5 +220,5 @@ document.addEventListener("click",event=>{
  }
  if(event.target.closest("[data-ris-retry]"))void load();
 });
-window.RoqueStatistics={render,reset:()=>{S.request++;S.key="";S.data=null;S.loading=false;S.error="";}};
+window.RoqueStatistics={render,reset:()=>{S.request++;S.key="";S.data=null;S.loading=false;S.error="";S.site="";}};
 })();
