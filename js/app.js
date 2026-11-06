@@ -1472,7 +1472,7 @@
       if (serial===state.teacherEditionRequestSerial && state.activeSession?.id===id) {
         state.teacherEditionBusy = false;
         renderTeacherWithMotion();
-        if (state.teachers.get(id)?.coordinator) {
+        if (["coordinador","administrador"].includes(staffRoleOf(state.teachers.get(id)))) {
           if (state.teacherMode==="coord-mover" && state.coordSession) void loadCoordRoster();
           if (!state.coordIntroShown && !state.teacherEditionGateOpen) openCoordIntro();
         }
@@ -2111,7 +2111,9 @@
     const allDetails = [];
 
     for (const subject of SUBJECTS) {
-      const subjectKeys = keys.filter((key) => sameSubject(key.area, subject.name));
+      const subjectKeys = keys.filter((key) => providedKeys
+        ? normalizeText(canonicalAreaName(key.area))===normalizeText(canonicalAreaName(subject.name))
+        : sameSubject(key.area, subject.name));
       const total = subjectKeys.length;
       const hasAttempt = hasAnyMarkedAnswerForKeys(record, subjectKeys);
       const absent = total > 0 && !hasAttempt;
@@ -3815,7 +3817,8 @@
     render(payload) {
       const authorized=state.activeSession?.role==="admin" ||
         (state.activeSession?.role==="teacher" &&
-         !!state.teachers.get(state.activeSession?.id)?.coordinator);
+         ["coordinador","administrador"].includes(
+           staffRoleOf(state.teachers.get(state.activeSession?.id))));
       if(!authorized||!payload?.tiene_resultados)return "";
       const e=payload.estudiante||{};
       const keys=(payload.claves||[]).map(k=>({
@@ -3848,7 +3851,9 @@
     openArea(subject) {
       if (!document.getElementById("roque-student-lookup") || !state.lookupStudent) return;
       if(state.activeSession?.role!=="admin" &&
-        !(state.activeSession?.role==="teacher"&&state.teachers.get(state.activeSession?.id)?.coordinator)) return;
+        !(state.activeSession?.role==="teacher" &&
+          ["coordinador","administrador"].includes(
+            staffRoleOf(state.teachers.get(state.activeSession?.id)))))return;
       openStudentSubjectModalForRoll(state.lookupStudent.roll,subject,true,false,state.lookupStudent);
     }
   };
@@ -4092,21 +4097,32 @@
   }
 
   function renderTeacher(teacher) {
-    if (state.activeSession?.role==="teacher" &&
-        String(state.teacherMode||"").startsWith("staff-admin-")) {
-      const label={
-        "staff-admin-asignaturas-areas":"Asignaturas",
-        "staff-admin-docentes":"Personal docente",
-        "staff-admin-claves":"Claves de respuestas"
-      }[state.teacherMode]||"Administración";
-      if (!teacherModeAllowed(teacher,state.teacherMode)) {
+    if(state.activeSession?.role==="teacher"&&
+       String(state.teacherMode||"").startsWith("staff-admin-")){
+      if(!teacherModeAllowed(teacher,state.teacherMode)){
         state.teacherMode="asignaturas";
-      } else {
-        renderShell('<section class="card card-pad teacher-staff-admin-note">'+
-          '<span class="section-eyebrow">ADMINISTRADOR</span>'+
-          '<h2>'+esc(label)+'</h2>'+
-          '<p>Tu rol institucional está reconocido. Para utilizar estas herramientas administrativas protegidas, ingresa con tu correo y contraseña de una cuenta de administrador autorizada en Supabase.</p>'+
-          '<button type="button" class="primary-btn" data-action="logout">Cerrar sesión e ingresar como administrador</button>'+
+      }else{
+        const edition=cleanText(state.teacherEditionSelected||state.academicEdition||"2026-2S");
+        let content="";
+        if(state.teacherMode==="staff-admin-asignaturas-areas"){
+          content=adminSubjectAreasHtml();
+        }else if(state.teacherMode==="staff-admin-docentes"){
+          content=window.RoquePersonal?.render({
+            rpc:staffAdminRpc,notify:toast,
+            subjects:availableSubjects(),
+            sites:uniqueValues(state.studentsRegistry.map(x=>x.sede)),
+            grades:uniqueValues(state.studentsRegistry.map(x=>x.grade)).map(Number).filter(Boolean),
+            courses:state.studentsRegistry.map(x=>({
+              sede:cleanText(x.sede),grado:Number(x.grade),curso:cleanText(x.group)
+            })).filter(x=>x.sede&&x.grado&&x.curso)
+          })||'<div class="empty-state">No se pudo cargar Personal docente.</div>';
+        }else if(state.teacherMode==="staff-admin-claves"){
+          content=window.RoqueKeys?.render({
+            rpc:staffAdminRpc,notify:toast,role:"admin",
+            id:state.activeSession.id,edition
+          })||'<div class="empty-state">No se pudo cargar Claves de respuestas.</div>';
+        }
+        renderShell('<section class="teacher-staff-admin-workspace">'+content+
           '</section>',navFor("teacher"));
         return;
       }
@@ -4348,6 +4364,9 @@
         (state.coordError ? esc(state.coordError) : 'Consultando estudiantes de '+esc(code)+'…')+
         '</div></section>';
     }
+    if(state.coordError)return '<section class="coord-move-shell">'+head+
+      '<div class="coord-move-empty" role="alert">'+esc(state.coordError)+
+      '<button type="button" data-action="coord-move-retry">Reintentar consulta</button></div></section>';
     const students=state.coordRoster||[];
     const grades=[...new Set(students.map(x=>Number(x.grado)))].sort((a,b)=>a-b);
     const sedes=[...new Set(students.map(x=>cleanText(x.sede)))].sort((a,b)=>a.localeCompare(b,"es"));
@@ -4356,6 +4375,8 @@
       '<option value="all">Todos</option>'+values.map(x=>'<option value="'+escAttr(String(x))+'"'+
       (String(x)===selected?' selected':'')+'>'+esc(label(x))+'</option>').join("")+'</select></label>';
     return '<section class="coord-move-shell">'+head+
+      (!students.length?'<div class="coord-move-empty">No hay inscripciones en '+esc(code)+
+        '. Revisa la edición seleccionada (2026-1S contiene estudiantes históricos).</div>':'')+
       '<label class="coord-move-search"><span>Buscar estudiante o ID</span><input id="coord-search" type="search" placeholder="Nombre o ID de prueba" autocomplete="off" value="'+escAttr(state.coordSearch)+'"></label>'+
       '<div class="coord-move-filters">'+select("grade","Grado",grades,state.coordGrade,x=>x+"°")+
         select("sede","Sede",sedes,state.coordSede)+select("course","Curso",cursos,state.coordCurso)+'</div>'+
@@ -4365,7 +4386,7 @@
   async function loadCoordRoster() {
     const isAdmin=state.activeSession?.role==="admin";
     const teacher=state.teachers.get(state.activeSession?.id);
-    if ((!isAdmin&&(!teacher?.coordinator||!state.coordSession))||state.coordBusy) return;
+    if ((!isAdmin&&(!["coordinador","administrador"].includes(staffRoleOf(teacher))||!state.coordSession))||state.coordBusy)return;
     const id=isAdmin?"admin":cleanId(state.activeSession.id);
     const edition=cleanText(isAdmin?state.academicEdition:state.teacherEditionSelected||state.academicEdition);
     const owner=isAdmin?"admin":"coordinador:"+id;
@@ -4395,7 +4416,7 @@
     const teacher=state.teachers.get(state.activeSession?.id);
     const row=button?.closest(".coord-move-card");
     const select=row?.querySelector("select[data-coord-destination]");
-    if ((!isAdmin&&(!teacher?.coordinator||!state.coordSession))||state.coordBusy||!row||!select) return;
+    if ((!isAdmin&&(!["coordinador","administrador"].includes(staffRoleOf(teacher))||!state.coordSession))||state.coordBusy||!row||!select)return;
     const key=String(roll);
     if (state.coordPendingMoves.has(key)) return;
     const s=state.coordRoster.find(x=>String(x.roll)===key);
@@ -4493,6 +4514,24 @@
       : teacher?.coordinator?"coordinador":"docente";
   }
 
+  async function staffAdminRpc(name,params={}) {
+    const teacher=state.teachers.get(state.activeSession?.id);
+    if(state.activeSession?.role!=="teacher"||
+       staffRoleOf(teacher)!=="administrador"||!state.coordSession)
+      throw Error("Sesión de Administrador vencida. Vuelve a iniciar sesión.");
+    const methods={
+      roque_v9_admin_personal_listar:"roque_v15_staff_admin_personal_listar",
+      roque_v9_admin_personal_guardar:"roque_v15_staff_admin_personal_guardar",
+      roque_v12_claves_consultar:"roque_v15_staff_admin_claves_consultar",
+      roque_v12_claves_guardar:"roque_v15_staff_admin_claves_guardar"
+    };
+    if(!Object.prototype.hasOwnProperty.call(methods,name))
+      throw Error("Operación administrativa no permitida.");
+    return supabaseRpc(methods[name],{
+      ...params,p_docente:state.activeSession.id,p_sesion:state.coordSession
+    });
+  }
+
   // Etapa 2: solo navegar por roles efectivamente asignados.
   function teacherModeAllowed(teacher, mode) {
     if (!teacher) return false;
@@ -4528,8 +4567,10 @@
     state.teacherMode = mode;
     state.teacherDockMenu = "";
     renderTeacherWithMotion();
-    if (mode==="coord-mover" && state.coordSession &&
-        state.coordEditionLoaded!==state.teacherEditionSelected) void loadCoordRoster();
+    if (mode==="coord-mover"&&state.coordSession&&
+        (state.coordEditionLoaded!==state.teacherEditionSelected||
+         state.coordRosterOwner!=="coordinador:"+cleanId(state.activeSession?.id)||
+         !!state.coordError))void loadCoordRoster();
   }
 
   function closeTeacherDockMenu() {
@@ -7258,6 +7299,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       state.modalStack.push(modalRoot.innerHTML);
     }
 
+    if (action==="coord-move-retry") {state.coordError="";state.coordEditionLoaded="";void loadCoordRoster();return;}
     if (action==="coord-move-one") {await saveCoordMove(target.dataset.roll||"",target);return;}
     if (action==="coord-move-more") {state.coordLimit+=48;coordRefreshRows();return;}
     if (action === "retry") {
