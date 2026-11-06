@@ -6,8 +6,16 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.56
+RoqueObjetiva v175.57
 
+
+## v175.57 · Estadísticas compactas en móvil + nuevos niveles de desempeño
+
+- **Móvil real:** contenedor limitado al viewport, corregido el desbordamiento de los gráficos y grids que ocultaba Grado, Asignatura, resultados y tarjetas a la derecha. La pantalla mantiene 2 × 2 filtros y 2 × 2 indicadores en móviles pequeños. La comparación por asignaturas se desplaza únicamente DENTRO del gráfico, sin ensanchar el portal.
+- **Responsive:** `css/admin-estadisticas.css` usa además container queries, para respetar el ancho efectivo del panel en Coordinador y Administrador. Títulos, controles, indicadores, barras y anillo más compactos y sin bordes redondeados de más de 4 px.
+- **Niveles nuevos:** **Superior (≥90)**, **Alto (80–89)**, **Básico (60–79)**, **Bajo (<60)**, implementados en la RPC `roque_v10_estadisticas_institucionales` y la leyenda. Particiones mutuamente excluyentes y exhaustivas sobre las notas evaluadas.
+- **Indicador de ≥60:** renombrado como `Básico o superior (≥60)` para evitar confundirlo con un nivel antiguo. Preservado el cálculo de promedios, los filtros, los ítems anulados y el control de acceso.
+- **Supabase:** migración `supabase/29_niveles_desempeno_v175_57.sql` aplicada sin cambios de datos ni permisos. PWA actualizada a v175.57.
 
 ## v175.56 · Estadísticas Institucionales (Administrador y Coordinador)
 
