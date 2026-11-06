@@ -6,7 +6,15 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.89
+RoqueObjetiva v175.90
+
+## v175.90 · Rediseño visual de los modales especiales de calificación
+
+- Se rediseñó **exclusivamente** el HTML de `openEffectiveScoreModal(tipo)` y los estilos `.rm18-notice*` del aviso de **Examen restringido** (amarillo) y **Examen anulado** (rojo), ambos accesibles desde Carga académica y Dirección de grupo.
+- Los dos avisos comparten un hero de borde a borde con icono ⚠️ / ⛔ sobre blanco, título alineado, separador vertical y dos ondas SVG flat, seguido de cuerpo blanco con mensaje centrado, botón azul **Entendido** y X superior. El aviso restringido destaca **«Por ahora su nota es 20.»** en rojo.
+- Diseño responsive con Grid/Flexbox, medidas relativas y radios de hasta 4 px; sin degradados ni sombras decorativas. Se conservan las animaciones existentes de entrada y salida y su opción de movimiento reducido.
+- **Sin cambios funcionales:** continúan intactos `data-action="close-modal"`, manejo de modales anidados, puntuaciones, estadística, símbolos de las tablas, modales normales, hero institucional y dock. Sin cambios en Supabase.
+- Publicados recursos y caché PWA **v175.90**.
 
 ## v175.89 · Espaciado entre hero y primeras tarjetas administrativas
 

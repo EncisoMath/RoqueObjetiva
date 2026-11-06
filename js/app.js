@@ -3940,21 +3940,31 @@
 
   function openEffectiveScoreModal(tipo){
     const restricted=tipo==="restringido";
-    const title=restricted?"⚠️ Examen restringido":"⛔ Examen anulado";
-    const body=restricted
-      ? 'Este estudiante tiene su examen restringido. <strong class="rm18-red-copy">Por ahora su nota es 20.</strong>'
-      : 'Este examen fue anulado.';
+    const title=restricted?"Examen restringido":"Examen anulado";
+    const symbol=restricted?"⚠️":"⛔";
+    const body=restricted?"Este estudiante tiene su examen restringido.":"Este examen fue anulado.";
     const previous=modalRoot.lastElementChild;
     const nested=Boolean(previous?.classList?.contains?.("director-detail-backdrop"));
     if(nested)previous.setAttribute("inert","");
+    // Solo cambia el diseño de estos dos avisos; la gestión de modales y sus eventos continúa intacta.
     const content='<div class="modal-backdrop rm18-notice-backdrop" data-action="close-modal">'+
       '<section class="modal rm18-notice '+(restricted?'rm18-notice-warning':'rm18-notice-danger')+
-      '" role="dialog" aria-modal="true" aria-label="'+title+'">'+
-      '<header class="rm18-notice-head"><button class="icon-btn" data-action="close-modal" aria-label="Cerrar">×</button></header>'+
-      '<div class="rm18-notice-banner"><span>'+ (restricted?'⚠️':'⛔')+'</span><strong>'+title+'</strong></div>'+
-      '<p>'+body+'</p>'+
+      '" role="dialog" aria-modal="true" aria-label="'+symbol+' '+title+'">'+
+      '<header class="rm18-notice-hero">'+
+      '<svg class="rm18-notice-waves" viewBox="0 0 1200 130" preserveAspectRatio="none" aria-hidden="true">'+
+      '<path class="rm18-wave-back" d="M0 50 C135 112 255 108 410 80 S705 42 878 72 S1070 41 1200 31 L1200 130 L0 130 Z"/>'+
+      '<path class="rm18-wave-front" d="M0 87 C150 132 311 108 424 94 S656 124 813 111 S1029 68 1200 72 L1200 130 L0 130 Z"/>'+
+      '</svg>'+
+      '<span class="rm18-notice-icon" aria-hidden="true">'+symbol+'</span>'+
+      '<span class="rm18-notice-divider" aria-hidden="true"></span>'+
+      '<h2 class="rm18-notice-title">'+title+'</h2>'+
+      '<button type="button" class="icon-btn rm18-notice-close" data-action="close-modal" aria-label="Cerrar">×</button>'+
+      '</header>'+
+      '<div class="rm18-notice-body">'+
+      '<p class="rm18-notice-message">'+body+'</p>'+
+      (restricted?'<p class="rm18-red-copy">Por ahora su nota es 20.</p>':'')+
       '<button type="button" class="primary-btn rm18-understood" data-action="close-modal">Entendido</button>'+
-      '</section></div>';
+      '</div></section></div>';
     if(nested)modalRoot.insertAdjacentHTML("beforeend",content);
     else modalRoot.innerHTML=content;
     document.body.classList.add("modal-open");
