@@ -1,4 +1,4 @@
-/* RoqueObjetiva v175.58 · Estadísticas institucionales, diseño flat acorde a referencia */
+/* RoqueObjetiva v175.59 · Estadísticas institucionales, diseño flat acorde a referencia */
 .ris-root{
   --ris-ink:#162f53;--ris-blue:#1689c4;--ris-line:#bcd9fa;
   color:var(--ris-ink);max-width:1280px;width:100%;margin:0 auto;
@@ -630,4 +630,41 @@
   .ris-root .ris-kpi{padding:6px 3px;min-height:65px}
   .ris-root .ris-kpi-copy strong{font-size:.78rem}
   .ris-root .ris-kpi-copy span{font-size:.46rem}
+}
+
+
+/* v175.59 · Refinamientos de Estadísticas: foco sin línea externa,
+   indicadores centrados y espacio para los cursos de una sola asignatura. */
+/* El outline previo quedaba cortado por overflow:hidden en las etiquetas.
+   El realce interior sigue siendo visible al navegar con teclado. */
+.ris-root .ris-filters select:focus,
+.ris-root .ris-filters select:focus-visible {
+  outline:none!important;
+  outline-offset:0!important;
+  border-color:#1689c4;
+  box-shadow:inset 0 0 0 1px #1689c4;
+}
+.ris-root .ris-kpi {
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+}
+.ris-root .ris-kpi-ico {
+  align-self:center;
+  justify-content:center;
+  align-items:center;
+  margin-inline:auto;
+}
+.ris-root .ris-kpi-copy {
+  justify-items:center;
+  align-content:center;
+  text-align:center;
+}
+.ris-root .ris-kpi-copy strong,
+.ris-root .ris-kpi-copy span {
+  text-align:center;
+}
+.ris-root .ris-grouped {
+  width:max(100%,var(--plot-min,180px));
+  min-width:0;
 }
