@@ -6,8 +6,14 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.66
+RoqueObjetiva v175.67
 
+
+## v175.67 · Botón Editar datos y ficha limpia en Consulta estudiante
+
+- El botón **Editar datos** utiliza el estilo azul sólido con texto blanco en negrita del botón **Componentes** (#1386bf), ancho compacto, altura de 35 px y radio de 4 px.
+- Se elimina por completo el botón **Otra búsqueda** y su manejador. Para seleccionar otro estudiante sigue disponible el buscador superior y su autocompletado.
+- Sin cambios en las RPC, permisos, respuestas, notas ni datos de Supabase. Nueva caché PWA para actualizar la interfaz.
 
 ## v175.66 · Consultar estudiante con la interfaz idéntica a Estudiante
 

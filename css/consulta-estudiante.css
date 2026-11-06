@@ -1,4 +1,4 @@
-/* RoqueObjetiva v175.66 · Consulta estudiante (Administrador / Coordinador).
+/* RoqueObjetiva v175.67 · Consulta estudiante (Administrador / Coordinador).
  * Flat, móvil y escritorio, radio máximo 4px; reutiliza tarjetas stu174.
  */
 .rce-root{
@@ -73,7 +73,6 @@
 .rce-profile-heading h3{font-size:1rem;font-weight:900;margin:0;line-height:1.2;overflow-wrap:anywhere}
 .rce-profile-heading p{margin:0;font-size:.66rem;color:#6f879c}
 .rce-profile-icon{width:44px;height:44px;font-size:1.15rem}
-.rce-clear{flex-shrink:0;border:1px solid #c7dce9;border-radius:4px;background:#f4f9fd;color:#386e91;font-size:.66rem;font-weight:800;padding:8px 9px}
 .rce-profile-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 .rce-field span{line-height:1.3}
 .rce-field input,.rce-field select{height:39px;background:#fff;color:#244a67}
@@ -97,7 +96,6 @@
  .rce-profile-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
  .rce-profile-heading{flex-wrap:wrap}
  .rce-profile-heading>div{flex:1 1 150px}
- .rce-clear{margin-left:auto}
 }
 @media(max-width:420px){
  .rce-filters{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
@@ -111,18 +109,27 @@
 }
 @media(prefers-reduced-motion:reduce){.rce-root *{animation:none!important;transition:none!important}}
 
-/* v175.66 · Ficha compacta; resultados idénticos a la UI Estudiante. */
+/* v175.67 · Ficha compacta; resultados idénticos a la UI Estudiante. */
 .rce-profile{gap:10px}
 .rce-profile-heading{flex-wrap:wrap;align-items:center}
 .rce-profile-heading>div{min-width:140px}
-.rce-profile-actions{margin-left:auto;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-.rce-edit-toggle{display:inline-flex;align-items:center;justify-content:center;min-height:35px;border:1px solid #1e86be;border-radius:4px;background:#eff8fe;color:#1774a7;font-size:.69rem;font-weight:850;padding:8px 10px}
+.rce-profile-actions{margin-left:auto;display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:flex-end}
+.rce-root .rce-edit-toggle{
+ display:inline-flex;align-items:center;justify-content:center;
+ width:155px;max-width:100%;min-height:35px;
+ padding:7px 14px;border:1px solid #1386bf;border-radius:4px;
+ background:#1386bf;color:#fff;
+ font-family:inherit;font-size:.76rem;font-weight:850;line-height:1.2;
+ box-shadow:0 2px 6px rgba(20,78,117,.12);
+ transition:background-color .15s ease;
+}
+.rce-root .rce-edit-toggle:hover{background:#0f78af;border-color:#0f78af}
+.rce-root .rce-edit-toggle:active{background:#0c6c9e}
 .rce-profile-tags{display:flex;flex-wrap:wrap;gap:6px}
 .rce-profile-tag{display:inline-flex;align-items:center;gap:5px;min-width:0;padding:6px 9px;border:1px solid #e0ebf3;border-radius:4px;background:#f5f9fc;color:#55748b;font-size:.65rem}
 .rce-profile-tag strong{color:#204b69;font-weight:800;overflow-wrap:anywhere}
 .rce-editor{display:grid;gap:10px;padding-top:10px;border-top:1px solid #e4edf4}
 .rce-profile-grid{margin:0}
-.rce-profile-heading .rce-clear{min-height:35px}
 .rce-editor .rce-source{padding:8px 9px}
 @media(max-width:420px){
  .rce-profile-heading{gap:8px}

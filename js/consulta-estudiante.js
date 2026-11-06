@@ -1,4 +1,4 @@
-/* RoqueObjetiva v175.66 · Consulta individual · Admin / Coordinador.
+/* RoqueObjetiva v175.67 · Consulta individual · Admin / Coordinador.
  * La búsqueda solo abre sugerencias al escribir. Toda lectura y edición utiliza RPC seguras.
  */
 (() => {
@@ -71,7 +71,6 @@ function profileHtml(){
   '<div class="rce-profile-actions">'+
    '<button class="rce-edit-toggle" type="button" data-rce-edit-toggle aria-expanded="'+S.editing+'">'+
     (S.editing?'Cerrar edición':'Editar datos')+'</button>'+
-   '<button class="rce-clear" type="button" data-rce-clear>Otra búsqueda</button>'+
   '</div></div>'+
   '<div class="rce-profile-tags">'+
    '<span class="rce-profile-tag">ID de prueba <strong>'+esc(e.id_prueba||"—")+'</strong></span>'+
@@ -247,7 +246,6 @@ document.addEventListener("click",event=>{
   S.editing=!S.editing;
   show();return;
  }
- if(button.hasAttribute("data-rce-clear")){resetFilters();return;}
  if(button.hasAttribute("data-rce-save")){void save();return;}
  if(button.dataset.action==="student-area-open"){
   window.RoqueStudentLookupBridge?.openArea(button.dataset.subject||"");
