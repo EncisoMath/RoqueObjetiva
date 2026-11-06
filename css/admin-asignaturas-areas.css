@@ -319,3 +319,6 @@
 .ra-root .ra-list .ra-area-name{
   text-transform:none;
 }
+
+/* v175.89 · Separación entre el hero compartido y el grid de áreas. */
+.ra-root > .roque-screen-hero{margin-block-end:.75rem}

@@ -202,3 +202,6 @@
  .rm18-root .rm18-filter-label>span{font-size:10px}
  .rm18-root .rm18-mode{font-size:10px}
 }
+
+/* v175.89 · Separación entre el hero compartido y los filtros de estudiantes. */
+.rm18-home > .roque-screen-hero{margin-block-end:.75rem}

@@ -6,7 +6,13 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.88
+RoqueObjetiva v175.89
+
+## v175.89 · Espaciado entre hero y primeras tarjetas administrativas
+
+- Se agregó un margen inferior de `0.75rem` **solo** al hero compartido de **Asignaturas y áreas (listado)** y **Restricciones y anulaciones (listado)**, evitando que las tarjetas o filtros queden pegados al banner.
+- No se modificó el componente reutilizable `RoqueScreenHero`, otros heroes, menús, formularios, dock, permisos ni datos de Supabase.
+- Versión y caché de PWA actualizadas a `v175.89`.
 
 ## v175.88 · Hero reutilizable en las cuatro pantallas de Administrador
 
