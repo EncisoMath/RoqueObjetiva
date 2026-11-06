@@ -6,8 +6,13 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.67
+RoqueObjetiva v175.68
 
+
+## v175.68 · Editar datos alineado a la izquierda
+
+- En **Coordinador/Admin → Consultar estudiante**, el botón **Editar datos** queda alineado a la izquierda dentro de su propia fila, en móviles y escritorio. Conserva su aspecto azul sólido.
+- Solo se modifica la alineación de CSS y se renueva la caché PWA. No se cambia Supabase ni la lógica de edición.
 
 ## v175.67 · Botón Editar datos y ficha limpia en Consulta estudiante
 

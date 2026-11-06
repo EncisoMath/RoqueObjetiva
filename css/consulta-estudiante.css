@@ -1,4 +1,4 @@
-/* RoqueObjetiva v175.67 · Consulta estudiante (Administrador / Coordinador).
+/* RoqueObjetiva v175.68 · Consulta estudiante (Administrador / Coordinador).
  * Flat, móvil y escritorio, radio máximo 4px; reutiliza tarjetas stu174.
  */
 .rce-root{
@@ -109,11 +109,11 @@
 }
 @media(prefers-reduced-motion:reduce){.rce-root *{animation:none!important;transition:none!important}}
 
-/* v175.67 · Ficha compacta; resultados idénticos a la UI Estudiante. */
+/* v175.68 · Ficha compacta; resultados idénticos a la UI Estudiante. */
 .rce-profile{gap:10px}
 .rce-profile-heading{flex-wrap:wrap;align-items:center}
 .rce-profile-heading>div{min-width:140px}
-.rce-profile-actions{margin-left:auto;display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:flex-end}
+.rce-profile-actions{width:100%;margin-left:0;display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:flex-start}
 .rce-root .rce-edit-toggle{
  display:inline-flex;align-items:center;justify-content:center;
  width:155px;max-width:100%;min-height:35px;
@@ -133,7 +133,7 @@
 .rce-editor .rce-source{padding:8px 9px}
 @media(max-width:420px){
  .rce-profile-heading{gap:8px}
- .rce-profile-actions{width:100%;margin-left:0;justify-content:flex-end}
+ .rce-profile-actions{width:100%;margin-left:0;justify-content:flex-start}
  .rce-profile-actions button{min-height:32px}
  .rce-profile-tag{font-size:.62rem}
 }
