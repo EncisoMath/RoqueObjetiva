@@ -4435,14 +4435,7 @@
     const head=window.RoqueScreenHero.render({
       title:"Mover estudiantes",
       subtitle:"Cambia el curso sin modificar el grado ni la sede.",
-      icon:"transfer",
-      colors:{
-        background:"#025ca8",
-        wave:"#0c8df0",
-        waveSecondary:"#0879c8",
-        icon:"#0868ae",
-        iconBackground:"#f7faff"
-      }
+      icon:"transfer"
     });
     if (!isAdmin && !state.coordSession) {
       return '<section class="coord-move-shell">'+head+

@@ -6,7 +6,13 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.94
+RoqueObjetiva v175.95
+
+## v175.95 · Paleta común del RoqueScreenHero basada en #1975AE
+
+- Se actualizó el hero reutilizable de pantallas internas: fondo `#1975AE`, primera onda `#348FC4`, segunda onda `#155E8E`, icono `#1975AE` y fondo del icono `#EFF6FB`; título, subtítulo y separador permanecen blancos.
+- Se estableció la misma paleta en los valores predeterminados de JavaScript y CSS. **Mover estudiantes** deja de sobrescribirla con valores antiguos para que Administrador y Coordinador compartan los mismos colores.
+- Sin cambios en animaciones, estructura, navegación, permisos, informes, modales, cálculos ni Supabase. Caché PWA actualizada.
 
 ## v175.94 · Modal visual Puntaje global tipo Saber (Estudiante y Coordinador)
 

@@ -40,11 +40,11 @@
   };
   function render(options={}){
     const c=options.colors||{};
-    const background=color(c.background,"#025ca8");
-    const wave=color(c.wave,"#0c8df0");
-    const waveSecondary=color(c.waveSecondary,"#0879c8");
-    const iconColor=color(c.icon,"#0868ae");
-    const iconBackground=color(c.iconBackground,"#f7faff");
+    const background=color(c.background,"#1975AE");
+    const wave=color(c.wave,"#348FC4");
+    const waveSecondary=color(c.waveSecondary,"#155E8E");
+    const iconColor=color(c.icon,"#1975AE");
+    const iconBackground=color(c.iconBackground,"#EFF6FB");
     const title=escapeHTML(options.title||"");
     const subtitle=escapeHTML(options.subtitle||"");
     const heading=options.heading==="h2"?"h2":"h3";

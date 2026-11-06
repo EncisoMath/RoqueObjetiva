@@ -1,11 +1,11 @@
 /* RoqueObjetiva v175.86 · Hero reutilizable y aislado de los encabezados institucionales.
    Altura intrínseca, unidades relativas, cero degradados y cero sombras. */
 .roque-screen-hero{
-  --rsh-background:#025ca8;
-  --rsh-wave:#0c8df0;
-  --rsh-wave-secondary:#0879c8;
-  --rsh-icon:#0868ae;
-  --rsh-icon-background:#f7faff;
+  --rsh-background:#1975AE;
+  --rsh-wave:#348FC4;
+  --rsh-wave-secondary:#155E8E;
+  --rsh-icon:#1975AE;
+  --rsh-icon-background:#EFF6FB;
   box-sizing:border-box;
   position:relative;
   isolation:isolate;
