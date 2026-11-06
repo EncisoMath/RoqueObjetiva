@@ -1,4 +1,4 @@
-/* RoqueObjetiva v175.61 · Claves de respuestas por grado.
+/* RoqueObjetiva v175.62 · Claves de respuestas por grado.
    Consulta para Coordinador; modificación exclusiva de Admin con auditoría. */
 (() => {
 "use strict";
@@ -104,17 +104,23 @@ const answerOptions=()=>{
 const answerRow=(i,idx,opts)=>{
  const readonly=!S.editable;
  const disabled=readonly||S.saving||i.anulada;
+ const canAnnul=S.allowAnnul&&!S.saving;
+ const annulLabel=readonly?(i.anulada?"Anulada":"Anular"):(i.anulada?"Reactivar":"Anular");
+ const annulTip=readonly?"Los coordinadores solo pueden consultar claves."
+   :!S.allowAnnul?"Las anulaciones solo se modifican en ediciones en borrador."
+   :i.anulada?"Reactivar esta pregunta":"Anular esta pregunta";
  return '<div class="rak-item'+(i.anulada?' is-annulled':'')+(isDirty(i)?' is-dirty':'')+
  '" data-rak-item="'+i.numero_item+'">'+
  '<span class="rak-index" title="Ítem global '+i.numero_item+'">'+(idx+1)+'.</span>'+
- '<div class="rak-choices" role="group" aria-label="Opciones del ítem '+(idx+1)+'">'+
+ '<div class="rak-choices'+(opts.length>4?' has-extra':'')+'" role="group" aria-label="Opciones del ítem '+(idx+1)+'">'+
  opts.map(letter=>'<button type="button" data-rak-answer="'+letter+'" aria-label="Ítem '+(idx+1)+': '+letter+
  '" aria-pressed="'+(i.correcta===letter)+'" class="rak-choice'+(i.correcta===letter&&!i.anulada?' is-correct':'')+
  '"'+(disabled?' disabled':'')+'>'+letter+'</button>').join("")+'</div>'+
- '<label class="rak-annul"><span>'+ (i.anulada?'Anulada':'Anulada')+'</span>'+
- '<input type="checkbox" data-rak-annul="'+i.numero_item+'"'+(i.anulada?' checked':'')+
- ((!S.allowAnnul||S.saving)?' disabled':'')+' aria-label="Anular ítem '+(idx+1)+'">'+
- '<i class="rak-switch" aria-hidden="true"></i></label></div>';
+ '<button type="button" class="rak-annul'+(i.anulada?' is-on':'')+'" data-rak-toggle="'+i.numero_item+
+ '" aria-label="'+(i.anulada?'Reactivar':'Anular')+' ítem '+(idx+1)+'" aria-pressed="'+i.anulada+
+ '" title="'+esc(annulTip)+'"'+(canAnnul?'':' disabled')+'>'+
+ '<span class="rak-annul-label">'+annulLabel+'</span>'+
+ '<i class="rak-switch" aria-hidden="true"></i></button></div>';
 };
 const cards=()=>{
  const list=rows(),opts=answerOptions();
@@ -123,7 +129,7 @@ const cards=()=>{
  '<section class="rak-items-card">'+
  '<header class="rak-items-heading"><span class="rak-mini-icon">'+svg("item")+'</span>'+
  '<div><h3>'+esc(short(S.area))+' · Sesión '+S.session+'</h3>'+
- '<p>'+(S.editable?'Selecciona la opción correcta para cada ítem.':'Consulta de claves · solo lectura')+'</p></div></header>'+
+ '<p>'+(S.editable?(S.allowAnnul?'Selecciona la respuesta o anula una pregunta.':'Corrige respuestas · anulación bloqueada en edición cerrada'):'Consulta de claves · solo lectura')+'</p></div></header>'+
  '<div class="rak-item-list">'+list.map((i,idx)=>answerRow(i,idx,opts)).join("")+'</div>'+
  '<div class="rak-info">'+svg("check")+' Estas claves son generales para todos los cursos y sedes del grado.</div>'+
  '</section>'+
@@ -195,10 +201,16 @@ const updateRow=(row,item)=>{
    b.setAttribute("aria-pressed",String(active));
    b.disabled=item.anulada||S.saving||!S.editable;
  });
- const toggle=row.querySelector("[data-rak-annul]");
- if(toggle)toggle.checked=item.anulada;
- const label=row.querySelector(".rak-annul span");
- if(label)label.textContent=item.anulada?"Anulada":"Anulada";
+ const toggle=row.querySelector("[data-rak-toggle]");
+ if(toggle){
+   const name=!S.editable?(item.anulada?"Anulada":"Anular"):(item.anulada?"Reactivar":"Anular");
+   toggle.classList.toggle("is-on",item.anulada);
+   toggle.setAttribute("aria-pressed",String(item.anulada));
+   toggle.setAttribute("aria-label",(item.anulada?"Reactivar":"Anular")+" ítem");
+   toggle.disabled=!S.allowAnnul||S.saving;
+   const label=toggle.querySelector(".rak-annul-label");
+   if(label)label.textContent=name;
+ }
  const stat=document.getElementById("rak-stats");
  if(stat){
   const list=rows(),active=list.filter(i=>!i.anulada).length;
@@ -234,12 +246,6 @@ document.addEventListener("change",event=>{
  if(el.matches("[data-rak-grade]")){
    if(!canDiscard()){el.value=String(S.grade);return;}
    void load(Number(el.value));
- }else if(el.matches("[data-rak-annul]")){
-   if(!S.editable||!S.allowAnnul||S.saving)return;
-   const item=S.items.find(x=>x.numero_item===Number(el.dataset.rakAnnul));
-   if(!item)return;
-   item.anulada=el.checked;
-   updateRow(el.closest(".rak-item"),item);
  }
 });
 document.addEventListener("input",event=>{
@@ -259,6 +265,15 @@ document.addEventListener("click",async event=>{
  if(button.dataset.rakArea!==undefined){
    if(S.area===button.dataset.rakArea)return;
    S.area=button.dataset.rakArea;show();return;
+ }
+ if(button.dataset.rakToggle!==undefined){
+   if(!S.editable||!S.allowAnnul||S.saving)return;
+   const row=button.closest(".rak-item");
+   const item=S.items.find(i=>i.numero_item===Number(button.dataset.rakToggle));
+   if(!item||!row)return;
+   item.anulada=!item.anulada;
+   updateRow(row,item);
+   return;
  }
  if(button.dataset.rakAnswer!==undefined){
    if(!S.editable||S.saving)return;
