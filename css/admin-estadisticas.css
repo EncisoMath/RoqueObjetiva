@@ -238,3 +238,25 @@
 @media(prefers-reduced-motion:reduce){
  .ris-root *{transition:none!important;animation:none!important}
 }
+
+/* Escala 0–100 fija como en el diseño, también en el desglose por curso. */
+.adm151-shell .adm151-current-heading[hidden]{display:none!important}
+.ris-chart-scroll{position:relative;padding-left:30px}
+.ris-chart-scroll::before{
+  content:"100\A 80\A 60\A 40\A 20\A 0";
+  white-space:pre;
+  display:block;
+  position:absolute;left:0;top:12px;
+  width:26px;text-align:right;
+  color:#587087;font-size:.65rem;
+  line-height:31px;font-weight:700;
+  pointer-events:none;
+}
+.ris-plot{
+  background-size:100% 31px;
+  background-position:0 13px;
+}
+@media(max-width:570px){
+  .ris-chart-scroll{padding-left:23px}
+  .ris-chart-scroll::before{width:20px;font-size:.56rem}
+}
