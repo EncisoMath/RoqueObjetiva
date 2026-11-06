@@ -1726,8 +1726,8 @@
         state.teacherActive = null;
         state.teacherMode = "asignaturas";
         state.teacherDirectorActiveKey = "";
-        if (teacher?.coordinator) state.teacherMode = "coord-mover";
-        else if (!(teacher?.assignments || []).length && (teacher?.directorGroups || []).length) state.teacherMode = "director";
+        if (!(teacher?.assignments || []).length && (teacher?.directorGroups || []).length) state.teacherMode = "director";
+        if (!(teacher?.assignments || []).length && !(teacher?.directorGroups || []).length && teacher?.coordinator) state.teacherMode = "coord-mover";
         state.zeroToleranceShown = false;
         return enterSessionWithLoader({ role: "teacher", id }, () => renderTeacherEditionGate(), "Preparando selección de prueba...");
       }
@@ -3004,7 +3004,7 @@
   }
 
   function adminTabIds() {
-    return new Set(["asignaturas","director","mover","estadisticas","consultar","claves","docentes"]);
+    return new Set(["asignaturas","director","mover","estadisticas","consultar","claves","docentes","asignaturas-areas"]);
   }
 
   function handleHashRoute() {
@@ -3274,8 +3274,8 @@
       state.teacherActive = null;
       state.teacherMode = "asignaturas";
       state.teacherDirectorActiveKey = "";
-      if (teacher?.coordinator) state.teacherMode = "coord-mover";
-      else if (!(teacher?.assignments || []).length && (teacher?.directorGroups || []).length) state.teacherMode = "director";
+      if (!(teacher?.assignments || []).length && (teacher?.directorGroups || []).length) state.teacherMode = "director";
+      if (!(teacher?.assignments || []).length && !(teacher?.directorGroups || []).length && teacher?.coordinator) state.teacherMode = "coord-mover";
       state.zeroToleranceShown = false;
       return enterSessionWithLoader({ role: "teacher", id }, () => renderTeacher(teacher), "Preparando vista docente...");
     }
@@ -3666,7 +3666,7 @@
     `;
     if (heroRole === "teacher") {
       state.teacherViewMotionPending = false;
-      syncDockMotion(app.querySelector(".roque-teacher-shell .t160-dock"));
+      syncDockMotion(app.querySelector(".roque-teacher-shell .t160-dock, .adm151-shell .t160-dock"));
     }
     // El dock estudiantil vive FUERA de #app: no se destruye ni desvanece
     // al sustituir el informe, el historial o la cabecera medallista.
@@ -4095,13 +4095,13 @@
     const isCoordinator = !!teacher.coordinator;
 
     if (state.teacherMode === "coord-graficas") state.teacherMode = "coord-mover";
-    if (!teacherModeAllowed(teacher, state.teacherMode)) state.teacherMode = isCoordinator ? "coord-mover" : (hasAssignments ? "asignaturas" : hasDirector ? "director" : "asignaturas");
+    if (!teacherModeAllowed(teacher, state.teacherMode)) state.teacherMode = hasAssignments ? "asignaturas" : (hasDirector ? "director" : (isCoordinator ? "coord-mover" : "asignaturas"));
     if (isCoordinator && String(state.teacherMode || "").startsWith("coord-")) {
       return renderCoordinatorPanel(teacher);
     }
-    if (!isCoordinator && !hasAssignments && hasDirector && state.teacherMode === "asignaturas") state.teacherMode = "director";
-    if (!isCoordinator && !hasDirector && state.teacherMode === "director") state.teacherMode = "asignaturas";
-    if (!state.teacherMode) state.teacherMode = isCoordinator ? "coord-mover" : (hasAssignments ? "asignaturas" : hasDirector ? "director" : "asignaturas");
+    if (!hasAssignments && hasDirector && state.teacherMode === "asignaturas") state.teacherMode = "director";
+    if (!hasDirector && state.teacherMode === "director") state.teacherMode = hasAssignments ? "asignaturas" : (isCoordinator ? "coord-mover" : "asignaturas");
+    if (!state.teacherMode) state.teacherMode = hasAssignments ? "asignaturas" : (hasDirector ? "director" : (isCoordinator ? "coord-mover" : "asignaturas"));
 
     if (state.teacherMode === "director" && hasDirector) {
       return renderTeacherDirector(teacher);
@@ -4457,9 +4457,9 @@
   // Etapa 2: solo navegar por roles efectivamente asignados.
   function teacherModeAllowed(teacher, mode) {
     if (!teacher) return false;
-    if (teacher.coordinator) return ["coord-mover","coord-estadisticas","coord-consultar"].includes(mode);
     if (mode === "asignaturas") return (teacher.assignments || []).length > 0;
     if (mode === "director") return (teacher.directorGroups || []).length > 0;
+    if (["coord-mover","coord-estadisticas","coord-consultar"].includes(mode)) return !!teacher.coordinator;
     return false;
   }
 
@@ -4498,14 +4498,15 @@
       el.setAttribute("aria-hidden", "true");
     });
     document.querySelectorAll(".t160-dock-btn[data-menu]").forEach((el) => el.setAttribute("aria-expanded", "false"));
-    syncDockMotion(app.querySelector(".roque-teacher-shell .t160-dock"));
+    syncDockMotion(app.querySelector(".roque-teacher-shell .t160-dock, .adm151-shell .t160-dock"));
     return true;
   }
 
   function toggleTeacherDockMenu(menu) {
-    if (state.activeSession?.role !== "teacher" || !["coord", "cuenta"].includes(menu)) return;
-    const teacher = state.teachers.get(state.activeSession.id);
-    if (menu === "coord" && !teacher?.coordinator) return;
+    if (!["teacher","admin"].includes(state.activeSession?.role) || !["coord","admin"].includes(menu)) return;
+    const teacher = state.activeSession?.role==="teacher"?state.teachers.get(state.activeSession.id):null;
+    if (menu==="admin"&&state.activeSession?.role!=="admin")return;
+    if (menu==="coord"&&state.activeSession?.role!=="admin"&&!teacher?.coordinator)return;
     state.teacherDockMenu = state.teacherDockMenu === menu ? "" : menu;
     document.querySelectorAll(".t160-menu-layer").forEach((el) => {
       const open = el.dataset.menu === state.teacherDockMenu;
@@ -4513,7 +4514,7 @@
       el.setAttribute("aria-hidden", String(!open));
     });
     document.querySelectorAll(".t160-dock-btn[data-menu]").forEach((el) => el.setAttribute("aria-expanded", String(el.dataset.menu === state.teacherDockMenu)));
-    syncDockMotion(app.querySelector(".roque-teacher-shell .t160-dock"));
+    syncDockMotion(app.querySelector(".roque-teacher-shell .t160-dock, .adm151-shell .t160-dock"));
   }
 
   // Una sola instancia DOM del dock entre todas las pantallas estudiantiles.
@@ -4541,7 +4542,7 @@
     }
   }
   function syncDockPositions() {
-    syncDockMotion(app.querySelector(".roque-teacher-shell .t160-dock"));
+    syncDockMotion(app.querySelector(".roque-teacher-shell .t160-dock, .adm151-shell .t160-dock"));
     syncDockMotion(document.querySelector("#student-dock-root .student-bottom-dock"));
   }
 
@@ -4609,30 +4610,70 @@
   }
 
   function teacherDockHtml() {
-    const teacher = state.teachers.get(state.activeSession?.id);
-    if (!teacher || state.activeSession?.role !== "teacher") return "";
-    const mode = state.teacherMode || "asignaturas";
-    const sections = [];
-    if (teacher.coordinator) {
-      sections.push(["coord-mover","Mover","move"]);
-      sections.push(["coord-estadisticas","Estadísticas","chart"]);
-      sections.push(["coord-consultar","Consultar","graduation"]);
-    } else {
-      if ((teacher.assignments || []).length) sections.push(["asignaturas", "Carga", "book"]);
-      if ((teacher.directorGroups || []).length) sections.push(["director", "Dirección de Grupo", "graduation"]);
-    }
-    sections.push(["cuenta", "Cuenta", "menu"]);
-    const dock = sections.map(([id, title, icon]) => {
-      const isMenu = id === "cuenta";
-      const isCurrent = mode === id;
-      return '<button type="button" class="t160-dock-btn' + (isCurrent ? ' is-active' : '') + '"' +
-        ' data-action="' + (isMenu ? 'teacher-dock-toggle' : 'teacher-dock-mode') + '"' +
-        (isMenu ? ' data-menu="' + id + '" aria-haspopup="true" aria-expanded="false"' : ' data-mode="' + id + '"' + (isCurrent ? ' aria-current="page"' : '')) + '>' +
-        adminNavIcon(icon) + '<span>' + title + '</span></button>';
+    const role=state.activeSession?.role;
+    const isAdmin=role==="admin";
+    const teacher=role==="teacher"?state.teachers.get(state.activeSession?.id):null;
+    if(!isAdmin&&!teacher)return "";
+    const mode=isAdmin?state.adminTab:state.teacherMode;
+    const hasDirector=isAdmin
+      ? [...state.teachers.values()].some(t=>(t.directorGroups||[]).length>0)
+      : (teacher.directorGroups||[]).length>0;
+    const sections=[
+      ["asignaturas","Carga","book"]
+    ];
+    if(hasDirector)sections.push(["director","Dirección de Grupo","graduation"]);
+    if(isAdmin||teacher?.coordinator)sections.push(["coord","Coordinador","users"]);
+    if(isAdmin)sections.push(["admin","Administrador","shield"]);
+    sections.push(["logout","Salir","logout"]);
+    const isCurrent=(id)=>id==="coord"
+      ? (isAdmin?["mover","estadisticas","consultar"].includes(mode):String(mode||"").startsWith("coord-"))
+      : id==="admin" ? isAdmin&&["asignaturas-areas","docentes","claves"].includes(mode)
+      : id===mode;
+    const dock=sections.map(([id,title,icon])=>{
+      const isMenu=id==="coord"||id==="admin";
+      const selected=isCurrent(id);
+      const action=id==="logout"?"logout":isMenu?"teacher-dock-toggle":isAdmin?"admin-role-tab":"teacher-dock-mode";
+      return '<button type="button" class="t160-dock-btn'+(selected?' is-active':'')+'" data-action="'+action+'"'+
+        (isMenu?' data-menu="'+id+'" aria-haspopup="true" aria-expanded="false"'
+        :id==="logout"?' aria-label="Cerrar sesión"'
+        :(isAdmin?' data-tab="'+id+'"':' data-mode="'+id+'"')+(selected?' aria-current="page"':''))+
+        '>'+adminNavIcon(icon)+'<span>'+title+'</span></button>';
     }).join("");
-    const menus = [];
-    menus.push('<div class="t160-menu-layer" data-action="teacher-dock-backdrop" data-menu="cuenta" aria-hidden="true"><section class="t160-menu-panel" role="menu" aria-label="Cuenta"><div class="t160-menu-head"><strong>Mi cuenta</strong><button type="button" class="t160-menu-close" aria-label="Cerrar menú" data-action="teacher-dock-close">×</button></div><button type="button" class="t160-menu-item t160-logout" data-action="logout">' + adminNavIcon("logout") + '<span>Cerrar sesión</span></button></section></div>');
-    return '<nav class="t160-dock" aria-label="Navegación docente" style="--t160-count:' + sections.length + '">' + dock + '</nav>' + menus.join("");
+    const panel=(id,title,items)=>{
+      const links=items.map(([key,label,icon])=>
+        '<button type="button" class="t160-menu-item'+(mode===key?' is-active':'')+'" data-action="'+
+        (isAdmin?"admin-role-tab":"teacher-dock-mode")+'" '+
+        (isAdmin?'data-tab="'+key+'"':'data-mode="'+key+'"')+'>'+
+        adminNavIcon(icon)+'<span>'+label+'</span></button>'
+      ).join("");
+      return '<div class="t160-menu-layer" data-action="teacher-dock-backdrop" data-menu="'+id+
+        '" aria-hidden="true"><section class="t160-menu-panel" role="menu" aria-label="'+title+
+        '"><div class="t160-menu-head"><strong>'+title+
+        '</strong><button type="button" class="t160-menu-close" aria-label="Cerrar menú" data-action="teacher-dock-close">×</button></div>'+
+        links+'</section></div>';
+    };
+    const menus=[];
+    if(isAdmin||teacher?.coordinator){
+      menus.push(panel("coord","Coordinación académica",
+        isAdmin?[
+          ["mover","Mover estudiantes","move"],
+          ["estadisticas","Estadísticas","chart"],
+          ["consultar","Consultar estudiante","graduation"]
+        ]:[
+          ["coord-mover","Mover estudiantes","move"],
+          ["coord-estadisticas","Estadísticas","chart"],
+          ["coord-consultar","Consultar estudiante","graduation"]
+        ]));
+    }
+    if(isAdmin){
+      menus.push(panel("admin","Administración",[
+        ["asignaturas-areas","Asignaturas","layers"],
+        ["docentes","Personal docente","users"],
+        ["claves","Claves de respuestas","key"]
+      ]));
+    }
+    return '<nav class="t160-dock" aria-label="Navegación '+(isAdmin?"administrativa":"docente")+
+      '" style="--t160-count:'+sections.length+'">'+dock+'</nav>'+menus.join("");
   }
 
   function teacherModeTabs(teacher, activeMode) {
@@ -5038,51 +5079,11 @@
   }
 
   function adminNavigationHtml() {
-    const selection = ADMIN_MENU_GROUPS.flatMap(g => g.items).find(i => i[0] === state.adminTab);
-    const currentTitle = selection ? selection[1] : "Asignaturas";
-    const activeSection = ADMIN_MENU_GROUPS.find(g => g.items.some(i => i[0] === state.adminTab));
-    const allGroups = ADMIN_MENU_GROUPS.map(adminNavGroup).join("");
-    const mobileGroups = ADMIN_MENU_GROUPS.map(adminNavGroup).join("");
-    const dockItem = (label, icon, action, section = "", active = false, tab = "resumen") =>
-      `<button type="button" class="adm151-dock-item ${active ? "is-active" : ""}" data-action="${action}" ${section ? `data-group="${section}" aria-haspopup="true" aria-expanded="false"` : `data-tab="${escAttr(tab)}"`} aria-label="${esc(label)}">
-        ${adminNavIcon(icon)}<span>${esc(label)}</span>
-      </button>`;
+    const section=ADMIN_MENU_GROUPS.flatMap(g=>g.items).find(i=>i[0]===state.adminTab);
     return {
-      currentTitle,
-      sidebar: `<aside class="adm151-sidebar" aria-label="Navegación administrativa">
-        <div class="adm151-sidebar-head">
-          <span class="adm151-kicker">ROQUEOBJETIVA</span>
-          <strong>Administración</strong>
-          <span class="adm151-meta">Panel de control</span>
-        </div>
-        <div class="adm151-sidebar-scroll">${allGroups}</div>
-        <div class="adm151-sidebar-foot">
-          <span class="adm151-version">Versión ${esc(APP_VERSION)}</span>
-          <button class="adm151-link adm151-exit" data-action="logout" type="button">${adminNavIcon("logout")}<span>Cerrar sesión</span></button>
-        </div>
-      </aside>`,
-      mobile: `<nav class="adm151-dock" aria-label="Navegación móvil de administración">
-        ${dockItem("Asignaturas", "book", "admin-tab", "", state.adminTab === "asignaturas", "asignaturas")}
-        ${dockItem("Mover", "move", "admin-tab", "", state.adminTab === "mover", "mover")}
-        ${dockItem("Estadísticas", "chart", "admin-tab", "", state.adminTab === "estadisticas", "estadisticas")}
-        ${dockItem("Consultar", "graduation", "admin-tab", "", state.adminTab === "consultar", "consultar")}
-        ${dockItem("Más", "menu", "admin-nav-open", "otros", ["director","claves","docentes"].includes(state.adminTab))}
-      </nav>
-      <div class="adm151-overlay" aria-hidden="true">
-        <button type="button" class="adm151-backdrop" data-action="admin-nav-close" aria-label="Cerrar menú"></button>
-        <aside class="adm151-sheet" role="dialog" aria-modal="false" aria-label="Menú administrativo">
-          <div class="adm151-sheet-head">
-            <div><span class="adm151-kicker">NAVEGACIÓN</span><strong class="adm151-sheet-title">Menú administrativo</strong></div>
-            <button type="button" class="adm151-close" data-action="admin-nav-close" aria-label="Cerrar menú">×</button>
-          </div>
-          <div class="adm151-sheet-scroll">
-            ${mobileGroups}
-            <div class="adm159-menu-exit" hidden>
-              <button type="button" class="adm151-link adm151-exit" data-action="logout">${adminNavIcon("logout")}<span>Cerrar sesión</span></button>
-            </div>
-          </div>
-        </aside>
-      </div>`
+      currentTitle:section?.[1]||"Carga",
+      sidebar:"",
+      mobile:teacherDockHtml()
     };
   }
 
@@ -5161,6 +5162,7 @@
   function renderAdmin() {
     if (!adminTabIds().has(state.adminTab)) state.adminTab = "asignaturas";
     const navigation = adminNavigationHtml();
+    state.teacherDockMenu="";
 
     // v175.55: mantener vivos el hero, el sidebar y el dock del Administrador.
     // Antes renderShell recreaba TODO el DOM al abrir cualquier pestaña.
@@ -5170,7 +5172,7 @@
       ? app.firstElementChild : null;
     const workspace=adminShell?.querySelector(".adm151-workspace");
     const panel=workspace?.querySelector(".adm151-main .admin-panel");
-    const dock=adminShell?.querySelector(".adm151-dock");
+    const dock=adminShell?.querySelector(".t160-dock");
     if (workspace && panel && dock) {
       const cfg=state.config;
       const primary=normalizeColor(cfg.primaryColor || "#1975ae");
@@ -5222,12 +5224,17 @@
           link.appendChild(marker);
         }
       });
-      dock.querySelectorAll(".adm151-dock-item[data-tab]").forEach(button=>{
-        const active=button.dataset.tab===state.adminTab;
+      dock.querySelectorAll(".t160-dock-btn").forEach(button=>{
+        const active=button.dataset.menu==="coord"
+          ? ["mover","estadisticas","consultar"].includes(state.adminTab)
+          :button.dataset.menu==="admin"
+            ? ["asignaturas-areas","docentes","claves"].includes(state.adminTab)
+            :Boolean(button.dataset.tab&&button.dataset.tab===state.adminTab);
         button.classList.toggle("is-active",active);
         if(active)button.setAttribute("aria-current","page");
         else button.removeAttribute("aria-current");
       });
+      syncDockMotion(dock);
       panel.innerHTML=renderAdminTab();
       return;
     }
@@ -7123,8 +7130,8 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
         state.teacherMode = "asignaturas";
         state.teacherDirectorActiveKey = "";
         const teacher = state.teachers.get(user);
-        if (teacher?.coordinator) state.teacherMode = "coord-mover";
-        else if (!(teacher?.assignments || []).length && (teacher?.directorGroups || []).length) state.teacherMode = "director";
+        if (!(teacher?.assignments || []).length && (teacher?.directorGroups || []).length) state.teacherMode = "director";
+        if (!(teacher?.assignments || []).length && !(teacher?.directorGroups || []).length && teacher?.coordinator) state.teacherMode = "coord-mover";
         state.zeroToleranceShown = false;
         enterSessionWithLoader({ role: "teacher", id: user }, () => renderTeacher(teacher), "Preparando vista docente...");
         return;
@@ -7342,6 +7349,18 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     }
     if (action === "teacher-dock-mode") {
       setTeacherMode(target.dataset.mode || "");
+      return;
+    }
+    if (action === "admin-role-tab") {
+      if(state.activeSession?.role!=="admin")return;
+      const tab=target.dataset.tab||"asignaturas";
+      if(!adminTabIds().has(tab))return;
+      closeTeacherDockMenu();
+      state.adminTab=tab;
+      if(tab!=="claves")state.adminSubjectFilter="all";
+      renderAdminContext();
+      if(tab==="mover"&&(state.coordEditionLoaded!==cleanText(state.academicEdition)||
+        state.coordRosterOwner!=="admin"))void loadCoordRoster();
       return;
     }
     if (action === "teacher-subject") {
