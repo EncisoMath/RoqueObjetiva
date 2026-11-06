@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.57";
+  const APP_VERSION = "v175.58";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -4382,7 +4382,8 @@
     const content=stats
       ? (window.RoqueStatistics ? window.RoqueStatistics.render({
           rpc:supabaseRpc,notify:toast,role:"teacher",
-          id:state.activeSession?.id,session:state.coordSession
+          id:state.activeSession?.id,session:state.coordSession,
+          edition:cleanText(state.teacherEditionSelected||state.academicEdition||"2026-2S")
         }) : '<div class="empty-state">Módulo Estadísticas no disponible.</div>')
       : renderCoordinatorMover();
     renderShell(`
@@ -5213,7 +5214,8 @@
   function renderAdminTab() {
     switch (state.adminTab) {
       case "estadisticas": return window.RoqueStatistics
-        ? window.RoqueStatistics.render({rpc:supabaseRpc,notify:toast,role:"admin",id:"admin"})
+        ? window.RoqueStatistics.render({rpc:supabaseRpc,notify:toast,role:"admin",id:"admin",
+          edition:cleanText(state.academicEdition||"2026-2S")})
         : '<div class="empty-state">Módulo Estadísticas no disponible.</div>';
       case "docentes": return window.RoquePersonal ? window.RoquePersonal.render({
         rpc:supabaseRpc,notify:toast,subjects:availableSubjects(),
