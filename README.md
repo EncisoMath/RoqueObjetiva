@@ -6,8 +6,18 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.61
+RoqueObjetiva v175.62
 
+
+## v175.62 · Claves más compactas en móvil y botón Anular / Reactivar
+
+- **Corrección responsive:** eliminado el desbordamiento horizontal de las filas (que ocultaba el control Anular) mediante columnas calculadas con `minmax(0,1fr)`, opciones flexibles que se adaptan al ancho y un contenedor limitado al viewport. En ítems con más de cuatro opciones, el desplazamiento queda contenido en las propias respuestas.
+- **Separaciones constantes:** se aplica `gap:10px` al listado interior `#rak-body` y espacio uniforme a grado, sesiones, materias, indicadores y filas; las cuatro tarjetas siguen en una sola fila con tipografía menor.
+- **ABCD:** letras con peso normal (`font-weight:500`) incluso para la respuesta correcta; se conserva el verde de selección.
+- **Control visible:** el antiguo checkbox oculto se sustituyó por un botón accesible y compacto `Anular` / `Reactivar` con `aria-pressed`, que actualiza la pregunta, el número de activas/anuladas y habilita Guardar cambios de forma inmediata.
+- **Permisos preservados:** Coordinador tiene el control deshabilitado, ya que es de **solo lectura**; Administrador puede anular o reactivar en **2026-2S** (borrador). En **2026-1S** (cerrada) solo puede corregir respuestas justificadas, sin cambiar anulaciones históricas.
+- **Guardar sin saltos:** tras confirmar el RPC, se sincroniza el estado local sin solicitar nuevamente toda la lista ni cambiar de sesión/asignatura. Se rehabilitan las opciones y los controles tras el guardado y se conservan ediciones pendientes si el servidor rechaza la operación.
+- **Supabase:** la RPC `roque_v12_claves_guardar` y sus restricciones permanecen intactas; cambio de interfaz y caché PWA v175.62.
 
 ## v175.61 · Claves de respuestas generales por grado (Admin / Coordinador)
 
