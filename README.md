@@ -6,8 +6,21 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.55
+RoqueObjetiva v175.56
 
+
+## v175.56 · Estadísticas Institucionales (Administrador y Coordinador)
+
+- Nueva pantalla **Estadísticas** en Administrador y en el menú Coordinador. Diseño responsive basado en la referencia: filtros Edición, Grado, Curso y Asignatura; tarjetas de inscritos, resultados, promedio y proporción satisfactoria; barras por asignatura y anillo de distribución del desempeño.
+- **Sin filtros:** cifras institucionales generales de la edición seleccionada, barras por asignatura y anillo; no se muestran componentes.
+- **Solo grado:** alternador **General / Por curso** dentro de Promedio por asignatura. Por curso presenta una barra delgada por curso en cada asignatura, identificada por color y leyenda. El curso exige haber seleccionado primero el grado.
+- **Grado + curso:** indicadores y barras únicamente del grupo elegido, sin componentes.
+- **Con asignatura:** se muestra el bloque **Componentes – asignatura**, con sus porcentajes de aciertos. Nunca se muestran componentes si no se elige una asignatura.
+- **Cifras reales:** los resultados vienen de `roque_private.inscripciones`, `roque_private.resultados` y `roque_private.items`. Se excluyen ítems anulados. La nota por materia sigue `20 + 80 × aciertos / preguntas válidas`, y el promedio institucional refleja la media de las calificaciones disponibles por estudiante. Los componentes se presentan como porcentaje de aciertos.
+- **Sin invenciones:** Supabase contiene 877 inscripciones y 699 resultados crudos de 2026-1S (696 resultados vinculados a inscripciones activas). En 2026-2S hay 825 ítems, 2 anulados, sin inscripciones ni resultados; se muestra estado vacío con 0, no los números ilustrativos de la captura.
+- **Seguridad:** migración aplicada y versionada en `supabase/28_estadisticas_institucionales_v175_56.sql`. RPC `roque_v10_estadisticas_institucionales` protegida por sesión de administrador (`auth.uid` y `operadores_admin`) o sesión de coordinador válida y vigente. Responde **solo agregados**; no entrega datos identificables ni respuestas de estudiantes.
+- **Frontend:** `js/admin-estadisticas.js` y `css/admin-estadisticas.css`, cargados por `index.html`, precacheados con la PWA v175.56. Sin recargas de página al filtrar.
+- **Pruebas de datos:** validado nivel institucional 2026-1S, curso de sexto con Matemáticas (3 componentes), edición 2026-2S sin resultados y rechazo a consultas sin autorización.
 
 ## v175.55 · Corrección estructural del parpadeo en Docentes
 
