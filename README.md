@@ -6,8 +6,14 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.59
+RoqueObjetiva v175.60
 
+
+## v175.60 · Paletas originales de barras de Estadísticas
+
+- Paleta **asignaturas** extraída de la primera imagen del usuario, en orden: `#1976D2`, `#0288D1`, `#0097A7`, `#00796B`, `#388E3C`, `#689F38`, `#AFB42B`, `#FBC02D`, `#FFA000`, `#F57C00`, `#E64A19`. Las asignaturas conservan su tono al cambiar filtros, según el orden institucional (5 áreas principales primero).
+- Paleta **cursos de una sola asignatura** extraída de la segunda imagen: `#1976D2`, `#0288D1`, `#0097A7`, `#00796B`, `#388E3C`, `#689F38`, `#AFB42B`. Se usa al activar **Por curso** con una asignatura seleccionada, tanto en la leyenda agrupada por sede como en las barras.
+- Si hay más barras que colores, los tonos se reutilizan cíclicamente. Sin cambios de cálculos, permisos, funciones o datos de Supabase. Recursos PWA versionados a v175.60.
 
 ## v175.59 · Tarjetas centradas, foco de filtros y comparación por curso con asignatura
 
