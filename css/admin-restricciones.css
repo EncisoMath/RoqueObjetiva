@@ -94,7 +94,7 @@
 .rm18-cell-button:hover{background:#fff3e3}
 .rm18-cell-button:focus-visible{outline:2px solid #1975ae}
 
-/* v175.92 · Ondas más altas y rojo E53935 en examen anulado; sin cambios funcionales. */
+/* v175.93 · Rojo EF5350, ondas rojas y separador blanco en aviso anulado. */
 .rm18-notice{
  --rm18-hero:#fff0b9;
  --rm18-wave-back:#ffdf84;
@@ -114,13 +114,13 @@
  scrollbar-width:thin;
 }
 .rm18-notice-danger{
- --rm18-hero:#E53935;
- --rm18-wave-back:#C62828;
- --rm18-wave-front:#1F1F1F;
+ --rm18-hero:#EF5350;
+ --rm18-wave-back:#F36C6A;
+ --rm18-wave-front:#E85D5A;
  --rm18-ink:#fff;
- border-color:#C62828;
+ border-color:#E85D5A;
 }
-.rm18-notice-danger .rm18-notice-divider{background:#1F1F1F}
+.rm18-notice-danger .rm18-notice-divider{background:#fff}
 .rm18-notice,.rm18-notice *{box-sizing:border-box}
 .rm18-notice-hero{
  position:relative;

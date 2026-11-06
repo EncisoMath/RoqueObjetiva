@@ -6,7 +6,13 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.92
+RoqueObjetiva v175.93
+
+## v175.93 · Colores finales del aviso de examen anulado
+
+- Hero **Examen anulado** con fondo `#EF5350` y texto blanco.
+- Separador vertical blanco y dos ondas con tonos cálidos similares `#F36C6A` y `#E85D5A`, sin negro.
+- El aviso restringido conserva sus colores amarillos y el trazado/altura de las ondas de v175.92; lógica y eventos de los modales intactos. Caché PWA actualizada, sin cambios en Supabase.
 
 ## v175.92 · Rojo #E53935 y ondas más pronunciadas
 
