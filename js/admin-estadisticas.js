@@ -1,4 +1,4 @@
-/* RoqueObjetiva v175.56 · Estadísticas institucionales (Admin/Coordinador) */
+/* RoqueObjetiva v175.57 · Estadísticas institucionales (Admin/Coordinador) */
 (() => {
 "use strict";
 const S={key:"",edition:"2026-2S",grade:"",course:"",subject:"",mode:"general",
@@ -58,7 +58,7 @@ const kpis=p=>{
    card("people",inscritos.toLocaleString("es-CO"),"Estudiantes inscritos","blue")+
    card("check",resultados.toLocaleString("es-CO"),"Resultados registrados","green",coverage===null?"":percentage(coverage))+
    card("bars",fmt(p.promedio),S.subject?"Promedio · "+S.subject:"Promedio general (100)","violet")+
-   card("trophy",percentage(p.satisfactorio),"Nivel de desempeño satisfactorio","yellow")+
+   card("trophy",percentage(p.satisfactorio),"Básico o superior (≥ 60)","yellow")+
  '</div>';
 };
 const bars=(rows,grouped)=>{
@@ -92,8 +92,8 @@ const barsCard=p=>{
    '<div id="ris-chart">'+bars(toggle&&S.mode==="curso"?p.cursos_promedio:p.asignaturas_promedio,toggle&&S.mode==="curso")+'</div></section>';
 };
 const distribution=p=>{
- const base=["avanzado","satisfactorio","basico","bajo"];
- const definitions=["Avanzado (≥ 80)","Satisfactorio (60 – 79)","Básico (40 – 59)","Bajo (< 40)"];
+ const base=["superior","alto","basico","bajo"];
+ const definitions=["Superior (≥ 90)","Alto (80 – 89)","Básico (60 – 79)","Bajo (< 60)"];
  const palette=["#56b82d","#258dff","#ffbe00","#ff534c"];
  const rows=base.map((id,i)=>(p.distribucion||[]).find(x=>x.id===id)||{id,nombre:definitions[i],cantidad:0,porcentaje:0});
  const n=num(p.evaluados),has=n>0;
