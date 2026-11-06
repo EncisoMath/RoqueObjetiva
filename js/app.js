@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.60";
+  const APP_VERSION = "v175.61";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -3003,7 +3003,7 @@
   }
 
   function adminTabIds() {
-    return new Set(["resumen", "docentes", "estadisticas", "mapa-grado", "asignaturas-areas", "apariencia", "logos", "github"]);
+    return new Set(["resumen", "docentes", "estadisticas", "claves", "mapa-grado", "asignaturas-areas", "apariencia", "logos", "github"]);
   }
 
   function handleHashRoute() {
@@ -4033,7 +4033,7 @@
   }
 
   function renderTeacher(teacher) {
-    if (state.teacherEditionMessage && !["coord-mover","coord-estadisticas"].includes(state.teacherMode)) {
+    if (state.teacherEditionMessage && !["coord-mover","coord-estadisticas","coord-claves"].includes(state.teacherMode)) {
       renderShell('<section class="teacher-edition-empty" role="status">' +
         '<span class="teacher-edition-empty-icon" aria-hidden="true">📋</span><div>' +
         '<span>EDICIÓN ' + esc(state.teacherEditionSelected) + '</span>' +
@@ -4379,15 +4379,21 @@
 
   function renderCoordinatorPanel(teacher) {
     const stats=state.teacherMode==="coord-estadisticas";
-    const content=stats
-      ? (window.RoqueStatistics ? window.RoqueStatistics.render({
+    const keys=state.teacherMode==="coord-claves";
+    const edition=cleanText(state.teacherEditionSelected||state.academicEdition||"2026-2S");
+    const content=keys
+      ? (window.RoqueKeys ? window.RoqueKeys.render({
           rpc:supabaseRpc,notify:toast,role:"teacher",
-          id:state.activeSession?.id,session:state.coordSession,
-          edition:cleanText(state.teacherEditionSelected||state.academicEdition||"2026-2S")
-        }) : '<div class="empty-state">Módulo Estadísticas no disponible.</div>')
-      : renderCoordinatorMover();
+          id:state.activeSession?.id,session:state.coordSession,edition
+        }) : '<div class="empty-state">Módulo Claves no disponible.</div>')
+      : stats
+        ? (window.RoqueStatistics ? window.RoqueStatistics.render({
+            rpc:supabaseRpc,notify:toast,role:"teacher",
+            id:state.activeSession?.id,session:state.coordSession,edition
+          }) : '<div class="empty-state">Módulo Estadísticas no disponible.</div>')
+        : renderCoordinatorMover();
     renderShell(`
-      <section class="coordinator-admin-panel ${stats ? "coord-stats-panel" : "coord-mover-panel"}">${content}</section>
+      <section class="coordinator-admin-panel ${stats ? "coord-stats-panel" : keys ? "coord-keys-panel" : "coord-mover-panel"}">${content}</section>
     `, navFor("teacher"));
   }
 
@@ -4396,7 +4402,7 @@
     if (!teacher) return false;
     if (mode === "asignaturas") return (teacher.assignments || []).length > 0;
     if (mode === "director") return (teacher.directorGroups || []).length > 0;
-    if (mode === "coord-mover" || mode === "coord-estadisticas") return !!teacher.coordinator;
+    if (["coord-mover","coord-estadisticas","coord-claves"].includes(mode)) return !!teacher.coordinator;
     return false;
   }
 
@@ -4565,7 +4571,8 @@
     if (teacher.coordinator) {
       const links = [
         ["coord-mover", "Mover estudiantes", "move"],
-        ["coord-estadisticas", "Estadísticas", "chart"]
+        ["coord-estadisticas", "Estadísticas", "chart"],
+        ["coord-claves", "Claves de respuestas", "key"]
       ].map(([id, label, icon]) =>
         '<button type="button" class="t160-menu-item' + (mode === id ? ' is-active' : '') +
         '" data-action="teacher-dock-mode" data-mode="' + id + '">' + adminNavIcon(icon) + '<span>' + label + '</span></button>'
@@ -4928,6 +4935,7 @@
       ["mapa-grado", "Mapa por grado", "map"]
     ] },
     { id: "configuracion", title: "Configuración", items: [
+      ["claves", "Claves de respuestas", "key"],
       ["asignaturas-areas", "Asignaturas y áreas", "book"],
       ["apariencia", "Apariencia", "palette"],
       ["logos", "Logos", "image"],
@@ -5145,7 +5153,7 @@
       if(title && title.textContent!==navigation.currentTitle)
         title.textContent=navigation.currentTitle;
       const adminHeading=workspace.querySelector(".adm151-current-heading");
-      if(adminHeading)adminHeading.hidden=state.adminTab==="estadisticas";
+      if(adminHeading)adminHeading.hidden=["estadisticas","claves"].includes(state.adminTab);
       workspace.querySelectorAll(".adm151-sidebar .adm151-link[data-tab], .adm151-overlay .adm151-link[data-tab]").forEach(link=>{
         const active=link.dataset.tab===state.adminTab;
         link.classList.toggle("is-active",active);
@@ -5173,7 +5181,7 @@
       <div class="adm151-workspace">
         ${navigation.sidebar}
         <section class="adm151-main" aria-label="Contenido administrativo">
-          <div class="adm151-current-heading"${state.adminTab==="estadisticas" ? " hidden" : ""}>
+          <div class="adm151-current-heading"${["estadisticas","claves"].includes(state.adminTab) ? " hidden" : ""}>
             <div><span>ADMINISTRACIÓN</span><h2>${esc(navigation.currentTitle)}</h2></div>
           </div>
           <section class="admin-layout admin-layout-full">
@@ -5213,6 +5221,10 @@
 
   function renderAdminTab() {
     switch (state.adminTab) {
+      case "claves": return window.RoqueKeys
+        ? window.RoqueKeys.render({rpc:supabaseRpc,notify:toast,role:"admin",
+            id:"admin",edition:cleanText(state.academicEdition||"2026-2S")})
+        : '<div class="empty-state">Módulo Claves no disponible.</div>';
       case "estadisticas": return window.RoqueStatistics
         ? window.RoqueStatistics.render({rpc:supabaseRpc,notify:toast,role:"admin",id:"admin",
           edition:cleanText(state.academicEdition||"2026-2S")})
@@ -10269,6 +10281,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     state.coordIntroShown=false;state.coordSession="";state.coordPendingMoves.clear();state.coordRoster=[];
     window.RoquePersonal?.reset();
     window.RoqueStatistics?.reset();
+    window.RoqueKeys?.reset();
     state.coordCourses=[];state.coordEditionLoaded="";
     finishTeacherEditionGate();
     state.teacherEditionCatalog = [];
