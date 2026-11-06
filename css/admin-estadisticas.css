@@ -1,4 +1,4 @@
-/* RoqueObjetiva v175.57 · Estadísticas institucionales, diseño flat acorde a referencia */
+/* RoqueObjetiva v175.58 · Estadísticas institucionales, diseño flat acorde a referencia */
 .ris-root{
   --ris-ink:#162f53;--ris-blue:#1689c4;--ris-line:#bcd9fa;
   color:var(--ris-ink);max-width:1280px;width:100%;margin:0 auto;
@@ -431,4 +431,203 @@
  .ris-distribution{grid-template-columns:88px minmax(0,1fr)}
  .ris-donut{width:87px}
  .ris-legend span,.ris-legend b{font-size:.52rem}
+}
+
+
+/* v175.58 · 4 filtros / 4 indicadores en UNA sola fila, incluso en móvil.
+   Se anulan las antiguas cuadrículas 2x2 y sus container queries. */
+.ris-root .ris-filters{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:8px;
+  width:100%;
+  min-width:0;
+  max-width:100%;
+}
+.ris-root .ris-kpis{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:8px;
+  width:100%;
+  min-width:0;
+  max-width:100%;
+}
+.ris-root .ris-filters label{
+  min-width:0;
+  font-size:.69rem;
+  gap:4px;
+  overflow:hidden;
+  white-space:nowrap;
+}
+.ris-root .ris-filters select{
+  width:100%;
+  min-width:0;
+  max-width:100%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  height:37px;
+  padding:0 6px;
+  font-size:.7rem;
+  font-weight:750;
+}
+.ris-root .ris-kpi{
+  width:100%;
+  max-width:100%;
+  min-width:0;
+  min-height:83px;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:center;
+  gap:5px;
+  padding:10px 11px;
+  border-radius:4px;
+}
+.ris-root .ris-kpi-ico{
+  display:flex;
+  flex:none;
+  width:22px;
+  height:22px;
+  min-width:0;
+  align-items:center;
+  justify-content:flex-start;
+}
+.ris-root .ris-kpi-ico svg{
+  width:22px;
+  height:22px;
+}
+.ris-root .ris-kpi-copy{
+  min-width:0;
+  display:grid;
+  gap:3px;
+  width:100%;
+}
+.ris-root .ris-kpi-copy strong{
+  font-size:clamp(1.05rem,1.9vw,1.65rem);
+  line-height:1.05;
+  font-weight:900;
+  white-space:nowrap;
+}
+.ris-root .ris-kpi-copy span{
+  font-size:clamp(.6rem,.95vw,.76rem);
+  line-height:1.18;
+  font-weight:750;
+  overflow-wrap:anywhere;
+}
+.ris-root .ris-kpi.green{grid-template-rows:none;padding-bottom:10px}
+.ris-root .ris-kpi-aside{display:none!important}
+.ris-root .ris-current-edition{
+  margin-left:auto;flex:none;
+  font-size:.64rem;font-weight:850;
+  color:#207eab;
+  background:#e7f4fc;
+  padding:5px 7px;border:1px solid #b9deef;
+  border-radius:4px;
+  white-space:nowrap;
+}
+/* La leyenda hace un solo encabezado por sede y, debajo,
+   los cursos con sus colores. */
+.ris-root .ris-course-legend{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));
+  gap:9px 15px;
+  padding:0 0 11px;
+}
+.ris-root .ris-site-legend{
+  display:flex;flex-direction:column;gap:6px;
+  min-width:0;
+}
+.ris-root .ris-site-name{
+  font-size:.69rem;line-height:1.2;
+  font-weight:900;color:#264964;
+}
+.ris-root .ris-site-courses{
+  display:flex;flex-wrap:wrap;
+  gap:5px 10px;min-width:0;
+}
+.ris-root .ris-site-courses span{
+  display:inline-flex;align-items:center;
+  font-size:.65rem;line-height:1.14;
+  gap:4px;white-space:nowrap;
+}
+.ris-root .ris-site-courses i{
+  display:inline-block;
+  width:10px;height:10px;
+  flex:0 0 10px;border-radius:3px;
+}
+@container ris-dashboard (max-width:530px){
+  .ris-root .ris-filters,
+  .ris-root .ris-kpis{
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:5px;
+  }
+  .ris-root .ris-filters label{
+    font-size:.58rem;
+    letter-spacing:-.01em;
+  }
+  .ris-root .ris-filters select{
+    height:34px;
+    padding:0 3px;
+    font-size:.61rem;
+    font-weight:750;
+  }
+  .ris-root .ris-kpi{
+    display:flex;
+    flex-direction:column;
+    gap:5px;
+    min-height:79px;
+    padding:7px 5px;
+    align-items:flex-start;
+    justify-content:center;
+  }
+  .ris-root .ris-kpi-ico{
+    display:flex;
+    flex:none;
+    width:19px;height:19px;
+  }
+  .ris-root .ris-kpi-ico svg{
+    width:19px;height:19px;
+  }
+  .ris-root .ris-kpi-copy{
+    display:grid;
+    gap:3px;
+    width:100%;
+    min-width:0;
+  }
+  .ris-root .ris-kpi-copy strong{
+    font-size:clamp(.86rem,3vw,1.13rem);
+    white-space:nowrap;
+    letter-spacing:-.04em;
+  }
+  .ris-root .ris-kpi-copy span{
+    font-size:clamp(.48rem,1.7vw,.57rem);
+    line-height:1.12;
+    font-weight:800;
+  }
+  .ris-root .ris-kpi.green{
+    padding-bottom:7px;
+  }
+  .ris-root .ris-heading{
+    flex-wrap:nowrap;
+    gap:7px;
+  }
+  .ris-root .ris-heading h2{
+    font-size:clamp(.81rem,2.6vw,.98rem);
+  }
+  .ris-root .ris-current-edition{
+    font-size:.54rem;
+    padding:4px 5px;
+  }
+  .ris-root .ris-course-legend{grid-template-columns:1fr;gap:8px}
+  .ris-root .ris-site-name{font-size:.66rem}
+  .ris-root .ris-site-courses span{font-size:.58rem}
+}
+@container ris-dashboard (max-width:305px){
+  .ris-root .ris-filters,.ris-root .ris-kpis{gap:3px}
+  .ris-root .ris-filters label{font-size:.53rem}
+  .ris-root .ris-filters select{padding:0 2px;font-size:.57rem}
+  .ris-root .ris-kpi-ico{display:none}
+  .ris-root .ris-kpi{padding:6px 3px;min-height:65px}
+  .ris-root .ris-kpi-copy strong{font-size:.78rem}
+  .ris-root .ris-kpi-copy span{font-size:.46rem}
 }
