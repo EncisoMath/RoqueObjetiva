@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.86";
+  const APP_VERSION = "v175.96";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -1243,54 +1243,31 @@
   }
 
 
-  // v175: pantalla EXCLUSIVAMENTE demostrativa, sin consultar ni inventar notas.
+  // Acceso exclusivo 2573: renderizar el informe REAL 2026-2S recibido del servidor.
   function enterStudentPreview2026(roll) {
-    if (cleanId(roll) !== "2573" || !state.studentPreview2026) return renderLogin("Vista no autorizada.");
-    const session = { role: "student", roll: "2573", studentView: "preview", edition: "2026-2S" };
+    if (cleanId(roll) !== "2573" || !state.studentPreview2026 ||
+        state.academicEdition !== "2026-2S" || !state.computedByRoll?.has("2573")) {
+      return renderLogin("El informe de 2026-2S no está autorizado o disponible.");
+    }
+    const session = { role: "student", roll: "2573", studentView: "report", edition: "2026-2S" };
     state.activeSession = session;
     state.studentSelectedEdition = "2026-2S";
+    state.selectedSubject = null;
     state.zeroToleranceShown = true;
     writeJSON(STORAGE.session, session);
     rememberRecentLogin(session);
-    // La autenticación ya se completó: animar sin segundo cargador artificial.
-    return transitionStudentView(() => renderStudentPreview2026());
+    return transitionStudentView(() => {
+      renderStudent("2573");
+      resetStudentScreenScroll();
+    });
   }
 
+  // Compatibilidad con sesiones locales antiguas: nunca volver a dibujar notas ficticias.
   function renderStudentPreview2026() {
     if (!state.studentPreview2026 || state.activeSession?.role !== "student"
-        || cleanId(state.activeSession?.roll) !== "2573") return renderLogin("Vista no autorizada.");
-    const registry = state.registryByExamId.get("2573");
-    const studentName = cleanText(registry?.name || "Estudiante");
-    const grade = toInt(registry?.grade) || 0;
-    const subjectNames = grade === 5
-      ? ["Matemáticas","Lenguaje","Inglés","Ciencias Sociales y Ciudadanía","Ciencias Naturales"]
-      : SUBJECTS.map((subject) => subject.name);
-    const tiles = subjectNames.map((name) => {
-      const subject = SUBJECTS.find((item) => item.name === name);
-      const color = STUDENT_AREA_COLORS[name] || "#248bc4";
-      return '<article class="stu174-area-card po175-preview-area" style="--stu174-area-color:' + color + '">' +
-        '<span class="stu174-area-head"><span class="stu174-area-icon">' + subjectIcon(name) + '</span>' +
-        '<strong class="stu174-area-title">' + esc(subject?.short || name) + '</strong></span>' +
-        '<span class="stu174-area-result"><strong>0</strong><small>/100</small></span>' +
-        '<span class="stu174-area-track"><i style="width:0%"></i></span>' +
-        '</article>';
-    }).join("");
-    const identity = '<section class="stu174-identity"><span class="stu174-grade">' +
-      esc(grade || "—") + '°</span><div class="stu174-identity-copy"><h2>' + esc(studentName) + '</h2>' +
-      '<p><span>ID: 2573</span><span class="stu174-meta-sep">·</span><span>2026-2S</span></p></div></section>';
-    const globalCard = '<section class="stu174-global card">' +
-      '<div class="stu174-global-button"><div class="stu174-global-title">Puntaje global Saber</div>' +
-      '<div class="stu174-global-value"><strong>0</strong><span>/500</span></div>' +
-      '<span class="stu174-global-track"><i style="width:0%"></i></span></div>' +
-      '<div class="stu174-ranking">' +
-      '<div class="stu174-rank-tile"><div class="stu174-rank-copy"><strong>—</strong><small>Ranking por curso</small></div></div>' +
-      '<div class="stu174-rank-tile"><div class="stu174-rank-copy"><strong>—</strong><small>Ranking por grado</small></div></div>' +
-      '</div></section>';
-    renderShell('<div class="stu174-dashboard">' + identity + globalCard +
-      '<section class="stu174-results" aria-labelledby="po175-areas-title">' +
-      '<h2 id="po175-areas-title">Resultados por área</h2><div class="stu174-grid">' +
-      tiles + '</div></section></div>', navFor("student"));
-    resetStudentScreenScroll();
+        || cleanId(state.activeSession?.roll) !== "2573"
+        || state.academicEdition !== "2026-2S") return renderLogin("Vista no autorizada.");
+    return renderStudent("2573");
   }
 
   function studentEditionAvailability(ed) {
@@ -1621,22 +1598,29 @@
         return;
       }
     }
-    if (code === "2026-2S" && state.studentPreview2026 && cleanId(state.activeSession.roll) === "2573") {
-      // Volver a comprobar la excepción en el servidor. No confiar en localStorage.
+    if (code === "2026-2S" && state.studentPreview2026
+        && cleanId(state.activeSession.roll) === "2573") {
+      // Verificar la autorización en SQL y cargar notas reales, jamás la pantalla de ceros.
       try {
         const verified = await studentLoginRpc("2573", "");
         if (verified?.ok && verified?.modo_vista_previa === "2026-2S"
-            && cleanId(verified?.session?.roll) === "2573") {
+            && verified?.edicion === "2026-2S"
+            && verified?.origen_academico === "roque_2s_2573_autorizado"
+            && cleanId(verified?.session?.roll) === "2573"
+            && verified.datasets?.keys?.[0]?.rows?.length
+            && verified.datasets?.resultados?.[0]?.rows?.length) {
+          state.academicEdition = "2026-2S";
+          state.academicDataSource = "roque_private";
           hydrateSupabasePayload(verified);
           buildRepository();
           return enterStudentPreview2026("2573");
         }
       } catch (error) {
-        console.warn("No se pudo validar el acceso de prueba.", error?.message || error);
+        console.warn("No se pudo validar el informe de 2026-2S.", error?.message || error);
       }
       state.studentPreview2026 = false;
       clearSession();
-      return renderLogin("No fue posible validar el acceso a la vista de prueba.");
+      return renderLogin("No fue posible validar el informe de 2026-2S.");
     }
     const selected = (state.studentEditionCatalog || []).find(e => e.codigo === code);
     if (!selected || !studentEditionAvailability(selected).enabled) {
@@ -1708,6 +1692,9 @@
       if (!payload?.ok) {
         return renderLogin(readableLimitMessage(payload));
       }
+      if (payload.origen_academico === "roque_2s_2573_autorizado" && payload.edicion === "2026-2S") {
+        state.academicEdition = "2026-2S";
+      }
       hydrateSupabasePayload(payload);
       state.academicEdition = cleanText(payload.edicion || "2026-1S");
       state.academicDataSource = cleanText(payload.origen_academico || "legacy");
@@ -1747,7 +1734,12 @@
 
       if (session.role === "student") {
         const roll = cleanId(session.roll);
-        state.studentPreview2026 = payload.modo_vista_previa === "2026-2S" && roll === "2573";
+        state.studentPreview2026 = payload.modo_vista_previa === "2026-2S"
+          && payload.edicion === "2026-2S"
+          && payload.origen_academico === "roque_2s_2573_autorizado"
+          && roll === "2573"
+          && !!payload.datasets?.keys?.[0]?.rows?.length
+          && !!payload.datasets?.resultados?.[0]?.rows?.length;
         await loadStudentEditionCatalog();
         // La última evaluación disponible se abre primero.
         // Mientras dura el cierre, solo 2573 puede abrir la simulación privada.
