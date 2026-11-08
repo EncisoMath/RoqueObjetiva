@@ -6,7 +6,14 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.104
+RoqueObjetiva v175.105
+
+## v175.105 · ZERO TOLERANCE al ingresar manualmente como estudiante
+
+- Modal rediseñado según referencia, logotipo original `assets/ZERO.png` a ancho completo, cuatro dibujos SVG de marcas inválidas y un ejemplo correcto. Bloques azul, rojo y verde en pasado y botón Entendido; CSS propio mobile-first con desplazamiento interno.
+- Solo estudiantes autenticados manualmente: aparece una vez en la primera pantalla de la sesión (selector de ediciones o informe 2573), antes de consultar los resultados. Una restauración automática no lo muestra. Tampoco reaparece al navegar, cambiar de semestre ni cambiar de pestaña.
+- El control `zeroToleranceShown` permanece únicamente en memoria JS; no se añaden preferencias de ocultación. Los temporizadores se cancelan al cerrar sesión.
+- Sin cambios en autenticación de otros roles, notas, dock, Supabase ni operaciones académicas. Nueva versión del Service Worker y archivos precacheados.
 
 ## v175.104 · Zona libre para todas las pantallas bajo el dock
 

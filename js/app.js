@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.104";
+  const APP_VERSION = "v175.105";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -199,6 +199,8 @@
       await loadAllData();
       buildRepository();
       const saved = readJSON(STORAGE.session, null);
+      // Una restauración de sesión no equivale a un nuevo ingreso manual.
+      if (saved?.role === "student") state.zeroToleranceShown = true;
       if (saved && saved.role && saved.role !== "admin") {
         if (saved.role === "student" && SUPABASE_CONFIG.enabled) {
           // No abrir un informe con datos sin autenticar tras refrescar la PWA.
@@ -1254,7 +1256,6 @@
     state.activeSession = session;
     state.studentSelectedEdition = "2026-2S";
     state.selectedSubject = null;
-    state.zeroToleranceShown = true;
     writeJSON(STORAGE.session, session);
     rememberRecentLogin(session);
     return transitionStudentView(() => {
@@ -1545,6 +1546,7 @@
       navFor("student")
     );
     resetStudentScreenScroll();
+    scheduleZeroToleranceModal();
   }
 
   function enterStudentEditionChooser(roll, options = {}) {
@@ -1553,7 +1555,6 @@
     const session = {role:"student",roll:id,studentView:"editions"};
     state.activeSession = session;
     state.selectedSubject = null;
-    state.zeroToleranceShown = false;
     clearSessionRankContext();
     writeJSON(STORAGE.session,session);
     rememberRecentLogin(session);
@@ -1582,7 +1583,6 @@
         buildRepository();
         state.studentSelectedEdition = "2026-1S";
         state.selectedSubject = null;
-        state.zeroToleranceShown = true;
         const session = { role: "student", roll: "2573",
           studentView: "report", edition: "2026-1S" };
         state.activeSession = session;
@@ -1745,6 +1745,13 @@
 
       if (session.role === "student") {
         const roll = cleanId(session.roll);
+        // Único punto de armado del aviso tras autenticación exitosa.
+        // Las restauraciones se revalidan sin volver a mostrar el aviso.
+        if (zeroToleranceTimer !== null) {
+          window.clearTimeout(zeroToleranceTimer);
+          zeroToleranceTimer = null;
+        }
+        state.zeroToleranceShown = options.restore === true;
         state.studentPreview2026 = payload.modo_vista_previa === "2026-2S"
           && payload.edicion === "2026-2S"
           && payload.origen_academico === "roque_2s_2573_autorizado"
@@ -3005,7 +3012,6 @@
     const message = options.message || (debug ? "Preparando diagnóstico de ranking..." : "Calculando ranking y preparando resultados...");
     state.selectedSubject = null;
     state.metricTab = "components";
-    state.zeroToleranceShown = false;
     const session = {
       role: "student",
       roll: cleanRoll,
@@ -3474,46 +3480,44 @@
     `;
   }
 
+  // Aviso vinculado al inicio MANUAL: se usa el modal institucional existente,
+  // y se reserva para el estudiante autenticado. Nada se guarda en localStorage.
+  let zeroToleranceTimer = null;
+  function scheduleZeroToleranceModal() {
+    if (state.activeSession?.role !== "student" || state.zeroToleranceShown ||
+        zeroToleranceTimer !== null) return;
+    const roll = cleanId(state.activeSession.roll);
+    zeroToleranceTimer = window.setTimeout(() => {
+      zeroToleranceTimer = null;
+      if (state.activeSession?.role !== "student" ||
+          cleanId(state.activeSession.roll) !== roll || state.zeroToleranceShown) return;
+      // Nunca sustituir otro modal que el estudiante haya abierto.
+      if (modalRoot.querySelector(".modal-backdrop")) {
+        scheduleZeroToleranceModal();
+        return;
+      }
+      if (openZeroToleranceModal()) state.zeroToleranceShown = true;
+    }, 560);
+  }
+
   function openZeroToleranceModal() {
-    const copy = [
-      "Las respuestas con doble marca se anulan.",
-      "Los tachones, enmendaduras o correcciones mal hechas no se tienen en cuenta.",
-      "Las marcas fuera del espacio indicado no son válidas.",
-      "Los ítems sin responder no se califican.",
-      "Solo se califican respuestas limpias, claras y correctamente marcadas."
-    ];
+    if (state.activeSession?.role !== "student") return false;
+    const content = window.RoqueZeroToleranceMarkup?.render?.();
+    if (!content) return false;
     modalRoot.innerHTML = `
       <div class="modal-backdrop zero-tolerance-backdrop" data-action="close-modal">
-        <section class="modal zero-tolerance-modal">
-          <div class="modal-head zero-tolerance-head">
-            <div>
-              <h2>Advertencia de calificación</h2>
-              <span class="zt-subhead">Lee esto antes de revisar tus resultados.</span>
-            </div>
-            <button type="button" class="icon-btn" data-action="close-modal" aria-label="Cerrar">×</button>
-          </div>
-          <div class="modal-body zero-tolerance-body">
-            ${zeroToleranceLogoHtml()}
-            <p class="zt-lead">Para prepararte frente a estándares exigentes como ICFES, Saber y Misión Saber, esta evaluación fue revisada con un sistema <strong>automatizado y riguroso</strong>. Por eso, cualquier marca dudosa, ambigua o fuera del formato se invalida.</p>
-            <div class="zt-rules">
-              <div class="zt-rule zt-bad">✘ <span>${copy[0]}</span></div>
-              <div class="zt-rule zt-bad">✘ <span>${copy[1]}</span></div>
-              <div class="zt-rule zt-bad">✘ <span>${copy[2]}</span></div>
-              <div class="zt-rule zt-bad">✘ <span>${copy[3]}</span></div>
-              <div class="zt-rule zt-good">✔ <span>${copy[4]}</span></div>
-            </div>
-            <p class="zt-footer-note">La precisión también se entrena. Responder con orden y cuidado mejora tus resultados.</p>
-            <div class="zero-tolerance-actions">
-              <button class="primary-btn" data-action="close-modal">ACEPTAR</button>
-            </div>
-          </div>
+        <section class="modal zero-tolerance-modal" role="dialog"
+                 aria-modal="true" aria-labelledby="zt105-heading">
+          ${content}
         </section>
       </div>
     `;
     document.body.classList.add("modal-open");
+    modalRoot.querySelector(".zt105-close")?.focus({ preventScroll: true });
+    return true;
   }
 
-  function renderPlayShapes(prefix = "banner", stars = false) {
+    function renderPlayShapes(prefix = "banner", stars = false) {
     const shapes = ["x", "square", "tri", "circle"];
     const variants = ["", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"];
     const symbols = stars
@@ -3851,10 +3855,7 @@
     }
 
     renderShell(studentDashboardHtml(student), navFor("student"), studentBannerTone(student));
-    if (!state.zeroToleranceShown) {
-      state.zeroToleranceShown = true;
-      window.setTimeout(() => openZeroToleranceModal(), 260);
-    }
+    scheduleZeroToleranceModal();
   }
 
 
@@ -7494,7 +7495,6 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
 
     if (action === "student-ranking-debug-next") {
       const roll = cleanId(target.dataset.roll || state.activeSession?.roll || "");
-      state.zeroToleranceShown = false;
       state.activeSession = { ...(state.activeSession || {}), role: "student", roll, rankingDebugRequested: false, rankingDebugDone: true, rankingDebugVersion: "v140" };
       writeJSON(STORAGE.session, state.activeSession);
       return enterSessionWithLoader(state.activeSession, () => renderStudent(roll), "Abriendo tus resultados...");
@@ -10582,6 +10582,11 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
   }
 
   function clearSession() {
+    // Un temporizador pendiente nunca debe abrir el aviso sobre otro login.
+    if (zeroToleranceTimer !== null) {
+      window.clearTimeout(zeroToleranceTimer);
+      zeroToleranceTimer = null;
+    }
     closeCoordIntro();
     state.coordIntroShown=false;state.coordSession="";state.coordPendingMoves.clear();state.coordRoster=[];
     window.RoquePersonal?.reset();
