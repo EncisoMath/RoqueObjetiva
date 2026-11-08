@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.96";
+  const APP_VERSION = "v175.97";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -168,6 +168,7 @@
     modalStack: [],
     activeSession: null,
     studentEditionCatalog: [],
+    studentEnrolledEditions: null,
     studentSelectedEdition: "",
     zeroToleranceShown: false
   };
@@ -1228,8 +1229,11 @@
           anio: 2026, semestre: 1, estado: "cerrada", resultados_visibles: true }
       ];
     }
+    const enrolledEditions = state.studentEnrolledEditions;
     state.studentEditionCatalog = rows
       .filter(e => /^\d{4}-[12]S$/.test(String(e?.codigo || "")))
+      // Histórico personalizado: no mostrar semestres sin inscripción real.
+      .filter(e => !Array.isArray(enrolledEditions) || enrolledEditions.includes(String(e.codigo)))
       .map(e => ({
         codigo: String(e.codigo),
         titulo: cleanText(e.titulo || "Prueba objetiva"),
@@ -1692,6 +1696,12 @@
       if (!payload?.ok) {
         return renderLogin(readableLimitMessage(payload));
       }
+      // Lista de ediciones con inscripción real, vinculada a la persona autenticada.
+      state.studentEnrolledEditions = payload.session?.role === "student"
+        ? (Array.isArray(payload.ediciones_inscritas)
+            ? payload.ediciones_inscritas.filter(code => /^\d{4}-[12]S$/.test(String(code)))
+            : (payload.edicion ? [String(payload.edicion)] : []))
+        : null;
       if (payload.origen_academico === "roque_2s_2573_autorizado" && payload.edicion === "2026-2S") {
         state.academicEdition = "2026-2S";
       }
@@ -10556,6 +10566,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     state.activeSession = null;
     state.studentPreview2026 = false;
     state.studentEditionCatalog = [];
+    state.studentEnrolledEditions = null;
     state.studentSelectedEdition = "";
     state.zeroToleranceShown = false;
     clearSessionRankContext();
