@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.97";
+  const APP_VERSION = "v175.98";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -4205,6 +4205,12 @@
             rpc:staffAdminRpc,notify:toast,role:"admin",
             id:state.activeSession.id,edition
           })||'<div class="empty-state">No se pudo cargar Claves de respuestas.</div>';
+        }else if(state.teacherMode==="staff-admin-consultar"){
+          // Misma consulta protegida que antes: cambia únicamente el menú y el modo.
+          content=window.RoqueStudentLookup?.render({
+            rpc:supabaseRpc,notify:toast,role:"teacher",
+            id:state.activeSession.id,session:state.coordSession,edition
+          })||'<div class="empty-state">No se pudo cargar Consultar estudiante.</div>';
         }
         renderShell('<section class="teacher-staff-admin-workspace">'+content+
           '</section>',navFor("teacher"));
@@ -4632,9 +4638,9 @@
     if (!teacher) return false;
     if (mode === "asignaturas") return true;
     if (mode === "director") return (teacher.directorGroups || []).length > 0;
-    if (["coord-mover","coord-estadisticas","coord-consultar"].includes(mode))
+    if (["coord-mover","coord-estadisticas"].includes(mode))
       return ["coordinador","administrador"].includes(staffRoleOf(teacher));
-    if (["staff-admin-asignaturas-areas","staff-admin-docentes","staff-admin-claves","staff-admin-restricciones"].includes(mode))
+    if (["staff-admin-asignaturas-areas","staff-admin-docentes","staff-admin-claves","staff-admin-restricciones","staff-admin-consultar"].includes(mode))
       return staffRoleOf(teacher)==="administrador";
     return false;
   }
@@ -4809,8 +4815,8 @@
     if(adminMenu)sections.push(["admin","Administrador","shield"]);
     sections.push(["logout","Cerrar sesión","logout"]);
     const isCurrent=(id)=>id==="coord"
-      ? (isAdmin?["mover","estadisticas","consultar"].includes(mode):String(mode||"").startsWith("coord-"))
-      : id==="admin" ? (isAdmin?["asignaturas-areas","docentes","claves","restricciones"].includes(mode)
+      ? (isAdmin?["mover","estadisticas"].includes(mode):String(mode||"").startsWith("coord-"))
+      : id==="admin" ? (isAdmin?["asignaturas-areas","docentes","claves","restricciones","consultar"].includes(mode)
         :String(mode||"").startsWith("staff-admin-"))
       : id===mode;
     const dock=sections.map(([id,title,icon])=>{
@@ -4841,12 +4847,10 @@
       menus.push(panel("coord","Coordinación académica",
         isAdmin?[
           ["mover","Mover estudiantes","move"],
-          ["estadisticas","Estadísticas","chart"],
-          ["consultar","Consultar estudiante","graduation"]
+          ["estadisticas","Estadísticas","chart"]
         ]:[
           ["coord-mover","Mover estudiantes","move"],
-          ["coord-estadisticas","Estadísticas","chart"],
-          ["coord-consultar","Consultar estudiante","graduation"]
+          ["coord-estadisticas","Estadísticas","chart"]
         ]));
     }
     if(adminMenu){
@@ -4854,12 +4858,14 @@
         ["asignaturas-areas","Asignaturas y áreas","layers"],
         ["restricciones","Restricciones y anulaciones","shield"],
         ["docentes","Personal docente","users"],
-        ["claves","Claves de respuestas","key"]
+        ["claves","Claves de respuestas","key"],
+        ["consultar","Consultar estudiante","graduation"]
       ]:[
         ["staff-admin-asignaturas-areas","Asignaturas y áreas","layers"],
         ["staff-admin-restricciones","Restricciones y anulaciones","shield"],
         ["staff-admin-docentes","Personal docente","users"],
-        ["staff-admin-claves","Claves de respuestas","key"]
+        ["staff-admin-claves","Claves de respuestas","key"],
+        ["staff-admin-consultar","Consultar estudiante","graduation"]
       ]));
     }
     return '<nav class="t160-dock" aria-label="Navegación '+(isAdmin?"administrativa":"docente")+
@@ -5226,10 +5232,10 @@
     ]},
     {id:"coordinacion",title:"Coordinación",items:[
       ["mover","Mover estudiantes","move"],
-      ["estadisticas","Estadísticas","chart"],["consultar","Consultar estudiante","graduation"]
+      ["estadisticas","Estadísticas","chart"]
     ]},
     {id:"administracion",title:"Administración",items:[
-      ["asignaturas-areas","Asignaturas y áreas","layers"],["restricciones","Restricciones y anulaciones","shield"],["claves","Claves de respuestas","key"],["docentes","Personal docente","users"]
+      ["asignaturas-areas","Asignaturas y áreas","layers"],["restricciones","Restricciones y anulaciones","shield"],["claves","Claves de respuestas","key"],["docentes","Personal docente","users"],["consultar","Consultar estudiante","graduation"]
     ]}
   ];
 

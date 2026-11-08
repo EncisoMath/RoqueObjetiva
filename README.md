@@ -6,7 +6,14 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.95
+RoqueObjetiva v175.98
+
+## v175.98 · Consultar estudiante pasa al menú Administrador
+
+- «Consultar estudiante» sale del menú Coordinador en todos los perfiles y se añade a Administrador, tanto en la sesión administrativa institucional como en la sesión de docente con rol administrador.
+- Se reutiliza `RoqueStudentLookup` con los mismos RPC, datos, permisos de consulta y edición, informe y modales existentes; no hay cambios de backend o Supabase.
+- Los dos menús comparten el mismo dock; Coordinador conserva Mover estudiantes y Estadísticas. El indicador activo del dock distingue correctamente ambos menús.
+- Se actualizan versión y caché PWA sin alterar otras pantallas, resultados, claves ni rankings.
 
 ## v175.95 · Paleta común del RoqueScreenHero basada en #1975AE
 
