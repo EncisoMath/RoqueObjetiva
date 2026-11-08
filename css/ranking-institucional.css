@@ -1,0 +1,67 @@
+/* RoqueObjetiva v175.99 · Ranking institucional, flat y móvil primero. */
+.rir-root{box-sizing:border-box;display:flex;flex-direction:column;gap:14px;min-width:0;color:#20385d;width:100%}
+.rir-root *{box-sizing:border-box}
+.rir-filter-card,.rir-kpi,.rir-panel{background:#fff;border:1px solid #cbddeb;border-radius:4px;box-shadow:none}
+.rir-filter-card{padding:16px}.rir-filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.rir-filters label{display:flex;flex-direction:column;min-width:0;gap:7px;font-size:.88rem;font-weight:600;color:#244061}
+.rir-filters select{appearance:auto;width:100%;min-width:0;min-height:43px;padding:8px;background:#eef7fd;border:1px solid #bed9ec;border-radius:4px;font:inherit;font-weight:500;color:#285477}
+.rir-filters select:focus-visible,.rir-search:focus-within,.rir-page:focus-visible{outline:2px solid #1975AE;outline-offset:2px}
+.rir-kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.rir-kpi{display:flex;align-items:center;gap:12px;min-width:0;padding:13px}
+.rir-kpi-icon{display:grid;place-items:center;flex:0 0 52px;width:52px;height:52px;color:#1881b9;background:#e1f0fa;border-radius:4px}
+.rir-kpi>div{display:flex;flex-direction:column;gap:4px;min-width:0}
+.rir-kpi-label{font-size:.86rem;line-height:1.22;color:#415e7c;font-weight:500}
+.rir-kpi-number{font-size:clamp(1.18rem,2.7vw,1.7rem);line-height:1.1;font-weight:700;color:#203a5e;font-variant-numeric:tabular-nums}
+.rir-panel{min-width:0;padding:18px 20px 14px}
+.rir-panel-head{display:flex;align-items:center;gap:11px;margin-bottom:15px;color:#1975ae}
+.rir-panel-head h3{font-size:clamp(1.1rem,2.7vw,1.4rem);font-weight:700;color:#1c355a;margin:0}
+.rir-search{width:100%;height:45px;display:flex;align-items:center;gap:11px;padding:0 12px;background:#f2f8fe;border:1px solid #c1d8ed;border-radius:4px;color:#327ba6;margin-bottom:16px}
+.rir-search input{min-width:0;width:100%;height:100%;background:transparent!important;border:0!important;outline:none!important;box-shadow:none!important;color:#254465;font:inherit;font-size:.92rem}
+.rir-search input::placeholder{color:#7189a3}
+.rir-list{display:flex;flex-direction:column;min-width:0}
+.rir-list-head,.rir-row{display:grid;grid-template-columns:80px minmax(0,1fr) 155px;align-items:center;gap:10px}
+.rir-list-head{min-height:32px;border-bottom:1px solid #cbdceb;padding:0 9px 7px;color:#617a90;font-size:.8rem;font-weight:600}
+.rir-list-head>span:last-child{text-align:right}
+.rir-row{padding:7px 9px;border-bottom:1px solid #d6e4ef;min-height:52px}
+.rir-cell-pos{display:flex;align-items:center}
+.rir-place{display:grid;place-items:center;min-width:44px;height:32px;padding:0 8px;border-radius:4px;background:#e1f0fb;color:#205070;font-weight:700}
+.rir-medal{position:relative;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;border:3px solid #e0b341;background:#ffd66b;color:#6a4a16;font-weight:800;isolation:isolate}
+.rir-medal:before,.rir-medal:after{content:"";position:absolute;bottom:-8px;width:12px;height:17px;z-index:-1;background:#dd7951;clip-path:polygon(0 0,100% 0,100% 100%,50% 75%,0 100%)}
+.rir-medal:before{left:4px;transform:rotate(15deg)}.rir-medal:after{right:4px;transform:rotate(-15deg)}
+.rir-medal-2{background:#cbd5e1;border-color:#a4b7c8;color:#4e6275}.rir-medal-2:before,.rir-medal-2:after{background:#899fb0}
+.rir-medal-3{background:#e2a271;border-color:#c5885b;color:#6c421d}.rir-medal-3:before,.rir-medal-3:after{background:#bc7d4e}
+.rir-row.rir-top{border:0;border-radius:4px;min-height:64px;margin:3px 0}
+.rir-top-1{background:#fff5dd}.rir-top-2{background:#f0f4f8}.rir-top-3{background:#fff1e8}
+.rir-cell-student{display:flex;flex-direction:column;min-width:0;gap:3px}
+.rir-cell-student>span{font-size:.92rem;font-weight:600;line-height:1.25;color:#20385b;overflow-wrap:anywhere}
+.rir-cell-student>small{font-size:.76rem;line-height:1.2;color:#6b8399;overflow-wrap:anywhere}
+.rir-cell-score{display:flex;justify-content:flex-end}
+.rir-cell-score>span{display:grid;place-items:center;min-width:70px;min-height:34px;padding:5px 10px;background:#e1f1fd;border-radius:4px;color:#1a4c77;font-weight:700;font-size:1rem;font-variant-numeric:tabular-nums}
+.rir-footer{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-top:15px;color:#647f98;font-size:.82rem}
+.rir-pagination{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:5px}
+.rir-page{min-width:33px;height:34px;background:#fff;border:1px solid transparent;border-radius:4px;color:#3d6486;font:inherit;font-weight:600;cursor:pointer;transition:background-color .2s}
+.rir-page:hover:not(:disabled){background:#e9f5fc}.rir-page.active{background:#1975ae;color:#fff}
+.rir-page.rir-arrow{font-size:1.45rem;font-weight:400;border-color:#bdd5e8}
+.rir-page:disabled{opacity:.38;cursor:default}.rir-ellipsis{padding:0 5px}
+.rir-empty{padding:36px 10px;text-align:center;color:#607b95;font-size:.92rem}
+.rir-error{color:#9e3d3d}.rir-error button{display:block;margin:12px auto;padding:9px 12px;border-radius:4px;background:#fff;border:1px solid #d9a8a8;color:#903535}
+.rir-hint{margin:10px 0 0;color:#64829c;font-size:.76rem}
+@media(max-width:680px){
+ .rir-root{gap:11px}.rir-filter-card{padding:10px}.rir-filters{gap:7px}.rir-filters label{font-size:.76rem;gap:5px}
+ .rir-filters select{min-height:39px;padding:5px 4px;font-size:.78rem}
+ .rir-kpis{gap:6px}.rir-kpi{flex-direction:column;justify-content:center;text-align:center;gap:5px;padding:9px 5px}
+ .rir-kpi-icon{flex-basis:32px;width:32px;height:32px}.rir-kpi-icon svg{width:21px;height:21px}
+ .rir-kpi-label{font-size:.68rem}.rir-kpi-number{font-size:clamp(1.03rem,4vw,1.25rem)}
+ .rir-panel{padding:12px 9px}.rir-panel-head{gap:7px;margin-bottom:11px}.rir-panel-head svg{width:23px;height:23px}
+ .rir-search{height:41px;margin-bottom:11px}
+ .rir-list-head,.rir-row{grid-template-columns:43px minmax(0,1fr) 74px;gap:5px}
+ .rir-list-head{font-size:.68rem;padding:0 4px 7px}.rir-row{padding:6px 4px;min-height:54px}.rir-row.rir-top{min-height:62px}
+ .rir-place{min-width:30px;height:29px;font-size:.81rem}.rir-medal{width:34px;height:34px;font-size:.91rem}
+ .rir-cell-student>span{font-size:.8rem}.rir-cell-student>small{font-size:.69rem}
+ .rir-cell-score>span{min-width:56px;min-height:30px;padding:4px 5px;font-size:.87rem}
+ .rir-footer{justify-content:center;text-align:center;gap:8px;font-size:.76rem}.rir-pagination{justify-content:center}
+}
+@media(max-width:360px){.rir-filter-card{padding:9px 6px}.rir-filters{gap:4px}.rir-filters label{font-size:.7rem}.rir-filters select{font-size:.72rem;padding:5px 2px}
+ .rir-kpi-icon{display:none}.rir-kpi{min-height:62px}.rir-kpi-number{font-size:1rem}
+ .rir-list-head,.rir-row{grid-template-columns:39px minmax(0,1fr) 61px;gap:4px}.rir-cell-student>span{font-size:.77rem}.rir-cell-score>span{min-width:52px;font-size:.83rem}}
+@media(prefers-reduced-motion:reduce){.rir-page{transition:none}}
