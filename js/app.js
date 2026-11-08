@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.98";
+  const APP_VERSION = "v175.99";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -3059,7 +3059,7 @@
   }
 
   function adminTabIds() {
-    return new Set(["asignaturas","director","mover","estadisticas","consultar","claves","docentes","asignaturas-areas","restricciones"]);
+    return new Set(["asignaturas","director","mover","estadisticas","ranking","consultar","claves","docentes","asignaturas-areas","restricciones"]);
   }
 
   function handleHashRoute() {
@@ -4217,7 +4217,7 @@
         return;
       }
     }
-    if (state.teacherEditionMessage && !["coord-mover","coord-estadisticas","coord-consultar"].includes(state.teacherMode)) {
+    if (state.teacherEditionMessage && !["coord-mover","coord-estadisticas","coord-ranking","coord-consultar"].includes(state.teacherMode)) {
       renderShell('<section class="teacher-edition-empty" role="status">' +
         '<span class="teacher-edition-empty-icon" aria-hidden="true">📋</span><div>' +
         '<span>EDICIÓN ' + esc(state.teacherEditionSelected) + '</span>' +
@@ -4581,8 +4581,14 @@
   function renderCoordinatorPanel(teacher) {
     const stats=state.teacherMode==="coord-estadisticas";
     const lookup=state.teacherMode==="coord-consultar";
+    const ranking=state.teacherMode==="coord-ranking";
     const edition=cleanText(state.teacherEditionSelected||state.academicEdition||"2026-2S");
-    const content=lookup
+    const content=ranking
+      ? (window.RoqueRanking ? window.RoqueRanking.render({
+          rpc:supabaseRpc,notify:toast,role:"teacher",
+          id:state.activeSession?.id,session:state.coordSession,edition
+        }) : '<div class="empty-state">Módulo Ranking institucional no disponible.</div>')
+      : lookup
       ? (window.RoqueStudentLookup ? window.RoqueStudentLookup.render({
           rpc:supabaseRpc,notify:toast,role:"teacher",
           id:state.activeSession?.id,session:state.coordSession,edition
@@ -4594,7 +4600,7 @@
           }) : '<div class="empty-state">Módulo Estadísticas no disponible.</div>')
         : renderCoordinatorMover();
     renderShell(`
-      <section class="coordinator-admin-panel ${stats ? "coord-stats-panel" : lookup ? "coord-lookup-panel" : "coord-mover-panel"}">${content}</section>
+      <section class="coordinator-admin-panel ${ranking ? "coord-ranking-panel" : stats ? "coord-stats-panel" : lookup ? "coord-lookup-panel" : "coord-mover-panel"}">${content}</section>
     `, navFor("teacher"));
   }
 
@@ -4638,7 +4644,7 @@
     if (!teacher) return false;
     if (mode === "asignaturas") return true;
     if (mode === "director") return (teacher.directorGroups || []).length > 0;
-    if (["coord-mover","coord-estadisticas"].includes(mode))
+    if (["coord-mover","coord-estadisticas","coord-ranking"].includes(mode))
       return ["coordinador","administrador"].includes(staffRoleOf(teacher));
     if (["staff-admin-asignaturas-areas","staff-admin-docentes","staff-admin-claves","staff-admin-restricciones","staff-admin-consultar"].includes(mode))
       return staffRoleOf(teacher)==="administrador";
@@ -4815,7 +4821,7 @@
     if(adminMenu)sections.push(["admin","Administrador","shield"]);
     sections.push(["logout","Cerrar sesión","logout"]);
     const isCurrent=(id)=>id==="coord"
-      ? (isAdmin?["mover","estadisticas"].includes(mode):String(mode||"").startsWith("coord-"))
+      ? (isAdmin?["mover","estadisticas","ranking"].includes(mode):String(mode||"").startsWith("coord-"))
       : id==="admin" ? (isAdmin?["asignaturas-areas","docentes","claves","restricciones","consultar"].includes(mode)
         :String(mode||"").startsWith("staff-admin-"))
       : id===mode;
@@ -4847,10 +4853,12 @@
       menus.push(panel("coord","Coordinación académica",
         isAdmin?[
           ["mover","Mover estudiantes","move"],
-          ["estadisticas","Estadísticas","chart"]
+          ["estadisticas","Estadísticas","chart"],
+          ["ranking","Ranking institucional","trophy"]
         ]:[
           ["coord-mover","Mover estudiantes","move"],
-          ["coord-estadisticas","Estadísticas","chart"]
+          ["coord-estadisticas","Estadísticas","chart"],
+          ["coord-ranking","Ranking institucional","trophy"]
         ]));
     }
     if(adminMenu){
@@ -5232,7 +5240,8 @@
     ]},
     {id:"coordinacion",title:"Coordinación",items:[
       ["mover","Mover estudiantes","move"],
-      ["estadisticas","Estadísticas","chart"]
+      ["estadisticas","Estadísticas","chart"],
+      ["ranking","Ranking institucional","trophy"]
     ]},
     {id:"administracion",title:"Administración",items:[
       ["asignaturas-areas","Asignaturas y áreas","layers"],["restricciones","Restricciones y anulaciones","shield"],["claves","Claves de respuestas","key"],["docentes","Personal docente","users"],["consultar","Consultar estudiante","graduation"]
@@ -5244,6 +5253,7 @@
       house: '<path d="m3 10 9-7 9 7v10H3z"/><path d="M9 20v-7h6v7"/>',
       calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18m-12 5h6"/>',
       chart: '<path d="M4 20V11m6 9V5m6 15v-8m4 8V8"/>',
+      trophy: '<path d="M7 4h10v7a5 5 0 0 1-10 0V4ZM7 6H3v4a4 4 0 0 0 4 4M17 6h4v4a4 4 0 0 1-4 4M12 16v4M8 21h8"/>',
       move: '<path d="M4 6h16m-4-4 4 4-4 4M20 18H4m4-4-4 4 4 4"/>',
       layers: '<path d="m12 2 9 5-9 5-9-5 9-5zM3 12l9 5 9-5M3 17l9 5 9-5"/>',
       key: '<circle cx="8" cy="9" r="4"/><path d="m11 12 9 9m-1-4-3 3"/>',
@@ -5524,6 +5534,10 @@
         ? window.RoqueStatistics.render({rpc:supabaseRpc,notify:toast,role:"admin",id:"admin",
           edition:cleanText(state.academicEdition||"2026-2S")})
         : '<div class="empty-state">Módulo Estadísticas no disponible.</div>';
+      case "ranking": return window.RoqueRanking
+        ? window.RoqueRanking.render({rpc:supabaseRpc,notify:toast,role:"admin",id:"admin",
+            edition:cleanText(state.academicEdition||"2026-2S")})
+        : '<div class="empty-state">Módulo Ranking institucional no disponible.</div>';
       case "restricciones": return window.RoqueMedidas ? window.RoqueMedidas.render({
         rpc:supabaseRpc,notify:toast,owner:"auth-admin",
         edition:cleanText(state.academicEdition||"2026-2S")

@@ -6,7 +6,14 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.98
+RoqueObjetiva v175.99
+
+## v175.99 · Ranking institucional (Coordinador)
+
+- Nueva pantalla en el menú Coordinador para coordinadores y administradores, con hero `RoqueScreenHero` `#1975AE` e icono de trofeo, filtros Sede/Grado/Curso, tres KPI, búsqueda por nombre o ID y paginación con medallas para los primeros puestos.
+- Los datos provienen de `public.roque_v20_ranking_institucional` en Supabase, 0–500, peso de áreas 3-3-3-3-1, restricciones excluidas y medidas por área/sesión aplicadas.
+- Empates comparten posición y orden estable. La búsqueda conserva la posición del grupo filtrado. RPC limitada a coordinadores con token válido y administradores autenticados.
+- No se modifican las tablas ni resultados académicos, ni otras pestañas o permisos. CSS y JS específicos, migración `supabase/48_ranking_institucional_v175_99.sql`, nueva caché PWA.
 
 ## v175.98 · Consultar estudiante pasa al menú Administrador
 
