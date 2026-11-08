@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.105";
+  const APP_VERSION = "v175.106";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -182,7 +182,7 @@
   document.addEventListener("change", handleCriticalStatsChange, true);
   document.addEventListener("change", handleChange);
   window.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && !closeTeacherDockMenu() && !closeAdminNavigation()) closeModal();
+    if (event.key === "Escape" && !modalRoot.querySelector(".zero-tolerance-modal") && !closeTeacherDockMenu() && !closeAdminNavigation()) closeModal();
   });
 
   async function init() {
@@ -1247,7 +1247,7 @@
 
 
   // Acceso exclusivo 2573: renderizar el informe REAL 2026-2S recibido del servidor.
-  function enterStudentPreview2026(roll) {
+  function enterStudentPreview2026(roll, options = {}) {
     if (cleanId(roll) !== "2573" || !state.studentPreview2026 ||
         state.academicEdition !== "2026-2S" || !state.computedByRoll?.has("2573")) {
       return renderLogin("El informe de 2026-2S no está autorizado o disponible.");
@@ -1258,6 +1258,11 @@
     state.selectedSubject = null;
     writeJSON(STORAGE.session, session);
     rememberRecentLogin(session);
+    if (options.immediate) {
+      renderStudent("2573");
+      resetStudentScreenScroll();
+      return;
+    }
     return transitionStudentView(() => {
       renderStudent("2573");
       resetStudentScreenScroll();
@@ -1747,10 +1752,6 @@
         const roll = cleanId(session.roll);
         // Único punto de armado del aviso tras autenticación exitosa.
         // Las restauraciones se revalidan sin volver a mostrar el aviso.
-        if (zeroToleranceTimer !== null) {
-          window.clearTimeout(zeroToleranceTimer);
-          zeroToleranceTimer = null;
-        }
         state.zeroToleranceShown = options.restore === true;
         state.studentPreview2026 = payload.modo_vista_previa === "2026-2S"
           && payload.edicion === "2026-2S"
@@ -1758,11 +1759,17 @@
           && roll === "2573"
           && !!payload.datasets?.keys?.[0]?.rows?.length
           && !!payload.datasets?.resultados?.[0]?.rows?.length;
+        // Abrir el aviso inmediatamente tras validar el ingreso manual,
+        // incluso mientras se consulta el catálogo de ediciones.
+        if (options.restore !== true) {
+          state.activeSession = { role: "student", roll, studentView: "editions" };
+          scheduleZeroToleranceModal();
+        }
         await loadStudentEditionCatalog();
         // La última evaluación disponible se abre primero.
         // Mientras dura el cierre, solo 2573 puede abrir la simulación privada.
-        if (state.studentPreview2026) return enterStudentPreview2026(roll);
-        return enterStudentEditionChooser(roll);
+        if (state.studentPreview2026) return enterStudentPreview2026(roll, { immediate: options.restore !== true });
+        return enterStudentEditionChooser(roll, { immediate: options.restore !== true });
       }
 
       return renderLogin("No se pudo identificar el tipo de usuario.");
@@ -3472,32 +3479,12 @@
     }
   }
 
-  function zeroToleranceLogoHtml() {
-    return `
-      <div class="zt-logo-image-wrap" aria-label="Zero Tolerance">
-        <img class="zt-logo-image" src="assets/ZERO.png" alt="ZERO TOLERANCE">
-      </div>
-    `;
-  }
-
-  // Aviso vinculado al inicio MANUAL: se usa el modal institucional existente,
-  // y se reserva para el estudiante autenticado. Nada se guarda en localStorage.
-  let zeroToleranceTimer = null;
+  // Aviso exclusivamente para inicios de sesión estudiantiles MANUALES.
+  // La imagen es un archivo PNG independiente, sin código Base64.
   function scheduleZeroToleranceModal() {
-    if (state.activeSession?.role !== "student" || state.zeroToleranceShown ||
-        zeroToleranceTimer !== null) return;
-    const roll = cleanId(state.activeSession.roll);
-    zeroToleranceTimer = window.setTimeout(() => {
-      zeroToleranceTimer = null;
-      if (state.activeSession?.role !== "student" ||
-          cleanId(state.activeSession.roll) !== roll || state.zeroToleranceShown) return;
-      // Nunca sustituir otro modal que el estudiante haya abierto.
-      if (modalRoot.querySelector(".modal-backdrop")) {
-        scheduleZeroToleranceModal();
-        return;
-      }
-      if (openZeroToleranceModal()) state.zeroToleranceShown = true;
-    }, 560);
+    if (state.activeSession?.role !== "student" || state.zeroToleranceShown) return;
+    if (modalRoot.querySelector(".modal-backdrop")) return;
+    if (openZeroToleranceModal()) state.zeroToleranceShown = true;
   }
 
   function openZeroToleranceModal() {
@@ -3505,15 +3492,15 @@
     const content = window.RoqueZeroToleranceMarkup?.render?.();
     if (!content) return false;
     modalRoot.innerHTML = `
-      <div class="modal-backdrop zero-tolerance-backdrop" data-action="close-modal">
+      <div class="modal-backdrop zero-tolerance-backdrop">
         <section class="modal zero-tolerance-modal" role="dialog"
-                 aria-modal="true" aria-labelledby="zt105-heading">
+                 aria-modal="true" aria-label="Aviso ZERO TOLERANCE">
           ${content}
         </section>
       </div>
     `;
     document.body.classList.add("modal-open");
-    modalRoot.querySelector(".zt105-close")?.focus({ preventScroll: true });
+    modalRoot.querySelector(".zt106-understood")?.focus({ preventScroll: true });
     return true;
   }
 
@@ -10582,11 +10569,6 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
   }
 
   function clearSession() {
-    // Un temporizador pendiente nunca debe abrir el aviso sobre otro login.
-    if (zeroToleranceTimer !== null) {
-      window.clearTimeout(zeroToleranceTimer);
-      zeroToleranceTimer = null;
-    }
     closeCoordIntro();
     state.coordIntroShown=false;state.coordSession="";state.coordPendingMoves.clear();state.coordRoster=[];
     window.RoquePersonal?.reset();

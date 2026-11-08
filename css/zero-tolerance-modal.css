@@ -1,142 +1,88 @@
-/* v175.105 · ZERO TOLERANCE · exclusivamente su modal, sin cambiar el dock. */
+/* v175.106 · Una imagen PNG, un botón, sin estructura visual adicional. */
 #modal-root .zero-tolerance-backdrop {
+  position: fixed;
+  inset: 0;
   z-index: 10020 !important;
-  background: rgba(20,31,48,.57);
-  padding: max(8px,env(safe-area-inset-top,0px)) 10px max(8px,env(safe-area-inset-bottom,0px));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: max(8px, env(safe-area-inset-top, 0px)) 8px max(8px, env(safe-area-inset-bottom, 0px));
+  background: rgba(20, 31, 48, .62);
   overflow: hidden;
-  touch-action: none;
 }
 #modal-root .zero-tolerance-modal {
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  width: min(720px,100%) !important;
-  max-width: 720px !important;
-  max-height: min(92dvh,920px) !important;
+  width: min(700px, 100%) !important;
+  max-width: 700px !important;
+  max-height: calc(100dvh - 16px) !important;
   min-height: 0;
-  overflow: hidden !important;
   padding: 0 !important;
   margin: auto;
-  background: #fff;
-  border: 1px solid #d8e0e9;
+  overflow: hidden !important;
+  border: 0;
   border-radius: 4px !important;
-  box-shadow: 0 10px 35px rgba(0,0,0,.18);
-  color: #1c1d22;
+  background: #fff;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, .24);
 }
-#modal-root .zero-tolerance-modal *{box-sizing:border-box}
-#modal-root .zt105-topbar {
+#modal-root .zero-tolerance-body.zt106-body {
+  box-sizing: border-box;
   display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  flex: 0 0 auto;
-  height: 41px;
-  padding: 4px 10px 0;
-  background:#fff;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  width: 100%;
+  gap: 0 !important;
+  padding: 0 !important;
+  margin: 0;
+  overflow: hidden !important;
+  background: #fff;
 }
-#modal-root .zt105-visually-hidden {
-  position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;
+#modal-root .zt106-image-wrap {
+  min-height: 0;
+  flex: 1 1 auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
-#modal-root .zt105-close {
-  display:grid;place-items:center;
-  width:36px;height:36px;padding:3px;flex:none;
-  border:0;border-radius:4px;background:#fff;color:#70757b;cursor:pointer;
+#modal-root .zt106-image {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
 }
-#modal-root .zt105-close:focus-visible,#modal-root .zt105-understood:focus-visible {
-  outline:2px solid #1975AE;outline-offset:2px;
+#modal-root .zt106-actions {
+  box-sizing: border-box;
+  flex: none;
+  padding: 12px;
+  border-top: 1px solid #e4e9ee;
+  background: #fff;
 }
-#modal-root .zero-tolerance-body.zt105-body {
-  display:flex;
-  flex-direction:column;
-  flex:1 1 auto;
-  min-height:0;
-  gap:13px;
-  padding: 0 17px 17px !important;
-  overflow-x:hidden;
-  overflow-y:auto;
-  overscroll-behavior:contain;
-  -webkit-overflow-scrolling:touch;
-  touch-action:pan-y;
-  background:#fff;
+#modal-root .zt106-understood {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 4px;
+  background: #1975ae;
+  color: #fff;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color .16s ease;
 }
-#modal-root .zt105-logo-wrap{width:100%;flex:none;margin:0;line-height:0}
-#modal-root .zt105-logo {
-  display:block;width:100%;max-width:none;height:auto;max-height:155px;object-fit:contain;object-position:center;
+#modal-root .zt106-understood:hover { background: #155f8f; }
+#modal-root .zt106-understood:focus-visible { outline: 2px solid #073d62; outline-offset: -4px; }
+@media (max-height: 520px) {
+  #modal-root .zt106-actions { padding: 8px; }
+  #modal-root .zt106-understood { min-height: 42px; }
 }
-#modal-root .zt105-notice {
-  display:grid;grid-template-columns:72px minmax(0,1fr);
-  align-items:center;gap:12px;
-  padding:12px 14px;border-radius:4px;background:#e3f2ff;min-width:0;
-}
-#modal-root .zt105-notice-red{background:#ffeaeb}
-#modal-root .zt105-notice-icon{
-  display:grid;place-items:center;height:65px;
-  border-right:2px solid #205ac4;
-  padding-right:11px;
-}
-#modal-root .zt105-notice-red .zt105-notice-icon{border-right-color:#e11b26}
-#modal-root .zt105-notice-icon svg{width:53px;height:53px}
-#modal-root .zt105-notice p{margin:0;font-size:clamp(.83rem,1.55vw,1.1rem);line-height:1.4;font-weight:400}
-#modal-root .zt105-notice-blue strong{color:#163f9b;font-weight:700}
-#modal-root .zt105-notice-red strong{color:#cd101c;font-weight:700}
-#modal-root .zt105-example-title{display:flex;align-items:center;justify-content:center;position:relative;min-height:33px;margin:1px 0}
-#modal-root .zt105-example-title:before{content:"";position:absolute;left:0;right:0;top:50%;height:1.5px;background:#572273}
-#modal-root .zt105-example-title h3{
- position:relative;z-index:1;margin:0;padding:7px 24px;
- background:#f0e9f3;border-radius:4px;
- color:#391c41;font-size:clamp(.94rem,2.2vw,1.3rem);font-weight:700;line-height:1.1;text-align:center;
-}
-#modal-root .zt105-examples {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-#modal-root .zt105-example{position:relative;min-width:0;border:1px solid #e2d8de;border-radius:4px;background:#fff;overflow:hidden}
-#modal-root .zt105-example-drawing{padding:9px 8px 6px}
-#modal-root .zt105-answer-svg{display:block;width:100%;height:auto;overflow:visible;max-height:95px}
-#modal-root .zt105-error-mark{
- position:absolute;right:4px;top:3px;z-index:1;display:grid;place-items:center;
- width:29px;height:29px;border-radius:50%;background:#fb3336;color:#fff;
- font-size:29px;font-weight:500;line-height:1;
-}
-#modal-root .zt105-example-name{min-height:39px;display:flex;align-items:center;justify-content:center;
- padding:8px 6px;text-align:center;font-weight:700;font-size:clamp(.78rem,1.6vw,.96rem);
- line-height:1.15;color:#a11831;background:#ffebed}
-#modal-root .zt105-valid{
- display:grid;grid-template-columns:67px minmax(0,1fr) 168px;align-items:center;gap:11px;
- min-width:0;padding:12px;background:#e5f8e4;border-radius:4px;
-}
-#modal-root .zt105-valid-icon{display:grid;place-items:center;height:59px;border-right:2px solid #15a02a;padding-right:9px}
-#modal-root .zt105-valid-icon svg{width:51px;height:51px}
-#modal-root .zt105-valid p{margin:0;font-size:clamp(.79rem,1.5vw,.99rem);line-height:1.38}
-#modal-root .zt105-valid strong{color:#153f9e;font-weight:700}
-#modal-root .zt105-valid-diagram{min-width:0;background:#fff;border:1.5px solid #17a521;border-radius:4px;padding:5px}
-#modal-root .zt105-understood{
- min-height:49px;width:100%;flex:none;border:0;border-radius:4px;
- color:#fff;background:#1975AE;font:inherit;font-weight:700;font-size:1.15rem;
- cursor:pointer;transition:background-color .16s;
-}
-#modal-root .zt105-understood:hover{background:#15689b}
-@media(max-width:540px){
- #modal-root .zero-tolerance-modal{max-height:calc(100dvh - 16px) !important}
- #modal-root .zero-tolerance-body.zt105-body{padding:0 12px 12px !important;gap:10px}
- #modal-root .zt105-logo{max-height:104px}
- #modal-root .zt105-notice{grid-template-columns:50px minmax(0,1fr);padding:10px;gap:9px}
- #modal-root .zt105-notice-icon{height:55px;padding-right:7px}
- #modal-root .zt105-notice-icon svg{width:40px;height:40px}
- #modal-root .zt105-notice p{font-size:.82rem;line-height:1.35}
- #modal-root .zt105-examples{grid-template-columns:1fr;gap:8px}
- #modal-root .zt105-example-drawing{max-width:360px;margin:auto}
- #modal-root .zt105-valid{grid-template-columns:49px minmax(0,1fr);gap:8px;padding:10px}
- #modal-root .zt105-valid-icon{height:60px;padding-right:4px}
- #modal-root .zt105-valid-icon svg{width:39px;height:39px}
- #modal-root .zt105-valid p{font-size:.8rem}
- #modal-root .zt105-valid-diagram{grid-column:1/-1;width:min(100%,260px);justify-self:center}
- #modal-root .zt105-example-name{font-size:.86rem;min-height:34px}
- #modal-root .zt105-understood{min-height:46px}
-}
-@media(max-width:370px){
- #modal-root .zero-tolerance-body.zt105-body{padding:0 10px 10px !important}
- #modal-root .zt105-notice p{font-size:.77rem}
- #modal-root .zt105-example-title h3{padding:7px 13px}
-}
-@media(max-height:570px){
- #modal-root .zero-tolerance-modal{max-height:calc(100dvh - 12px) !important}
-}
-@media(prefers-reduced-motion:reduce){
- #modal-root .zt105-understood{transition:none}
+@media (prefers-reduced-motion: reduce) {
+  #modal-root .zt106-understood { transition: none; }
 }

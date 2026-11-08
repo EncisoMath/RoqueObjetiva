@@ -6,7 +6,13 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.105
+RoqueObjetiva v175.106
+
+## v175.106 · ZERO TOLERANCE con imagen PNG original
+
+- Se sustituye todo el contenido anterior del modal por la imagen original `assets/zero-tolerance-aviso.png` (PNG real, sin Base64 en HTML/JS) y el botón Entendido.
+- Se presenta inmediatamente después del inicio de sesión manual exitoso del estudiante, antes de cargar el catálogo de ediciones; no se repite al navegar ni al restaurar sesión.
+- Se elimina la espera artificial de 560 ms, se mantiene el dock y la lógica de sesión; el PNG queda precacheado para la PWA.
 
 ## v175.105 · ZERO TOLERANCE al ingresar manualmente como estudiante
 
