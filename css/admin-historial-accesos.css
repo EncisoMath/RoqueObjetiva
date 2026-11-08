@@ -1,0 +1,85 @@
+/* RoqueObjetiva v175.101 · Historial: diseño plano, móvil primero. */
+.ah-root{box-sizing:border-box;display:flex;flex-direction:column;gap:12px;color:#203956;width:100%;min-width:0}
+.ah-root *{box-sizing:border-box}
+.ah-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+.ah-tabs button{display:flex;flex-direction:column;gap:5px;justify-content:center;align-items:center;min-width:0;min-height:60px;padding:7px 3px;background:#f4faff;border:1px solid #c2d9e9;border-radius:4px;color:#2e5676;font:inherit;font-size:.77rem;font-weight:600;cursor:pointer;transition:background-color .18s}
+.ah-tabs button.active{background:#1975AE;color:#fff;border-color:#1975AE}
+.ah-controls,.ah-section{background:#fff;border:1px solid #cddfed;border-radius:4px;padding:14px}
+.ah-search{height:43px;display:flex;align-items:center;gap:10px;color:#1975AE;border:1px solid #c0d9eb;background:#f3faff;border-radius:4px;padding:0 11px;margin-bottom:12px}
+.ah-search input{width:100%;min-width:0;height:100%;font:inherit;font-size:.87rem;color:#254665;border:0!important;outline:0!important;box-shadow:none!important;background:transparent!important}
+.ah-filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:8px}
+.ah-short{grid-template-columns:repeat(2,minmax(0,1fr))}
+.ah-filters label{display:flex;flex-direction:column;gap:5px;font-size:.75rem;font-weight:600;min-width:0}
+.ah-filters select,.ah-filters input{min-width:0;width:100%;height:39px;padding:5px 7px;font:inherit;font-weight:400;color:#284c6d;border:1px solid #c7d9e9;border-radius:4px;background:#fff}
+.ah-tabs button:focus-visible,.ah-filters input:focus-visible,.ah-filters select:focus-visible,.ah-search:focus-within,.ah-root button:focus-visible{outline:2px solid #1975AE;outline-offset:2px}
+.ah-kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.ah-kpi{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;text-align:center;padding:10px 5px;min-height:87px;border:1px solid #c7dfef;border-radius:4px;background:#eef8ff;color:#1975AE}
+.ah-kpi strong{font-size:1.23rem;line-height:1.1;color:#213e64;font-weight:700;font-variant-numeric:tabular-nums}
+.ah-kpi span{font-size:.72rem;color:#415b73}
+.ah-kpi-alert{background:#fff2f3;border-color:#ecd0d3;color:#b23440}
+.ah-section-head{display:flex;align-items:center;gap:8px;margin-bottom:13px;color:#1975AE}
+.ah-section-head h3{font-size:1.03rem;line-height:1.2;color:#233e60;font-weight:700;flex:1;margin:0}
+.ah-section-head>span{font-size:.74rem;color:#74899a}
+.ah-list{display:flex;flex-direction:column;gap:8px}
+.ah-person,.ah-device{border:1px solid #d4e0e9;border-radius:4px;background:#fff;padding:11px}
+.ah-person{display:flex;gap:9px;align-items:flex-start}
+.ah-avatar{display:grid;place-items:center;width:39px;height:39px;flex:0 0 39px;background:#e5f3fb;color:#1975AE;border-radius:4px}
+.ah-person-info{display:flex;flex-direction:column;gap:4px;min-width:0;flex:1}
+.ah-person-name{display:flex;align-items:center;flex-wrap:wrap;gap:7px}
+.ah-person-name strong{font-size:.83rem;line-height:1.2;color:#20395b;font-weight:600;overflow-wrap:anywhere}
+.ah-role{padding:3px 6px;background:#e3f1fb;color:#236e9e;border-radius:4px;font-size:.66rem}
+.ah-person-info small,.ah-device-title small,.ah-person-info p{font-size:.73rem;line-height:1.35;color:#627b91;margin:0}
+.ah-badge{display:inline-block;align-self:flex-start;font-size:.67rem;padding:3px 7px;border-radius:4px;background:#e7f3fc;color:#236594;font-weight:600}
+.ah-bloqueado,.ah-sospechoso,.ah-alerta{background:#ffe9ea;color:#aa2838}
+.ah-nunca{background:#edf2f6;color:#6b7d8b}
+.ah-reciente{background:#eaf7ed;color:#278048}
+.ah-primary,.ah-outline,.ah-danger{font:inherit;font-size:.73rem;font-weight:600;border-radius:4px;min-height:34px;padding:7px 9px;cursor:pointer;border:1px solid #1975AE;background:#1975AE;color:#fff;transition:background .18s}
+.ah-primary{align-self:flex-end}
+.ah-outline{background:#fff;color:#1975AE}
+.ah-danger{background:#fff;color:#bb2c3a;border-color:#dd3643}
+.ah-device{display:flex;flex-direction:column;gap:9px}
+.ah-device-title{display:flex;gap:9px;align-items:flex-start}
+.ah-device-title>div{display:flex;flex-direction:column;gap:4px;min-width:0;flex:1}
+.ah-device-title strong{font-size:.83rem;font-weight:600;color:#243e61;overflow-wrap:anywhere}
+.ah-device-title .ah-badge{flex-shrink:0}
+.ah-device-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:7px 0;border-block:1px solid #e6edf3}
+.ah-device-stats span{display:flex;flex-direction:column;gap:3px;font-size:.69rem;color:#6b8197}
+.ah-device-stats strong{font-size:.79rem;font-weight:600;color:#274663;overflow-wrap:anywhere}
+.ah-device-info{font-size:.69rem;line-height:1.5;color:#788a9a;overflow-wrap:anywhere}
+.ah-device-info code,.ah-dialog code{font-family:ui-monospace,monospace;font-size:.68rem}
+.ah-device-buttons{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ah-device-buttons button{white-space:normal}
+.ah-footer{display:flex;align-items:center;flex-wrap:wrap;justify-content:space-between;gap:10px;margin-top:14px;font-size:.74rem;color:#73899c}
+.ah-pages,.ah-detail-pages{display:flex;align-items:center;gap:4px}
+.ah-pages button,.ah-detail-pages button{font:inherit;font-size:.76rem;padding:5px 7px;border:1px solid #c6d9e7;border-radius:4px;background:#fff;color:#21618f;min-width:30px;cursor:pointer}
+.ah-pages button.active{background:#1975AE;color:#fff}
+.ah-pages button:disabled,.ah-detail-pages button:disabled{opacity:.4;cursor:default}
+.ah-empty{text-align:center;padding:27px 12px;color:#6b8295;font-size:.85rem}
+.ah-error{color:#a8353c}.ah-error button{display:block;margin:10px auto;padding:8px 12px;background:#fff;border:1px solid #bd7d80;color:#a8353c;border-radius:4px}
+.ah-overlay{position:fixed;inset:0;z-index:13000;display:flex;align-items:center;justify-content:center;background:rgba(12,31,49,.5);padding:13px}
+.ah-dialog{width:min(100%,540px);max-height:87dvh;display:flex;flex-direction:column;overflow:hidden;background:#fff;border:1px solid #b6cfdf;border-radius:4px;color:#274864}
+.ah-dialog>header{display:flex;align-items:center;gap:10px;background:#1975AE;color:#fff;padding:14px}
+.ah-dialog>header h3{margin:0;font-size:1rem;font-weight:600;flex:1}
+.ah-dialog>header button{color:#fff;border:0;background:none;padding:5px}
+.ah-dialog-text{padding:6px 15px 0;font-size:.79rem;line-height:1.5}
+.ah-dialog-text p{overflow-wrap:anywhere}
+#ah-block-form{padding:14px;display:flex;flex-direction:column;gap:12px}
+#ah-block-form label{display:flex;flex-direction:column;gap:8px;font-size:.81rem}
+#ah-block-form textarea{padding:9px;border:1px solid #bbd2e1;border-radius:4px;min-height:91px;font:inherit;resize:vertical}
+#ah-block-form footer{display:flex;gap:8px;justify-content:flex-end}
+.ah-detail-body{padding:14px;overflow-y:auto;overscroll-behavior:contain}
+.ah-detail-body h4{font-size:.85rem;font-weight:600;margin:7px 0 11px}
+.ah-event,.ah-related{display:flex;flex-direction:column;gap:5px;padding:9px 8px;margin-bottom:7px;border:1px solid #d9e6ef;border-radius:4px}
+.ah-event>div{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.ah-event strong,.ah-related strong{font-size:.8rem;font-weight:600}
+.ah-event small,.ah-related small{font-size:.72rem;line-height:1.4;color:#637d95;overflow-wrap:anywhere}
+.ah-detail-pages{justify-content:center;gap:12px;margin-top:12px;font-size:.76rem}
+@media(max-width:680px){.ah-root{gap:10px}.ah-controls,.ah-section{padding:9px}.ah-tabs{gap:4px}.ah-tabs button{min-height:57px;font-size:.7rem}
+ .ah-kpis{gap:5px}.ah-kpi{min-height:77px;padding:8px 4px}.ah-kpi strong{font-size:1.1rem}.ah-kpi span{font-size:.66rem}
+ .ah-person,.ah-device{padding:8px;gap:7px}.ah-avatar{width:32px;height:32px;flex-basis:32px}.ah-avatar svg{width:20px;height:20px}
+ .ah-person-info p,.ah-person-info small{font-size:.69rem}.ah-person-name strong{font-size:.77rem}.ah-primary{padding:7px;font-size:.67rem;white-space:normal}
+ .ah-section-head h3{font-size:.91rem}.ah-footer{justify-content:center;text-align:center}
+ .ah-device-title strong{font-size:.78rem}.ah-device-title>.ah-badge{font-size:.62rem}
+}
+@media(max-width:375px){.ah-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.ah-device-buttons{grid-template-columns:1fr}.ah-person{flex-wrap:wrap}.ah-primary{margin-left:auto}.ah-kpi svg{display:none}.ah-kpi{min-height:65px}}
+@media(prefers-reduced-motion:reduce){.ah-tabs button,.ah-primary,.ah-outline,.ah-danger{transition:none}}
