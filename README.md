@@ -6,7 +6,14 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.103
+RoqueObjetiva v175.104
+
+## v175.104 · Zona libre para todas las pantallas bajo el dock
+
+- Se unifica la reserva inferior de 112px más safe-area móvil para todas las pantallas de Docente, Dirección de grupo, Coordinador, Administrador y Estudiante.
+- Se corrige la cascada previa que usaba distintas reservas de 84, 86 y 88px; el contenido al final de cada vista puede desplazarse por encima del dock.
+- La reserva es CSS independiente (`css/dock-content-clearance.css`) y se coloca después de todos los estilos; el dock conserva intactos HTML, animaciones, posición, estados y navegación.
+- Se agrega scroll-padding para desplazamientos programáticos, soporte de notch/safe-area y excepción de impresión. Sin cambios de JS funcional, datos ni Supabase.
 
 ## v175.103 · Historial registra únicamente accesos manuales
 

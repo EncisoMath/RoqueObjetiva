@@ -1,0 +1,48 @@
+/* RoqueObjetiva v175.104 — Espacio real al final de TODAS las pantallas con dock.
+   Sólo afecta al contenido desplazable; no modifica los botones ni las
+   animaciones, capas, tamaño o posicionamiento del dock. */
+:root {
+  --roque-dock-content-clearance: calc(112px + env(safe-area-inset-bottom, 0px));
+}
+
+/* Docente, Dirección de grupo, Coordinador y las opciones administrativas
+   abiertas desde un docente. Las reglas previas reservaban apenas 84–86px. */
+.roque-teacher-shell .page {
+  box-sizing: border-box;
+  padding-bottom: var(--roque-dock-content-clearance) !important;
+  scroll-padding-bottom: var(--roque-dock-content-clearance);
+}
+
+/* Estudiante: el dock persistente queda fuera de #app, pero la zona segura
+   se reserva dentro de cada informe, historial y detalle. */
+.roque-student-shell .page {
+  box-sizing: border-box;
+  padding-bottom: var(--roque-dock-content-clearance) !important;
+  scroll-padding-bottom: var(--roque-dock-content-clearance);
+}
+
+/* Administrador institucional: .page tiene padding:0 y el contenido completo
+   se encuentra dentro de .adm151-workspace; reservar espacio AQUÍ evita
+   crear espacios intermedios o modificar el encabezado y la navegación. */
+.adm151-shell .adm151-workspace {
+  box-sizing: border-box;
+  padding-bottom: var(--roque-dock-content-clearance) !important;
+  scroll-padding-bottom: var(--roque-dock-content-clearance);
+}
+
+/* Al hacer scroll hacia un control o elemento, también conservar la zona
+   ocupada por el dock fijo y su margen de seguridad. */
+html:has(.roque-teacher-shell .t160-dock),
+html:has(.adm151-shell .t160-dock),
+html:has(#student-dock-root .student-bottom-dock) {
+  scroll-padding-bottom: var(--roque-dock-content-clearance);
+}
+
+@media print {
+  .roque-teacher-shell .page,
+  .roque-student-shell .page,
+  .adm151-shell .adm151-workspace {
+    padding-bottom: 0 !important;
+    scroll-padding-bottom: 0;
+  }
+}
