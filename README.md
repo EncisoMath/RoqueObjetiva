@@ -6,7 +6,15 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.101
+RoqueObjetiva v175.102
+
+## v175.102 · Auditoría de accesos verificada
+
+- Indicadores específicos: profesores conectados en los últimos 30 minutos, conexiones docentes del día, estudiantes que consultaron, estudiantes sin consultar y último acceso.
+- Datos visibles de modelo/navegador por profesor e ID de prueba en el listado estudiantil.
+- Comprobación de dispositivos bloqueados también en la ruta SQL de login anterior; accesos de operador Auth vinculados a su identidad institucional; intentos fallidos asociados al usuario intentado solo en la auditoría.
+- Basada conceptualmente en el funcionamiento público de WhatPhone, con detector original, sin copiar código ni bases de modelos externas. No se verificó una licencia concreta de su sitio.
+- Migraciones reproducibles de las tres funciones modificadas en `supabase/51-53`. Nueva caché de PWA.
 
 ## v175.101 · Historial de accesos (solo Administrador)
 

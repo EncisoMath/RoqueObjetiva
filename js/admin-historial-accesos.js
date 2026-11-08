@@ -41,22 +41,22 @@ function filters(){
 }
 function kpis(){
  const m=S.metrics,values=S.tab==="dispositivos"?
- [["screen","Dispositivos",m.dispositivos||0],["refresh","Conexiones",m.accesos||0],["shield","Bloqueados",m.bloqueados||0]]:
+ [["screen","Dispositivos únicos",nf(m.dispositivos||0)],["refresh","Conexiones",nf(m.accesos||0)],["shield","Bloqueados",nf(m.bloqueados||0)]]:
  S.tab==="profesores"?
- [["screen","Conexiones hoy",m.hoy||0],["people","Accesos registrados",m.accesos||0],["warning","Alertas recientes",m.alertas||0]]:
- [["people","Conexiones hoy",m.hoy||0],["clock","Accesos",m.accesos||0],["warning","Fallos de acceso",m.fallidos||0]];
- return '<div class="ah-kpis">'+values.map((v,i)=>'<article class="ah-kpi'+(i===2?' ah-kpi-alert':'')+'">'+icon(v[0],24)+'<strong>'+nf(v[2])+'</strong><span>'+e(v[1])+'</span></article>').join("")+'</div>';
+ [["screen","Conexiones hoy",nf(m.accesos_docentes_hoy||0)],["people","Docentes conectados",nf(m.docentes_conectados||0)],["warning","Alertas recientes",nf(m.alertas||0)]]:
+ [["people","Consultaron hoy",nf(m.estudiantes_hoy||0)],["clock","Sin consultar",nf(m.estudiantes_sin_consultar||0)],["clock","Último acceso",dt(m.ultimo_estudiante)]];
+ return '<div class="ah-kpis">'+values.map((v,i)=>'<article class="ah-kpi'+(i===2&&S.tab!=="estudiantes"?' ah-kpi-alert':'')+(i===2&&S.tab==="estudiantes"?' ah-kpi-time':'')+'">'+icon(v[0],24)+'<strong>'+e(v[2])+'</strong><span>'+e(v[1])+'</span></article>').join("")+'</div>';
 }
 const statusText=v=>({bloqueado:"Bloqueado",sospechoso:"Actividad por revisar",activo:"Activo",nunca:"Sin consultar",consultado:"Consultado",reciente:"Reciente",alerta:"Alerta",registrado:"Registrado"}[v]||v||"Sin actividad");
 const badge=v=>'<span class="ah-badge ah-'+e(v||"nunca")+'">'+e(statusText(v))+'</span>';
 function person(x){
  const teacher=S.tab==="profesores",detail=teacher?
- [x.sede,x.sistema,x.navegador].filter(Boolean).join(" · "):
+ [x.sede,x.marca,x.modelo,x.sistema,x.navegador].filter(Boolean).map(labelSite).join(" · "):
  [x.grado?x.grado+"°":"",x.curso,x.sede].filter(Boolean).map(labelSite).join(" · ");
  return '<article class="ah-person"><span class="ah-avatar">'+icon(teacher?"person":"people",23)+'</span>'+
  '<div class="ah-person-info"><div class="ah-person-name"><strong>'+e(x.nombre||x.clave)+'</strong>'+
  '<span class="ah-role">'+e(teacher?x.rol||"docente":"Estudiante")+'</span></div>'+
- '<small>'+e(detail)+'</small><p>Último acceso: '+e(dt(x.ultimo))+'</p>'+
+ '<small>'+e(detail)+'</small>'+(teacher?"":'<small>ID de prueba: '+e(x.clave)+'</small>')+'<p>Último acceso: '+e(dt(x.ultimo))+'</p>'+
  '<p>Conexiones: '+nf(x.accesos)+' · Dispositivos: '+nf(x.dispositivos)+
  (Number(x.fallidos)>0?' · Fallos: '+nf(x.fallidos):"")+'</p>'+badge(x.estado)+'</div>'+
  '<button type="button" class="ah-primary" data-ah-detail="'+e(x.clave)+'">Ver historial</button></article>';
