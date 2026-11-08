@@ -6,7 +6,15 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.102
+RoqueObjetiva v175.103
+
+## v175.103 · Historial registra únicamente accesos manuales
+
+- El ingreso manual desde formulario o acceso reciente genera **un** evento de historial `login_manual`; la restauración tras actualizar o abrir la PWA y las comprobaciones internas de edición 2573 no añaden eventos ni actualizan el último acceso del dispositivo.
+- El bloqueo del navegador sigue validándose en SQL para ambos tipos de solicitud. Los intentos manuales bloqueados generan `bloqueado_manual`. Sin alterar las reglas preexistentes de limitación, permisos y acceso estudiantil.
+- Bloqueo en JavaScript de solicitudes simultáneas para impedir duplicados por doble toque del formulario.
+- Los registros históricos antiguos se preservan y se muestran como «Acceso anterior (origen no identificado)», ya que no se puede determinar retrospectivamente cuáles fueron manuales.
+- Nueva función SQL de login auditado y ampliación del CHECK de tipos de evento; archivos `supabase/54_historial_solo_login_manual_v175_103.sql` y `supabase/55_historial_tipos_evento_v175_103.sql`. Renovada la caché PWA.
 
 ## v175.102 · Auditoría de accesos verificada
 

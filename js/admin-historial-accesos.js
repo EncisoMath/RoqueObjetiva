@@ -91,10 +91,18 @@ function rows(){
  '<footer class="ah-footer">Mostrando '+nf((S.page-1)*S.size+1)+'–'+nf(Math.min(S.page*S.size,S.total))+
  ' de '+nf(S.total)+' registros'+pages()+'</footer>';
 }
+function eventName(value){
+ return ({
+   login_manual:"Inicio de sesión manual",
+   bloqueado_manual:"Intento manual bloqueado",
+   login:"Acceso anterior (origen no identificado)",
+   bloqueado:"Intento bloqueado anterior"
+ })[value]||value||"Acceso";
+}
 function events(){
  if(!S.detail)return "";
  const events=(S.detail.filas||[]).map(x=>'<article class="ah-event"><div><strong>'+e(dt(x.fecha_hora))+'</strong>'+
- badge(x.exitoso?"activo":"bloqueado")+'</div><small>'+e([x.evento,x.rol,x.id_prueba||x.id_docente||x.usuario].filter(Boolean).join(" · "))+'</small>'+
+ badge(x.exitoso?"activo":"bloqueado")+'</div><small>'+e([eventName(x.evento),x.rol,x.id_prueba||x.id_docente||x.usuario].filter(Boolean).join(" · "))+'</small>'+
  '<small>'+e([x.modelo,x.sistema,x.version_so,x.navegador,x.version_navegador].filter(Boolean).join(" · "))+'</small></article>').join("");
  const users=(S.detail.usuarios||[]).map(x=>'<div class="ah-related"><strong>'+e(x.nombre||x.clave||"Sin identificar")+'</strong>'+
  '<small>'+e(x.rol||"")+" · "+nf(x.accesos)+' accesos · '+e(dt(x.ultimo))+'</small></div>').join("");

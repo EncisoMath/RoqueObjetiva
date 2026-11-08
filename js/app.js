@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.102";
+  const APP_VERSION = "v175.103";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -1189,11 +1189,17 @@
     }
   }
   async function studentLoginRpc(user, pass = "", options = {}) {
+    const details = await (window.RoqueDeviceAudit?.detect?.() || Promise.resolve({}));
     const params = {
       p_user: user, p_password: pass || "",
       p_terminal: terminalIdForConsultation(),
       p_device: deviceInfoText(), p_mode: options.history2573 === true ? "roque_historico_2026_1s_2573" : appModeText(),
-      p_client: await (window.RoqueDeviceAudit?.detect?.() || Promise.resolve({}))
+      // Solamente el botón de ingreso manual genera un evento de historial.
+      // Todas las verificaciones automáticas siguen pasando por el bloqueo SQL.
+      p_client: {
+        ...(details && typeof details === "object" && !Array.isArray(details) ? details : {}),
+        origen_acceso: options.manual === true ? "manual" : "automatico"
+      }
     };
     // RPC auditada: valida bloqueos del identificador antes del login normal
     // y registra accesos autorizados o denegados sin UI adicional.
@@ -1652,7 +1658,11 @@
       ? CONSULTATION_BLOCK_MESSAGE
       : (payload?.error || "No fue posible iniciar sesión.");
   }
+  // Evita dos solicitudes de ingreso por doble toque/clic o doble envío del formulario.
+  let loginWithSupabasePending = false;
   async function loginWithSupabase(user, pass = "", options = {}) {
+    if (loginWithSupabasePending) return;
+    loginWithSupabasePending = true;
     const parsedLogin = parseRankingLoginInput(user);
     const cleanUser = parsedLogin.login;
     const wantsRankingDebug = !!(options.rankingDebug || parsedLogin.rankingDebug);
@@ -1672,7 +1682,7 @@
       if (cleanUser === "admin") return renderLogin("No se encontró ese usuario.");
       if (cleanUser.includes("@")) {
         const auth = await signInAdmin(cleanUser, pass);
-        payload = await studentLoginRpc("admin", "");
+        payload = await studentLoginRpc("admin", "", { manual: options.restore !== true });
         if (!payload?.ok || payload?.session?.role !== "admin") {
           adminAuthSession = null;
           return renderLogin("Esta cuenta no está autorizada como administrador.");
@@ -1682,7 +1692,7 @@
           catch (error) { console.warn("No se pudo precargar las ediciones:",error); }
         }
       } else {
-        payload = await studentLoginRpc(cleanUser, pass);
+        payload = await studentLoginRpc(cleanUser, pass, { manual: options.restore !== true });
       }
       if (!payload?.ok) {
         return renderLogin(readableLimitMessage(payload));
@@ -1753,6 +1763,8 @@
       if (cleanUser.includes("@")) adminAuthSession = null;
       console.error(error);
       return renderLogin(error.message || "No fue posible conectar con Supabase.");
+    } finally {
+      loginWithSupabasePending = false;
     }
   }
 
