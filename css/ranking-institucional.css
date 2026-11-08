@@ -1,4 +1,4 @@
-/* RoqueObjetiva v175.99 · Ranking institucional, flat y móvil primero. */
+/* RoqueObjetiva v175.100 · Medallas con cintas detrás del círculo. */
 .rir-root{box-sizing:border-box;display:flex;flex-direction:column;gap:14px;min-width:0;color:#20385d;width:100%}
 .rir-root *{box-sizing:border-box}
 .rir-filter-card,.rir-kpi,.rir-panel{background:#fff;border:1px solid #cbddeb;border-radius:4px;box-shadow:none}
@@ -25,11 +25,15 @@
 .rir-row{padding:7px 9px;border-bottom:1px solid #d6e4ef;min-height:52px}
 .rir-cell-pos{display:flex;align-items:center}
 .rir-place{display:grid;place-items:center;min-width:44px;height:32px;padding:0 8px;border-radius:4px;background:#e1f0fb;color:#205070;font-weight:700}
-.rir-medal{position:relative;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;border:3px solid #e0b341;background:#ffd66b;color:#6a4a16;font-weight:800;isolation:isolate}
-.rir-medal:before,.rir-medal:after{content:"";position:absolute;bottom:-8px;width:12px;height:17px;z-index:-1;background:#dd7951;clip-path:polygon(0 0,100% 0,100% 100%,50% 75%,0 100%)}
+.rir-medal{position:relative;display:grid;place-items:center;width:40px;height:40px;color:#6a4a16;font-weight:800;isolation:isolate;flex-shrink:0}
+.rir-medal:before,.rir-medal:after{content:"";position:absolute;bottom:-8px;width:12px;height:17px;z-index:0;background:#dd7951;clip-path:polygon(0 0,100% 0,100% 100%,50% 75%,0 100%)}
 .rir-medal:before{left:4px;transform:rotate(15deg)}.rir-medal:after{right:4px;transform:rotate(-15deg)}
-.rir-medal-2{background:#cbd5e1;border-color:#a4b7c8;color:#4e6275}.rir-medal-2:before,.rir-medal-2:after{background:#899fb0}
-.rir-medal-3{background:#e2a271;border-color:#c5885b;color:#6c421d}.rir-medal-3:before,.rir-medal-3:after{background:#bc7d4e}
+/* El disco tiene su propia capa por encima de ambas cintas en los tres puestos. */
+.rir-medal-face{position:relative;z-index:1;display:grid;place-items:center;width:100%;height:100%;border-radius:50%;border:3px solid #e0b341;background:#ffd66b}
+.rir-medal-2{color:#4e6275}.rir-medal-2 .rir-medal-face{background:#cbd5e1;border-color:#a4b7c8}
+.rir-medal-2:before,.rir-medal-2:after{background:#899fb0}
+.rir-medal-3{color:#6c421d}.rir-medal-3 .rir-medal-face{background:#e2a271;border-color:#c5885b}
+.rir-medal-3:before,.rir-medal-3:after{background:#bc7d4e}
 .rir-row.rir-top{border:0;border-radius:4px;min-height:64px;margin:3px 0}
 .rir-top-1{background:#fff5dd}.rir-top-2{background:#f0f4f8}.rir-top-3{background:#fff1e8}
 .rir-cell-student{display:flex;flex-direction:column;min-width:0;gap:3px}

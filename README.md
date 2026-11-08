@@ -6,7 +6,13 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.99
+RoqueObjetiva v175.100
+
+## v175.100 · Medallas del ranking corregidas
+
+- Los tres primeros puestos muestran el círculo en una capa superior a las dos cintas; el lazo queda visualmente detrás de la medalla en oro, plata y bronce, también en móviles.
+- Sin cambios en posiciones, notas, filtros, consulta RPC, otras pantallas, permisos o Supabase.
+- Actualizados los recursos y caché PWA para cargar el CSS corregido.
 
 ## v175.99 · Ranking institucional (Coordinador)
 

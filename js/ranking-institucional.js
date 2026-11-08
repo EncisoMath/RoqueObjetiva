@@ -1,4 +1,4 @@
-/* RoqueObjetiva v175.99 · Ranking institucional */
+/* RoqueObjetiva v175.100 · Medallas con cintas detrás del círculo */
 (()=>{"use strict";
 const S={owner:"",edition:"",site:"",grade:"",course:"",search:"",page:1,limit:15,request:0,busy:false,error:"",data:null,options:{sedes:[],grados:[],cursos:[]},timer:null};
 let api=null;
@@ -26,7 +26,7 @@ function kpis(){const d=S.data||{};return [
  ['star','Puntaje más alto',number(d.puntaje_maximo)]
  ].map(v=>'<article class="rir-kpi"><span class="rir-kpi-icon">'+icon(v[0],29)+'</span><div><span class="rir-kpi-label">'+esc(v[1])+'</span><strong class="rir-kpi-number">'+esc(v[2])+'</strong></div></article>').join("");}
 function row(item){const n=Number(item.posicion)||0,first=n>=1&&n<=3;
- const marker=first?'<span class="rir-medal rir-medal-'+n+'" aria-label="Puesto '+n+'">'+n+'</span>':'<span class="rir-place">'+esc(n)+'</span>';
+ const marker=first?'<span class="rir-medal rir-medal-'+n+'" aria-label="Puesto '+n+'"><span class="rir-medal-face">'+n+'</span></span>':'<span class="rir-place">'+esc(n)+'</span>';
  const subtitle=Number(item.grado)+"°-"+String(item.curso||"")+(S.site?"":" · "+siteName(String(item.sede||"")));
  return '<div class="rir-row'+(first?' rir-top rir-top-'+n:'')+'" role="row">'+
  '<span class="rir-cell-pos" role="cell">'+marker+'</span>'+
