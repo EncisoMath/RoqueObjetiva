@@ -6,7 +6,15 @@ Permite a estudiantes, docentes y directivos revisar resultados académicos, pun
 
 ## Versión
 
-RoqueObjetiva v175.100
+RoqueObjetiva v175.101
+
+## v175.101 · Historial de accesos (solo Administrador)
+
+- Nueva pantalla Administrador → Historial de accesos con pestañas Profesores, Estudiantes y Dispositivos, KPI, filtros, búsqueda, paginación, modal cronológico y usuarios por navegador.
+- Inicios de sesión por `roque_v21_login_auditado`, que registra autorizaciones y fallos y aplica bloqueos en servidor. Los bloqueos requieren confirmación y motivo y quedan auditados en Supabase.
+- Detección propia sin permisos del dispositivo, con grado de confianza: modelo detectado/estimado/desconocido. La UUID aleatoria es la misma del control de consultas y no identifica físicamente al teléfono.
+- Solo administradores: Auth institucional o docente con rol administrador y sesión temporal vigente. Los otros módulos y las dos ediciones permanecen intactos.
+- Registro histórico nuevo: comienza vacío, sin inventar eventos anteriores. Se renueva caché PWA.
 
 ## v175.100 · Medallas del ranking corregidas
 

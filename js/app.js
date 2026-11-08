@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.100";
+  const APP_VERSION = "v175.101";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -1192,21 +1192,12 @@
     const params = {
       p_user: user, p_password: pass || "",
       p_terminal: terminalIdForConsultation(),
-      p_device: deviceInfoText(), p_mode: options.history2573 === true ? "roque_historico_2026_1s_2573" : appModeText()
+      p_device: deviceInfoText(), p_mode: options.history2573 === true ? "roque_historico_2026_1s_2573" : appModeText(),
+      p_client: await (window.RoqueDeviceAudit?.detect?.() || Promise.resolve({}))
     };
-    try {
-      // v169: mismo login protegido, datos academicos de roque_private (2026-1S).
-      // La funcion SQL conserva el control de consultas y revierte a public
-      // si detecta diferencias entre los datos de ambos esquemas.
-      return await supabaseRpc("roque_v8_login_controlado_private", params);
-    } catch (error) {
-      // Solo si la nueva funcion NO EXISTE aun en el servidor.
-      // No sortear bloqueos, errores de acceso ni restricciones por rol.
-      if (error?.status === 404 && error?.code === "PGRST202") {
-        return supabaseRpc("roque_v2_login_controlado", params);
-      }
-      throw error;
-    }
+    // RPC auditada: valida bloqueos del identificador antes del login normal
+    // y registra accesos autorizados o denegados sin UI adicional.
+    return supabaseRpc("roque_v21_login_auditado",params);
   }
 
   // Portada de evaluaciones: metadatos no sensibles publicados por Supabase.
@@ -3059,7 +3050,7 @@
   }
 
   function adminTabIds() {
-    return new Set(["asignaturas","director","mover","estadisticas","ranking","consultar","claves","docentes","asignaturas-areas","restricciones"]);
+    return new Set(["asignaturas","director","mover","estadisticas","ranking","consultar","historial-accesos","claves","docentes","asignaturas-areas","restricciones"]);
   }
 
   function handleHashRoute() {
@@ -4211,6 +4202,11 @@
             rpc:supabaseRpc,notify:toast,role:"teacher",
             id:state.activeSession.id,session:state.coordSession,edition
           })||'<div class="empty-state">No se pudo cargar Consultar estudiante.</div>';
+        }else if(state.teacherMode==="staff-admin-historial-accesos"){
+          content=window.RoqueAccessAudit?.render({
+            rpc:supabaseRpc,notify:toast,role:"teacher",
+            id:state.activeSession.id,session:state.coordSession
+          })||'<div class="empty-state">No se pudo cargar Historial de accesos.</div>';
         }
         renderShell('<section class="teacher-staff-admin-workspace">'+content+
           '</section>',navFor("teacher"));
@@ -4646,7 +4642,7 @@
     if (mode === "director") return (teacher.directorGroups || []).length > 0;
     if (["coord-mover","coord-estadisticas","coord-ranking"].includes(mode))
       return ["coordinador","administrador"].includes(staffRoleOf(teacher));
-    if (["staff-admin-asignaturas-areas","staff-admin-docentes","staff-admin-claves","staff-admin-restricciones","staff-admin-consultar"].includes(mode))
+    if (["staff-admin-asignaturas-areas","staff-admin-docentes","staff-admin-claves","staff-admin-restricciones","staff-admin-consultar","staff-admin-historial-accesos"].includes(mode))
       return staffRoleOf(teacher)==="administrador";
     return false;
   }
@@ -4822,7 +4818,7 @@
     sections.push(["logout","Cerrar sesión","logout"]);
     const isCurrent=(id)=>id==="coord"
       ? (isAdmin?["mover","estadisticas","ranking"].includes(mode):String(mode||"").startsWith("coord-"))
-      : id==="admin" ? (isAdmin?["asignaturas-areas","docentes","claves","restricciones","consultar"].includes(mode)
+      : id==="admin" ? (isAdmin?["asignaturas-areas","docentes","claves","restricciones","consultar","historial-accesos"].includes(mode)
         :String(mode||"").startsWith("staff-admin-"))
       : id===mode;
     const dock=sections.map(([id,title,icon])=>{
@@ -4867,13 +4863,15 @@
         ["restricciones","Restricciones y anulaciones","shield"],
         ["docentes","Personal docente","users"],
         ["claves","Claves de respuestas","key"],
-        ["consultar","Consultar estudiante","graduation"]
+        ["consultar","Consultar estudiante","graduation"],
+        ["historial-accesos","Historial de accesos","history"]
       ]:[
         ["staff-admin-asignaturas-areas","Asignaturas y áreas","layers"],
         ["staff-admin-restricciones","Restricciones y anulaciones","shield"],
         ["staff-admin-docentes","Personal docente","users"],
         ["staff-admin-claves","Claves de respuestas","key"],
-        ["staff-admin-consultar","Consultar estudiante","graduation"]
+        ["staff-admin-consultar","Consultar estudiante","graduation"],
+        ["staff-admin-historial-accesos","Historial de accesos","history"]
       ]));
     }
     return '<nav class="t160-dock" aria-label="Navegación '+(isAdmin?"administrativa":"docente")+
@@ -5244,7 +5242,7 @@
       ["ranking","Ranking institucional","trophy"]
     ]},
     {id:"administracion",title:"Administración",items:[
-      ["asignaturas-areas","Asignaturas y áreas","layers"],["restricciones","Restricciones y anulaciones","shield"],["claves","Claves de respuestas","key"],["docentes","Personal docente","users"],["consultar","Consultar estudiante","graduation"]
+      ["asignaturas-areas","Asignaturas y áreas","layers"],["restricciones","Restricciones y anulaciones","shield"],["claves","Claves de respuestas","key"],["docentes","Personal docente","users"],["consultar","Consultar estudiante","graduation"],["historial-accesos","Historial de accesos","history"]
     ]}
   ];
 
@@ -5253,6 +5251,7 @@
       house: '<path d="m3 10 9-7 9 7v10H3z"/><path d="M9 20v-7h6v7"/>',
       calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18m-12 5h6"/>',
       chart: '<path d="M4 20V11m6 9V5m6 15v-8m4 8V8"/>',
+      history: '<circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/>',
       trophy: '<path d="M7 4h10v7a5 5 0 0 1-10 0V4ZM7 6H3v4a4 4 0 0 0 4 4M17 6h4v4a4 4 0 0 1-4 4M12 16v4M8 21h8"/>',
       move: '<path d="M4 6h16m-4-4 4 4-4 4M20 18H4m4-4-4 4 4 4"/>',
       layers: '<path d="m12 2 9 5-9 5-9-5 9-5zM3 12l9 5 9-5M3 17l9 5 9-5"/>',
@@ -5538,6 +5537,9 @@
         ? window.RoqueRanking.render({rpc:supabaseRpc,notify:toast,role:"admin",id:"admin",
             edition:cleanText(state.academicEdition||"2026-2S")})
         : '<div class="empty-state">Módulo Ranking institucional no disponible.</div>';
+      case "historial-accesos": return window.RoqueAccessAudit
+        ? window.RoqueAccessAudit.render({rpc:supabaseRpc,notify:toast,role:"admin",id:"admin"})
+        : '<div class="empty-state">Módulo Historial de accesos no disponible.</div>';
       case "restricciones": return window.RoqueMedidas ? window.RoqueMedidas.render({
         rpc:supabaseRpc,notify:toast,owner:"auth-admin",
         edition:cleanText(state.academicEdition||"2026-2S")

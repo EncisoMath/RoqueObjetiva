@@ -22,7 +22,7 @@
    [/(?:CriOS|Chrome)\/([\d.]+)/,"Chrome"],
    [/Version\/([\d.]+).*Safari/,"Safari"]
   ]){const version=match(ua,re);if(version){navegador=name;version_navegador=version;break;}}
-  let sistema=pick(hints?.platform)||"Desconocido",version_so="";
+  let sistema=pick(hints?.platform)||pick(navigator.platform,60)||"Desconocido",version_so="";
   if(/Android/i.test(ua)){sistema="Android";version_so=match(ua,/Android\s+([\d.]+)/i);}
   else if(/iPhone|iPad|iPod/i.test(ua)){sistema="iOS/iPadOS";version_so=match(ua,/OS\s+([\d_]+)/).replace(/_/g,".");}
   else if(/Windows/i.test(ua)){sistema="Windows";version_so=match(ua,/Windows NT\s+([\d.]+)/);}
