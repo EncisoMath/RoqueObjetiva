@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.109";
+  const APP_VERSION = "v175.110";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -485,12 +485,16 @@
     try {
       // v170: mismos puestos, ahora calculados con claves/resultados de roque_private.
       // El SQL comprueba la edición visible y la visita autorizada de este terminal.
-      data = await supabaseRpc("roque_v3_ranking_controlado_edicion", {
+      const edition = cleanText(state.academicEdition || "2026-1S");
+      const rankingRpc = edition === "2026-2S"
+        ? "roque_v22_ranking_publicado_2s"
+        : "roque_v3_ranking_controlado_edicion";
+      data = await supabaseRpc(rankingRpc, {
         p_login: key, p_terminal: terminalIdForConsultation(),
-        p_edicion: cleanText(state.academicEdition || "2026-1S")
+        p_edicion: edition
       });
     } catch (error) {
-      if (error?.status === 404 && error?.code === "PGRST202") {
+      if (state.academicEdition !== "2026-2S" && error?.status === 404 && error?.code === "PGRST202") {
         // Solo cuando la RPC nueva todavía no exista; jamás eludir bloqueos.
         try {
           data = await supabaseRpc("roque_v2_ranking_controlado", {
