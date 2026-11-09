@@ -404,21 +404,21 @@
   color:#bd2525!important;
 }
 
-/* v175.108 · Dock de Coordinador/Administrador:
-   el estado azul depende del botón activo y nunca de la posición calculada
-   del marcador. Conserva el marcador animado original de Estudiantes. */
+/* v175.109 · El CSS de movimiento usa un selector con #student-dock-root
+   que tiene más especificidad que las reglas de estado del personal. #app
+   garantiza prioridad al botón activo y mantiene intacto el dock estudiantil. */
 :is(.roque-teacher-shell,.adm151-shell) .t160-dock::before {
   display: none;
 }
 :is(.roque-teacher-shell,.adm151-shell) .t160-dock .t160-dock-btn {
   transition: color .22s ease, background-color .22s ease, border-color .22s ease, transform .18s ease !important;
 }
-:is(.roque-teacher-shell,.adm151-shell) .t160-dock .t160-dock-btn.is-active {
+#app :is(.roque-teacher-shell,.adm151-shell) .t160-dock .t160-dock-btn.is-active {
   background: var(--orange, #1975ae) !important;
   border-color: var(--orange, #1975ae) !important;
   color: #fff !important;
 }
-:is(.roque-teacher-shell,.adm151-shell) .t160-dock .t160-dock-btn[data-menu][aria-expanded="true"]:not(.is-active) {
+#app :is(.roque-teacher-shell,.adm151-shell) .t160-dock .t160-dock-btn[data-menu][aria-expanded="true"]:not(.is-active) {
   background: #fff !important;
   border-color: transparent !important;
   color: var(--orange, #1975ae) !important;
