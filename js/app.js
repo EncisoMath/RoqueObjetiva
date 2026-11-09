@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.115";
+  const APP_VERSION = "v175.116";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -3687,6 +3687,14 @@
         else button.removeAttribute("aria-current");
         if (button.dataset.menu) button.setAttribute("aria-expanded", "false");
       });
+      // El dock docente se mantiene montado entre vistas: sincronizar también
+      // las opciones del menú, que antes retenían el azul de Estadísticas.
+      currentTeacherShell.querySelectorAll(".t160-menu-item[data-mode]").forEach((button) => {
+        const selected = button.dataset.mode === state.teacherMode;
+        button.classList.toggle("is-active", selected);
+        if (selected) button.setAttribute("aria-current", "page");
+        else button.removeAttribute("aria-current");
+      });
       syncDockMotion(teacherDock);
       syncPersistentStudentDock();
       return;
@@ -4635,7 +4643,7 @@
           }) : '<div class="empty-state">Módulo Estadísticas no disponible.</div>')
         : renderCoordinatorMover();
     renderShell(`
-      <section class="coordinator-admin-panel ${ranking ? "coord-ranking-panel" : stats ? "coord-stats-panel" : lookup ? "coord-lookup-panel" : "coord-mover-panel"}">${content}</section>
+      <section class="coordinator-admin-panel ${ranking ? "coord-ranking-panel" : stats ? "coord-stats-panel" : "coord-mover-panel"}">${content}</section>
     `, navFor("teacher"));
   }
 
