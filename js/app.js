@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.107";
+  const APP_VERSION = "v175.108";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -3639,7 +3639,9 @@
       teacherDock.querySelectorAll(".t160-dock-btn").forEach((button) => {
         const selected = button.dataset.menu === "coord"
           ? String(state.teacherMode || "").startsWith("coord-")
-          : Boolean(button.dataset.mode && button.dataset.mode === state.teacherMode);
+          : button.dataset.menu === "admin"
+            ? String(state.teacherMode || "").startsWith("staff-admin-")
+            : Boolean(button.dataset.mode && button.dataset.mode === state.teacherMode);
         button.classList.toggle("is-active", selected);
         if (selected && button.dataset.mode) button.setAttribute("aria-current", "page");
         else button.removeAttribute("aria-current");
@@ -5437,9 +5439,9 @@
       });
       dock.querySelectorAll(".t160-dock-btn").forEach(button=>{
         const active=button.dataset.menu==="coord"
-          ? ["mover","estadisticas","consultar"].includes(state.adminTab)
+          ? ["mover","estadisticas","ranking"].includes(state.adminTab)
           :button.dataset.menu==="admin"
-            ? ["asignaturas-areas","docentes","claves","restricciones"].includes(state.adminTab)
+            ? ["asignaturas-areas","docentes","claves","restricciones","consultar","historial-accesos"].includes(state.adminTab)
             :Boolean(button.dataset.tab&&button.dataset.tab===state.adminTab);
         button.classList.toggle("is-active",active);
         if(active)button.setAttribute("aria-current","page");
