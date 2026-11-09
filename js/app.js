@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.110";
+  const APP_VERSION = "v175.111";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -1742,13 +1742,33 @@
         state.teacherEditionBusy = false;
         await loadTeacherEditionCatalog();
         state.teacherActive = null;
-        state.teacherMode = "asignaturas";
+        const jaiderHome = isJaiderMorenoAdmin(teacher, id);
+        state.teacherMode = jaiderHome ? "coord-estadisticas" : "asignaturas";
         state.teacherDirectorActiveKey = "";
-        if (!(teacher?.assignments || []).length && (teacher?.directorGroups || []).length) state.teacherMode = "director";
-        if (!(teacher?.assignments || []).length && !(teacher?.directorGroups || []).length && teacher?.coordinator) state.teacherMode = "coord-mover";
+        if (!jaiderHome && !(teacher?.assignments || []).length && (teacher?.directorGroups || []).length) state.teacherMode = "director";
+        if (!jaiderHome && !(teacher?.assignments || []).length && !(teacher?.directorGroups || []).length && teacher?.coordinator) state.teacherMode = "coord-mover";
         state.zeroToleranceShown = false;
-        return enterSessionWithLoader({ role: "teacher", id,
-          staffRole:cleanText(session.staff_role||teacher.role||"docente").toLowerCase() },
+        const teacherSession = { role: "teacher", id,
+          staffRole:cleanText(session.staff_role||teacher.role||"docente").toLowerCase() };
+        const jaiderEdition = jaiderHome && state.teacherEditionCatalog.find(e =>
+          e.codigo === "2026-2S" && e.resultados_visibles &&
+          ["publicada","cerrada"].includes(e.estado))?.codigo;
+        if (jaiderEdition) {
+          // Jaider entra a estadísticas de 2026-2S sin la portada de elección.
+          // Esperar a cargar la edición real antes de presentar la pantalla.
+          state.activeSession = teacherSession;
+          writeJSON(STORAGE.session, teacherSession);
+          rememberRecentLogin(teacherSession);
+          fadeAppOut();
+          showRouteLoader("Preparando Estadísticas institucionales...");
+          try { await selectTeacherEdition(jaiderEdition); }
+          finally {
+            fadeAppIn();
+            window.setTimeout(hideRouteLoader, 180);
+          }
+          return;
+        }
+        return enterSessionWithLoader(teacherSession,
           () => renderTeacherEditionGate(), "Preparando selección de prueba...");
       }
 
@@ -3347,10 +3367,11 @@
         return renderLogin("Ese docente ya no aparece en la carga actual.");
       }
       state.teacherActive = null;
-      state.teacherMode = "asignaturas";
+      const jaiderHome = isJaiderMorenoAdmin(teacher, id);
+      state.teacherMode = jaiderHome ? "coord-estadisticas" : "asignaturas";
       state.teacherDirectorActiveKey = "";
-      if (!(teacher?.assignments || []).length && (teacher?.directorGroups || []).length) state.teacherMode = "director";
-      if (!(teacher?.assignments || []).length && !(teacher?.directorGroups || []).length && teacher?.coordinator) state.teacherMode = "coord-mover";
+      if (!jaiderHome && !(teacher?.assignments || []).length && (teacher?.directorGroups || []).length) state.teacherMode = "director";
+      if (!jaiderHome && !(teacher?.assignments || []).length && !(teacher?.directorGroups || []).length && teacher?.coordinator) state.teacherMode = "coord-mover";
       state.zeroToleranceShown = false;
       return enterSessionWithLoader({ role: "teacher", id,
         staffRole:cleanText(teacher.role||"docente").toLowerCase() },
@@ -4202,12 +4223,6 @@
             rpc:staffAdminRpc,notify:toast,role:"admin",
             id:state.activeSession.id,edition
           })||'<div class="empty-state">No se pudo cargar Claves de respuestas.</div>';
-        }else if(state.teacherMode==="staff-admin-consultar"){
-          // Misma consulta protegida que antes: cambia únicamente el menú y el modo.
-          content=window.RoqueStudentLookup?.render({
-            rpc:supabaseRpc,notify:toast,role:"teacher",
-            id:state.activeSession.id,session:state.coordSession,edition
-          })||'<div class="empty-state">No se pudo cargar Consultar estudiante.</div>';
         }else if(state.teacherMode==="staff-admin-historial-accesos"){
           content=window.RoqueAccessAudit?.render({
             rpc:supabaseRpc,notify:toast,role:"teacher",
@@ -4606,6 +4621,12 @@
     `, navFor("teacher"));
   }
 
+  // Cuenta institucional con inicio personalizado (sin alterar roles ni permisos).
+  function isJaiderMorenoAdmin(teacher, id) {
+    return cleanId(id || state.activeSession?.id) === "19616753" &&
+      cleanText(teacher?.role).toLowerCase() === "administrador";
+  }
+
   function staffRoleOf(teacher) {
     const fromSession=state.activeSession?.role==="teacher"
       ? cleanText(state.activeSession?.staffRole).toLowerCase() : "";
@@ -4646,9 +4667,9 @@
     if (!teacher) return false;
     if (mode === "asignaturas") return true;
     if (mode === "director") return (teacher.directorGroups || []).length > 0;
-    if (["coord-mover","coord-estadisticas","coord-ranking"].includes(mode))
+    if (["coord-mover","coord-estadisticas","coord-ranking","coord-consultar"].includes(mode))
       return ["coordinador","administrador"].includes(staffRoleOf(teacher));
-    if (["staff-admin-asignaturas-areas","staff-admin-docentes","staff-admin-claves","staff-admin-restricciones","staff-admin-consultar","staff-admin-historial-accesos"].includes(mode))
+    if (["staff-admin-asignaturas-areas","staff-admin-docentes","staff-admin-claves","staff-admin-restricciones","staff-admin-historial-accesos"].includes(mode))
       return staffRoleOf(teacher)==="administrador";
     return false;
   }
@@ -4815,16 +4836,18 @@
     const hasDirector=isAdmin
       ? [...state.teachers.values()].some(t=>(t.directorGroups||[]).length>0)
       : (teacher.directorGroups||[]).length>0;
-    const sections=[
-      ["asignaturas","Carga","book"]
-    ];
+    const sections=[];
+    // Solo el perfil administrativo de Jaider no muestra Carga.
+    if (isAdmin || !isJaiderMorenoAdmin(teacher, state.activeSession?.id)) {
+      sections.push(["asignaturas","Carga","book"]);
+    }
     if(hasDirector)sections.push(["director","Dirección de Grupo","graduation"]);
     if(coordinatorMenu)sections.push(["coord","Coordinador","users"]);
     if(adminMenu)sections.push(["admin","Administrador","shield"]);
     sections.push(["logout","Cerrar sesión","logout"]);
     const isCurrent=(id)=>id==="coord"
-      ? (isAdmin?["mover","estadisticas","ranking"].includes(mode):String(mode||"").startsWith("coord-"))
-      : id==="admin" ? (isAdmin?["asignaturas-areas","docentes","claves","restricciones","consultar","historial-accesos"].includes(mode)
+      ? (isAdmin?["mover","estadisticas","ranking","consultar"].includes(mode):String(mode||"").startsWith("coord-"))
+      : id==="admin" ? (isAdmin?["asignaturas-areas","docentes","claves","restricciones","historial-accesos"].includes(mode)
         :String(mode||"").startsWith("staff-admin-"))
       : id===mode;
     const dock=sections.map(([id,title,icon])=>{
@@ -4856,11 +4879,13 @@
         isAdmin?[
           ["mover","Mover estudiantes","move"],
           ["estadisticas","Estadísticas","chart"],
-          ["ranking","Ranking institucional","trophy"]
+          ["ranking","Ranking institucional","trophy"],
+          ["consultar","Consultar estudiante","graduation"]
         ]:[
           ["coord-mover","Mover estudiantes","move"],
           ["coord-estadisticas","Estadísticas","chart"],
-          ["coord-ranking","Ranking institucional","trophy"]
+          ["coord-ranking","Ranking institucional","trophy"],
+          ["coord-consultar","Consultar estudiante","graduation"]
         ]));
     }
     if(adminMenu){
@@ -4869,14 +4894,12 @@
         ["restricciones","Restricciones y anulaciones","shield"],
         ["docentes","Personal docente","users"],
         ["claves","Claves de respuestas","key"],
-        ["consultar","Consultar estudiante","graduation"],
         ["historial-accesos","Historial de accesos","history"]
       ]:[
         ["staff-admin-asignaturas-areas","Asignaturas y áreas","layers"],
         ["staff-admin-restricciones","Restricciones y anulaciones","shield"],
         ["staff-admin-docentes","Personal docente","users"],
         ["staff-admin-claves","Claves de respuestas","key"],
-        ["staff-admin-consultar","Consultar estudiante","graduation"],
         ["staff-admin-historial-accesos","Historial de accesos","history"]
       ]));
     }
@@ -5245,10 +5268,11 @@
     {id:"coordinacion",title:"Coordinación",items:[
       ["mover","Mover estudiantes","move"],
       ["estadisticas","Estadísticas","chart"],
-      ["ranking","Ranking institucional","trophy"]
+      ["ranking","Ranking institucional","trophy"],
+      ["consultar","Consultar estudiante","graduation"]
     ]},
     {id:"administracion",title:"Administración",items:[
-      ["asignaturas-areas","Asignaturas y áreas","layers"],["restricciones","Restricciones y anulaciones","shield"],["claves","Claves de respuestas","key"],["docentes","Personal docente","users"],["consultar","Consultar estudiante","graduation"],["historial-accesos","Historial de accesos","history"]
+      ["asignaturas-areas","Asignaturas y áreas","layers"],["restricciones","Restricciones y anulaciones","shield"],["claves","Claves de respuestas","key"],["docentes","Personal docente","users"],["historial-accesos","Historial de accesos","history"]
     ]}
   ];
 
@@ -5443,9 +5467,9 @@
       });
       dock.querySelectorAll(".t160-dock-btn").forEach(button=>{
         const active=button.dataset.menu==="coord"
-          ? ["mover","estadisticas","ranking"].includes(state.adminTab)
+          ? ["mover","estadisticas","ranking","consultar"].includes(state.adminTab)
           :button.dataset.menu==="admin"
-            ? ["asignaturas-areas","docentes","claves","restricciones","consultar","historial-accesos"].includes(state.adminTab)
+            ? ["asignaturas-areas","docentes","claves","restricciones","historial-accesos"].includes(state.adminTab)
             :Boolean(button.dataset.tab&&button.dataset.tab===state.adminTab);
         button.classList.toggle("is-active",active);
         if(active)button.setAttribute("aria-current","page");
@@ -7360,11 +7384,12 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
 
       if (state.teachers.has(user)) {
         state.teacherActive = null;
-        state.teacherMode = "asignaturas";
-        state.teacherDirectorActiveKey = "";
         const teacher = state.teachers.get(user);
-        if (!(teacher?.assignments || []).length && (teacher?.directorGroups || []).length) state.teacherMode = "director";
-        if (!(teacher?.assignments || []).length && !(teacher?.directorGroups || []).length && teacher?.coordinator) state.teacherMode = "coord-mover";
+        const jaiderHome = isJaiderMorenoAdmin(teacher, user);
+        state.teacherMode = jaiderHome ? "coord-estadisticas" : "asignaturas";
+        state.teacherDirectorActiveKey = "";
+        if (!jaiderHome && !(teacher?.assignments || []).length && (teacher?.directorGroups || []).length) state.teacherMode = "director";
+        if (!jaiderHome && !(teacher?.assignments || []).length && !(teacher?.directorGroups || []).length && teacher?.coordinator) state.teacherMode = "coord-mover";
         state.zeroToleranceShown = false;
         enterSessionWithLoader({ role: "teacher", id: user,
           staffRole:cleanText(teacher.role||"docente").toLowerCase() },
