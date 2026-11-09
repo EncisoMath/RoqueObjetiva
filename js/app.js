@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.114";
+  const APP_VERSION = "v175.115";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -4240,6 +4240,11 @@
             rpc:staffAdminRpc,notify:toast,role:"admin",
             id:state.activeSession.id,edition
           })||'<div class="empty-state">No se pudo cargar Claves de respuestas.</div>';
+        }else if(state.teacherMode==="staff-admin-consultar"){
+          content=window.RoqueStudentLookup?.render({
+            rpc:supabaseRpc,notify:toast,role:"teacher",
+            id:state.activeSession.id,session:state.coordSession,edition
+          })||'<div class="empty-state">No se pudo cargar Consultar estudiante.</div>';
         }else if(state.teacherMode==="staff-admin-historial-accesos"){
           content=window.RoqueAccessAudit?.render({
             rpc:supabaseRpc,notify:toast,role:"teacher",
@@ -4251,7 +4256,7 @@
         return;
       }
     }
-    if (state.teacherEditionMessage && !["coord-mover","coord-estadisticas","coord-ranking","coord-consultar"].includes(state.teacherMode)) {
+    if (state.teacherEditionMessage && !["coord-mover","coord-estadisticas","coord-ranking"].includes(state.teacherMode)) {
       renderShell('<section class="teacher-edition-empty" role="status">' +
         '<span class="teacher-edition-empty-icon" aria-hidden="true">📋</span><div>' +
         '<span>EDICIÓN ' + esc(state.teacherEditionSelected) + '</span>' +
@@ -4616,7 +4621,6 @@
 
   function renderCoordinatorPanel(teacher) {
     const stats=state.teacherMode==="coord-estadisticas";
-    const lookup=state.teacherMode==="coord-consultar";
     const ranking=state.teacherMode==="coord-ranking";
     const edition=cleanText(state.teacherEditionSelected||state.academicEdition||"2026-2S");
     const content=ranking
@@ -4624,11 +4628,6 @@
           rpc:supabaseRpc,notify:toast,role:"teacher",
           id:state.activeSession?.id,session:state.coordSession,edition
         }) : '<div class="empty-state">Módulo Ranking institucional no disponible.</div>')
-      : lookup
-      ? (window.RoqueStudentLookup ? window.RoqueStudentLookup.render({
-          rpc:supabaseRpc,notify:toast,role:"teacher",
-          id:state.activeSession?.id,session:state.coordSession,edition
-        }) : '<div class="empty-state">Módulo Consulta no disponible.</div>')
       : stats
         ? (window.RoqueStatistics ? window.RoqueStatistics.render({
             rpc:supabaseRpc,notify:toast,role:"teacher",
@@ -4690,9 +4689,9 @@
     if (!teacher) return false;
     if (mode === "asignaturas") return !isJaiderMorenoAdmin(teacher, teacher.id);
     if (mode === "director") return (teacher.directorGroups || []).length > 0;
-    if (["coord-mover","coord-estadisticas","coord-ranking","coord-consultar"].includes(mode))
+    if (["coord-mover","coord-estadisticas","coord-ranking"].includes(mode))
       return ["coordinador","administrador"].includes(staffRoleOf(teacher));
-    if (["staff-admin-asignaturas-areas","staff-admin-docentes","staff-admin-claves","staff-admin-restricciones","staff-admin-historial-accesos"].includes(mode))
+    if (["staff-admin-asignaturas-areas","staff-admin-docentes","staff-admin-claves","staff-admin-restricciones","staff-admin-consultar","staff-admin-historial-accesos"].includes(mode))
       return staffRoleOf(teacher)==="administrador";
     return false;
   }
@@ -4869,8 +4868,8 @@
     if(adminMenu)sections.push(["admin","Administrador","shield"]);
     sections.push(["logout","Cerrar sesión","logout"]);
     const isCurrent=(id)=>id==="coord"
-      ? (isAdmin?["mover","estadisticas","ranking","consultar"].includes(mode):String(mode||"").startsWith("coord-"))
-      : id==="admin" ? (isAdmin?["asignaturas-areas","docentes","claves","restricciones","historial-accesos"].includes(mode)
+      ? (isAdmin?["mover","estadisticas","ranking"].includes(mode):String(mode||"").startsWith("coord-"))
+      : id==="admin" ? (isAdmin?["asignaturas-areas","docentes","claves","restricciones","consultar","historial-accesos"].includes(mode)
         :String(mode||"").startsWith("staff-admin-"))
       : id===mode;
     const dock=sections.map(([id,title,icon])=>{
@@ -4902,13 +4901,11 @@
         isAdmin?[
           ["mover","Mover estudiantes","move"],
           ["estadisticas","Estadísticas","chart"],
-          ["ranking","Ranking institucional","trophy"],
-          ["consultar","Consultar estudiante","graduation"]
+          ["ranking","Ranking institucional","trophy"]
         ]:[
           ["coord-mover","Mover estudiantes","move"],
           ["coord-estadisticas","Estadísticas","chart"],
-          ["coord-ranking","Ranking institucional","trophy"],
-          ["coord-consultar","Consultar estudiante","graduation"]
+          ["coord-ranking","Ranking institucional","trophy"]
         ]));
     }
     if(adminMenu){
@@ -4917,12 +4914,14 @@
         ["restricciones","Restricciones y anulaciones","shield"],
         ["docentes","Personal docente","users"],
         ["claves","Claves de respuestas","key"],
+        ["consultar","Consultar estudiante","graduation"],
         ["historial-accesos","Historial de accesos","history"]
       ]:[
         ["staff-admin-asignaturas-areas","Asignaturas y áreas","layers"],
         ["staff-admin-restricciones","Restricciones y anulaciones","shield"],
         ["staff-admin-docentes","Personal docente","users"],
         ["staff-admin-claves","Claves de respuestas","key"],
+        ["staff-admin-consultar","Consultar estudiante","graduation"],
         ["staff-admin-historial-accesos","Historial de accesos","history"]
       ]));
     }
@@ -5291,11 +5290,10 @@
     {id:"coordinacion",title:"Coordinación",items:[
       ["mover","Mover estudiantes","move"],
       ["estadisticas","Estadísticas","chart"],
-      ["ranking","Ranking institucional","trophy"],
-      ["consultar","Consultar estudiante","graduation"]
+      ["ranking","Ranking institucional","trophy"]
     ]},
     {id:"administracion",title:"Administración",items:[
-      ["asignaturas-areas","Asignaturas y áreas","layers"],["restricciones","Restricciones y anulaciones","shield"],["claves","Claves de respuestas","key"],["docentes","Personal docente","users"],["historial-accesos","Historial de accesos","history"]
+      ["asignaturas-areas","Asignaturas y áreas","layers"],["restricciones","Restricciones y anulaciones","shield"],["claves","Claves de respuestas","key"],["docentes","Personal docente","users"],["consultar","Consultar estudiante","graduation"],["historial-accesos","Historial de accesos","history"]
     ]}
   ];
 
@@ -5490,9 +5488,9 @@
       });
       dock.querySelectorAll(".t160-dock-btn").forEach(button=>{
         const active=button.dataset.menu==="coord"
-          ? ["mover","estadisticas","ranking","consultar"].includes(state.adminTab)
+          ? ["mover","estadisticas","ranking"].includes(state.adminTab)
           :button.dataset.menu==="admin"
-            ? ["asignaturas-areas","docentes","claves","restricciones","historial-accesos"].includes(state.adminTab)
+            ? ["asignaturas-areas","docentes","claves","restricciones","consultar","historial-accesos"].includes(state.adminTab)
             :Boolean(button.dataset.tab&&button.dataset.tab===state.adminTab);
         button.classList.toggle("is-active",active);
         if(active)button.setAttribute("aria-current","page");
