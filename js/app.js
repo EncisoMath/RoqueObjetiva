@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.111";
+  const APP_VERSION = "v175.112";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -1432,6 +1432,21 @@
       toast("Esta prueba no está disponible en Supabase.");renderBySession();return;
     }
     state.teacherEditionSelected = code;
+    // Jaider trabaja mediante RPCs específicas de Coordinación. Evitar el
+    // RPC docente masivo: en 2026-2S recorre y enmascara cientos de exámenes
+    // y causaba los statement timeout al abrir Estadísticas.
+    if (isJaiderMorenoAdmin(state.teachers.get(id), id) &&
+        edition.resultados_visibles === true &&
+        ["publicada","cerrada"].includes(edition.estado)) {
+      state.academicEdition = code;
+      state.academicDataSource = "roque_private";
+      state.teacherEditionMessage = "";
+      state.teacherEditionBusy = false;
+      state.teacherActive = null;
+      state.teacherDirectorActiveKey = "";
+      renderTeacherWithMotion();
+      return;
+    }
     state.teacherEditionBusy = true;
     state.teacherEditionMessage = "Preparando la prueba " + code + "...";
     renderTeacherWithMotion();
@@ -4249,7 +4264,9 @@
     const isCoordinator = ["coordinador","administrador"].includes(staffRoleOf(teacher));
 
     if (state.teacherMode === "coord-graficas") state.teacherMode = "coord-mover";
-    if (!teacherModeAllowed(teacher, state.teacherMode)) state.teacherMode = hasAssignments ? "asignaturas" : (hasDirector ? "director" : (isCoordinator ? "coord-mover" : "asignaturas"));
+    if (!teacherModeAllowed(teacher, state.teacherMode)) state.teacherMode =
+      isJaiderMorenoAdmin(teacher, state.activeSession?.id) ? "coord-estadisticas" :
+      hasAssignments ? "asignaturas" : (hasDirector ? "director" : (isCoordinator ? "coord-mover" : "asignaturas"));
     if (isCoordinator && String(state.teacherMode || "").startsWith("coord-")) {
       return renderCoordinatorPanel(teacher);
     }
@@ -4622,9 +4639,13 @@
   }
 
   // Cuenta institucional con inicio personalizado (sin alterar roles ni permisos).
+  // Identidad institucional, independiente de si Jaider es Coordinador o
+  // Administrador. El privilegio sigue viniendo exclusivamente de Supabase.
   function isJaiderMorenoAdmin(teacher, id) {
-    return cleanId(id || state.activeSession?.id) === "19616753" &&
-      cleanText(teacher?.role).toLowerCase() === "administrador";
+    const teacherId = cleanId(id || state.activeSession?.id || teacher?.id);
+    return ["19616753","jm"].includes(teacherId) &&
+      normalizeText(teacher?.name) === normalizeText("Jaider Moreno") &&
+      ["coordinador","administrador"].includes(staffRoleOf(teacher));
   }
 
   function staffRoleOf(teacher) {
@@ -4665,7 +4686,7 @@
   // Etapa 2: solo navegar por roles efectivamente asignados.
   function teacherModeAllowed(teacher, mode) {
     if (!teacher) return false;
-    if (mode === "asignaturas") return true;
+    if (mode === "asignaturas") return !isJaiderMorenoAdmin(teacher, teacher.id);
     if (mode === "director") return (teacher.directorGroups || []).length > 0;
     if (["coord-mover","coord-estadisticas","coord-ranking","coord-consultar"].includes(mode))
       return ["coordinador","administrador"].includes(staffRoleOf(teacher));
