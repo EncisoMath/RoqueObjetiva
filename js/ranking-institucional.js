@@ -1,6 +1,6 @@
-/* RoqueObjetiva v175.100 · Medallas con cintas detrás del círculo */
+/* RoqueObjetiva v175.114 · Listado original y modal de informe read-only */
 (()=>{"use strict";
-const S={owner:"",edition:"",site:"",grade:"",course:"",search:"",page:1,limit:15,request:0,busy:false,error:"",data:null,options:{sedes:[],grados:[],cursos:[]},timer:null};
+const S={owner:"",edition:"",site:"",grade:"",course:"",search:"",page:1,limit:15,request:0,busy:false,error:"",data:null,options:{sedes:[],grados:[],cursos:[]},timer:null,detailRequest:0,detailObserver:null,detailFocus:null};
 let api=null;
 const esc=v=>String(v??"").replace(/[&<>"']/g,x=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[x]));
 const fmt=v=>Number(v).toLocaleString("es-CO"),number=v=>v==null?"—":fmt(v),average=v=>v==null?"—":Number(v).toLocaleString("es-CO",{minimumFractionDigits:1,maximumFractionDigits:1});
@@ -28,7 +28,7 @@ function kpis(){const d=S.data||{};return [
 function row(item){const n=Number(item.posicion)||0,first=n>=1&&n<=3;
  const marker=first?'<span class="rir-medal rir-medal-'+n+'" aria-label="Puesto '+n+'"><span class="rir-medal-face">'+n+'</span></span>':'<span class="rir-place">'+esc(n)+'</span>';
  const subtitle=Number(item.grado)+"°-"+String(item.curso||"")+(S.site?"":" · "+siteName(String(item.sede||"")));
- return '<div class="rir-row'+(first?' rir-top rir-top-'+n:'')+'" role="row">'+
+ return '<div class="rir-row'+(first?' rir-top rir-top-'+n:'')+'" role="row" tabindex="0" data-rir-student="'+esc(item.id_prueba)+'" aria-label="Ver informe de '+esc(item.nombre||"estudiante")+'">'+
  '<span class="rir-cell-pos" role="cell">'+marker+'</span>'+
  '<span class="rir-cell-student" role="cell"><span>'+esc(item.nombre||"Sin nombre")+'</span><small>'+esc(subtitle)+'</small></span>'+
  '<span class="rir-cell-score" role="cell"><span>'+esc(number(item.puntaje_global))+'</span></span></div>';}
@@ -71,8 +71,84 @@ async function load(){if(!api?.rpc)return;const req=++S.request,course=choice();
  });if(req!==S.request)return;if(!d?.ok)throw Error(d?.error||"La consulta de ranking falló.");
  S.data=d;if(d.filtros)S.options=d.filtros;}catch(err){if(req!==S.request)return;S.error=String(err?.message||"Error de conexión.");}
  finally{if(req===S.request){S.busy=false;update();}}}
+
+/* Apertura bajo demanda: misma RPC y mismo dashboard que Consultar estudiante. */
+const detailNode=()=>document.getElementById("rir-detail-overlay");
+function closeDetail(){
+  S.detailRequest++;
+  S.detailObserver?.disconnect();S.detailObserver=null;
+  detailNode()?.remove();
+  document.body.classList.remove("rir-detail-open");
+  if(S.detailFocus?.isConnected)S.detailFocus.focus({preventScroll:true});
+  S.detailFocus=null;
+}
+function modalHero(item){
+  const title=String(item.nombre||"Estudiante");
+  const subtitle="ID de prueba "+String(item.id_prueba||"—")+" · "+
+    Number(item.grado)+"° · "+String(item.curso||"")+" · "+siteName(String(item.sede||""));
+  return window.RoqueScreenHero?.render({
+    title,subtitle,icon:"users",heading:"h2",colors:{iconBackground:"#FFFFFF"}
+  })||'<header class="rir-detail-basic"><h2>'+esc(title)+'</h2><p>'+esc(subtitle)+'</p></header>';
+}
+function setDetailBody(html){
+  const body=detailNode()?.querySelector(".rir-detail-scroll");
+  if(body)body.innerHTML=html;
+}
+async function openDetail(item,trigger){
+  if(!api?.rpc||!item?.id_prueba)return;
+  closeDetail();
+  S.detailFocus=trigger;
+  const edition=S.edition,owner=S.owner,ctx=api,request=++S.detailRequest;
+  const layer=document.createElement("div");
+  layer.id="rir-detail-overlay";
+  layer.className="rir-detail-overlay";
+  layer.innerHTML='<section class="rir-detail-dialog" role="dialog" aria-modal="true" '+
+    'aria-label="Informe de '+esc(item.nombre||"estudiante")+'">'+
+    '<div class="rir-detail-heading">'+modalHero(item)+
+    '<button type="button" class="rir-detail-close" data-rir-detail-close aria-label="Cerrar informe">×</button></div>'+
+    '<div class="rir-detail-scroll"><p class="rir-detail-status" role="status">Cargando informe del estudiante…</p></div>'+
+    '</section>';
+  document.body.appendChild(layer);
+  document.body.classList.add("rir-detail-open");
+  layer.querySelector("[data-rir-detail-close]")?.focus({preventScroll:true});
+  S.detailObserver=new MutationObserver(()=>{
+    if(!root()?.isConnected)closeDetail();
+  });
+  S.detailObserver.observe(document.getElementById("app")||document.body,{childList:true,subtree:true});
+  const isCurrent=()=>request===S.detailRequest&&detailNode()&&root()?.isConnected&&
+    S.owner===owner&&S.edition===edition;
+  try{
+    const params={p_edicion:edition,
+      p_docente:ctx.role==="teacher"?ctx.id:null,
+      p_sesion:ctx.role==="teacher"?ctx.session:null};
+    let nationalId=String(item.id_alumno||"").trim();
+    if(!nationalId){
+      const found=await ctx.rpc("roque_v13_estudiante_buscar",{
+        ...params,p_busqueda:String(item.id_prueba)
+      });
+      if(!isCurrent())return;
+      nationalId=String((found?.estudiantes||[]).find(x=>
+        String(x.id_prueba)===String(item.id_prueba))?.id_alumno||"").trim();
+    }
+    if(!nationalId)throw Error("No se pudo identificar la inscripción de este estudiante.");
+    const detail=await ctx.rpc("roque_v13_estudiante_detalle",{
+      ...params,p_id_alumno:nationalId
+    });
+    if(!isCurrent())return;
+    if(!detail?.ok||!detail?.tiene_resultados)
+      throw Error(detail?.error||"Este estudiante todavía no tiene resultados disponibles.");
+    if(String(detail.estudiante?.id_prueba)!==String(item.id_prueba))
+      throw Error("La información consultada no coincide con el estudiante seleccionado.");
+    const html=window.RoqueStudentLookupBridge?.render(detail,{readOnly:true})||"";
+    if(!html)throw Error("No fue posible preparar el informe de este estudiante.");
+    setDetailBody('<section class="rce-report" aria-label="Informe del estudiante">'+html+'</section>');
+  }catch(error){
+    if(isCurrent())setDetailBody('<div class="rir-detail-status rir-detail-error" role="alert">'+
+      esc(error?.message||"No se pudo cargar el informe.")+'</div>');
+  }
+}
 function render(ctx){const owner=String(ctx?.role||"")+":"+String(ctx?.id||"admin"),edition=String(ctx?.edition||"2026-2S");
- if(S.owner!==owner||S.edition!==edition){if(S.timer)clearTimeout(S.timer);
+ if(S.owner!==owner||S.edition!==edition){closeDetail();if(S.timer)clearTimeout(S.timer);
  S.owner=owner;S.edition=edition;S.site="";S.grade="";S.course="";S.search="";S.page=1;
  S.data=null;S.error="";S.busy=false;S.request++;S.options={sedes:[],grados:[],cursos:[]};}
  api=ctx;if(!S.data&&!S.busy&&!S.error)void load();return view();}
@@ -87,9 +163,34 @@ document.addEventListener("input",ev=>{const t=ev.target.closest("[data-rir-sear
  S.timer=setTimeout(()=>{S.timer=null;void load();},320);});
 document.addEventListener("keydown",ev=>{const t=ev.target.closest("[data-rir-search]");if(!t||!root()?.contains(t)||ev.key!=="Enter")return;
  ev.preventDefault();if(S.timer)clearTimeout(S.timer);S.timer=null;S.search=t.value;S.page=1;void load();});
-document.addEventListener("click",ev=>{const r=root();if(!r||!r.contains(ev.target))return;
+document.addEventListener("click",ev=>{
+ const layer=detailNode();
+ if(layer&&(ev.target===layer||ev.target.closest("[data-rir-detail-close]"))){
+  closeDetail();return;
+ }
+ const r=root();if(!r||!r.contains(ev.target))return;
+ const picked=ev.target.closest("[data-rir-student]");
+ if(picked){
+  const student=(S.data?.filas||[]).find(x=>String(x.id_prueba)===picked.dataset.rirStudent);
+  if(student)void openDetail(student,picked);
+  return;
+ }
  const btn=ev.target.closest("[data-rir-page]");if(btn&&!btn.disabled){
  const p=Number(btn.dataset.rirPage);if(p>=1&&p<=Number(S.data?.total_paginas)&&p!==S.page){S.page=p;void load();}}
  if(ev.target.closest("[data-rir-retry]"))void load();});
-window.RoqueRanking=Object.freeze({render,reset:()=>{if(S.timer)clearTimeout(S.timer);S.request++;S.owner="";S.data=null;S.busy=false;S.error="";}});
+document.addEventListener("keydown",ev=>{
+ const layer=detailNode();
+ if(layer){
+  if(ev.key==="Escape"){ev.preventDefault();closeDetail();}
+  else if(ev.key==="Tab"){ev.preventDefault();layer.querySelector("[data-rir-detail-close]")?.focus();}
+  return;
+ }
+ const picked=ev.target.closest("[data-rir-student]");
+ if(picked&&root()?.contains(picked)&&["Enter"," "].includes(ev.key)){
+  ev.preventDefault();
+  const student=(S.data?.filas||[]).find(x=>String(x.id_prueba)===picked.dataset.rirStudent);
+  if(student)void openDetail(student,picked);
+ }
+});
+window.RoqueRanking=Object.freeze({render,reset:()=>{closeDetail();if(S.timer)clearTimeout(S.timer);S.request++;S.owner="";S.data=null;S.busy=false;S.error="";}});
 })();

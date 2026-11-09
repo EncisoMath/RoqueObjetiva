@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.113";
+  const APP_VERSION = "v175.114";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -3782,7 +3782,8 @@
   });
 
   // HTML reutilizable: Estudiante y Consulta individual usan el mismo dashboard.
-  function studentDashboardHtml(student) {
+  function studentDashboardHtml(student, options = {}) {
+    const readOnly = options.readOnly === true;
     const availableSubjects = SUBJECTS.filter((subject) => student.subjectStats[subject.name]?.total);
     const num = (value) => {
       if (value === undefined || value === null || value === "") return null;
@@ -3823,12 +3824,13 @@
 
     const globalCard = [
       '<section class="stu174-global card" aria-label="Puntaje global y rankings">',
-        '<button type="button" class="stu174-global-button" data-action="global-info" data-roll="', escAttr(student.roll), '" aria-label="Conocer cómo se calcula el puntaje global">',
+        readOnly ? '<div class="stu174-global-button">' :
+          '<button type="button" class="stu174-global-button" data-action="global-info" data-roll="' + escAttr(student.roll) + '" aria-label="Conocer cómo se calcula el puntaje global">',
           '<div class="stu174-global-title"><span class="stu174-trophy" aria-hidden="true">🏆</span>',
             '<span>Puntaje global Saber <span class="stu174-info-mark" aria-hidden="true">ⓘ</span></span></div>',
           '<div class="stu174-global-value"><strong>', esc(global === null ? "—" : global), '</strong><span>/500</span></div>',
           '<span class="stu174-global-track" aria-hidden="true"><i style="width:', globalProgress, '%"></i></span>',
-        '</button>',
+        readOnly ? '</div>' : '</button>',
         '<div class="stu174-ranking">',
           rankCard(student.courseRank, "Ranking por curso", "chart"),
           rankCard(student.gradeRank, "Ranking por grado", "users"),
@@ -3843,9 +3845,9 @@
       const barWidth = score === null ? 0 : clamp(score, 0, 100);
       const areaColor = STUDENT_AREA_COLORS[subject.name] || "#248bc4";
       return [
-        '<button type="button" class="stu174-area-card" data-action="student-area-open"',
-          ' data-subject="', escAttr(subject.name), '"',
-          ' aria-label="', escAttr(subject.name), ', ', escAttr(scoreText), ' de 100 puntos. Ver respuestas y detalle."',
+        readOnly ? '<div class="stu174-area-card"' : '<button type="button" class="stu174-area-card" data-action="student-area-open"',
+          readOnly ? '' : ' data-subject="' + escAttr(subject.name) + '"',
+          ' aria-label="', escAttr(subject.name), ', ', escAttr(scoreText), readOnly ? ' de 100 puntos."' : ' de 100 puntos. Ver respuestas y detalle."',
           ' style="--stu174-area-color:', areaColor, '">',
           '<span class="stu174-area-head">',
             '<span class="stu174-area-icon" aria-hidden="true">', subjectIcon(subject.name), '</span>',
@@ -3853,7 +3855,7 @@
           '</span>',
           '<span class="stu174-area-result"><strong>', esc(scoreText), '</strong><small>/100</small></span>',
           '<span class="stu174-area-track" aria-hidden="true"><i style="width:', barWidth, '%"></i></span>',
-        '</button>'
+        readOnly ? '</div>' : '</button>'
       ].join("");
     }).join("");
 
@@ -3891,7 +3893,7 @@
   // Consulta institucional: utiliza los mismos cálculos, tarjetas y modal del estudiante,
   // con claves/respuestas de la edición consultada obtenidas por RPC protegida.
   window.RoqueStudentLookupBridge = {
-    render(payload) {
+    render(payload, options = {}) {
       const authorized=state.activeSession?.role==="admin" ||
         (state.activeSession?.role==="teacher" &&
          ["coordinador","administrador"].includes(
@@ -3922,8 +3924,8 @@
         courseCount:rankValue(ranking.total_curso),
         correct:calc.correct,total:calc.total
       };
-      state.lookupStudent=student;
-      return studentDashboardHtml(student);
+      if (!options.readOnly) state.lookupStudent=student;
+      return studentDashboardHtml(student, options);
     },
     openArea(subject) {
       if (!document.getElementById("roque-student-lookup") || !state.lookupStudent) return;
