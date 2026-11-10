@@ -328,7 +328,7 @@ body.modal-open:has(#modal-root .teacher-edition-gate-backdrop) {touch-action:au
 .teacher-edition-gate-featured:hover {background:#075c9d;}
 .teacher-edition-gate-featured:active {transform:scale(.99);}
 .teacher-edition-gate-featured-top {display:flex;align-items:center;justify-content:space-between;gap:8px;color:#e6f2ff;font-size:clamp(.82rem,2.3vw,1.06rem);font-weight:850;}
-.teacher-edition-gate-tag {display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border:2px solid #fff;border-radius:25px;background:#687b89;color:#fff;font-size:clamp(.66rem,1.8vw,.8rem);font-weight:780;white-space:nowrap;}
+.teacher-edition-gate-tag {display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border:2px solid #fff;border-radius:4px;background:#687b89;color:#fff;font-size:clamp(.66rem,1.8vw,.8rem);font-weight:780;white-space:nowrap;}
 .teacher-edition-gate-tag.is-available {background:#078b18;}
 .teacher-edition-gate-tag svg {width:19px;height:19px;}
 .teacher-edition-gate-code {display:block;color:#fff;font-size:clamp(2.8rem,9vw,4.9rem);font-weight:900;letter-spacing:-.055em;line-height:1;}
@@ -342,7 +342,7 @@ body.modal-open:has(#modal-root .teacher-edition-gate-backdrop) {touch-action:au
 .teacher-edition-gate-history-icon {position:absolute;left:12px;z-index:1;display:flex;pointer-events:none;color:#4b6075;}
 .teacher-edition-gate-history-icon svg {width:25px;height:25px;}
 .teacher-edition-gate-history-controls select {box-sizing:border-box;width:100%;min-width:0;height:57px;padding:0 154px 0 46px;border:1px solid #bdd2e3;border-radius:4px;appearance:none;background:#f2f7fe;color:#102744;font-family:inherit;font-size:clamp(.9rem,2.5vw,1.12rem);font-weight:800;cursor:pointer;}
-.teacher-edition-gate-legacy-badge {position:absolute;right:37px;padding:5px 8px;border-radius:20px;background:#ffdada;color:#a50000;font-size:.73rem;font-weight:800;white-space:nowrap;pointer-events:none;}
+.teacher-edition-gate-legacy-badge {position:absolute;right:37px;padding:5px 8px;border-radius:4px;background:#ffdada;color:#a50000;font-size:.73rem;font-weight:800;white-space:nowrap;pointer-events:none;}
 .teacher-edition-gate-chevron {position:absolute;right:12px;pointer-events:none;color:#102744;font-size:1.5rem;line-height:1;transform:translateY(-2px);}
 .teacher-edition-gate-history-controls > button {min-width:105px;min-height:57px;padding:0 13px;border:0;border-radius:4px;background:#b8e1fa;color:#08639e;font-family:inherit;font-size:1.05rem;font-weight:800;cursor:pointer;}
 .teacher-edition-gate-history-controls > button:hover {background:#99d2f4;}
@@ -356,7 +356,7 @@ body.modal-open:has(#modal-root .teacher-edition-gate-backdrop) {touch-action:au
 .teacher-edition-confirm-warning svg {width:79px;height:79px;}
 .teacher-edition-confirm-panel h2 {margin:0 0 19px;color:#b90000;font-size:clamp(1.45rem,4.4vw,2.25rem);font-weight:900;line-height:1.15;letter-spacing:-.03em;}
 .teacher-edition-confirm-intro {margin:0;color:#102744;font-size:clamp(1.02rem,2.8vw,1.3rem);font-weight:650;line-height:1.4;}
-.teacher-edition-confirm-old-label {display:table;margin:9px auto 1px;padding:5px 14px;border-radius:25px;background:#ffe2e2;color:#af0000;font-size:clamp(1.24rem,3.6vw,1.82rem);font-weight:900;}
+.teacher-edition-confirm-old-label {display:table;margin:9px auto 1px;padding:5px 14px;border-radius:4px;background:#ffe2e2;color:#af0000;font-size:clamp(1.24rem,3.6vw,1.82rem);font-weight:900;}
 .teacher-edition-confirm-code {display:block;color:#b60000;font-size:clamp(2.7rem,7.4vw,3.75rem);font-weight:900;line-height:1.2;letter-spacing:-.04em;}
 .teacher-edition-confirm-description {max-width:465px;margin:14px auto 25px;color:#102744;font-size:clamp(.98rem,2.5vw,1.18rem);line-height:1.4;}
 .teacher-edition-confirm-actions {display:flex;flex-direction:column;gap:12px;}
