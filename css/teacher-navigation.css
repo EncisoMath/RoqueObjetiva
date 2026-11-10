@@ -298,97 +298,113 @@
 }
 
 
-/* v175.46 · Modal obligatorio de elección de prueba, previo al panel docente.
-   Diseño flat y compacto; la tarjeta principal destaca la edición más reciente. */
-#modal-root .teacher-edition-gate-backdrop {
-  z-index:10060!important;box-sizing:border-box;padding:16px;
-  background:rgba(18,39,59,.64);backdrop-filter:blur(7px);
+/* v175.117: selector docente y confirmación histórica, solo UI. */
+#modal-root .teacher-edition-gate-backdrop,
+#modal-root .teacher-edition-confirm-backdrop {
+ box-sizing:border-box;padding:12px;overflow-y:auto;
+ background:rgba(18,39,59,.69);backdrop-filter:blur(5px);
 }
-#modal-root .teacher-edition-gate-panel {
-  box-sizing:border-box;width:min(450px,100%);max-height:min(92dvh,720px);
-  overflow-y:auto;border-radius:14px;background:#fff;
-  box-shadow:0 18px 50px rgba(9,31,52,.26);
+#modal-root .teacher-edition-gate-backdrop {z-index:10060!important;}
+#modal-root .teacher-edition-confirm-backdrop {z-index:10070!important;}
+#modal-root .teacher-edition-gate-panel,#modal-root .teacher-edition-confirm-panel {
+ box-sizing:border-box;width:min(690px,100%);max-height:90dvh;
+ overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
+ touch-action:pan-y;border-radius:4px;background:#fff;
+ box-shadow:0 18px 50px rgba(9,31,52,.25);
 }
-.teacher-edition-gate-heading {padding:24px 24px 13px;}
-.teacher-edition-gate-eyebrow {
-  display:block;margin-bottom:8px;color:#187bb2;font-size:.66rem;
-  font-weight:850;letter-spacing:.09em;
-}
-.teacher-edition-gate-heading h2 {
-  margin:0;color:#213752;font-size:clamp(1.2rem,4.7vw,1.58rem);
-  font-weight:900;letter-spacing:-.035em;line-height:1.2;
-}
-.teacher-edition-gate-heading p {
-  margin:8px 0 0;color:#65778a;font-size:.78rem;line-height:1.45;
-}
-.teacher-edition-gate-body {padding:4px 20px 22px;}
-.teacher-edition-gate-featured {
-  box-sizing:border-box;display:flex;flex-direction:column;align-items:stretch;
-  gap:7px;width:100%;padding:19px 18px 16px;border:0;border-radius:11px;
-  background:#1975ae;color:#fff;text-align:left;cursor:pointer;
-  box-shadow:none;transition:background-color .18s ease,transform .18s ease;
-}
-.teacher-edition-gate-featured:hover {background:#16699e;}
+body.modal-open:has(#modal-root .teacher-edition-gate-backdrop) {touch-action:auto;}
+.teacher-edition-gate-heading {padding:28px 32px 15px;}
+.teacher-edition-gate-eyebrow {display:block;margin-bottom:10px;color:#0b629e;font-size:.9rem;font-weight:750;letter-spacing:.015em;}
+.teacher-edition-gate-heading h2 {margin:0;color:#102744;font-size:clamp(1.5rem,4.4vw,2.3rem);font-weight:860;line-height:1.15;letter-spacing:-.035em;}
+.teacher-edition-gate-heading p {margin:12px 0 0;color:#4a5f75;font-size:clamp(.89rem,2.3vw,1.04rem);line-height:1.45;}
+.teacher-edition-gate-body {padding:0 28px 30px;}
+.teacher-edition-gate-alert {display:grid;grid-template-columns:70px 143px minmax(0,1fr);gap:16px;align-items:center;margin-bottom:25px;padding:17px 19px;border:2px solid #f04450;border-radius:4px;background:#fff0f0;}
+.teacher-edition-gate-alert-icon {display:flex;justify-content:center;color:#bf0000;}
+.teacher-edition-gate-alert-icon svg {width:65px;height:65px;}
+.teacher-edition-gate-alert-title {padding-left:15px;border-left:1px solid #c40000;color:#b50000;font-size:clamp(1.65rem,4.3vw,2.4rem);font-weight:900;line-height:.98;letter-spacing:-.04em;}
+.teacher-edition-gate-alert p {margin:0;padding-left:17px;border-left:1px solid #c40000;color:#102744;font-size:clamp(.87rem,2vw,1.08rem);line-height:1.4;}
+.teacher-edition-gate-alert p strong {color:#ad0000;font-weight:850;}
+.teacher-edition-gate-featured {display:flex;box-sizing:border-box;flex-direction:column;align-items:stretch;gap:10px;width:calc(100% - 12px);margin:5px 6px 28px;padding:22px 25px 19px;border:2px solid #fff;border-radius:4px;background:#0869ad;color:#fff;text-align:left;cursor:pointer;box-shadow:0 0 0 5px #119fea;transition:background-color .2s ease,transform .2s ease;}
+.teacher-edition-gate-featured:hover {background:#075c9d;}
 .teacher-edition-gate-featured:active {transform:scale(.99);}
-.teacher-edition-gate-featured:focus-visible,
-.teacher-edition-gate-history-controls :is(select,button):focus-visible {
-  outline:3px solid #52b7f0;outline-offset:3px;
-}
-.teacher-edition-gate-featured-top {
-  display:flex;align-items:center;justify-content:space-between;gap:8px;
-  color:#dbf0ff;font-size:.63rem;letter-spacing:.08em;font-weight:850;
-}
-.teacher-edition-gate-tag {
-  flex:0 0 auto;border:1px solid rgba(255,255,255,.55);
-  border-radius:4px;padding:4px 6px;color:#fff;
-  font-size:.58rem;letter-spacing:0;
-}
-.teacher-edition-gate-code {
-  display:block;margin-top:2px;color:#fff;
-  font-size:clamp(2.25rem,9vw,3.05rem);font-weight:900;
-  letter-spacing:-.06em;line-height:1;
-}
-.teacher-edition-gate-semester {color:#e3f2ff;font-size:.79rem;font-weight:600;}
-.teacher-edition-gate-featured-foot {
-  display:flex;align-items:center;justify-content:space-between;
-  margin-top:8px;padding-top:10px;border-top:1px solid rgba(255,255,255,.3);
-  font-size:.76rem;font-weight:850;
-}
-.teacher-edition-gate-featured-foot>span {font-size:1.6rem;font-weight:500;line-height:.7;}
-.teacher-edition-gate-history {
-  margin-top:21px;padding-top:16px;border-top:1px solid #e0e7ee;
-}
-.teacher-edition-gate-history>label {
-  display:block;margin-bottom:10px;color:#293e57;font-size:.8rem;font-weight:850;
-}
-.teacher-edition-gate-history-controls {display:flex;gap:9px;}
-.teacher-edition-gate-select-wrap {position:relative;flex:1;min-width:0;}
-.teacher-edition-gate-history-controls select {
-  box-sizing:border-box;width:100%;height:42px;min-width:0;
-  padding:0 11px;border:1px solid #d0dfeb;border-radius:8px;
-  background:#f9fbfe;color:#284057;font-family:inherit;
-  font-size:.79rem;font-weight:750;cursor:pointer;
-}
-.teacher-edition-gate-history-controls button {
-  flex:0 0 auto;min-width:78px;height:42px;padding:0 12px;
-  border:0;border-radius:8px;background:#e5f2fb;color:#156c9f;
-  font-family:inherit;font-size:.77rem;font-weight:850;cursor:pointer;
-}
-.teacher-edition-gate-history-controls button:hover {background:#d3e9fa;}
-.teacher-edition-gate-history-controls :is(select,button):disabled {
-  opacity:.5;cursor:not-allowed;
-}
+.teacher-edition-gate-featured-top {display:flex;align-items:center;justify-content:space-between;gap:8px;color:#e6f2ff;font-size:clamp(.82rem,2.3vw,1.06rem);font-weight:850;}
+.teacher-edition-gate-tag {display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border:2px solid #fff;border-radius:25px;background:#687b89;color:#fff;font-size:clamp(.66rem,1.8vw,.8rem);font-weight:780;white-space:nowrap;}
+.teacher-edition-gate-tag.is-available {background:#078b18;}
+.teacher-edition-gate-tag svg {width:19px;height:19px;}
+.teacher-edition-gate-code {display:block;color:#fff;font-size:clamp(2.8rem,9vw,4.9rem);font-weight:900;letter-spacing:-.055em;line-height:1;}
+.teacher-edition-gate-semester {color:#fff;font-size:clamp(.9rem,2.5vw,1.17rem);}
+.teacher-edition-gate-featured-foot {display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:17px;border-top:1px solid rgba(255,255,255,.55);font-size:clamp(1rem,2.7vw,1.2rem);font-weight:790;}
+.teacher-edition-gate-featured-foot > span {font-size:2.4rem;font-weight:400;line-height:.7;}
+.teacher-edition-gate-history {margin-top:8px;padding-top:21px;border-top:1px solid #d9e3ed;}
+.teacher-edition-gate-history > label {display:block;margin-bottom:12px;color:#102744;font-size:1.2rem;font-weight:830;}
+.teacher-edition-gate-history-controls {display:flex;gap:12px;}
+.teacher-edition-gate-select-wrap {position:relative;display:flex;align-items:center;flex:1;min-width:0;}
+.teacher-edition-gate-history-icon {position:absolute;left:12px;z-index:1;display:flex;pointer-events:none;color:#4b6075;}
+.teacher-edition-gate-history-icon svg {width:25px;height:25px;}
+.teacher-edition-gate-history-controls select {box-sizing:border-box;width:100%;min-width:0;height:57px;padding:0 154px 0 46px;border:1px solid #bdd2e3;border-radius:4px;appearance:none;background:#f2f7fe;color:#102744;font-family:inherit;font-size:clamp(.9rem,2.5vw,1.12rem);font-weight:800;cursor:pointer;}
+.teacher-edition-gate-legacy-badge {position:absolute;right:37px;padding:5px 8px;border-radius:20px;background:#ffdada;color:#a50000;font-size:.73rem;font-weight:800;white-space:nowrap;pointer-events:none;}
+.teacher-edition-gate-chevron {position:absolute;right:12px;pointer-events:none;color:#102744;font-size:1.5rem;line-height:1;transform:translateY(-2px);}
+.teacher-edition-gate-history-controls > button {min-width:105px;min-height:57px;padding:0 13px;border:0;border-radius:4px;background:#b8e1fa;color:#08639e;font-family:inherit;font-size:1.05rem;font-weight:800;cursor:pointer;}
+.teacher-edition-gate-history-controls > button:hover {background:#99d2f4;}
+.teacher-edition-gate-history-controls :is(select,button):disabled {opacity:.55;cursor:not-allowed;}
+.teacher-edition-gate-featured:focus-visible,.teacher-edition-gate-history-controls :is(select,button):focus-visible,.teacher-edition-confirm-panel button:focus-visible {outline:3px solid #55b7ef;outline-offset:3px;}
 .roque-teacher-shell .teacher-edition-gate-stage {min-height:28vh;}
-@media(max-width:420px) {
-  #modal-root .teacher-edition-gate-backdrop {padding:12px;}
-  .teacher-edition-gate-heading {padding:20px 18px 11px;}
-  .teacher-edition-gate-body {padding:4px 15px 17px;}
-  .teacher-edition-gate-featured {padding:16px 14px 14px;}
-  .teacher-edition-gate-history {margin-top:15px;padding-top:13px;}
+#modal-root .teacher-edition-confirm-panel {position:relative;width:min(580px,100%);padding:27px 29px 32px;text-align:center;}
+.teacher-edition-confirm-close {position:absolute;top:8px;right:11px;width:44px;height:44px;border:0;background:transparent;color:#697684;font-size:2.35rem;font-weight:400;cursor:pointer;line-height:1;}
+.teacher-edition-confirm-close:hover {color:#152c46;}
+.teacher-edition-confirm-warning {display:grid;place-items:center;width:118px;height:118px;margin:0 auto 10px;border-radius:50%;background:#ffe4e4;color:#c60000;}
+.teacher-edition-confirm-warning svg {width:79px;height:79px;}
+.teacher-edition-confirm-panel h2 {margin:0 0 19px;color:#b90000;font-size:clamp(1.45rem,4.4vw,2.25rem);font-weight:900;line-height:1.15;letter-spacing:-.03em;}
+.teacher-edition-confirm-intro {margin:0;color:#102744;font-size:clamp(1.02rem,2.8vw,1.3rem);font-weight:650;line-height:1.4;}
+.teacher-edition-confirm-old-label {display:table;margin:9px auto 1px;padding:5px 14px;border-radius:25px;background:#ffe2e2;color:#af0000;font-size:clamp(1.24rem,3.6vw,1.82rem);font-weight:900;}
+.teacher-edition-confirm-code {display:block;color:#b60000;font-size:clamp(2.7rem,7.4vw,3.75rem);font-weight:900;line-height:1.2;letter-spacing:-.04em;}
+.teacher-edition-confirm-description {max-width:465px;margin:14px auto 25px;color:#102744;font-size:clamp(.98rem,2.5vw,1.18rem);line-height:1.4;}
+.teacher-edition-confirm-actions {display:flex;flex-direction:column;gap:12px;}
+.teacher-edition-confirm-actions > button {box-sizing:border-box;display:flex;justify-content:center;align-items:center;gap:18px;width:100%;min-height:85px;padding:12px 15px;border-radius:4px;font-family:inherit;text-align:left;cursor:pointer;transition:background-color .2s ease,transform .2s ease;}
+.teacher-edition-confirm-actions > button:active {transform:scale(.99);}
+.teacher-edition-confirm-actions > button span:last-child {min-width:0;}
+.teacher-edition-confirm-actions strong {display:block;font-size:clamp(1.1rem,3.4vw,1.55rem);font-weight:850;line-height:1.2;}
+.teacher-edition-confirm-actions small {display:block;margin-top:6px;font-size:clamp(.86rem,2.4vw,1.03rem);font-weight:500;line-height:1.3;}
+.teacher-edition-confirm-action-icon {display:flex;flex:0 0 auto;}
+.teacher-edition-confirm-action-icon svg {width:40px;height:40px;}
+.teacher-edition-confirm-current {border:2px solid #08609c;background:#0868ac;color:#fff;}
+.teacher-edition-confirm-current:hover {background:#075c9b;}
+.teacher-edition-confirm-history {border:2px solid #c50000;background:#fff;color:#b60000;}
+.teacher-edition-confirm-history:hover {background:#fff0f0;}
+.teacher-edition-confirm-history small {color:#40556b;}
+@media(max-width:600px) {
+ #modal-root .teacher-edition-gate-backdrop,#modal-root .teacher-edition-confirm-backdrop {padding:8px;}
+ .teacher-edition-gate-heading {padding:21px 19px 14px;}
+ .teacher-edition-gate-body {padding:0 14px 21px;}
+ .teacher-edition-gate-alert {grid-template-columns:42px 92px minmax(0,1fr);gap:8px;padding:11px 8px;margin-bottom:23px;}
+ .teacher-edition-gate-alert-icon svg {width:40px;height:40px;}
+ .teacher-edition-gate-alert-title {padding-left:10px;font-size:1.46rem;}
+ .teacher-edition-gate-alert p {padding-left:10px;font-size:.77rem;}
+ .teacher-edition-gate-featured {padding:17px 14px 16px;}
+ .teacher-edition-gate-history > label {font-size:1.09rem;}
+ .teacher-edition-gate-history-controls {gap:8px;}
+ .teacher-edition-gate-history-controls > button {min-width:75px;padding:0 8px;font-size:.94rem;}
+ .teacher-edition-gate-history-controls select {padding:0 35px 0 38px;font-size:1rem;}
+ .teacher-edition-gate-history-icon {left:8px;}
+ .teacher-edition-gate-history-icon svg {width:22px;height:22px;}
+ .teacher-edition-gate-legacy-badge {top:-16px;right:17px;padding:3px 6px;font-size:.65rem;}
+ #modal-root .teacher-edition-confirm-panel {padding:23px 14px 19px;}
+ .teacher-edition-confirm-warning {width:94px;height:94px;}
+ .teacher-edition-confirm-warning svg {width:65px;height:65px;}
+ .teacher-edition-confirm-actions > button {min-height:76px;gap:10px;}
+ .teacher-edition-confirm-action-icon svg {width:32px;height:32px;}
 }
-@media(prefers-reduced-motion:reduce){
-  .teacher-edition-gate-featured {transition:none;}
+@media(max-width:360px){
+ .teacher-edition-gate-alert {grid-template-columns:34px 73px minmax(0,1fr);gap:5px;}
+ .teacher-edition-gate-alert-icon svg {width:32px;height:32px;}
+ .teacher-edition-gate-alert-title {padding-left:6px;font-size:1.17rem;}
+ .teacher-edition-gate-alert p {padding-left:7px;font-size:.68rem;}
+ .teacher-edition-gate-tag {padding:4px 6px;gap:4px;font-size:.57rem;}
+ .teacher-edition-gate-tag svg {width:16px;height:16px;}
+ .teacher-edition-gate-featured-top {font-size:.76rem;}
+ .teacher-edition-gate-history-controls > button {min-width:67px;}
 }
+@media(prefers-reduced-motion:reduce){.teacher-edition-gate-featured,.teacher-edition-confirm-actions > button {transition:none;}}
 
 /* v175.72 · Textos largos en cinco botones, conservando medidas y estilo t160. */
 @media(max-width:400px){.t160-dock-btn span{overflow-wrap:anywhere}}

@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.116";
+  const APP_VERSION = "v175.117";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -120,6 +120,8 @@
     teacherEditionBusy: false,
     teacherEditionRequestSerial: 0,
     teacherEditionGateOpen: false,
+    teacherEditionConfirmation: "",
+    teacherEditionGateActionPending: false,
     coordIntroShown: false, coordIntroOpen: false, coordSession: "",
     coordRoster: [], coordCourses: [], coordEditionLoaded: "",
     coordIntroEpoch: 0, coordIntroTimer: null, coordIntroMotion: null,
@@ -1354,6 +1356,16 @@
 
   // v175.46: la elección de edición ocurre ANTES de renderizar resultados docentes.
   // El catálogo de Supabase ya se cargó en el login y está ordenado por semestre.
+  function teacherGateIcon(name) {
+    const paths = {
+      warn:'<path d="M32 7 59 55H5L32 7Z"/><path d="M32 24v15"/><path d="M32 47v1"/>',
+      check:'<circle cx="32" cy="32" r="24"/><path d="m18 32 10 10 18-20"/>',
+      history:'<path d="M9 21A24 24 0 1 1 8 43M9 9v14h14"/><path d="M32 18v15l10 5"/>',
+      calendar:'<rect x="9" y="14" width="46" height="40" rx="3"/><path d="M20 8v13M44 8v13M9 27h46M20 36h3M30 36h3M40 36h3M20 45h3M30 45h3"/>'
+    };
+    return '<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (paths[name] || '') + '</svg>';
+  }
+
   function renderTeacherEditionGate() {
     if (state.activeSession?.role !== "teacher") return;
     const editions = Array.isArray(state.teacherEditionCatalog) ? state.teacherEditionCatalog : [];
@@ -1365,15 +1377,16 @@
     const available = recent.resultados_visibles === true &&
       ["publicada","cerrada"].includes(recent.estado);
     const subtitle = recent.semestre === 1 ? "Primer semestre" : "Segundo semestre";
-    const options = historic.map((ed) => {
+    const options = historic.map(ed => {
       const published = ed.resultados_visibles === true &&
         ["publicada","cerrada"].includes(ed.estado);
       return '<option value="' + escAttr(ed.codigo) + '">' +
         esc(ed.codigo + (published ? "" : " · Sin publicar")) + '</option>';
     }).join("");
     state.teacherEditionGateOpen = true;
-    // La página inicial deliberadamente NO tiene datos de estudiantes.
-    // Así ninguna nota de 2026-1S aparece antes de escoger otra edición.
+    state.teacherEditionConfirmation = "";
+    state.teacherEditionGateActionPending = false;
+    // El panel de fondo nunca consulta ni muestra notas antes de elegir edición.
     renderShell('<section class="teacher-edition-gate-stage" aria-hidden="true"></section>',
       navFor("teacher"));
     modalRoot.innerHTML =
@@ -1385,11 +1398,17 @@
       '<h2 id="teacher-edition-gate-title">¿Qué prueba quieres revisar?</h2>' +
       '<p id="teacher-edition-gate-desc">Selecciona la evaluación cuyos resultados quieres consultar.</p>' +
       '</header><div class="teacher-edition-gate-body">' +
+      '<aside class="teacher-edition-gate-alert" role="note">' +
+      '<span class="teacher-edition-gate-alert-icon">' + teacherGateIcon("warn") + '</span>' +
+      '<strong class="teacher-edition-gate-alert-title">¡LEA<br>BIEN!</strong>' +
+      '<p>La prueba <strong>ACTUAL</strong> es <strong>' + esc(recent.codigo) +
+      '</strong>. No consulte una prueba anterior por error.</p></aside>' +
       '<button type="button" class="teacher-edition-gate-featured" ' +
       'data-action="teacher-gate-open" data-edicion="' + escAttr(recent.codigo) + '">' +
-      '<span class="teacher-edition-gate-featured-top"><span>PRUEBA MÁS RECIENTE</span>' +
-      '<span class="teacher-edition-gate-tag">' +
-      esc(available ? "Disponible" : "Sin publicar") + '</span></span>' +
+      '<span class="teacher-edition-gate-featured-top"><span>PRUEBA ACTUAL</span>' +
+      '<span class="teacher-edition-gate-tag' + (available ? ' is-available' : '') + '">' +
+      (available ? teacherGateIcon("check") : '') +
+      esc(available ? "Evaluación vigente" : "Sin publicar") + '</span></span>' +
       '<strong class="teacher-edition-gate-code">' + esc(recent.codigo) + '</strong>' +
       '<span class="teacher-edition-gate-semester">' + esc(subtitle + " de " + recent.anio) + '</span>' +
       '<span class="teacher-edition-gate-featured-foot">' +
@@ -1398,24 +1417,77 @@
       '<div class="teacher-edition-gate-history">' +
       '<label for="teacher-edition-gate-history">Pruebas anteriores</label>' +
       '<div class="teacher-edition-gate-history-controls"><div class="teacher-edition-gate-select-wrap">' +
+      '<span class="teacher-edition-gate-history-icon">' + teacherGateIcon("history") + '</span>' +
       '<select id="teacher-edition-gate-history" aria-label="Seleccionar prueba anterior"' +
       (historic.length ? "" : " disabled") + '>' +
-      (options || '<option>Sin evaluaciones anteriores</option>') + '</select></div>' +
+      (options || '<option>Sin evaluaciones anteriores</option>') + '</select>' +
+      (historic.length ? '<span class="teacher-edition-gate-legacy-badge" aria-hidden="true">Prueba antigua</span>' : '') +
+      '<span class="teacher-edition-gate-chevron" aria-hidden="true">⌄</span></div>' +
       '<button type="button" data-action="teacher-gate-open-history"' +
       (historic.length ? "" : " disabled") + '>Abrir</button></div>' +
       '</div></div></section></div>';
     document.body.classList.add("modal-open");
-    // Bloquear el dock y el hero de fondo mientras esta decisión es obligatoria.
     app.inert = true;
     window.requestAnimationFrame(() => {
-      modalRoot.querySelector(".teacher-edition-gate-featured")?.focus({preventScroll:true});
+      if (!state.teacherEditionConfirmation)
+        modalRoot.querySelector(".teacher-edition-gate-featured")?.focus({preventScroll:true});
     });
+  }
+
+  function openTeacherEditionHistoryConfirmation(code) {
+    if (!state.teacherEditionGateOpen || state.teacherEditionGateActionPending ||
+        state.teacherEditionConfirmation) return;
+    const editions = state.teacherEditionCatalog || [];
+    const recent = editions[0];
+    const historic = editions.slice(1).find(ed => ed.codigo === code);
+    const base = modalRoot.querySelector(".teacher-edition-gate-panel");
+    if (!recent || !historic || !base) return;
+    state.teacherEditionConfirmation = historic.codigo;
+    base.inert = true;
+    base.setAttribute("aria-hidden", "true");
+    modalRoot.insertAdjacentHTML("beforeend",
+      '<div class="modal-backdrop teacher-edition-confirm-backdrop">' +
+      '<section class="modal teacher-edition-confirm-panel" role="dialog" aria-modal="true" ' +
+      'aria-labelledby="teacher-edition-confirm-title" aria-describedby="teacher-edition-confirm-desc">' +
+      '<button type="button" class="teacher-edition-confirm-close" data-action="teacher-gate-confirm-close" aria-label="Volver al selector">×</button>' +
+      '<div class="teacher-edition-confirm-warning">' + teacherGateIcon("warn") + '</div>' +
+      '<h2 id="teacher-edition-confirm-title">¿SEGURO SÍ LEYÓ BIEN?</h2>' +
+      '<p id="teacher-edition-confirm-desc" class="teacher-edition-confirm-intro">Está a punto de consultar una</p>' +
+      '<strong class="teacher-edition-confirm-old-label">PRUEBA ANTIGUA:</strong>' +
+      '<strong class="teacher-edition-confirm-code">' + esc(historic.codigo) + '</strong>' +
+      '<p class="teacher-edition-confirm-description">Debido a que algunos docentes aún consultan pruebas anteriores por error, confirme qué desea hacer:</p>' +
+      '<div class="teacher-edition-confirm-actions">' +
+      '<button type="button" class="teacher-edition-confirm-current" data-action="teacher-gate-confirm-current">' +
+      '<span class="teacher-edition-confirm-action-icon">' + teacherGateIcon("calendar") + '</span>' +
+      '<span><strong>Consultar ' + esc(recent.codigo) + '</strong><small>Prueba actual – Recomendada</small></span></button>' +
+      '<button type="button" class="teacher-edition-confirm-history" data-action="teacher-gate-confirm-history">' +
+      '<span class="teacher-edition-confirm-action-icon">' + teacherGateIcon("history") + '</span>' +
+      '<span><strong>Sí, deseo consultar ' + esc(historic.codigo) + '</strong><small>Prueba anterior</small></span></button>' +
+      '</div></section></div>');
+    window.requestAnimationFrame(() => {
+      modalRoot.querySelector(".teacher-edition-confirm-current")?.focus({preventScroll:true});
+    });
+  }
+
+  function closeTeacherEditionHistoryConfirmation() {
+    modalRoot.querySelector(".teacher-edition-confirm-backdrop")?.remove();
+    state.teacherEditionConfirmation = "";
+    const base = modalRoot.querySelector(".teacher-edition-gate-panel");
+    if (base) {
+      base.inert = false;
+      base.removeAttribute("aria-hidden");
+      window.requestAnimationFrame(() => {
+        modalRoot.querySelector('[data-action="teacher-gate-open-history"]')?.focus({preventScroll:true});
+      });
+    }
   }
 
   function finishTeacherEditionGate() {
     if (!state.teacherEditionGateOpen) return;
     state.teacherEditionGateOpen = false;
+    modalRoot.querySelector(".teacher-edition-confirm-backdrop")?.remove();
     modalRoot.querySelector(".teacher-edition-gate-backdrop")?.remove();
+    state.teacherEditionConfirmation = "";
     document.body.classList.remove("modal-open");
     app.inert = false;
   }
@@ -7463,13 +7535,35 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     }
     if (state.teacherEditionGateOpen) {
       const action = target.dataset.action;
-      if (action !== "teacher-gate-open" && action !== "teacher-gate-open-history") return;
-      const selectedCode = action === "teacher-gate-open"
-        ? target.dataset.edicion
-        : modalRoot.querySelector("#teacher-edition-gate-history")?.value;
-      if (!(state.teacherEditionCatalog || []).some(ed => ed.codigo === selectedCode)) return;
+      if (action === "teacher-gate-confirm-close") {
+        if (!state.teacherEditionGateActionPending) closeTeacherEditionHistoryConfirmation();
+        return;
+      }
+      if (state.teacherEditionGateActionPending) return;
+      const catalog = state.teacherEditionCatalog || [];
+      if (state.teacherEditionConfirmation) {
+        if (action !== "teacher-gate-confirm-current" && action !== "teacher-gate-confirm-history") return;
+        const selectedCode = action === "teacher-gate-confirm-current"
+          ? catalog[0]?.codigo : state.teacherEditionConfirmation;
+        if (!catalog.some(ed => ed.codigo === selectedCode)) return;
+        state.teacherEditionGateActionPending = true;
+        finishTeacherEditionGate();
+        try { await selectTeacherEdition(selectedCode); }
+        finally { state.teacherEditionGateActionPending = false; }
+        return;
+      }
+      if (action === "teacher-gate-open-history") {
+        const code = modalRoot.querySelector("#teacher-edition-gate-history")?.value;
+        if (catalog.slice(1).some(ed => ed.codigo === code)) openTeacherEditionHistoryConfirmation(code);
+        return;
+      }
+      if (action !== "teacher-gate-open") return;
+      const code = target.dataset.edicion;
+      if (!catalog.some(ed => ed.codigo === code)) return;
+      state.teacherEditionGateActionPending = true;
       finishTeacherEditionGate();
-      await selectTeacherEdition(selectedCode);
+      try { await selectTeacherEdition(code); }
+      finally { state.teacherEditionGateActionPending = false; }
       return;
     }
     if (target.classList.contains("modal-backdrop") && event.target !== target) return;
@@ -10638,6 +10732,8 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     window.RoqueKeys?.reset();
     state.coordCourses=[];state.coordEditionLoaded="";
     finishTeacherEditionGate();
+    state.teacherEditionConfirmation = "";
+    state.teacherEditionGateActionPending = false;
     state.teacherEditionCatalog = [];
     state.teacherEditionMessage = "";
     state.teacherEditionBusy = false;
