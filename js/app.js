@@ -2011,7 +2011,7 @@
         state.teacherEditionMessage = "";
         state.teacherEditionBusy = false;
         state.teacherDiagnostica3TAvailable=false;
-        if (staffRoleOf(teacher)==="administrador" && state.coordSession && window.RoqueDiagnostica3T) {
+        if (state.coordSession && window.RoqueDiagnostica3T) {
           try {
             const check=await supabaseRpc("roque_v24_diagnostica_3t_docente",{
               p_docente:id,p_sesion:state.coordSession,
