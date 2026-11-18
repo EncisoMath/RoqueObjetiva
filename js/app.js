@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.126";
+  const APP_VERSION = "v175.127";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -115,7 +115,7 @@
     teacherDockMenu: "",
     teacherViewMotionPending: false,
     teacherEditionCatalog: [],
-    teacherDiagnostica3TAvailable: false,
+    teacherDiagnostica3EAvailable: false,
     teacherEditionSelected: "2026-1S",
     teacherEditionMessage: "",
     teacherEditionBusy: false,
@@ -394,18 +394,18 @@
     return j;
   }
   async function supabaseRpc(functionName, payload = {}) {
-    if (cleanText(payload?.p_edicion) === "2026-3T") {
+    if (cleanText(payload?.p_edicion) === "2026-3E") {
       if (state.activeSession?.role !== "teacher" ||
-          !state.teacherDiagnostica3TAvailable ||
-          state.teacherEditionSelected !== "2026-3T" ||
-          window.RoqueDiagnostica3T?.ready() !== true)
-        throw new Error("Acceso no autorizado a la Diagnóstica 3T.");
-      return window.RoqueDiagnostica3T.rpc(functionName,payload);
+          !state.teacherDiagnostica3EAvailable ||
+          state.teacherEditionSelected !== "2026-3E" ||
+          window.RoqueDiagnostica3EStaff?.ready() !== true)
+        throw new Error("Acceso no autorizado a la Diagnóstica 3E.");
+      return window.RoqueDiagnostica3EStaff.rpc(functionName,payload);
     }
     if (state.activeSession?.role === "teacher" &&
-        state.teacherEditionSelected === "2026-3T" &&
+        state.teacherEditionSelected === "2026-3E" &&
         /(?:_guardar|_aplicar|_mover|_generar|_anular|_vincular_lote|_corregir|_eliminar|_crear|_editar)/i.test(String(functionName)))
-      throw new Error("La Diagnóstica 3T es de solo consulta.");
+      throw new Error("La Diagnóstica 3E es de solo consulta.");
     if (String(functionName || "").toLowerCase() === "roque_admin_sync") {
       throw new Error("roque_admin_sync está bloqueada en v141 para proteger la tabla RESULTADOS.");
     }
@@ -1352,8 +1352,8 @@
       codigo:"2026-1S",titulo:"Prueba objetiva",anio:2026,semestre:1,
       estado:"cerrada",resultados_visibles:true
     });
-    if (state.teacherDiagnostica3TAvailable===true && window.RoqueDiagnostica3T)
-      rows.splice(Math.min(1,rows.length),0,window.RoqueDiagnostica3T.catalogEntry());
+    if (state.teacherDiagnostica3EAvailable===true && window.RoqueDiagnostica3EStaff)
+      rows.splice(Math.min(1,rows.length),0,window.RoqueDiagnostica3EStaff.catalogEntry());
     state.teacherEditionCatalog=rows;
     return rows;
   }
@@ -1367,7 +1367,7 @@
       const available = e.resultados_visibles === true && ["publicada","cerrada"].includes(e.estado);
       return '<option value="' + escAttr(e.codigo) + '"' +
         (e.codigo===current ? ' selected' : '') + '>' +
-        esc((e.codigo === "2026-3T" ? "DIAGNÓSTICA 3T" : e.codigo) + (available ? "" : " · Sin publicar")) + '</option>';
+        esc((e.codigo === "2026-3E" ? "DIAGNÓSTICA 3E" : e.codigo) + (available ? "" : " · Sin publicar")) + '</option>';
     }).join("");
     return '<label class="teacher-edition-picker" for="teacher-edition-select">' +
       '<span>Prueba a consultar</span><select id="teacher-edition-select" ' +
@@ -1403,7 +1403,7 @@
       const published = ed.resultados_visibles === true &&
         ["publicada","cerrada"].includes(ed.estado);
       return '<option value="' + escAttr(ed.codigo) + '">' +
-        esc((ed.codigo === "2026-3T" ? "DIAGNÓSTICA 3T" : ed.codigo) + (published ? "" : " · Sin publicar")) + '</option>';
+        esc((ed.codigo === "2026-3E" ? "DIAGNÓSTICA 3E" : ed.codigo) + (published ? "" : " · Sin publicar")) + '</option>';
     }).join("");
     state.teacherEditionGateOpen = true;
     state.teacherEditionConfirmation = "";
@@ -1438,13 +1438,13 @@
       '<span aria-hidden="true">›</span></span></button>' +
       '<div class="teacher-edition-gate-history">' +
       '<label for="teacher-edition-gate-history">' +
-      (state.teacherDiagnostica3TAvailable ? "Otras Pruebas" : "Pruebas anteriores") + '</label>' +
+      (state.teacherDiagnostica3EAvailable ? "Otras Pruebas" : "Pruebas anteriores") + '</label>' +
       '<div class="teacher-edition-gate-history-controls"><div class="teacher-edition-gate-select-wrap">' +
       '<span class="teacher-edition-gate-history-icon">' + teacherGateIcon("history") + '</span>' +
       '<select id="teacher-edition-gate-history" aria-label="Seleccionar otra prueba"' +
       (historic.length ? "" : " disabled") + '>' +
       (options || '<option>Sin evaluaciones anteriores</option>') + '</select>' +
-      (historic.length && !state.teacherDiagnostica3TAvailable
+      (historic.length && !state.teacherDiagnostica3EAvailable
         ? '<span class="teacher-edition-gate-legacy-badge" aria-hidden="true">Prueba antigua</span>' : '') +
       '<span class="teacher-edition-gate-chevron" aria-hidden="true">⌄</span></div>' +
       '<button type="button" data-action="teacher-gate-open-history"' +
@@ -1478,7 +1478,7 @@
       '<h2 id="teacher-edition-confirm-title">¿SEGURO SÍ LEYÓ BIEN?</h2>' +
       '<p id="teacher-edition-confirm-desc" class="teacher-edition-confirm-intro">Está a punto de consultar una</p>' +
       '<strong class="teacher-edition-confirm-old-label">' +
-      (state.teacherDiagnostica3TAvailable ? "OTRA PRUEBA:" : "PRUEBA ANTIGUA:") + '</strong>' +
+      (state.teacherDiagnostica3EAvailable ? "OTRA PRUEBA:" : "PRUEBA ANTIGUA:") + '</strong>' +
       '<strong class="teacher-edition-confirm-code">' + esc(historic.codigo) + '</strong>' +
       '<p class="teacher-edition-confirm-description">Debido a que algunos docentes aún consultan pruebas anteriores por error, confirme qué desea hacer:</p>' +
       '<div class="teacher-edition-confirm-actions">' +
@@ -1488,7 +1488,7 @@
       '<button type="button" class="teacher-edition-confirm-history" data-action="teacher-gate-confirm-history">' +
       '<span class="teacher-edition-confirm-action-icon">' + teacherGateIcon("history") + '</span>' +
       '<span><strong>Sí, deseo consultar ' + esc(historic.codigo) + '</strong><small>' +
-      (state.teacherDiagnostica3TAvailable ? "Otra prueba" : "Prueba anterior") +
+      (state.teacherDiagnostica3EAvailable ? "Otra prueba" : "Prueba anterior") +
       '</small></span></button>' +
       '</div></section></div>');
     window.requestAnimationFrame(() => {
@@ -1519,8 +1519,8 @@
     app.inert = false;
   }
 
-  function applyOfficialTeacherDiagnostica3T() {
-    const pilot=window.RoqueDiagnostica3T;
+  function applyOfficialTeacherDiagnostica3E() {
+    const pilot=window.RoqueDiagnostica3EStaff;
     if (!pilot?.ready()) throw new Error("La diagnóstica no está autorizada.");
     const all=pilot.students(),areas=pilot.AREAS;
     for(const row of all) {
@@ -1544,7 +1544,7 @@
       student.gradeCount=107;
       student.courseRank=positiveIntOrNull(row.puesto_curso);
       student.courseCount=all.filter(x=>x.sede===row.sede&&x.curso===row.curso).length;
-      student.edition="2026-3T";
+      student.edition="2026-3E";
       student.serverRank=null;
       const map=new Map();
       (row.puesto_areas||[]).forEach((entry,index)=>{
@@ -1595,7 +1595,7 @@
         state.academicEdition = code;
         return;
       }
-      const payload = code==="2026-3T"
+      const payload = code==="2026-3E"
         ? await supabaseRpc("roque_v24_diagnostica_3t_docente",{
             p_docente:id,p_sesion:state.coordSession,
             p_terminal:terminalIdForConsultation(),p_modo:"datos"
@@ -1609,14 +1609,14 @@
           cleanId(payload?.session?.id) !== id || payload.edicion !== code) {
         throw new Error(payload?.error || "No hay resultados disponibles para esta prueba.");
       }
-      if (code==="2026-3T") window.RoqueDiagnostica3T.prepare(payload);
-      else window.RoqueDiagnostica3T?.clear();
+      if (code==="2026-3E") window.RoqueDiagnostica3EStaff.prepare(payload);
+      else window.RoqueDiagnostica3EStaff?.clear();
       // Fijar la edición antes de hidratar para aislar los ajustes de 2026-1S.
       state.academicEdition = code;
       state.academicDataSource = cleanText(payload.origen_academico || "");
-      hydrateSupabasePayload(code==="2026-3T" ? window.RoqueDiagnostica3T.dataset() : payload);
+      hydrateSupabasePayload(code==="2026-3E" ? window.RoqueDiagnostica3EStaff.dataset() : payload);
       buildRepository();
-      if(code==="2026-3T")applyOfficialTeacherDiagnostica3T();
+      if(code==="2026-3E")applyOfficialTeacherDiagnostica3E();
       state.teacherActive = null;
       state.teacherDirectorActiveKey = "";
       state.teacherEditionMessage = "";
@@ -2015,15 +2015,15 @@
         state.teacherEditionSelected = cleanText(state.academicEdition || "2026-1S");
         state.teacherEditionMessage = "";
         state.teacherEditionBusy = false;
-        state.teacherDiagnostica3TAvailable=false;
-        if (state.coordSession && window.RoqueDiagnostica3T) {
+        state.teacherDiagnostica3EAvailable=false;
+        if (window.RoqueDiagnostica3EStaff) {
           try {
             const check=await supabaseRpc("roque_v24_diagnostica_3t_docente",{
               p_docente:id,p_sesion:state.coordSession,
               p_terminal:terminalIdForConsultation(),p_modo:"catalogo"
             });
-            state.teacherDiagnostica3TAvailable=check?.ok===true && check.edicion==="2026-3T";
-          } catch(error){console.warn("Piloto 3T no disponible:",error?.message||error);}
+            state.teacherDiagnostica3EAvailable=check?.ok===true && check.edicion==="2026-3E";
+          } catch(error){console.warn("Piloto 3E no disponible:",error?.message||error);}
         }
         await loadTeacherEditionCatalog();
         state.teacherActive = null;
@@ -4207,9 +4207,9 @@
       const calc=calculateStudentStatsFromRecord(record,Number(e.grado),keys);
       const ranking=payload.ranking||{};
       const rankValue=x=>Number(x)>0?Number(x):null;
-      if (payload.edicion==="2026-3T" && payload.puntajes_oficiales) {
+      if (payload.edicion==="2026-3E" && payload.puntajes_oficiales) {
         const official=payload.puntajes_oficiales;
-        const areaNames=window.RoqueDiagnostica3T?.AREAS||[];
+        const areaNames=window.RoqueDiagnostica3EStaff?.AREAS||[];
         if(Array.isArray(official.areas)&&official.areas.length===5)
           areaNames.forEach((area,i)=>{
             if(calc.subjectStats[area]?.total){
@@ -4226,7 +4226,7 @@
         sede:cleanText(e.sede||""),edition:cleanText(payload.edicion||""),
         registry:{examId:cleanId(e.id_prueba),nationalId:cleanId(e.id_alumno)},
         subjectStats:calc.subjectStats,
-        globalScore:payload.edicion==="2026-3T" && payload.puntajes_oficiales
+        globalScore:payload.edicion==="2026-3E" && payload.puntajes_oficiales
           ? Number(payload.puntajes_oficiales.global):calculateSaberGlobal(calc.subjectStats),
         gradeRank:rankValue(ranking.puesto_grado),
         courseRank:rankValue(ranking.puesto_curso),
@@ -4503,7 +4503,7 @@
         <div class="answers-grid">${detailRows || `<div class="empty-state">No hay ítems para esta asignatura.</div>`}</div>
         ${(() => {
           const info = subjectItemValue(student.grade, subject, stat);
-          if (student.edition === "2026-3E" || student.edition === "2026-3T") {
+          if (student.edition === "2026-3E" || student.edition === "2026-3E") {
             return `<div class="item-value-note"><span>Nota del área</span><strong>${esc(stat.score)} / 100</strong><small>Calificación oficial del informe diagnóstico. Las opciones y competencias corresponden a la sábana de respuestas.</small></div>`;
           }
           return info.total ? `<div class="item-value-note"><span>Valor de cada ítem</span><strong>${esc(info.label)} puntos</strong><small>Si presentó la prueba, la nota se calcula desde 20 hasta 100. Si no aparece en la sesión correspondiente, se registra como 0.</small></div>` : "";
@@ -4761,7 +4761,7 @@
     const current=cleanText(s.curso), options=coordOptions(s);
     if(current&&!options.includes(current)) options.unshift(current);
     const color=["#128abb","#26a789","#a273cc","#e5a13d"][Number(s.grado)%4];
-    const disabled=state.teacherEditionSelected==="2026-3T" || options.length<2 || state.coordPendingMoves.has(String(s.roll));
+    const disabled=state.teacherEditionSelected==="2026-3E" || options.length<2 || state.coordPendingMoves.has(String(s.roll));
     return '<article class="coord-move-card" data-coord-roll="'+escAttr(s.roll)+'">'+
       '<div class="coord-move-top"><div class="coord-move-profile"><strong>'+esc(s.nombre)+'</strong>'+
       '<small>ID '+esc(s.roll)+'<span aria-hidden="true"> · </span>'+esc(s.sede||"Sin sede")+'</small></div>'+
@@ -4827,8 +4827,8 @@
       '<label class="coord-move-search"><span>Buscar estudiante o ID</span><input id="coord-search" type="search" placeholder="Nombre o ID de prueba" autocomplete="off" value="'+escAttr(state.coordSearch)+'"></label>'+
       '<div class="coord-move-filters">'+select("grade","Grado",grades,state.coordGrade,x=>x+"°")+
         select("sede","Sede",sedes,state.coordSede)+select("course","Curso",cursos,state.coordCurso)+'</div>'+
-      '<p class="coord-move-help">'+(code==="2026-3T"
-        ? "Diagnóstica 3T · Consulta de cursos, movimientos deshabilitados."
+      '<p class="coord-move-help">'+(code==="2026-3E"
+        ? "Diagnóstica 3E · Consulta de cursos, movimientos deshabilitados."
         : "Los cambios quedan registrados en auditoría.")+'</p>'+
       '<div id="coord-move-results">'+coordRowsHtml()+'</div></section>';
   }
@@ -4865,7 +4865,7 @@
     const teacher=state.teachers.get(state.activeSession?.id);
     const row=button?.closest(".coord-move-card");
     const select=row?.querySelector("select[data-coord-destination]");
-    if (state.teacherEditionSelected==="2026-3T" ||
+    if (state.teacherEditionSelected==="2026-3E" ||
         (!isAdmin&&(!["coordinador","administrador"].includes(staffRoleOf(teacher))||!state.coordSession))||state.coordBusy||!row||!select)return;
     const key=String(roll);
     if (state.coordPendingMoves.has(key)) return;
@@ -7791,7 +7791,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       if (action === "teacher-gate-open-history") {
         const code = modalRoot.querySelector("#teacher-edition-gate-history")?.value;
         if (catalog.slice(1).some(ed => ed.codigo === code)) {
-          if (code==="2026-3T" && state.teacherDiagnostica3TAvailable) {
+          if (code==="2026-3E" && state.teacherDiagnostica3EAvailable) {
             state.teacherEditionGateActionPending=true;
             finishTeacherEditionGate();
             try { await selectTeacherEdition(code); }
@@ -10980,9 +10980,9 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     state.teacherEditionCatalog = [];
     state.teacherEditionMessage = "";
     state.teacherEditionBusy = false;
-    state.teacherDiagnostica3TAvailable = false;
-    window.RoqueDiagnostica3T?.clear();
-    if (state.academicEdition === "2026-3T") {
+    state.teacherDiagnostica3EAvailable = false;
+    window.RoqueDiagnostica3EStaff?.clear();
+    if (state.academicEdition === "2026-3E") {
       state.computedStudents=[];
       state.computedByRoll=new Map();
       state.studentsRegistry=[];
