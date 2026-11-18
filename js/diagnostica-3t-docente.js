@@ -86,7 +86,7 @@ function groupOf(studentsList,keyFn){const m=new Map();studentsList.forEach(v=>{
 function filters(){const sedes=unique(students.map(site)).sort((a,b)=>a.localeCompare(b,"es"));
 const courses=unique(students.map(x=>JSON.stringify([grade(x),site(x),course(x)]))).map(v=>{const [g,s,c]=JSON.parse(v);return{grado:g,sede:s,curso:c};})
 .sort((a,b)=>a.sede.localeCompare(b.sede,"es")||a.curso.localeCompare(b.curso,"es",{numeric:true}));
-return{grados:[10],sedes,cursos};}
+return{grados:[10],sedes,cursos:courses};}
 function selectRows(p){return students.filter(x=>
 (!p.p_grado||grade(x)===Number(p.p_grado))&&
 (!p.p_sede||site(x)===trim(p.p_sede))&&
