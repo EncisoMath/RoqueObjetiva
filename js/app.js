@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.125";
+  const APP_VERSION = "v175.126";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -1530,7 +1530,12 @@
       areas.forEach((name,i)=>{
         const stat=student.subjectStats?.[name];
         if (!stat?.total) throw new Error("Faltan ítems del área "+name);
-        stat.score=Number(row.areas[i]);stat.officialScore=true;
+        // Una calificación oficial de 0 sigue siendo una nota válida.
+        // Algunas sábanas no tienen marcas en el área (3275: Inglés=0),
+        // pero el informe oficial sí la contabiliza en el global.
+        stat.score=Number(row.areas[i]);
+        stat.absent=false;
+        stat.officialScore=true;
       });
       if(Number(row.global)!==calculateSaberGlobal(student.subjectStats))
         throw new Error("No coincide el puntaje global de "+exam);
@@ -4209,6 +4214,7 @@
           areaNames.forEach((area,i)=>{
             if(calc.subjectStats[area]?.total){
               calc.subjectStats[area].score=Number(official.areas[i]);
+              calc.subjectStats[area].absent=false;
               calc.subjectStats[area].officialScore=true;
             }
           });
