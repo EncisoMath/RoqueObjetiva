@@ -42,7 +42,7 @@
   const checked=stateOf(type,key);
   return '<label class="rm18-toggle-row'+(checked?" is-on":"")+'">'+
    '<input type="checkbox" data-rm18-type="'+escapeHTML(type)+'" data-rm18-key="'+escapeHTML(key)+'" '+
-   (checked?"checked ":"")+(S.busy?"disabled ":"")+'>'+
+   (checked?"checked ":"")+(S.busy||S.edition==="2026-3T"?"disabled ":"")+'>'+
    '<span class="rm18-toggle-label"><span>'+escapeHTML(label)+'</span>'+
    (desc?'<small>'+escapeHTML(desc)+'</small>':'')+'</span></label>';
  };
@@ -85,7 +85,7 @@
     icon(mode==="restriccion"?"shield":"ban",21)+'<div><h3>'+heading+'</h3><p>'+description+'</p></div></header>'+
     rows+
     '<button class="rm18-save" type="button" data-rm18-action="apply" '+
-    (S.busy||!differences(mode).length?'disabled':'')+'>'+icon("check",19)+'Aplicar</button>'+
+    (S.busy||S.edition==="2026-3T"||!differences(mode).length?'disabled':'')+'>'+icon("check",19)+'Aplicar</button>'+
     '<p class="rm18-muted">Los cambios quedan auditados. Las respuestas y notas originales se conservan.</p></section>';
  };
  const renderDetail=()=>{
@@ -117,7 +117,7 @@
  };
  const renderHome=()=>'<div class="rm18-home">'+window.RoqueScreenHero.render({
    title:"Restricciones y anulaciones",
-   subtitle:"Gestiona el acceso y las anulaciones de los estudiantes.",
+   subtitle:S.edition==="2026-3T"?"Consulta las medidas de la evaluación diagnóstica. Solo lectura.":"Gestiona el acceso y las anulaciones de los estudiantes.",
    icon:"shield",
    heading:"h2"
   })+
@@ -187,7 +187,7 @@
   finally{if(owner===S.owner){S.busy=false;redraw();}}
  }
  async function apply(){
-  if(S.busy||!S.detail)return;
+  if(S.busy||!S.detail||S.edition==="2026-3T")return;
   const changes=differences(S.mode);
   if(!changes.length)return;
   const owner=S.owner,edition=S.edition,student=S.selected,mode=S.mode;
