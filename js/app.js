@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.129";
+  const APP_VERSION = "v175.130";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -172,6 +172,7 @@
     activeSession: null,
     studentEditionCatalog: [],
     studentEnrolledEditions: null,
+    studentAuthRoll: "",
     studentSelectedEdition: "",
     zeroToleranceShown: false
   };
@@ -1308,30 +1309,14 @@
         ? {enabled:true,badge:"DISPONIBLE",description:"Tu prueba diagnóstica 3E está lista para consultar."}
         : {enabled:false,badge:"NO AUTORIZADA",description:"Evaluación de acceso restringido."};
     }
-    // La excepción de historial se limita al ID 2573; Supabase la valida de nuevo al abrir.
-    if (state.studentPreview2026 && cleanId(state.activeSession?.roll) === "2573"
-        && ed.codigo === "2026-1S") {
-      return { enabled: true, badge: "DISPONIBLE",
-        description: "Abre tu informe del primer semestre." };
-    }
-    if (state.studentPreview2026 && cleanId(state.activeSession?.roll) === "2573" && ed.codigo === "2026-2S") {
-      return { enabled: true, badge: "DISPONIBLE",
-        description: "Abre tu informe del segundo semestre." };
-    }
+    // El catálogo ya contiene únicamente semestres matriculados del alumno.
+    // Las notas reales y la identidad se vuelven a comprobar al abrir cada edición.
     const published = ed.resultados_visibles && ["publicada", "cerrada"].includes(ed.estado);
-    if (ed.bloqueado_periodo === true) return {
-      enabled: false, badge: "BLOQUEADO",
-      description: "Estos exámenes están bloqueados hasta que finalice el periodo."
-    };
-    if (!published) return { enabled: false, badge: "PRÓXIMAMENTE",
-      description: "Esta evaluación aún no tiene resultados publicados." };
-    // Proteger la separación entre semestres. v171 solo validó 2026-1S.
-    if (ed.codigo !== state.academicEdition) return {
-      enabled: false, badge: "ACCESO PENDIENTE",
-      description: "Esta evaluación necesita habilitación individual para tu cuenta."
-    };
-    return { enabled: true, badge: "DISPONIBLE",
-      description: "Tus resultados, puntajes y puestos están listos para consultar." };
+    return published
+      ? {enabled:true,badge:"DISPONIBLE",
+         description:"Consulta los resultados de este semestre."}
+      : {enabled:false,badge:"PRÓXIMAMENTE",
+         description:"Esta evaluación aún no tiene resultados publicados."};
   }
 
   // Catálogo docente dinámico; no se muestran notas de ediciones no publicadas.
@@ -1709,8 +1694,6 @@
         (newest ? '<div class="po-editions-latest"><span class="po-editions-eyebrow">' +
           'ÚLTIMA EVALUACIÓN</span>' + editionTileHtml(newest, true) + '</div>' : '') +
         '<div class="po-editions-divider"><span></span><strong>HISTORIAL</strong><span></span></div>' +
-        (historic.some(e => e.bloqueado_periodo && !studentEditionAvailability(e).enabled) ?
-          '<p class="po-editions-locknote">Estos exámenes están bloqueados hasta que finalice el periodo.</p>' : '') +
         '<div class="po-editions-history">' +
           (historic.length ? historic.map(e => editionTileHtml(e)).join('') :
             '<p class="po-editions-empty">Aún no tienes evaluaciones anteriores.</p>') +
@@ -1916,28 +1899,62 @@
       toast("La evaluación no está publicada o no está autorizada.");
       return;
     }
-    // Verificar de nuevo en servidor ANTES de enseñar datos antiguos.
-    // Evita que una portada abierta antes del 1 de noviembre eluda el bloqueo.
+
+    // Cada semestre usa SUS datos, vinculados al estudiante autenticado en este navegador.
+    // 2026-1S y 2026-2S tienen IDs de prueba diferentes para una misma persona.
     try {
-      const result = await studentLoginRpc(cleanId(state.activeSession.roll), "");
-      if (!result?.ok || result.historial_bloqueado === true) {
-        await loadStudentEditionCatalog();
-        renderStudentEditionChooser();
-        toast("Estos exámenes están bloqueados hasta que finalice el periodo.");
+      const result = await supabaseRpc("roque_v25_estudiante_historial_edicion", {
+        p_login: cleanId(state.studentAuthRoll || state.activeSession.roll),
+        p_terminal: terminalIdForConsultation(),
+        p_edicion: code
+      });
+      if (!result?.ok || result.edicion !== code) {
+        toast(cleanText(result?.error || "No fue posible consultar este historial."));
         return;
       }
+      const targetRoll = cleanId(result.session?.roll);
+      const registry = result.datasets?.estudiantes || [];
+      const keys = result.datasets?.keys || [];
+      const results = result.datasets?.resultados || [];
+      if (!targetRoll || !registry.some(x => cleanId(x.ID_PRUEBA) === targetRoll)
+          || !keys.some(x => Array.isArray(x.rows) && x.rows.length)
+          || !results.some(x => Array.isArray(x.rows) && x.rows.some(r => cleanId(r["Roll No"]) === targetRoll))) {
+        throw new Error("Este semestre no tiene un informe de resultados completo para tu cuenta.");
+      }
       hydrateSupabasePayload(result);
-      state.academicEdition = cleanText(result.edicion || "2026-1S");
-      state.academicDataSource = cleanText(result.origen_academico || "legacy");
+      state.academicEdition = code;
+      state.academicDataSource = cleanText(result.origen_academico || "roque_private");
       buildRepository();
-    } catch(error) {
-      toast("No fue posible verificar el acceso al examen. Intenta nuevamente.");
+      const personal = result.ranking_personal || {};
+      const rank = personal.ranking || {};
+      setSessionRankContext(targetRoll, {
+        gradeRank: rank.puesto_grado, gradeCount: rank.total_grado,
+        courseRank: rank.puesto_curso, courseCount: rank.total_curso,
+        globalScore: rank.puntaje_global
+      });
+      if (personal.ranking_areas && typeof personal.ranking_areas === "object") {
+        const areas = new Map();
+        Object.entries(personal.ranking_areas).forEach(([area, info]) => {
+          const puesto = positiveIntOrNull(info?.puesto), total = positiveIntOrNull(info?.total);
+          if (puesto && total && puesto <= total) areas.set(area, {rank:puesto,total});
+        });
+        state.rankingAreasByRoll.set(targetRoll, areas);
+      }
+      state.studentSelectedEdition = code;
+      state.selectedSubject = null;
+      const session = {role:"student",roll:targetRoll,studentView:"report",edition:code};
+      state.activeSession = session;
+      writeJSON(STORAGE.session,session);
+      rememberRecentLogin(session);
+      return transitionStudentView(() => {
+        renderStudent(targetRoll);
+        resetStudentScreenScroll();
+      });
+    } catch (error) {
+      console.warn("No se pudo abrir historial de "+code+":",error?.message||error);
+      toast(cleanText(error?.message || "No fue posible abrir el historial."));
       return;
     }
-    state.studentSelectedEdition = code;
-    return enterStudentSessionWithRankingMode(state.activeSession.roll, {
-      edition: code, message: "Preparando el informe de " + code + "..."
-    });
   }
 
   const CONSULTATION_BLOCK_MESSAGE = "Ingresar códigos uno tras otro, como si la plataforma tuviera que satisfacer cada impulso de consulta, constituye un uso abusivo del servicio.\n\nPor eso, se ha restringido temporalmente el acceso desde este dispositivo. **Aprende a distinguir entre una consulta necesaria y una insistencia innecesaria.**\n\nLa próxima vez, dedica esa misma insistencia a estudiar y preocuparte por tus propios resultados. **Estar pendiente de las calificaciones ajenas no va a mejorar las tuyas.**";
@@ -2063,6 +2080,7 @@
 
       if (session.role === "student") {
         const roll = cleanId(session.roll);
+        state.studentAuthRoll = roll;
         // Único punto de armado del aviso tras autenticación exitosa.
         // Las restauraciones se revalidan sin volver a mostrar el aviso.
         state.zeroToleranceShown = options.restore === true;
@@ -11009,6 +11027,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     state.studentPreview2026 = false;
     state.studentEditionCatalog = [];
     state.studentEnrolledEditions = null;
+    state.studentAuthRoll = "";
     state.studentSelectedEdition = "";
     window.RoqueDiagnostica3E?.clear();
     state.zeroToleranceShown = false;
