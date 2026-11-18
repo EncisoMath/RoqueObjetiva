@@ -1,7 +1,7 @@
 (() => {
 "use strict";
 // Adaptador de datos, sin elementos visuales propios. Las pantallas y modales son los originales.
-const CODE="2026-3T";
+const CODE="2026-3E";
 const AREAS=["Matemáticas","Lenguaje","Ciencias Naturales","Ciencias Sociales y Ciudadanía","Inglés"];
 let source=null,students=[],questions=[],byExam=new Map(),byDocument=new Map();
 const trim=x=>String(x??"").trim();
@@ -23,7 +23,7 @@ function prepare(payload){
  clean();
  if(!payload?.ok || payload.edicion!==CODE || payload.solo_lectura!==true ||
   payload.session?.role!=="teacher" || !Array.isArray(payload.alumnos) ||
-  payload.alumnos.length!==107 || !Array.isArray(payload.preguntas) || payload.preguntas.length!==254){
+  (payload.alumnos.length<1 || payload.alumnos.length>107) || !Array.isArray(payload.preguntas) || payload.preguntas.length!==254){
   throw new Error("El servidor no autorizó una carga diagnóstica completa.");
  }
  const questionsChecked=payload.preguntas.map((q,i)=>{
@@ -40,7 +40,7 @@ function prepare(payload){
     throw new Error("Puntaje oficial inconsistente para "+trim(x.id_prueba));
   return x;
  });
- if(unique(rows.map(r=>trim(r.id_prueba))).length!==107||unique(rows.map(r=>trim(r.documento))).length!==107)
+ if(unique(rows.map(r=>trim(r.id_prueba))).length!==rows.length||unique(rows.map(r=>trim(r.documento))).length!==rows.length)
   throw new Error("Identificadores diagnósticos duplicados.");
  source=payload;students=rows;questions=questionsChecked;
  byExam=new Map(students.map(r=>[trim(r.id_prueba),r]));
@@ -49,22 +49,30 @@ function prepare(payload){
 }
 const ready=()=>!!source;
 const catalogEntry=()=>({
- codigo:CODE,titulo:"Prueba Diagnóstica 3T · 2026-2S",
+ codigo:CODE,titulo:"Prueba Diagnóstica 3E · 2026-2S",
  anio:2026,semestre:1.5,estado:"publicada",resultados_visibles:true,solo_lectura:true
 });
+// Carga efectiva suministrada por Supabase: nunca inventar áreas ni cursos.
+function assignments(){
+ if(!ready())return [];
+ const permitted=new Set(students.map(x=>JSON.stringify([site(x),course(x)])));
+ const seen=new Set();
+ return (Array.isArray(source.datasets?.carga)?source.datasets.carga:[])
+  .filter(c=>trim(c.ID)===trim(source.session.id) && Number(c.GRADO)===10 &&
+    AREAS.includes(trim(c.ASIGNATURA)) &&
+    permitted.has(JSON.stringify([trim(c.SEDE),trim(c.CURSO)])))
+  .filter(c=>{const key=JSON.stringify([trim(c.ASIGNATURA),trim(c.SEDE),trim(c.CURSO)]);
+    if(seen.has(key))return false;seen.add(key);return true;});
+}
+const assignedAreas=()=>AREAS.filter(a=>assignments().some(c=>trim(c.ASIGNATURA)===a));
 function dataset(){
  if(!ready())throw new Error("No hay datos diagnósticos autorizados.");
+ if(!assignments().length)throw new Error("No hay áreas de 10° asignadas a este docente.");
  return {
   ok:true,edicion:CODE,session:{role:"teacher",id:source.session.id},
   origen_academico:"diagnostica_3t",resultados_revisados:students.length,
   datasets:{
-   // En esta edición de consulta, la Carga muestra LAS CINCO ÁREAS de 10°
-   // para los cuatro cursos, sin escribir asignaciones académicas reales.
-   carga:filters().cursos.flatMap(c=>AREAS.map(area=>({
-     ID:trim(source.session.id),
-     NOMBRE:trim((source.datasets?.carga||[]).find(x=>trim(x.ID)===trim(source.session.id))?.NOMBRE)||trim(source.session.id),
-     ASIGNATURA:area,SEDE:c.sede,GRADO:"10",CURSO:c.curso,COORDINADOR:"SI"
-   }))),
+   carga:assignments(),
    directoresGrupo:source.datasets?.directoresGrupo||[],
    docentes:source.datasets?.docentes||[],medidas:[],
    estudiantes:students.map(x=>({
@@ -72,14 +80,14 @@ function dataset(){
     NOMBRES:trim(x.nombres),APELLIDOS:trim(x.apellidos),NOMBRE_COMPLETO:name(x),
     SEDE:site(x),GRADO:"10",GRUPO:course(x)
    })),
-   keys:[{grade:10,session:0,path:"DIAGNOSTICA_3T/CLAVES.json",
+   keys:[{grade:10,session:0,path:"DIAGNOSTICA_3E/CLAVES.json",
      rows:questions.map(q=>({
       "Grado":"10","Área":AREAS[q.area],"Número de ítem":String(q.index),
       "Respuesta sugerida":trim(q.key),"Componente / pensamiento / entorno / factor / enfoque":trim(q.comp),
       "Competencia":trim(q.compet)
      }))
    }],
-   resultados:[{grade:10,session:0,startItem:1,path:"DIAGNOSTICA_3T/RESULTADOS.json",
+   resultados:[{grade:10,session:0,startItem:1,path:"DIAGNOSTICA_3E/RESULTADOS.json",
      rows:students.map(x=>({
       "Roll No":trim(x.id_prueba),ID_ALUMNO:trim(x.documento),
       GRADO:"10",GRUPO:course(x),SEDE:site(x),
@@ -101,7 +109,7 @@ function selectRows(p){return students.filter(x=>
 (!p.p_grupo||course(x)===trim(p.p_grupo))
 );}
 function stats(p){
- const subset=selectRows(p),active=AREAS.filter(n=>!p.p_asignatura||trim(p.p_asignatura)===n);
+ const subset=selectRows(p),active=assignedAreas().filter(n=>!p.p_asignatura||trim(p.p_asignatura)===n);
  const selAreas=active.map(n=>AREAS.indexOf(n));
  const items=subset.flatMap(x=>selAreas.map(i=>({x,area:AREAS[i],score:score(x,i)})));
  const perStudent=subset.map(x=>avg(selAreas.map(i=>score(x,i)))).filter(v=>v!==null);
@@ -205,7 +213,7 @@ function roster(){
  cursos:filters().cursos};
 }
 function rpc(name,p={}){
- if(!ready())throw new Error("Abre primero la Prueba Diagnóstica 3T.");
+ if(!ready())throw new Error("Abre primero la Prueba Diagnóstica 3E.");
  if(p.p_edicion && trim(p.p_edicion)!==CODE)throw new Error("La prueba solicitada no corresponde a la diagnóstica.");
  switch(name){
  case "roque_v11_estadisticas_institucionales":return stats(p);
@@ -218,8 +226,8 @@ function rpc(name,p={}){
  case "roque_v18_medidas_detalle":return restriccionesDetalle(p);
  case "roque_v8_coordinador_listar":
  case "roque_v14_admin_mover_listar":return roster();
- default:throw new Error("La Diagnóstica 3T es de solo consulta. No se modificó ninguna evaluación.");
+ default:throw new Error("La Diagnóstica 3E es de solo consulta. No se modificó ninguna evaluación.");
  }
 }
-window.RoqueDiagnostica3T={CODE,AREAS,prepare,ready,clear:clean,raw:()=>source,dataset,students:()=>students,questions:()=>questions,catalogEntry,rpc};
+window.RoqueDiagnostica3EStaff={CODE,AREAS,prepare,ready,clear:clean,raw:()=>source,dataset,students:()=>students,questions:()=>questions,catalogEntry,rpc};
 })();
