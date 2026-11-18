@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.122";
+  const APP_VERSION = "v175.123";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -115,6 +115,7 @@
     teacherDockMenu: "",
     teacherViewMotionPending: false,
     teacherEditionCatalog: [],
+    teacherDiagnostica3TAvailable: false,
     teacherEditionSelected: "2026-1S",
     teacherEditionMessage: "",
     teacherEditionBusy: false,
@@ -393,6 +394,18 @@
     return j;
   }
   async function supabaseRpc(functionName, payload = {}) {
+    if (cleanText(payload?.p_edicion) === "2026-3T") {
+      if (state.activeSession?.role !== "teacher" ||
+          !state.teacherDiagnostica3TAvailable ||
+          state.teacherEditionSelected !== "2026-3T" ||
+          window.RoqueDiagnostica3T?.ready() !== true)
+        throw new Error("Acceso no autorizado a la Diagnóstica 3T.");
+      return window.RoqueDiagnostica3T.rpc(functionName,payload);
+    }
+    if (state.activeSession?.role === "teacher" &&
+        state.teacherEditionSelected === "2026-3T" &&
+        /(?:_guardar|_aplicar|_mover|_generar|_anular|_vincular_lote|_corregir|_eliminar|_crear|_editar)/i.test(String(functionName)))
+      throw new Error("La Diagnóstica 3T es de solo consulta.");
     if (String(functionName || "").toLowerCase() === "roque_admin_sync") {
       throw new Error("roque_admin_sync está bloqueada en v141 para proteger la tabla RESULTADOS.");
     }
@@ -1339,6 +1352,9 @@
       codigo:"2026-1S",titulo:"Prueba objetiva",anio:2026,semestre:1,
       estado:"cerrada",resultados_visibles:true
     });
+    if (state.activeSession?.role==="teacher" &&
+        state.teacherDiagnostica3TAvailable===true && window.RoqueDiagnostica3T)
+      rows.splice(Math.min(1,rows.length),0,window.RoqueDiagnostica3T.catalogEntry());
     state.teacherEditionCatalog=rows;
     return rows;
   }
@@ -1352,7 +1368,7 @@
       const available = e.resultados_visibles === true && ["publicada","cerrada"].includes(e.estado);
       return '<option value="' + escAttr(e.codigo) + '"' +
         (e.codigo===current ? ' selected' : '') + '>' +
-        esc(e.codigo + (available ? "" : " · Sin publicar")) + '</option>';
+        esc((e.codigo === "2026-3T" ? "DIAGNÓSTICA 3T" : e.codigo) + (available ? "" : " · Sin publicar")) + '</option>';
     }).join("");
     return '<label class="teacher-edition-picker" for="teacher-edition-select">' +
       '<span>Prueba a consultar</span><select id="teacher-edition-select" ' +
@@ -1388,7 +1404,7 @@
       const published = ed.resultados_visibles === true &&
         ["publicada","cerrada"].includes(ed.estado);
       return '<option value="' + escAttr(ed.codigo) + '">' +
-        esc(ed.codigo + (published ? "" : " · Sin publicar")) + '</option>';
+        esc((ed.codigo === "2026-3T" ? "DIAGNÓSTICA 3T" : ed.codigo) + (published ? "" : " · Sin publicar")) + '</option>';
     }).join("");
     state.teacherEditionGateOpen = true;
     state.teacherEditionConfirmation = "";
@@ -1422,13 +1438,15 @@
       esc(available ? "Consultar resultados" : "Ver estado de la prueba") +
       '<span aria-hidden="true">›</span></span></button>' +
       '<div class="teacher-edition-gate-history">' +
-      '<label for="teacher-edition-gate-history">Pruebas anteriores</label>' +
+      '<label for="teacher-edition-gate-history">' +
+      (state.teacherDiagnostica3TAvailable ? "Otras Pruebas" : "Pruebas anteriores") + '</label>' +
       '<div class="teacher-edition-gate-history-controls"><div class="teacher-edition-gate-select-wrap">' +
       '<span class="teacher-edition-gate-history-icon">' + teacherGateIcon("history") + '</span>' +
-      '<select id="teacher-edition-gate-history" aria-label="Seleccionar prueba anterior"' +
+      '<select id="teacher-edition-gate-history" aria-label="Seleccionar otra prueba"' +
       (historic.length ? "" : " disabled") + '>' +
       (options || '<option>Sin evaluaciones anteriores</option>') + '</select>' +
-      (historic.length ? '<span class="teacher-edition-gate-legacy-badge" aria-hidden="true">Prueba antigua</span>' : '') +
+      (historic.length && !state.teacherDiagnostica3TAvailable
+        ? '<span class="teacher-edition-gate-legacy-badge" aria-hidden="true">Prueba antigua</span>' : '') +
       '<span class="teacher-edition-gate-chevron" aria-hidden="true">⌄</span></div>' +
       '<button type="button" data-action="teacher-gate-open-history"' +
       (historic.length ? "" : " disabled") + '>Abrir</button></div>' +
@@ -1460,7 +1478,8 @@
       '<div class="teacher-edition-confirm-warning">' + teacherGateIcon("warn") + '</div>' +
       '<h2 id="teacher-edition-confirm-title">¿SEGURO SÍ LEYÓ BIEN?</h2>' +
       '<p id="teacher-edition-confirm-desc" class="teacher-edition-confirm-intro">Está a punto de consultar una</p>' +
-      '<strong class="teacher-edition-confirm-old-label">PRUEBA ANTIGUA:</strong>' +
+      '<strong class="teacher-edition-confirm-old-label">' +
+      (state.teacherDiagnostica3TAvailable ? "OTRA PRUEBA:" : "PRUEBA ANTIGUA:") + '</strong>' +
       '<strong class="teacher-edition-confirm-code">' + esc(historic.codigo) + '</strong>' +
       '<p class="teacher-edition-confirm-description">Debido a que algunos docentes aún consultan pruebas anteriores por error, confirme qué desea hacer:</p>' +
       '<div class="teacher-edition-confirm-actions">' +
@@ -1469,7 +1488,9 @@
       '<span><strong>Consultar ' + esc(recent.codigo) + '</strong><small>Prueba actual – Recomendada</small></span></button>' +
       '<button type="button" class="teacher-edition-confirm-history" data-action="teacher-gate-confirm-history">' +
       '<span class="teacher-edition-confirm-action-icon">' + teacherGateIcon("history") + '</span>' +
-      '<span><strong>Sí, deseo consultar ' + esc(historic.codigo) + '</strong><small>Prueba anterior</small></span></button>' +
+      '<span><strong>Sí, deseo consultar ' + esc(historic.codigo) + '</strong><small>' +
+      (state.teacherDiagnostica3TAvailable ? "Otra prueba" : "Prueba anterior") +
+      '</small></span></button>' +
       '</div></section></div>');
     window.requestAnimationFrame(() => {
       modalRoot.querySelector(".teacher-edition-confirm-current")?.focus({preventScroll:true});
@@ -7698,7 +7719,14 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
       }
       if (action === "teacher-gate-open-history") {
         const code = modalRoot.querySelector("#teacher-edition-gate-history")?.value;
-        if (catalog.slice(1).some(ed => ed.codigo === code)) openTeacherEditionHistoryConfirmation(code);
+        if (catalog.slice(1).some(ed => ed.codigo === code)) {
+          if (code==="2026-3T" && state.teacherDiagnostica3TAvailable) {
+            state.teacherEditionGateActionPending=true;
+            finishTeacherEditionGate();
+            try { await selectTeacherEdition(code); }
+            finally { state.teacherEditionGateActionPending=false; }
+          } else openTeacherEditionHistoryConfirmation(code);
+        }
         return;
       }
       if (action !== "teacher-gate-open") return;
