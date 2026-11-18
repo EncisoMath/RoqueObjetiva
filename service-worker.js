@@ -1,5 +1,5 @@
-const APP_VERSION = "v175.119";
-const CACHE_VERSION = "resultados-pwa-v175-119-diagnostica-3e-piloto";
+const APP_VERSION = "v175.120";
+const CACHE_VERSION = "resultados-pwa-v175-120-diagnostica-3e-piloto-gated";
 const CACHE_PREFIXES = ["resultados-pwa-", "resultados-pruebas-"];
 
 const APP_SHELL = [
@@ -31,7 +31,7 @@ const APP_SHELL = [
   "css/student-editions.css?v=175.118",
   "css/student-dock.css?v=175.118",
   "css/student-dashboard.css?v=175.118",
-  "css/diagnostica-3e-piloto.css?v=175.119",
+  "css/diagnostica-3e-piloto.css?v=175.120",
   "css/student-subject-modal.css?v=175.118",
   "js/admin-personal.js?v=175.118",
   "js/admin-asignaturas-areas.js?v=175.118",
@@ -44,8 +44,8 @@ const APP_SHELL = [
   "js/device-audit.js?v=175.118",
   "js/admin-historial-accesos.js?v=175.118",
   "js/zero-tolerance-modal.js?v=175.118",
-  "js/diagnostica-3e-piloto.js?v=175.119",
-  "js/app.js?v=175.119",
+  "js/diagnostica-3e-piloto.js?v=175.120",
+  "js/app.js?v=175.120",
   "js/christmas-responsive.js?v=175.118",
   "js/ediciones.js?v=175.118",
   "version.json",
