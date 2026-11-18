@@ -69,8 +69,9 @@ function profileHtml(){
   '<div><span class="rce-eyebrow">FICHA DEL ESTUDIANTE</span><h3>'+esc(name(e))+'</h3>'+
   '<p>'+esc(e.sede||"Sede sin registrar")+' · '+esc(e.grado)+'° '+esc(e.grupo||"")+'</p></div>'+
   '<div class="rce-profile-actions">'+
+   (S.edition==="2026-3T" ? '<small>Solo consulta</small>' :
    '<button class="rce-edit-toggle" type="button" data-rce-edit-toggle aria-expanded="'+S.editing+'">'+
-    (S.editing?'Cerrar edición':'Editar datos')+'</button>'+
+    (S.editing?'Cerrar edición':'Editar datos')+'</button>')+
   '</div></div>'+
   '<div class="rce-profile-tags">'+
    '<span class="rce-profile-tag">ID de prueba <strong>'+esc(e.id_prueba||"—")+'</strong></span>'+
@@ -167,6 +168,7 @@ async function choose(student){
  finally{if(seq===S.request){S.detailLoading=false;show();}}
 }
 async function save(){
+ if(S.edition==="2026-3T")return;
  if(!S.selected||!S.original||!dirty()||S.saving)return;
  const updated={...S.draft,grado:Number(S.draft.grado)};
  if(!String(updated.nombres||"").trim()||!String(updated.apellidos||"").trim()||
