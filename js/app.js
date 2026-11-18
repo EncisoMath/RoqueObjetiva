@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.123";
+  const APP_VERSION = "v175.124";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -10974,6 +10974,8 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     state.teacherEditionCatalog = [];
     state.teacherEditionMessage = "";
     state.teacherEditionBusy = false;
+    state.teacherDiagnostica3TAvailable = false;
+    window.RoqueDiagnostica3T?.clear();
     ++state.teacherEditionRequestSerial;
     if (window.RoqueEdiciones) window.RoqueEdiciones.logout();
     document.getElementById("student-dock-root")?.replaceChildren();
