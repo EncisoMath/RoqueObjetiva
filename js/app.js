@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.119";
+  const APP_VERSION = "v175.120";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -1284,10 +1284,9 @@
   }
 
   function studentEditionAvailability(ed) {
-    // Solo el documento 1085110801, tras la autorización de la RPC privada 3E.
+    // Autorización de la RPC privada; ninguna identidad se publica en el cliente.
     if (ed.codigo === "2026-3E") {
-      const allowed = cleanId(state.activeSession?.roll) === "2573"
-        && window.RoqueDiagnostica3E?.accessible() === true;
+      const allowed = window.RoqueDiagnostica3E?.accessible() === true;
       return allowed
         ? {enabled:true,badge:"DISPONIBLE",description:"Tu prueba diagnóstica 3E está lista para consultar."}
         : {enabled:false,badge:"NO AUTORIZADA",description:"Evaluación de acceso restringido."};
@@ -1672,12 +1671,11 @@
     if (state.activeSession?.role !== "student") return;
     if (code === "2026-3E") {
       // Segundo control en servidor: no se confía en el catálogo ni en la sesión local.
-      if (cleanId(state.activeSession.roll) !== "2573"
-          || window.RoqueDiagnostica3E?.accessible() !== true) {
+      if (window.RoqueDiagnostica3E?.accessible() !== true) {
         toast("La diagnóstica todavía no está habilitada para esta cuenta.");
         return;
       }
-      const allowed = await window.RoqueDiagnostica3E.probe("1085110801",
+      const allowed = await window.RoqueDiagnostica3E.probe(window.RoqueDiagnostica3E.documento(),
         terminalIdForConsultation(), supabaseRpc);
       if (!allowed) {
         toast("No fue posible verificar el acceso a la diagnóstica.");
@@ -1914,7 +1912,8 @@
         // El piloto se habilita EXCLUSIVAMENTE por documento + sesión de navegador
         // verificados por roque_v23_diagnostica_3e_piloto; los demás no ven cambios.
         const docPiloto = cleanId(payload.datasets?.estudiantes?.[0]?.ID_ALUMNO || "");
-        if (roll === "2573" && docPiloto === "1085110801" && window.RoqueDiagnostica3E) {
+        if (docPiloto && Number(payload.datasets?.estudiantes?.[0]?.GRADO) === 10
+            && window.RoqueDiagnostica3E) {
           const pilotReady = await window.RoqueDiagnostica3E.probe(docPiloto,
             terminalIdForConsultation(), supabaseRpc);
           if (pilotReady) {
@@ -3160,7 +3159,6 @@
       if (state.activeSession.studentView === "preview") return renderStudentPreview2026();
       if (state.activeSession.studentView !== "report") return renderStudentEditionChooser();
       if (state.studentSelectedEdition === "2026-3E"
-          && cleanId(state.activeSession.roll) === "2573"
           && window.RoqueDiagnostica3E?.accessible() === true) {
         return renderShell(window.RoqueDiagnostica3E.render(), navFor("student"));
       }
