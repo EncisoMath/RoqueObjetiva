@@ -48,6 +48,8 @@ function prepare(payload){
  return {ok:true,total:students.length,items:questions.length};
 }
 const ready=()=>!!source;
+// La autorización del alcance institucional la entrega exclusivamente Supabase.
+const institutional=()=>ready() && source.alcance_institucional===true;
 const catalogEntry=()=>({
  codigo:CODE,titulo:"Prueba Diagnóstica 3E · 2026-2S",
  anio:2026,semestre:1.5,estado:"publicada",resultados_visibles:true,solo_lectura:true
@@ -69,7 +71,7 @@ function dataset(){
  if(!ready())throw new Error("No hay datos diagnósticos autorizados.");
   return {
   ok:true,edicion:CODE,session:{role:"teacher",id:source.session.id},
-  origen_academico:"diagnostica_3t",resultados_revisados:students.length,
+  origen_academico:"diagnostica_3e",resultados_revisados:students.length,
   datasets:{
    carga:assignments(),
    directoresGrupo:source.datasets?.directoresGrupo||[],
@@ -108,7 +110,7 @@ function selectRows(p){return students.filter(x=>
 (!p.p_grupo||course(x)===trim(p.p_grupo))
 );}
 function stats(p){
- const subset=selectRows(p),active=assignedAreas().filter(n=>!p.p_asignatura||trim(p.p_asignatura)===n);
+ const subset=selectRows(p),active=(institutional()?AREAS:assignedAreas()).filter(n=>!p.p_asignatura||trim(p.p_asignatura)===n);
  const selAreas=active.map(n=>AREAS.indexOf(n));
  const items=subset.flatMap(x=>selAreas.map(i=>({x,area:AREAS[i],score:score(x,i)})));
  const perStudent=subset.map(x=>avg(selAreas.map(i=>score(x,i)))).filter(v=>v!==null);
