@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.124";
+  const APP_VERSION = "v175.125";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -10976,6 +10976,17 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     state.teacherEditionBusy = false;
     state.teacherDiagnostica3TAvailable = false;
     window.RoqueDiagnostica3T?.clear();
+    if (state.academicEdition === "2026-3T") {
+      state.computedStudents=[];
+      state.computedByRoll=new Map();
+      state.studentsRegistry=[];
+      state.registryByExamId=new Map();
+      state.registryByNationalId=new Map();
+      state.responsesByRoll=new Map();
+      state.keys=[];
+      state.rankingAreasByRoll=new Map();
+      state.academicEdition="2026-2S";
+    }
     ++state.teacherEditionRequestSerial;
     if (window.RoqueEdiciones) window.RoqueEdiciones.logout();
     document.getElementById("student-dock-root")?.replaceChildren();
