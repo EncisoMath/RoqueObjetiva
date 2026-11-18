@@ -58,7 +58,14 @@ function dataset(){
   ok:true,edicion:CODE,session:{role:"teacher",id:source.session.id},
   origen_academico:"diagnostica_3t",resultados_revisados:students.length,
   datasets:{
-   carga:source.datasets?.carga||[],directoresGrupo:source.datasets?.directoresGrupo||[],
+   // En esta edición de consulta, la Carga muestra LAS CINCO ÁREAS de 10°
+   // para los cuatro cursos, sin escribir asignaciones académicas reales.
+   carga:filters().cursos.flatMap(c=>AREAS.map(area=>({
+     ID:trim(source.session.id),
+     NOMBRE:trim((source.datasets?.carga||[]).find(x=>trim(x.ID)===trim(source.session.id))?.NOMBRE)||trim(source.session.id),
+     ASIGNATURA:area,SEDE:c.sede,GRADO:"10",CURSO:c.curso,COORDINADOR:"SI"
+   }))),
+   directoresGrupo:source.datasets?.directoresGrupo||[],
    docentes:source.datasets?.docentes||[],medidas:[],
    estudiantes:students.map(x=>({
     ID_ALUMNO:trim(x.documento),ID_PRUEBA:trim(x.id_prueba),
