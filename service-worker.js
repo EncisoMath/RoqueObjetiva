@@ -1,5 +1,5 @@
-const APP_VERSION = "v175.122";
-const CACHE_VERSION = "resultados-pwa-v175-122-student-visibility-fix";
+const APP_VERSION = "v175.123";
+const CACHE_VERSION = "resultados-pwa-v175-123-diagnostica-3t-docente";
 const CACHE_PREFIXES = ["resultados-pwa-", "resultados-pruebas-"];
 
 const APP_SHELL = [
@@ -44,7 +44,8 @@ const APP_SHELL = [
   "js/admin-historial-accesos.js?v=175.118",
   "js/zero-tolerance-modal.js?v=175.118",
   "js/diagnostica-3e-piloto.js?v=175.122",
-  "js/app.js?v=175.122",
+  "js/diagnostica-3t-docente.js?v=175.123",
+  "js/app.js?v=175.123",
   "js/christmas-responsive.js?v=175.118",
   "js/ediciones.js?v=175.118",
   "version.json",
