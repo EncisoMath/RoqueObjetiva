@@ -1352,8 +1352,7 @@
       codigo:"2026-1S",titulo:"Prueba objetiva",anio:2026,semestre:1,
       estado:"cerrada",resultados_visibles:true
     });
-    if (state.activeSession?.role==="teacher" &&
-        state.teacherDiagnostica3TAvailable===true && window.RoqueDiagnostica3T)
+    if (state.teacherDiagnostica3TAvailable===true && window.RoqueDiagnostica3T)
       rows.splice(Math.min(1,rows.length),0,window.RoqueDiagnostica3T.catalogEntry());
     state.teacherEditionCatalog=rows;
     return rows;
