@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.127";
+  const APP_VERSION = "v175.128";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -1299,6 +1299,10 @@
   function studentEditionAvailability(ed) {
     // Autorización de la RPC privada; ninguna identidad se publica en el cliente.
     if (ed.codigo === "2026-3E") {
+      if (window.RoqueDiagnostica3E?.withoutResult() === true) {
+        return {enabled:false,badge:"SIN RESULTADOS",
+          description:"Todavía no hay resultados registrados para esta evaluación."};
+      }
       const allowed = window.RoqueDiagnostica3E?.accessible() === true;
       return allowed
         ? {enabled:true,badge:"DISPONIBLE",description:"Tu prueba diagnóstica 3E está lista para consultar."}
@@ -2075,14 +2079,19 @@
           scheduleZeroToleranceModal();
         }
         await loadStudentEditionCatalog();
-        // El piloto se habilita EXCLUSIVAMENTE por documento + sesión de navegador
-        // verificados por roque_v23_diagnostica_3e_piloto; los demás no ven cambios.
-        const docPiloto = cleanId(payload.datasets?.estudiantes?.[0]?.ID_ALUMNO || "");
-        if (docPiloto && Number(payload.datasets?.estudiantes?.[0]?.GRADO) === 10
-            && window.RoqueDiagnostica3E) {
-          const pilotReady = await window.RoqueDiagnostica3E.probe(docPiloto,
+        // La edición 3E se ofrece solamente al estudiante de 10° autenticado;
+        // Supabase verifica por separado documento, examen y sesión del dispositivo.
+        const registros3E = Array.isArray(payload.datasets?.estudiantes)
+          ? payload.datasets.estudiantes : [];
+        const registro3E = registros3E.find(row =>
+          cleanId(row?.ID_PRUEBA) === roll && Number(row?.GRADO) === 10)
+          || (registros3E.length === 1 && Number(registros3E[0]?.GRADO) === 10
+            ? registros3E[0] : null);
+        const documento3E = cleanId(registro3E?.ID_ALUMNO || "");
+        if (documento3E && window.RoqueDiagnostica3E) {
+          const disponible3E = await window.RoqueDiagnostica3E.probe(documento3E,
             terminalIdForConsultation(), supabaseRpc);
-          if (pilotReady) {
+          if (disponible3E) {
             state.studentEditionCatalog.unshift(window.RoqueDiagnostica3E.catalogEntry());
           }
         }
