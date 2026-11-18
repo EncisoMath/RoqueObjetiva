@@ -67,8 +67,7 @@ function assignments(){
 const assignedAreas=()=>AREAS.filter(a=>assignments().some(c=>trim(c.ASIGNATURA)===a));
 function dataset(){
  if(!ready())throw new Error("No hay datos diagnósticos autorizados.");
- if(!assignments().length)throw new Error("No hay áreas de 10° asignadas a este docente.");
- return {
+  return {
   ok:true,edicion:CODE,session:{role:"teacher",id:source.session.id},
   origen_academico:"diagnostica_3t",resultados_revisados:students.length,
   datasets:{
