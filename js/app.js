@@ -1520,6 +1520,39 @@
     app.inert = false;
   }
 
+  function applyOfficialTeacherDiagnostica3T() {
+    const pilot=window.RoqueDiagnostica3T;
+    if (!pilot?.ready()) throw new Error("La diagnóstica no está autorizada.");
+    const all=pilot.students(),areas=pilot.AREAS;
+    for(const row of all) {
+      const exam=cleanId(row.id_prueba);
+      const student=state.computedByRoll.get(exam);
+      if(!student) throw new Error("Falta ficha diagnóstica: "+exam);
+      areas.forEach((name,i)=>{
+        const stat=student.subjectStats?.[name];
+        if (!stat?.total) throw new Error("Faltan ítems del área "+name);
+        stat.score=Number(row.areas[i]);stat.officialScore=true;
+      });
+      if(Number(row.global)!==calculateSaberGlobal(student.subjectStats))
+        throw new Error("No coincide el puntaje global de "+exam);
+      student.globalScore=Number(row.global);
+      student.gradeRank=positiveIntOrNull(row.puesto_grado);
+      student.gradeCount=107;
+      student.courseRank=positiveIntOrNull(row.puesto_curso);
+      student.courseCount=all.filter(x=>x.sede===row.sede&&x.curso===row.curso).length;
+      student.edition="2026-3T";
+      student.serverRank=null;
+      const map=new Map();
+      (row.puesto_areas||[]).forEach((entry,index)=>{
+        const rank=positiveIntOrNull(entry?.puesto);
+        const total=positiveIntOrNull(entry?.total);
+        if(rank&&total&&areas[index])map.set(areas[index],{rank,total});
+      });
+      state.rankingAreasByRoll.set(exam,map);
+    }
+    state.coordRoster=[];state.coordEditionLoaded="";
+  }
+
   async function selectTeacherEdition(value) {
     if (state.activeSession?.role !== "teacher" || state.teacherEditionBusy) return;
     const id = cleanId(state.activeSession.id);
@@ -1558,20 +1591,28 @@
         state.academicEdition = code;
         return;
       }
-      const payload = await supabaseRpc("roque_v6_docente_datos_edicion",{
-        p_user:id, p_edicion:code,
-        p_terminal:terminalIdForConsultation(),p_device:deviceInfoText()
-      });
+      const payload = code==="2026-3T"
+        ? await supabaseRpc("roque_v24_diagnostica_3t_docente",{
+            p_docente:id,p_sesion:state.coordSession,
+            p_terminal:terminalIdForConsultation(),p_modo:"datos"
+          })
+        : await supabaseRpc("roque_v6_docente_datos_edicion",{
+            p_user:id, p_edicion:code,
+            p_terminal:terminalIdForConsultation(),p_device:deviceInfoText()
+          });
       if (serial !== state.teacherEditionRequestSerial || state.activeSession?.id !== id) return;
       if (!payload?.ok || payload?.session?.role !== "teacher" ||
           cleanId(payload?.session?.id) !== id || payload.edicion !== code) {
         throw new Error(payload?.error || "No hay resultados disponibles para esta prueba.");
       }
+      if (code==="2026-3T") window.RoqueDiagnostica3T.prepare(payload);
+      else window.RoqueDiagnostica3T?.clear();
       // Fijar la edición antes de hidratar para aislar los ajustes de 2026-1S.
       state.academicEdition = code;
       state.academicDataSource = cleanText(payload.origen_academico || "");
-      hydrateSupabasePayload(payload);
+      hydrateSupabasePayload(code==="2026-3T" ? window.RoqueDiagnostica3T.dataset() : payload);
       buildRepository();
+      if(code==="2026-3T")applyOfficialTeacherDiagnostica3T();
       state.teacherActive = null;
       state.teacherDirectorActiveKey = "";
       state.teacherEditionMessage = "";
@@ -1970,6 +2011,16 @@
         state.teacherEditionSelected = cleanText(state.academicEdition || "2026-1S");
         state.teacherEditionMessage = "";
         state.teacherEditionBusy = false;
+        state.teacherDiagnostica3TAvailable=false;
+        if (staffRoleOf(teacher)==="administrador" && state.coordSession && window.RoqueDiagnostica3T) {
+          try {
+            const check=await supabaseRpc("roque_v24_diagnostica_3t_docente",{
+              p_docente:id,p_sesion:state.coordSession,
+              p_terminal:terminalIdForConsultation(),p_modo:"catalogo"
+            });
+            state.teacherDiagnostica3TAvailable=check?.ok===true && check.edicion==="2026-3T";
+          } catch(error){console.warn("Piloto 3T no disponible:",error?.message||error);}
+        }
         await loadTeacherEditionCatalog();
         state.teacherActive = null;
         const jaiderHome = isJaiderMorenoAdmin(teacher, id);
@@ -4152,6 +4203,17 @@
       const calc=calculateStudentStatsFromRecord(record,Number(e.grado),keys);
       const ranking=payload.ranking||{};
       const rankValue=x=>Number(x)>0?Number(x):null;
+      if (payload.edicion==="2026-3T" && payload.puntajes_oficiales) {
+        const official=payload.puntajes_oficiales;
+        const areaNames=window.RoqueDiagnostica3T?.AREAS||[];
+        if(Array.isArray(official.areas)&&official.areas.length===5)
+          areaNames.forEach((area,i)=>{
+            if(calc.subjectStats[area]?.total){
+              calc.subjectStats[area].score=Number(official.areas[i]);
+              calc.subjectStats[area].officialScore=true;
+            }
+          });
+      }
       const student={
         roll:cleanId(e.id_prueba),
         name:cleanText([e.nombres,e.apellidos].filter(Boolean).join(" ")),
@@ -4159,7 +4221,8 @@
         sede:cleanText(e.sede||""),edition:cleanText(payload.edicion||""),
         registry:{examId:cleanId(e.id_prueba),nationalId:cleanId(e.id_alumno)},
         subjectStats:calc.subjectStats,
-        globalScore:calculateSaberGlobal(calc.subjectStats),
+        globalScore:payload.edicion==="2026-3T" && payload.puntajes_oficiales
+          ? Number(payload.puntajes_oficiales.global):calculateSaberGlobal(calc.subjectStats),
         gradeRank:rankValue(ranking.puesto_grado),
         courseRank:rankValue(ranking.puesto_curso),
         gradeCount:rankValue(ranking.total_grado),
@@ -4435,7 +4498,7 @@
         <div class="answers-grid">${detailRows || `<div class="empty-state">No hay ítems para esta asignatura.</div>`}</div>
         ${(() => {
           const info = subjectItemValue(student.grade, subject, stat);
-          if (student.edition === "2026-3E") {
+          if (student.edition === "2026-3E" || student.edition === "2026-3T") {
             return `<div class="item-value-note"><span>Nota del área</span><strong>${esc(stat.score)} / 100</strong><small>Calificación oficial del informe diagnóstico. Las opciones y competencias corresponden a la sábana de respuestas.</small></div>`;
           }
           return info.total ? `<div class="item-value-note"><span>Valor de cada ítem</span><strong>${esc(info.label)} puntos</strong><small>Si presentó la prueba, la nota se calcula desde 20 hasta 100. Si no aparece en la sesión correspondiente, se registra como 0.</small></div>` : "";
@@ -4693,7 +4756,7 @@
     const current=cleanText(s.curso), options=coordOptions(s);
     if(current&&!options.includes(current)) options.unshift(current);
     const color=["#128abb","#26a789","#a273cc","#e5a13d"][Number(s.grado)%4];
-    const disabled=options.length<2 || state.coordPendingMoves.has(String(s.roll));
+    const disabled=state.teacherEditionSelected==="2026-3T" || options.length<2 || state.coordPendingMoves.has(String(s.roll));
     return '<article class="coord-move-card" data-coord-roll="'+escAttr(s.roll)+'">'+
       '<div class="coord-move-top"><div class="coord-move-profile"><strong>'+esc(s.nombre)+'</strong>'+
       '<small>ID '+esc(s.roll)+'<span aria-hidden="true"> · </span>'+esc(s.sede||"Sin sede")+'</small></div>'+
@@ -4759,7 +4822,9 @@
       '<label class="coord-move-search"><span>Buscar estudiante o ID</span><input id="coord-search" type="search" placeholder="Nombre o ID de prueba" autocomplete="off" value="'+escAttr(state.coordSearch)+'"></label>'+
       '<div class="coord-move-filters">'+select("grade","Grado",grades,state.coordGrade,x=>x+"°")+
         select("sede","Sede",sedes,state.coordSede)+select("course","Curso",cursos,state.coordCurso)+'</div>'+
-      '<p class="coord-move-help">Los cambios quedan registrados en auditoría.</p>'+
+      '<p class="coord-move-help">'+(code==="2026-3T"
+        ? "Diagnóstica 3T · Consulta de cursos, movimientos deshabilitados."
+        : "Los cambios quedan registrados en auditoría.")+'</p>'+
       '<div id="coord-move-results">'+coordRowsHtml()+'</div></section>';
   }
   async function loadCoordRoster() {
@@ -4795,7 +4860,8 @@
     const teacher=state.teachers.get(state.activeSession?.id);
     const row=button?.closest(".coord-move-card");
     const select=row?.querySelector("select[data-coord-destination]");
-    if ((!isAdmin&&(!["coordinador","administrador"].includes(staffRoleOf(teacher))||!state.coordSession))||state.coordBusy||!row||!select)return;
+    if (state.teacherEditionSelected==="2026-3T" ||
+        (!isAdmin&&(!["coordinador","administrador"].includes(staffRoleOf(teacher))||!state.coordSession))||state.coordBusy||!row||!select)return;
     const key=String(roll);
     if (state.coordPendingMoves.has(key)) return;
     const s=state.coordRoster.find(x=>String(x.roll)===key);
