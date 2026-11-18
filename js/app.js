@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.120";
+  const APP_VERSION = "v175.121";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -1667,6 +1667,90 @@
       "Preparando tus evaluaciones...");
   }
 
+  // Adaptador académico 3E: convierte los datos privados al MISMO modelo
+  // que consume studentDashboardHtml, los modales y el informe de 1S/2S.
+  // Solo se ejecuta después de la autorización por RPC del servidor.
+  function createNativeDiagnosticStudent(payload, roll) {
+    if (!payload || payload.codigo !== "2026-3E" || cleanId(payload.id_prueba) !== cleanId(roll)
+        || !Array.isArray(payload.preguntas) || payload.preguntas.length !== 254
+        || !Array.isArray(payload.respuestas) || payload.respuestas.length !== 254
+        || !Array.isArray(payload.areas) || payload.areas.length !== 5) {
+      throw new Error("La evaluación diagnóstica no está completa o no corresponde al usuario.");
+    }
+    const nombresAreas = [
+      "Matemáticas", "Lenguaje", "Ciencias Naturales",
+      "Ciencias Sociales y Ciudadanía", "Inglés"
+    ];
+    const answers = {};
+    const keys = [];
+    payload.preguntas.forEach((question, index) => {
+      const areaIndex = Number(question?.area);
+      if (!Number.isInteger(areaIndex) || areaIndex < 0 || areaIndex >= nombresAreas.length) return;
+      const correct = cleanOption(question.key);
+      if (!correct) return;
+      const item = index + 1; // identificador único entre sesiones 1 y 2
+      keys.push({
+        grade: 10, item, area: nombresAreas[areaIndex], correct,
+        component: cleanText(question.comp || ""),
+        competence: cleanText(question.compet || "")
+      });
+      answers[item] = cleanMarked(payload.respuestas[index]);
+    });
+    if (keys.length !== 254) throw new Error("Falta información de los 254 ítems diagnósticos.");
+    const stats = calculateStudentStatsFromRecord({grade:10,answers},10,keys);
+    nombresAreas.forEach((name, index) => {
+      const score = Number(payload.areas[index]);
+      const stat = stats.subjectStats[name];
+      if (!stat?.total || !Number.isInteger(score) || score < 0 || score > 100) {
+        throw new Error("El puntaje oficial de " + name + " no es válido.");
+      }
+      // ÚNICA diferencia respecto a las pruebas objetivas:
+      // conservar la nota oficial del PDF en vez de la escala lineal 20+80.
+      stat.score = score;
+      stat.officialScore = true;
+    });
+    const officialGlobal = Number(payload.global);
+    if (!Number.isInteger(officialGlobal) || officialGlobal !== calculateSaberGlobal(stats.subjectStats)) {
+      throw new Error("El puntaje global oficial no coincide con la fórmula 3-3-3-3-1.");
+    }
+    const group = cleanText(payload.curso || "").replace(/^10\s*[°º]/i, "") || "10";
+    const courseCount = group.toUpperCase().includes("BONGO") ? 21 :
+      group === "3" ? 28 : 29;
+    const result = {
+      roll:cleanId(roll), grade:10, group,
+      sede:cleanText(payload.sede || ""),
+      name:cleanText(payload.nombre || ""),
+      registry:{examId:cleanId(roll),nationalId:cleanId(payload.documento || "")},
+      edition:"2026-3E", subjectStats:stats.subjectStats,
+      total:stats.total, correct:stats.correct, wrong:stats.wrong,
+      doubleMark:stats.doubleMark,empty:stats.empty,missingExam:false,
+      globalScore:officialGlobal,rawGlobalScore:null,
+      gradeRank:positiveIntOrNull(payload.puesto_grado),
+      gradeCount:107,
+      courseRank:positiveIntOrNull(payload.puesto_curso),
+      courseCount,
+      percentile:0,
+      loginIds:[cleanId(roll),cleanId(payload.documento)].filter(Boolean)
+    };
+    const areaRanks = new Map();
+    (Array.isArray(payload.puesto_areas) ? payload.puesto_areas : []).forEach((entry,index) => {
+      const rank = positiveIntOrNull(entry?.puesto);
+      const total = positiveIntOrNull(entry?.total);
+      if (rank && total && rank <= total && nombresAreas[index]) {
+        areaRanks.set(nombresAreas[index],{rank,total});
+      }
+    });
+    state.rankingAreasByRoll.set(result.roll,areaRanks);
+    setSessionRankContext(result.roll,{
+      gradeRank:result.gradeRank,gradeCount:result.gradeCount,
+      courseRank:result.courseRank,courseCount:result.courseCount,
+      globalScore:officialGlobal
+    });
+    state.computedByRoll.set(result.roll,result);
+    state.academicEdition="2026-3E";
+    return result;
+  }
+
   async function openStudentSelectedEdition(code) {
     if (state.activeSession?.role !== "student") return;
     if (code === "2026-3E") {
@@ -1681,16 +1765,22 @@
         toast("No fue posible verificar el acceso a la diagnóstica.");
         return;
       }
-      state.studentSelectedEdition = code;
       const roll = cleanId(state.activeSession.roll);
+      try {
+        createNativeDiagnosticStudent(window.RoqueDiagnostica3E.payload(),roll);
+      } catch (error) {
+        console.warn("No se pudo transformar la diagnóstica:",error?.message||error);
+        toast(error.message || "La diagnóstica contiene información incompleta.");
+        return;
+      }
+      state.studentSelectedEdition = code;
       const session = {role:"student",roll,studentView:"report",edition:code};
       state.activeSession = session;
       writeJSON(STORAGE.session, session);
       rememberRecentLogin(session);
       return transitionStudentView(() => {
-        renderShell(window.RoqueDiagnostica3E.render(), navFor("student"));
+        renderStudent(roll); // MISMA interfaz, modales, iconos, animaciones y ranking.
         resetStudentScreenScroll();
-        scheduleZeroToleranceModal();
       });
     }
     if (code === "2026-1S" && state.studentPreview2026
@@ -3160,7 +3250,7 @@
       if (state.activeSession.studentView !== "report") return renderStudentEditionChooser();
       if (state.studentSelectedEdition === "2026-3E"
           && window.RoqueDiagnostica3E?.accessible() === true) {
-        return renderShell(window.RoqueDiagnostica3E.render(), navFor("student"));
+        return renderStudent(cleanId(state.activeSession.roll));
       }
       const roll = cleanId(state.activeSession.roll);
       if (state.activeSession.rankingDebugRequested && (!state.activeSession.rankingDebugDone || state.activeSession.rankingDebugVersion !== "v140")) {
@@ -4321,6 +4411,9 @@
         <div class="answers-grid">${detailRows || `<div class="empty-state">No hay ítems para esta asignatura.</div>`}</div>
         ${(() => {
           const info = subjectItemValue(student.grade, subject, stat);
+          if (student.edition === "2026-3E") {
+            return `<div class="item-value-note"><span>Nota del área</span><strong>${esc(stat.score)} / 100</strong><small>Calificación oficial del informe diagnóstico. Las opciones y competencias corresponden a la sábana de respuestas.</small></div>`;
+          }
           return info.total ? `<div class="item-value-note"><span>Valor de cada ítem</span><strong>${esc(info.label)} puntos</strong><small>Si presentó la prueba, la nota se calcula desde 20 hasta 100. Si no aparece en la sesión correspondiente, se registra como 0.</small></div>` : "";
         })()}
 
