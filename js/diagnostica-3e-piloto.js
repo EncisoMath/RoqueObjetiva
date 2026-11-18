@@ -2,7 +2,6 @@
   "use strict";
   // Piloto 3E: datos exclusivamente del servidor. Nada personal se incluye en GitHub.
   const CODE="2026-3E";
-  const DOC="1085110801";
   const NAMES=["Matemáticas","Lectura Crítica","Ciencias Naturales","Ciencias Sociales","Inglés"];
   const ICONS=["🧮","📖","🧪","🌍","💬"];
   const COLORS=["#f35b22","#d81b3d","#43b233","#16a0d0","#8135ac"];
@@ -16,13 +15,14 @@
   let data=null, modalArea=0, modalTab="componentes";
   const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const fmt=v=>Number.isFinite(Number(v))?String(Math.round(Number(v))):"—";
-  const accessible=()=>!!(data && data.ok===true && data.documento===DOC && data.codigo===CODE);
+  const accessible=()=>!!(data && data.ok===true && /^\d{6,15}$/.test(String(data.documento||"")) && data.codigo===CODE);
+  const documento=()=>accessible()?String(data.documento):"";
   const clear=()=>{data=null;modalTab="componentes";document.getElementById("modal-root")?.querySelector(".d3e-backdrop")?.remove();};
   async function probe(documento,terminal,rpc){
-    if(String(documento)!==DOC || typeof rpc!=="function" || !terminal){clear();return false;}
+    if(!/^\d{6,15}$/.test(String(documento||"")) || typeof rpc!=="function" || !terminal){clear();return false;}
     try {
       const response=await rpc("roque_v23_diagnostica_3e_piloto",{p_documento:documento,p_terminal:terminal});
-      if(response?.ok===true && response.codigo===CODE && response.documento===DOC &&
+      if(response?.ok===true && response.codigo===CODE && response.documento===String(documento) &&
          String(response.id_prueba)==="2573" && Array.isArray(response.areas) &&
          response.areas.length===5 && Array.isArray(response.preguntas) &&
          response.preguntas.length===254 && Array.isArray(response.respuestas) &&
@@ -121,5 +121,5 @@
     else if(btn.hasAttribute("data-d3e-tab"))showModal(modalArea,String(btn.dataset.d3eTab));
     else if(btn.hasAttribute("data-d3e-close"))document.getElementById("modal-root")?.querySelector(".d3e-backdrop")?.remove();
   },true);
-  window.RoqueDiagnostica3E={probe,accessible,catalogEntry,render,clear,CODE};
+  window.RoqueDiagnostica3E={probe,accessible,documento,catalogEntry,render,clear,CODE};
 })();
