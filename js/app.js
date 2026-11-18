@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.121";
+  const APP_VERSION = "v175.122";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -3918,6 +3918,9 @@
     const studentPage = studentShell?.querySelector("main.page");
     const studentBanner = studentShell?.querySelector(".top-banner");
     if (studentPage && studentBanner) {
+      // La navegación desde el dock puede interrumpir una transición en curso.
+      // Una clase "leave" heredada ocultaba todo el Historial (opacity:0).
+      studentPage.classList.remove("student-page-leave", "student-page-enter");
       studentPage.innerHTML = content;
       const tone = isMedalBanner ? bannerToneClass : "";
       if ((studentBanner.dataset.heroTone || "") !== tone) {
@@ -10903,21 +10906,51 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     if (page) {
       page.classList.add("student-page-leave");
       await wait(190);
-      renderFn();
-      const nextPage = app.querySelector(".roque-student-shell main.page");
-      if (nextPage) {
-        nextPage.classList.remove("student-page-leave");
-        nextPage.classList.add("student-page-enter");
-        requestAnimationFrame(() => requestAnimationFrame(() => {
-          if (nextPage.isConnected) nextPage.classList.remove("student-page-enter");
-        }));
+      let error = null;
+      try {
+        renderFn();
+      } catch (caught) {
+        error = caught;
+        console.error("Error al cambiar la evaluación:",caught);
+      } finally {
+        // También en errores y cambios simultáneos debe quedar visible.
+        page.classList.remove("student-page-leave", "student-page-enter");
+        const nextPage = app.querySelector(".roque-student-shell main.page");
+        if (nextPage) {
+          nextPage.classList.remove("student-page-leave");
+          nextPage.classList.add("student-page-enter");
+          requestAnimationFrame(() => requestAnimationFrame(() => {
+            if (nextPage.isConnected) nextPage.classList.remove("student-page-enter");
+          }));
+        }
+      }
+      if (error) {
+        // Recuperar el selector conocido en vez de presentar una pantalla blanca.
+        if (state.activeSession?.role === "student") {
+          state.activeSession.studentView = "editions";
+          state.selectedSubject = null;
+          writeJSON(STORAGE.session,state.activeSession);
+          try { renderStudentEditionChooser(); }
+          catch (recoveryError) {
+            console.error("Error de recuperación del historial:",recoveryError);
+            const main=app.querySelector(".roque-student-shell main.page");
+            if(main) main.innerHTML = '<section class="card card-pad"><h2>No se pudo mostrar la evaluación</h2><p>Abre Historial para reintentar.</p><button class="primary-btn" data-action="student-back-to-editions">Ir al historial</button></section>';
+          }
+        }
+        toast("No fue posible abrir la evaluación. Se recuperó Historial.");
       }
       return;
     }
     fadeAppOut();
     await wait(190);
-    renderFn();
-    fadeAppIn();
+    try { renderFn(); }
+    catch (error) {
+      console.error("Error al abrir la evaluación:",error);
+      if (state.activeSession?.role === "student") {
+        state.activeSession.studentView = "editions";
+        try { renderStudentEditionChooser(); } catch (recoveryError) { console.error(recoveryError); }
+      }
+    } finally { fadeAppIn(); }
   }
 
   function enterSessionWithLoader(session, renderFn, message = "Preparando resultados...") {
