@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "v175.118";
+  const APP_VERSION = "v175.119";
   const SUBJECT_AREA_UNASSIGNED = "__UNASSIGNED__";
 
   const app = document.getElementById("app");
@@ -1284,6 +1284,14 @@
   }
 
   function studentEditionAvailability(ed) {
+    // Solo el documento 1085110801, tras la autorización de la RPC privada 3E.
+    if (ed.codigo === "2026-3E") {
+      const allowed = cleanId(state.activeSession?.roll) === "2573"
+        && window.RoqueDiagnostica3E?.accessible() === true;
+      return allowed
+        ? {enabled:true,badge:"DISPONIBLE",description:"Tu prueba diagnóstica 3E está lista para consultar."}
+        : {enabled:false,badge:"NO AUTORIZADA",description:"Evaluación de acceso restringido."};
+    }
     // La excepción de historial se limita al ID 2573; Supabase la valida de nuevo al abrir.
     if (state.studentPreview2026 && cleanId(state.activeSession?.roll) === "2573"
         && ed.codigo === "2026-1S") {
@@ -1564,14 +1572,15 @@
 
   function editionTileHtml(ed, featured = false) {
     const status = studentEditionAvailability(ed);
-    const label = ed.semestre === 1 ? "Primer semestre" : "Segundo semestre";
+    const label = ed.codigo === "2026-3E" ? "Evaluación diagnóstica" : (ed.semestre === 1 ? "Primer semestre" : "Segundo semestre");
+    const visibleCode = ed.codigo === "2026-3E" ? "DIAGNÓSTICA 3E" : ed.codigo;
     const statusLabel = status.enabled ? "Abrir evaluación" : status.badge;
     const tile = [
       '<span class="po-edition-topline"><span class="po-edition-chip">',
       esc(label), '</span><span class="po-edition-status ',
       status.enabled ? "is-ready" : "is-locked", '">', esc(status.badge), '</span></span>',
       '<span class="po-edition-text"><strong class="po-edition-code">',
-      esc(ed.codigo), '</strong><span class="po-edition-name">',
+      esc(visibleCode), '</strong><span class="po-edition-name">',
       esc(ed.titulo), '</span><span class="po-edition-desc">',
       esc(status.description), '</span></span>',
       '<span class="po-edition-bottom"><span>',
@@ -1661,6 +1670,31 @@
 
   async function openStudentSelectedEdition(code) {
     if (state.activeSession?.role !== "student") return;
+    if (code === "2026-3E") {
+      // Segundo control en servidor: no se confía en el catálogo ni en la sesión local.
+      if (cleanId(state.activeSession.roll) !== "2573"
+          || window.RoqueDiagnostica3E?.accessible() !== true) {
+        toast("La diagnóstica todavía no está habilitada para esta cuenta.");
+        return;
+      }
+      const allowed = await window.RoqueDiagnostica3E.probe("1085110801",
+        terminalIdForConsultation(), supabaseRpc);
+      if (!allowed) {
+        toast("No fue posible verificar el acceso a la diagnóstica.");
+        return;
+      }
+      state.studentSelectedEdition = code;
+      const roll = cleanId(state.activeSession.roll);
+      const session = {role:"student",roll,studentView:"report",edition:code};
+      state.activeSession = session;
+      writeJSON(STORAGE.session, session);
+      rememberRecentLogin(session);
+      return transitionStudentView(() => {
+        renderShell(window.RoqueDiagnostica3E.render(), navFor("student"));
+        resetStudentScreenScroll();
+        scheduleZeroToleranceModal();
+      });
+    }
     if (code === "2026-1S" && state.studentPreview2026
         && cleanId(state.activeSession.roll) === "2573") {
       // Datos históricos únicamente tras autorización SQL de la cuenta de pruebas.
@@ -1877,9 +1911,20 @@
           scheduleZeroToleranceModal();
         }
         await loadStudentEditionCatalog();
-        // La última evaluación disponible se abre primero.
-        // Mientras dura el cierre, solo 2573 puede abrir la simulación privada.
-        if (state.studentPreview2026) return enterStudentPreview2026(roll, { immediate: options.restore !== true });
+        // El piloto se habilita EXCLUSIVAMENTE por documento + sesión de navegador
+        // verificados por roque_v23_diagnostica_3e_piloto; los demás no ven cambios.
+        const docPiloto = cleanId(payload.datasets?.estudiantes?.[0]?.ID_ALUMNO || "");
+        if (roll === "2573" && docPiloto === "1085110801" && window.RoqueDiagnostica3E) {
+          const pilotReady = await window.RoqueDiagnostica3E.probe(docPiloto,
+            terminalIdForConsultation(), supabaseRpc);
+          if (pilotReady) {
+            state.studentEditionCatalog.unshift(window.RoqueDiagnostica3E.catalogEntry());
+          }
+        }
+        // Mantener la ruta anterior para 2573 únicamente cuando el piloto no se autorizó.
+        if (state.studentPreview2026 && window.RoqueDiagnostica3E?.accessible() !== true) {
+          return enterStudentPreview2026(roll, { immediate: options.restore !== true });
+        }
         return enterStudentEditionChooser(roll, { immediate: options.restore !== true });
       }
 
@@ -3114,6 +3159,11 @@
     if (state.activeSession.role === "student") {
       if (state.activeSession.studentView === "preview") return renderStudentPreview2026();
       if (state.activeSession.studentView !== "report") return renderStudentEditionChooser();
+      if (state.studentSelectedEdition === "2026-3E"
+          && cleanId(state.activeSession.roll) === "2573"
+          && window.RoqueDiagnostica3E?.accessible() === true) {
+        return renderShell(window.RoqueDiagnostica3E.render(), navFor("student"));
+      }
       const roll = cleanId(state.activeSession.roll);
       if (state.activeSession.rankingDebugRequested && (!state.activeSession.rankingDebugDone || state.activeSession.rankingDebugVersion !== "v140")) {
         return showStudentRankingDebugGate(roll, "Reconstruyendo diagnóstico de ranking...");
@@ -10745,6 +10795,7 @@ Esta versión usa GitHub Pages como interfaz y Supabase como base de datos priva
     state.studentEditionCatalog = [];
     state.studentEnrolledEditions = null;
     state.studentSelectedEdition = "";
+    window.RoqueDiagnostica3E?.clear();
     state.zeroToleranceShown = false;
     clearSessionRankContext();
     clearRankingFallbackData();
